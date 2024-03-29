@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -158,6 +159,8 @@ public class GameBoard extends Application {
         primaryStage.setScene(scene);
         primaryStage.setTitle("Game Board");
         primaryStage.show();
+        
+        readGames();
     }
 
     private Button createButton(String text) {
@@ -176,6 +179,20 @@ public class GameBoard extends Application {
         });
 
         return button;
+    }
+    
+    private void readGames() {
+    	GameDataCollection collection = new GameDataCollection("nyt-connections-games.txt");
+    	for(GameData game : collection.getGameList()) {
+    		System.out.println("game");
+    		for(DifficultyColor color : DifficultyColor.getAllColors()) {
+    			GameAnswerColor answer = game.getAnswerForColor(color);
+    			System.out.printf("\tcolor: %s\n", color);
+    			System.out.printf("\t\tdesc: %s\n", answer.getDescription());
+    			System.out.printf("\t\twords: %s\n", Arrays.toString(answer.getWords()));
+    			System.out.printf("\t\thints: %s\n", Arrays.toString(answer.getHints()));
+    		}
+    	}
     }
 
     public static void main(String[] args) {
