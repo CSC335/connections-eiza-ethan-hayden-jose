@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javafx.animation.PauseTransition;
 import javafx.animation.ScaleTransition;
+import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -19,7 +21,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
@@ -49,6 +50,7 @@ public class GameBoard extends Application {
     private Button shuffleButton;
     private GridPane gridPane;
     private List<Set<Word>> previousGuesses = new ArrayList<>();
+    private Pane circlePane;
 
     @Override
     public void start(Stage primaryStage) {
@@ -79,7 +81,7 @@ public class GameBoard extends Application {
         Text bottomText = new Text("Mistakes remaining:");
         bottomText.setFont(Font.font(24));
 
-        Pane circlePane = new Pane();
+        circlePane = new Pane();
         circlePane.setPrefWidth(100);
 
         for (int i = 0; i < 4; i++) {
@@ -135,7 +137,7 @@ public class GameBoard extends Application {
                             showAlert("Correct!", "You guessed correctly!");
                         } else {
                             showAlert("Incorrect!", "You guessed incorrectly!");
-                            removeCircle(circlePane);
+                            animateIncorrectGuess();
                         }
                     }
                 } else {
@@ -144,7 +146,7 @@ public class GameBoard extends Application {
                         disableGameBoard();
                     } else {
                         showAlert("Game Over!", "You have no more remaining guesses.");
-                        removeCircle(circlePane);
+                        animateIncorrectGuess();
                         disableGameBoard();
                     }
                 }
@@ -306,14 +308,14 @@ public class GameBoard extends Application {
     private void removeCircle(Pane circlePane) {
         if (!circlePane.getChildren().isEmpty()) {
             Circle circle = (Circle) circlePane.getChildren().get(circlePane.getChildren().size() - 1);
-            
+
             ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(500), circle);
             scaleTransition.setFromX(1.0);
             scaleTransition.setFromY(1.0);
             scaleTransition.setToX(0.0);
             scaleTransition.setToY(0.0);
             scaleTransition.setOnFinished(event -> circlePane.getChildren().remove(circle));
-            
+
             scaleTransition.play();
         }
     }
@@ -358,6 +360,44 @@ public class GameBoard extends Application {
         submitButton.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 32px;");
         shuffleButton.setDisable(true);
         shuffleButton.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 32px;");
+    }
+    
+    private void animateIncorrectGuess() {
+        int delay = 0;
+        for (Node node : gridPane.getChildren()) {
+            if (node instanceof StackPane) {
+                StackPane stackPane = (StackPane) node;
+                Rectangle rectangle = (Rectangle) stackPane.getChildren().get(0);
+                if (rectangle.getFill() == SELECTED_COLOR) {
+                    TranslateTransition jumpTransition = new TranslateTransition(Duration.millis(200), stackPane);
+                    jumpTransition.setByY(-8);
+                    jumpTransition.setAutoReverse(true);
+                    jumpTransition.setCycleCount(2);
+                    jumpTransition.setDelay(Duration.millis(delay));
+
+                    TranslateTransition shakeTransition = new TranslateTransition(Duration.millis(200), stackPane);
+                    shakeTransition.setByX(8);
+                    shakeTransition.setAutoReverse(true);
+                    shakeTransition.setCycleCount(2);
+
+                    jumpTransition.setOnFinished(event -> {
+                        PauseTransition pauseTransition = new PauseTransition(Duration.millis(500));
+                        pauseTransition.setOnFinished(pauseEvent -> {
+                            shakeTransition.play();
+                            shakeTransition.setOnFinished(shakeEvent -> {
+                                PauseTransition removeCircleDelay = new PauseTransition(Duration.millis(500));
+                                removeCircleDelay.setOnFinished(removeCircleEvent -> removeCircle(circlePane));
+                                removeCircleDelay.play();
+                            });
+                        });
+                        pauseTransition.play();
+                    });
+
+                    jumpTransition.play();
+                    delay += 50; // Increase the delay for each selected rectangle's jump animation
+                }
+            }
+        }
     }
     
     public static void main(String[] args) {
