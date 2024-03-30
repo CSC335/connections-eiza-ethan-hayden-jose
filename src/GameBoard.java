@@ -1,6 +1,9 @@
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javafx.application.Application;
@@ -37,10 +40,16 @@ public class GameBoard extends Application {
     private static final int MAX_SELECTED = 4;
 
     private int selectedCount = 0;
+    private GameData currentGame;
+    private Button deselectButton;
+    private Button submitButton;
+    private Button shuffleButton;
+    private GridPane gridPane;
+    private List<Set<Word>> previousGuesses = new ArrayList<>();
 
     @Override
     public void start(Stage primaryStage) {
-        GridPane gridPane = new GridPane();
+        gridPane = new GridPane();
         gridPane.setHgap(GAP);
         gridPane.setVgap(GAP);
         gridPane.setAlignment(Pos.CENTER);
@@ -53,6 +62,12 @@ public class GameBoard extends Application {
                 rectangle.setArcHeight(CORNER_RADIUS);
                 gridPane.add(rectangle, col, row);
             }
+        }
+        
+        GameDataCollection collection = new GameDataCollection("nyt-connections-games.txt");
+        if (!collection.getGameList().isEmpty()) {
+            currentGame = collection.getGameList().get(0);
+            placeWordsInRectangles(currentGame, gridPane);
         }
 
         Text topText = new Text("Create four groups of four!");
@@ -74,35 +89,75 @@ public class GameBoard extends Application {
         bottomBox.setAlignment(Pos.CENTER);
         bottomBox.getChildren().addAll(bottomText, circleBox);
 
-        Button shuffleButton = createButton("Shuffle");
+        shuffleButton = createButton("Shuffle");
         
         shuffleButton.setOnAction(event -> {
             ObservableList<Node> children = gridPane.getChildren();
-            List<Rectangle> rectangles = children.stream()
-                    .map(node -> (Rectangle) node)
+            List<StackPane> stackPanes = children.stream()
+                    .filter(node -> node instanceof StackPane)
+                    .map(node -> (StackPane) node)
                     .collect(Collectors.toList());
 
-            Collections.shuffle(rectangles);
+            Collections.shuffle(stackPanes);
 
             int index = 0;
             for (int row = 0; row < ROWS; row++) {
                 for (int col = 0; col < COLS; col++) {
-                    GridPane.setRowIndex(rectangles.get(index), row);
-                    GridPane.setColumnIndex(rectangles.get(index), col);
+                    GridPane.setRowIndex(stackPanes.get(index), row);
+                    GridPane.setColumnIndex(stackPanes.get(index), col);
                     index++;
                 }
             }
         });
         
-        Button deselectButton = createButton("Deselect all");
-        Button submitButton = createButton("Submit");
+        deselectButton = createButton("Deselect all");
+        submitButton = createButton("Submit");
+        
+        submitButton.setOnAction(event -> {
+            Set<Word> currentGuess = new HashSet<>(getSelectedWords());
+
+            if (previousGuesses.contains(currentGuess)) {
+                showAlert("Duplicate Guess!", "You have already made this guess before.");
+            } else {
+                if (circleBox.getChildren().size() > 1) {
+                    previousGuesses.add(currentGuess);
+
+                    if (checkAllCategoriesGuessed()) {
+                        showAlert("Congratulations!", "You have guessed all categories correctly!");
+                        disableGameBoard();
+                    } else {
+                        if (checkSelectedWords(currentGuess)) {
+                            showAlert("Correct!", "You guessed correctly!");
+                        } else {
+                            showAlert("Incorrect!", "You guessed incorrectly!");
+                            removeCircle(circleBox);
+                        }
+                    }
+                } else {
+                    if (checkAllCategoriesGuessed()) {
+                        showAlert("Congratulations!", "You have guessed all categories correctly!");
+                        disableGameBoard();
+                    } else {
+                        showAlert("Game Over!", "You have no more remaining guesses.");
+                        removeCircle(circleBox);
+                        disableGameBoard();
+                    }
+                }
+            }
+            deselectButton.fire();
+        });
 
         deselectButton.setDisable(true);
         
         deselectButton.setOnAction(event -> {
             gridPane.getChildren().forEach(node -> {
-                Rectangle rectangle = (Rectangle) node;
-                rectangle.setFill(DEFAULT_COLOR);
+                if (node instanceof StackPane) {
+                    StackPane stackPane = (StackPane) node;
+                    Rectangle rectangle = (Rectangle) stackPane.getChildren().get(0);
+                    Text text = (Text) stackPane.getChildren().get(1);
+                    rectangle.setFill(DEFAULT_COLOR);
+                    text.setFill(Color.BLACK);
+                }
             });
             selectedCount = 0;
             deselectButton.setDisable(true);
@@ -112,38 +167,6 @@ public class GameBoard extends Application {
         });
         
         submitButton.setDisable(true);
-
-        gridPane.getChildren().forEach(node -> {
-            Rectangle rectangle = (Rectangle) node;
-            rectangle.setOnMouseClicked(event -> {
-                if (rectangle.getFill() == DEFAULT_COLOR && selectedCount < MAX_SELECTED) {
-                    rectangle.setFill(SELECTED_COLOR);
-                    selectedCount++;
-                } else if (rectangle.getFill() == SELECTED_COLOR) {
-                    rectangle.setFill(DEFAULT_COLOR);
-                    selectedCount--;
-                }
-
-                deselectButton.setDisable(selectedCount == 0);
-                submitButton.setDisable(selectedCount != MAX_SELECTED);
-
-                if (selectedCount != 0) {
-                    deselectButton.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 32px;");
-                }
-
-                if (selectedCount == MAX_SELECTED) {
-                    submitButton.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 32px;");
-                }
-            });
-
-            rectangle.setOnMouseEntered(event -> {
-                rectangle.setCursor(Cursor.HAND);
-            });
-
-            rectangle.setOnMouseExited(event -> {
-                rectangle.setCursor(Cursor.DEFAULT);
-            });
-        });
 
         HBox buttonBox = new HBox(8);
         buttonBox.setAlignment(Pos.CENTER);
@@ -159,8 +182,6 @@ public class GameBoard extends Application {
         primaryStage.setScene(scene);
         primaryStage.setTitle("Game Board");
         primaryStage.show();
-        
-        readGames();
     }
 
     private Button createButton(String text) {
@@ -181,20 +202,150 @@ public class GameBoard extends Application {
         return button;
     }
     
-    private void readGames() {
-    	GameDataCollection collection = new GameDataCollection("nyt-connections-games.txt");
-    	for(GameData game : collection.getGameList()) {
-    		System.out.println("game");
-    		for(DifficultyColor color : DifficultyColor.getAllColors()) {
-    			GameAnswerColor answer = game.getAnswerForColor(color);
-    			System.out.printf("\tcolor: %s\n", color);
-    			System.out.printf("\t\tdesc: %s\n", answer.getDescription());
-    			System.out.printf("\t\twords: %s\n", Arrays.toString(answer.getWords()));
-    			System.out.printf("\t\thints: %s\n", Arrays.toString(answer.getHints()));
-    		}
-    	}
+    private void placeWordsInRectangles(GameData game, GridPane gridPane) {
+        List<Word> words = new ArrayList<>();
+        for (DifficultyColor color : DifficultyColor.getAllColors()) {
+            GameAnswerColor answer = game.getAnswerForColor(color);
+            for (String wordText : answer.getWords()) {
+                words.add(new Word(wordText, color));
+            }
+        }
+
+        Collections.shuffle(words);
+
+        int index = 0;
+        for (int row = 0; row < ROWS; row++) {
+            for (int col = 0; col < COLS; col++) {
+                Node node = getNodeByRowColumnIndex(row, col, gridPane);
+                if (node instanceof StackPane) {
+                    StackPane stackPane = (StackPane) node;
+                    Rectangle rectangle = (Rectangle) stackPane.getChildren().get(0);
+                    Text text = (Text) stackPane.getChildren().get(1);
+                    Word word = words.get(index);
+                    text.setText(word.getText().toUpperCase());
+                    rectangle.setUserData(word);
+                } else if (node instanceof Rectangle) {
+                    Rectangle rectangle = (Rectangle) node;
+                    Word word = words.get(index);
+                    Text text = new Text(word.getText().toUpperCase());
+                    text.setFont(Font.font(18));
+                    StackPane stackPane = new StackPane(rectangle, text);
+                    gridPane.add(stackPane, col, row);
+                    rectangle.setUserData(word);
+
+                    stackPane.setOnMouseClicked(event -> {
+                        if (rectangle.getFill() == DEFAULT_COLOR && selectedCount < MAX_SELECTED) {
+                            rectangle.setFill(SELECTED_COLOR);
+                            text.setFill(Color.WHITE);
+                            selectedCount++;
+                        } else if (rectangle.getFill() == SELECTED_COLOR) {
+                            rectangle.setFill(DEFAULT_COLOR);
+                            text.setFill(Color.BLACK);
+                            selectedCount--;
+                        }
+
+                        deselectButton.setDisable(selectedCount == 0);
+                        submitButton.setDisable(selectedCount != MAX_SELECTED);
+
+                        if (selectedCount != 0) {
+                            deselectButton.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 32px;");
+                        }
+
+                        if (selectedCount == MAX_SELECTED) {
+                            submitButton.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 32px;");
+                        }
+                    });
+
+                    stackPane.setOnMouseEntered(event -> {
+                        stackPane.setCursor(Cursor.HAND);
+                    });
+
+                    stackPane.setOnMouseExited(event -> {
+                        stackPane.setCursor(Cursor.DEFAULT);
+                    });
+                }
+                index++;
+            }
+        }
     }
 
+    private Node getNodeByRowColumnIndex(int row, int column, GridPane gridPane) {
+        for (Node node : gridPane.getChildren()) {
+            if (GridPane.getRowIndex(node) == row && GridPane.getColumnIndex(node) == column) {
+                return node;
+            }
+        }
+        return null;
+    }
+    
+    private boolean checkSelectedWords(Set<Word> selectedWords) {
+        for (DifficultyColor color : DifficultyColor.getAllColors()) {
+            GameAnswerColor answer = currentGame.getAnswerForColor(color);
+            List<String> colorWords = Arrays.asList(answer.getWords());
+            if (selectedWords.size() == colorWords.size() &&
+                    selectedWords.stream().allMatch(word -> colorWords.contains(word.getText()))) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private void showAlert(String title, String content) {
+        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+    
+    private void removeCircle(HBox circleBox) {
+        if (!circleBox.getChildren().isEmpty()) {
+            circleBox.getChildren().remove(circleBox.getChildren().size() - 1);
+        }
+    }
+    
+    private List<Word> getSelectedWords() {
+        List<Word> selectedWords = new ArrayList<>();
+        for (Node node : gridPane.getChildren()) {
+            if (node instanceof StackPane) {
+                StackPane stackPane = (StackPane) node;
+                Rectangle rectangle = (Rectangle) stackPane.getChildren().get(0);
+                if (rectangle.getFill() == SELECTED_COLOR) {
+                    Word word = (Word) rectangle.getUserData();
+                    selectedWords.add(word);
+                }
+            }
+        }
+        return selectedWords;
+    }
+
+    private boolean checkAllCategoriesGuessed() {
+        Set<DifficultyColor> guessedColors = new HashSet<>();
+        for (Set<Word> guess : previousGuesses) {
+            if (checkSelectedWords(guess)) {
+                guessedColors.add(guess.iterator().next().getColor());
+            }
+        }
+        return guessedColors.size() == DifficultyColor.getAllColors().size();
+    }
+
+    private void disableGameBoard() {
+        gridPane.getChildren().forEach(node -> {
+            if (node instanceof StackPane) {
+                node.setDisable(true);
+                node.setOnMouseClicked(null);
+                node.setOnMouseEntered(null);
+                node.setOnMouseExited(null);
+            }
+        });
+        deselectButton.setDisable(true);
+        deselectButton.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 32px;");
+        submitButton.setDisable(true);
+        submitButton.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 32px;");
+        shuffleButton.setDisable(true);
+        shuffleButton.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 32px;");
+    }
+    
     public static void main(String[] args) {
         launch(args);
     }
