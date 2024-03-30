@@ -121,40 +121,6 @@ public class GameBoard extends Application {
 		deselectButton = createButton("Deselect all", 120);
 		submitButton = createButton("Submit", 88);
 
-		submitButton.setOnAction(event -> {
-			Set<Word> currentGuess = new HashSet<>(getSelectedWords());
-
-			if (previousGuesses.contains(currentGuess)) {
-				showAlert("Duplicate Guess!", "You have already made this guess before.");
-				deselectButton.fire();
-			} else {
-				if (circlePane.getChildren().size() > 1) {
-					previousGuesses.add(currentGuess);
-
-					if (checkAllCategoriesGuessed()) {
-						showAlert("Congratulations!", "You have guessed all categories correctly!");
-						disableGameBoard();
-					} else {
-						if (checkSelectedWords(currentGuess)) {
-							showAlert("Correct!", "You guessed correctly!");
-						} else {
-							showAlert("Incorrect!", "You guessed incorrectly!");
-							animateIncorrectGuess();
-						}
-					}
-				} else {
-					if (checkAllCategoriesGuessed()) {
-						showAlert("Congratulations!", "You have guessed all categories correctly!");
-						disableGameBoard();
-					} else {
-						showAlert("Game Over!", "You have no more remaining guesses.");
-						animateIncorrectGuess();
-						disableGameBoard();
-					}
-				}
-			}
-		});
-
 		deselectButton.setDisable(true);
 
 		deselectButton.setOnAction(event -> {
@@ -187,10 +153,62 @@ public class GameBoard extends Application {
 
 		StackPane stackPane = new StackPane(vbox);
 		stackPane.setStyle("-fx-background-color: white;");
+		
+		submitButton.setOnAction(event -> {
+			Set<Word> currentGuess = new HashSet<>(getSelectedWords());
+
+		    if (previousGuesses.contains(currentGuess)) {
+		        Rectangle alreadyGuessedRect = new Rectangle(132.09, 42);
+		        alreadyGuessedRect.setArcWidth(10);
+		        alreadyGuessedRect.setArcHeight(10);
+		        alreadyGuessedRect.setFill(Color.BLACK);
+
+		        Text alreadyGuessedText = new Text("Already guessed!");
+		        alreadyGuessedText.setFill(Color.WHITE);
+		        alreadyGuessedText.setFont(Font.font(16));
+
+		        StackPane alreadyGuessedPane = new StackPane(alreadyGuessedRect, alreadyGuessedText);
+		        
+		        alreadyGuessedPane.setTranslateY(-(alreadyGuessedRect.getHeight()) + 5);
+		        stackPane.getChildren().add(alreadyGuessedPane);
+
+		        PauseTransition pause = new PauseTransition(Duration.millis(1000));
+		        pause.setOnFinished(pauseEvent -> {
+		            stackPane.getChildren().remove(alreadyGuessedPane);
+		            deselectButton.fire();
+		        });
+		        pause.play();
+			} else {
+				if (circlePane.getChildren().size() > 1) {
+					previousGuesses.add(currentGuess);
+
+					if (checkAllCategoriesGuessed()) {
+						showAlert("Congratulations!", "You have guessed all categories correctly!");
+						disableGameBoard();
+					} else {
+						if (checkSelectedWords(currentGuess)) {
+							showAlert("Correct!", "You guessed correctly!");
+						} else {
+							animateIncorrectGuess();
+						}
+					}
+				} else {
+					if (checkAllCategoriesGuessed()) {
+						showAlert("Congratulations!", "You have guessed all categories correctly!");
+						disableGameBoard();
+					} else {
+						showAlert("Game Over!", "You have no more remaining guesses.");
+						animateIncorrectGuess();
+						disableGameBoard();
+					}
+				}
+			}
+		});
 
 		Scene scene = new Scene(stackPane, STAGE_WIDTH, STAGE_HEIGHT);
 		primaryStage.setScene(scene);
 		primaryStage.setTitle("Game Board");
+		primaryStage.setResizable(false);
 		primaryStage.show();
 	}
 
