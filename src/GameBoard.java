@@ -55,12 +55,219 @@ public class GameBoard extends Application {
 	private List<Set<Word>> previousGuesses = new ArrayList<>();
 	private Pane circlePane;
 
+	private AnimationPane animPane;
+	private StackPane mainStackPane;
+
+	private class AnimationPane extends Pane {
+		private static final int SWAP_TRANS_MS = 1000;
+		private static final int BUFFER_MS = 50;
+		private static final int PLACEHOLDER_MS = 5;
+		private static final int SHOW_CORRECT_MS = 750;
+		private Set<StackPane> usedOriginalPieces = new HashSet<>();
+		private Set<StackPane> usedGhostPieces = new HashSet<>();
+		private List<Integer> swapUnselectedCol = new ArrayList<>();
+		private List<Integer> swapSelectedRow = new ArrayList<>();
+		private List<Integer> swapSelectedCol = new ArrayList<>();
+//		private List<TranslateTransition> swapPieceTransitions = new ArrayList<>();
+		private int currentRow;
+		private boolean animActive;
+		private GridPane watchGridPane;
+
+		public AnimationPane(GridPane watchGridPane) {
+			this.watchGridPane = watchGridPane;
+		}
+
+		private SequentialTransition getSwapTransitions() {
+			if(animActive) {
+				return null;
+			}
+			SequentialTransition sequence = new SequentialTransition();
+
+			PauseTransition preparePause = new PauseTransition(Duration.millis(PLACEHOLDER_MS));
+			preparePause.setOnFinished(event -> {
+				animActive = true;
+				this.setVisible(true);
+				for(StackPane piece : usedOriginalPieces) {
+					piece.setVisible(false);
+				}
+				for(StackPane piece : usedGhostPieces) {
+					piece.setVisible(true);
+				}
+//				
+//				for(TranslateTransition transition : swapPieceTransitions) {
+//					transition.play();
+//				}
+			});
+
+			PauseTransition pauseForSwapping = new PauseTransition(Duration.millis(SWAP_TRANS_MS + BUFFER_MS));
+			pauseForSwapping.setOnFinished(event -> {
+				transitionFinished();
+			});
+
+			PauseTransition pauseDisplayCorrect = new PauseTransition(Duration.millis(SHOW_CORRECT_MS));
+			pauseDisplayCorrect.setOnFinished(event -> {
+				System.out.println("woohoo");
+			});
+
+			sequence.getChildren().add(preparePause);
+
+			swapUnselectedCol = new ArrayList<>();
+			swapSelectedRow = new ArrayList<>();
+			swapSelectedCol = new ArrayList<>();
+			usedOriginalPieces = new HashSet<>();
+			usedGhostPieces = new HashSet<>();
+//			swapPieceTransitions = new ArrayList<>();
+			ParallelTransition swapPieceParallel = new ParallelTransition();
+
+			for (int c = 0; c < COLS; c++) {
+				StackPane stackPanePiece = (StackPane) getGridNode(currentRow, c);
+				Rectangle rect = (Rectangle) stackPanePiece.getChildren().get(0);
+				if (rect.getFill().equals(DEFAULT_COLOR)) {
+					swapUnselectedCol.add(c);
+					usedOriginalPieces.add(stackPanePiece);
+				}
+			}
+
+			for (int r = currentRow + 1; r < ROWS; r++) {
+				for (int c = 0; c < COLS; c++) {
+					StackPane stackPanePiece = (StackPane) getGridNode(r, c);
+					Rectangle rect = (Rectangle) stackPanePiece.getChildren().get(0);
+					if (rect.getFill().equals(SELECTED_COLOR)) {
+						swapSelectedRow.add(r);
+						swapSelectedCol.add(c);
+						usedOriginalPieces.add(stackPanePiece);
+					}
+				}
+			}
+
+			for (int i = 0; i < swapUnselectedCol.size(); i++) {
+				int destRow = swapSelectedRow.get(i);
+				int destCol = swapSelectedCol.get(i);
+				int sourceRow = currentRow;
+				int sourceCol = swapUnselectedCol.get(i);
+
+				StackPane sourcePiece = createGhostPiece(sourceRow, sourceCol);
+				StackPane destPiece = createGhostPiece(destRow, destCol);
+
+				sourcePiece.setTranslateX(0);
+				sourcePiece.setTranslateY(0);
+
+				destPiece.setTranslateX(0);
+				destPiece.setTranslateY(0);
+				
+				sourcePiece.setVisible(false);
+				destPiece.setVisible(false);
+
+				TranslateTransition sourceTrans = new TranslateTransition(Duration.millis(SWAP_TRANS_MS), sourcePiece);
+				sourceTrans.setToX(destPiece.getLayoutX() - sourcePiece.getLayoutX());
+				sourceTrans.setToY(destPiece.getLayoutY() - sourcePiece.getLayoutY());
+
+				TranslateTransition destTrans = new TranslateTransition(Duration.millis(SWAP_TRANS_MS), destPiece);
+				destTrans.setToX(sourcePiece.getLayoutX() - destPiece.getLayoutX());
+				destTrans.setToY(sourcePiece.getLayoutY() - destPiece.getLayoutY());
+
+//				swapPieceTransitions.add(sourceTrans);
+//				swapPieceTransitions.add(destTrans);
+				usedGhostPieces.add(destPiece);
+				usedGhostPieces.add(sourcePiece);
+				swapPieceParallel.getChildren().addAll(sourceTrans, destTrans);
+			}
+
+			sequence.getChildren().addAll(swapPieceParallel, pauseForSwapping, pauseDisplayCorrect);
+
+			return sequence;
+		}
+
+		private void transitionFinished() {
+			if (!animActive) {
+				return;
+			}
+
+			animActive = false;
+
+			this.getChildren().removeAll(usedGhostPieces);
+
+			for (int i = 0; i < swapUnselectedCol.size(); i++) {
+				swapGridNode(currentRow, swapUnselectedCol.get(i), swapSelectedRow.get(i), swapSelectedCol.get(i));
+			}
+
+			for (Node node : watchGridPane.getChildren()) {
+				if (GridPane.getRowIndex(node) >= currentRow) {
+					node.setVisible(true);
+				}
+			}
+
+			swapUnselectedCol = new ArrayList<>();
+			swapSelectedRow = new ArrayList<>();
+			swapSelectedCol = new ArrayList<>();
+			usedOriginalPieces = new HashSet<>();
+
+			this.setVisible(false);
+			deselectButton.fire();
+			currentRow++;
+		}
+
+		private StackPane createGhostPiece(int row, int col) {
+			StackPane original = (StackPane) getGridNode(row, col);
+
+			Rectangle originalRectangle = ((Rectangle) original.getChildren().get(0));
+			Rectangle clonedRectangle = new Rectangle(originalRectangle.getWidth(), originalRectangle.getHeight());
+			clonedRectangle.setFill(originalRectangle.getFill());
+			clonedRectangle.setArcWidth(CORNER_RADIUS);
+			clonedRectangle.setArcHeight(CORNER_RADIUS);
+
+			Text originalText = ((Text) original.getChildren().get(1));
+			Text clonedText = new Text(originalText.getText());
+			clonedText.setFont(originalText.getFont()); // Copy font from original text
+			clonedText.setFill((Color) originalText.getFill());
+
+			StackPane clonedStackPane = new StackPane(clonedRectangle, clonedText);
+			clonedStackPane.setPrefSize(original.getPrefWidth(), original.getPrefHeight());
+
+			this.getChildren().add(clonedStackPane);
+			clonedStackPane.setLayoutX(original.getLayoutX());
+			clonedStackPane.setLayoutY(original.getLayoutY());
+
+			return clonedStackPane;
+		}
+
+		private void setGridNodeVisible(int row, int col, boolean visible) {
+			Node node = getGridNode(row, col);
+			if (node != null) {
+				node.setVisible(visible);
+			}
+		}
+
+		private void swapGridNode(int sourceRow, int sourceCol, int destRow, int destCol) {
+			Node node1 = getGridNode(sourceRow, sourceCol);
+			Node node2 = getGridNode(destRow, destCol);
+
+			gridPane.getChildren().removeAll(node1, node2);
+
+			gridPane.add(node1, destCol, destRow);
+			gridPane.add(node2, sourceCol, sourceRow);
+		}
+
+		private Node getGridNode(int row, int column) {
+			for (Node node : watchGridPane.getChildren()) {
+				if (GridPane.getRowIndex(node) == row && GridPane.getColumnIndex(node) == column) {
+					return node;
+				}
+			}
+			return null;
+		}
+	}
+
 	@Override
 	public void start(Stage primaryStage) {
 		gridPane = new GridPane();
 		gridPane.setHgap(GAP);
 		gridPane.setVgap(GAP);
 		gridPane.setAlignment(Pos.CENTER);
+
+		animPane = new AnimationPane(gridPane);
+		animPane.setVisible(false);
+		mainStackPane = new StackPane(gridPane, animPane);
 
 		for (int row = 0; row < ROWS; row++) {
 			for (int col = 0; col < COLS; col++) {
@@ -121,40 +328,6 @@ public class GameBoard extends Application {
 		deselectButton = createButton("Deselect all", 120);
 		submitButton = createButton("Submit", 88);
 
-		submitButton.setOnAction(event -> {
-			Set<Word> currentGuess = new HashSet<>(getSelectedWords());
-
-			if (previousGuesses.contains(currentGuess)) {
-				showAlert("Duplicate Guess!", "You have already made this guess before.");
-				deselectButton.fire();
-			} else {
-				if (circlePane.getChildren().size() > 1) {
-					previousGuesses.add(currentGuess);
-
-					if (checkAllCategoriesGuessed()) {
-						showAlert("Congratulations!", "You have guessed all categories correctly!");
-						disableGameBoard();
-					} else {
-						if (checkSelectedWords(currentGuess)) {
-							showAlert("Correct!", "You guessed correctly!");
-						} else {
-							showAlert("Incorrect!", "You guessed incorrectly!");
-							animateIncorrectGuess();
-						}
-					}
-				} else {
-					if (checkAllCategoriesGuessed()) {
-						showAlert("Congratulations!", "You have guessed all categories correctly!");
-						disableGameBoard();
-					} else {
-						showAlert("Game Over!", "You have no more remaining guesses.");
-						animateIncorrectGuess();
-						disableGameBoard();
-					}
-				}
-			}
-		});
-
 		deselectButton.setDisable(true);
 
 		deselectButton.setOnAction(event -> {
@@ -182,15 +355,69 @@ public class GameBoard extends Application {
 		buttonBox.setAlignment(Pos.CENTER);
 		buttonBox.getChildren().addAll(shuffleButton, deselectButton, submitButton);
 
-		VBox vbox = new VBox(24, topText, gridPane, bottomBox, buttonBox);
+		VBox vbox = new VBox(24, topText, mainStackPane, bottomBox, buttonBox);
 		vbox.setAlignment(Pos.CENTER);
 
 		StackPane stackPane = new StackPane(vbox);
 		stackPane.setStyle("-fx-background-color: white;");
 
+		submitButton.setOnAction(event -> {
+			Set<Word> currentGuess = new HashSet<>(getSelectedWords());
+
+			if (previousGuesses.contains(currentGuess)) {
+				Rectangle alreadyGuessedRect = new Rectangle(132.09, 42);
+				alreadyGuessedRect.setArcWidth(10);
+				alreadyGuessedRect.setArcHeight(10);
+				alreadyGuessedRect.setFill(Color.BLACK);
+
+				Text alreadyGuessedText = new Text("Already guessed!");
+				alreadyGuessedText.setFill(Color.WHITE);
+				alreadyGuessedText.setFont(Font.font(16));
+
+				StackPane alreadyGuessedPane = new StackPane(alreadyGuessedRect, alreadyGuessedText);
+
+				alreadyGuessedPane.setTranslateY(-(alreadyGuessedRect.getHeight()) + 5);
+				stackPane.getChildren().add(alreadyGuessedPane);
+
+				PauseTransition pause = new PauseTransition(Duration.millis(1000));
+				pause.setOnFinished(pauseEvent -> {
+					stackPane.getChildren().remove(alreadyGuessedPane);
+					deselectButton.fire();
+				});
+				pause.play();
+			} else {
+				if (circlePane.getChildren().size() > 1) {
+					previousGuesses.add(currentGuess);
+
+					if (checkAllCategoriesGuessed()) {
+						showAlert("Congratulations!", "You have guessed all categories correctly!");
+						disableGameBoard();
+					} else {
+						if (checkSelectedWords(currentGuess)) {
+//							animPane.animSwapSelected();
+							animateCorrectGuess();
+//							showAlert("Correct!", "You guessed correctly!");
+						} else {
+							animateIncorrectGuess();
+						}
+					}
+				} else {
+					if (checkAllCategoriesGuessed()) {
+						showAlert("Congratulations!", "You have guessed all categories correctly!");
+						disableGameBoard();
+					} else {
+						showAlert("Game Over!", "You have no more remaining guesses.");
+						animateIncorrectGuess();
+						disableGameBoard();
+					}
+				}
+			}
+		});
+
 		Scene scene = new Scene(stackPane, STAGE_WIDTH, STAGE_HEIGHT);
 		primaryStage.setScene(scene);
 		primaryStage.setTitle("Game Board");
+		primaryStage.setResizable(false);
 		primaryStage.show();
 	}
 
@@ -381,6 +608,15 @@ public class GameBoard extends Application {
 		sequentialTransition.play();
 	}
 
+	private void animateCorrectGuess() {
+		SequentialTransition sequentialTransition = new SequentialTransition();
+		ParallelTransition jumpTransition = createJumpTransition();
+		PauseTransition pauseTransition = new PauseTransition(Duration.millis(500));
+		sequentialTransition.getChildren().addAll(jumpTransition, pauseTransition);
+		sequentialTransition.getChildren().addAll(animPane.getSwapTransitions());
+		sequentialTransition.play();
+	}
+
 	private ParallelTransition createJumpTransition() {
 		ParallelTransition jumpTransition = new ParallelTransition();
 		int delay = 0;
@@ -404,45 +640,45 @@ public class GameBoard extends Application {
 	}
 
 	private ParallelTransition createShakeTransition() {
-	    ParallelTransition shakeTransition = new ParallelTransition();
-	    for (Node node : gridPane.getChildren()) {
-	        if (node instanceof StackPane) {
-	            StackPane stackPane = (StackPane) node;
-	            Rectangle rectangle = (Rectangle) stackPane.getChildren().get(0);
-	            Text text = (Text) stackPane.getChildren().get(1);
-	            if (rectangle.getFill() == SELECTED_COLOR) {
-	                rectangle.setFill(INCORRECT_COLOR);
-	                TranslateTransition individualShakeTransition = new TranslateTransition(Duration.millis(100),
-	                        stackPane);
-	                individualShakeTransition.setByX(8);
-	                individualShakeTransition.setAutoReverse(true);
-	                individualShakeTransition.setCycleCount(2);
-	                shakeTransition.getChildren().add(individualShakeTransition);
-	            }
-	        }
-	    }
-	    shakeTransition.setOnFinished(event -> {
-	        for (Node node : gridPane.getChildren()) {
-	            if (node instanceof StackPane) {
-	                StackPane stackPane = (StackPane) node;
-	                Rectangle rectangle = (Rectangle) stackPane.getChildren().get(0);
-	                Text text = (Text) stackPane.getChildren().get(1);
-	                if (rectangle.getFill() == INCORRECT_COLOR) {
-	                    rectangle.setFill(DEFAULT_COLOR);
-	                    text.setFill(Color.BLACK);
-	                }
-	            }
-	        }
-	        PauseTransition deselectDelay = new PauseTransition(Duration.millis(500));
-	        deselectDelay.setOnFinished(deselectEvent -> {
-	            deselectButton.fire();
-	            PauseTransition removeCircleDelay = new PauseTransition(Duration.millis(500));
-	            removeCircleDelay.setOnFinished(removeCircleEvent -> removeCircle(circlePane));
-	            removeCircleDelay.play();
-	        });
-	        deselectDelay.play();
-	    });
-	    return shakeTransition;
+		ParallelTransition shakeTransition = new ParallelTransition();
+		for (Node node : gridPane.getChildren()) {
+			if (node instanceof StackPane) {
+				StackPane stackPane = (StackPane) node;
+				Rectangle rectangle = (Rectangle) stackPane.getChildren().get(0);
+				Text text = (Text) stackPane.getChildren().get(1);
+				if (rectangle.getFill() == SELECTED_COLOR) {
+					rectangle.setFill(INCORRECT_COLOR);
+					TranslateTransition individualShakeTransition = new TranslateTransition(Duration.millis(100),
+							stackPane);
+					individualShakeTransition.setByX(8);
+					individualShakeTransition.setAutoReverse(true);
+					individualShakeTransition.setCycleCount(2);
+					shakeTransition.getChildren().add(individualShakeTransition);
+				}
+			}
+		}
+		shakeTransition.setOnFinished(event -> {
+			for (Node node : gridPane.getChildren()) {
+				if (node instanceof StackPane) {
+					StackPane stackPane = (StackPane) node;
+					Rectangle rectangle = (Rectangle) stackPane.getChildren().get(0);
+					Text text = (Text) stackPane.getChildren().get(1);
+					if (rectangle.getFill() == INCORRECT_COLOR) {
+						rectangle.setFill(DEFAULT_COLOR);
+						text.setFill(Color.BLACK);
+					}
+				}
+			}
+			PauseTransition deselectDelay = new PauseTransition(Duration.millis(500));
+			deselectDelay.setOnFinished(deselectEvent -> {
+				deselectButton.fire();
+				PauseTransition removeCircleDelay = new PauseTransition(Duration.millis(500));
+				removeCircleDelay.setOnFinished(removeCircleEvent -> removeCircle(circlePane));
+				removeCircleDelay.play();
+			});
+			deselectDelay.play();
+		});
+		return shakeTransition;
 	}
 
 	public static void main(String[] args) {
