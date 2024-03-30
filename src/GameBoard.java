@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javafx.animation.ScaleTransition;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -16,6 +17,7 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -24,6 +26,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class GameBoard extends Application {
 
@@ -72,24 +75,26 @@ public class GameBoard extends Application {
 
         Text topText = new Text("Create four groups of four!");
         topText.setFont(Font.font(24));
-
+        
         Text bottomText = new Text("Mistakes remaining:");
         bottomText.setFont(Font.font(24));
 
-        HBox circleBox = new HBox(5);
-        circleBox.setAlignment(Pos.CENTER);
+        Pane circlePane = new Pane();
+        circlePane.setPrefWidth(100);
 
         for (int i = 0; i < 4; i++) {
             Circle circle = new Circle(8);
             circle.setFill(Color.rgb(90, 89, 78));
-            circleBox.getChildren().add(circle);
+            circle.setLayoutX(i * 28 + 10);
+            circle.setLayoutY(circlePane.getPrefHeight() / 2 + 17);
+            circlePane.getChildren().add(circle);
         }
 
         HBox bottomBox = new HBox(10);
         bottomBox.setAlignment(Pos.CENTER);
-        bottomBox.getChildren().addAll(bottomText, circleBox);
+        bottomBox.getChildren().addAll(bottomText, circlePane);
 
-        shuffleButton = createButton("Shuffle");
+        shuffleButton = createButton("Shuffle", 88);
         
         shuffleButton.setOnAction(event -> {
             ObservableList<Node> children = gridPane.getChildren();
@@ -110,8 +115,8 @@ public class GameBoard extends Application {
             }
         });
         
-        deselectButton = createButton("Deselect all");
-        submitButton = createButton("Submit");
+        deselectButton = createButton("Deselect all", 120);
+        submitButton = createButton("Submit", 88);
         
         submitButton.setOnAction(event -> {
             Set<Word> currentGuess = new HashSet<>(getSelectedWords());
@@ -119,7 +124,7 @@ public class GameBoard extends Application {
             if (previousGuesses.contains(currentGuess)) {
                 showAlert("Duplicate Guess!", "You have already made this guess before.");
             } else {
-                if (circleBox.getChildren().size() > 1) {
+                if (circlePane.getChildren().size() > 1) {
                     previousGuesses.add(currentGuess);
 
                     if (checkAllCategoriesGuessed()) {
@@ -130,7 +135,7 @@ public class GameBoard extends Application {
                             showAlert("Correct!", "You guessed correctly!");
                         } else {
                             showAlert("Incorrect!", "You guessed incorrectly!");
-                            removeCircle(circleBox);
+                            removeCircle(circlePane);
                         }
                     }
                 } else {
@@ -139,7 +144,7 @@ public class GameBoard extends Application {
                         disableGameBoard();
                     } else {
                         showAlert("Game Over!", "You have no more remaining guesses.");
-                        removeCircle(circleBox);
+                        removeCircle(circlePane);
                         disableGameBoard();
                     }
                 }
@@ -184,11 +189,11 @@ public class GameBoard extends Application {
         primaryStage.show();
     }
 
-    private Button createButton(String text) {
+    private Button createButton(String text, double width) {
         Button button = new Button(text);
         button.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 32px;");
         button.setPrefHeight(48);
-        button.setPrefWidth(Region.USE_COMPUTED_SIZE);
+        button.setPrefWidth(width);
         button.setFont(Font.font(18));
 
         button.setOnMouseEntered(event -> {
@@ -297,10 +302,19 @@ public class GameBoard extends Application {
         alert.setContentText(content);
         alert.showAndWait();
     }
-    
-    private void removeCircle(HBox circleBox) {
-        if (!circleBox.getChildren().isEmpty()) {
-            circleBox.getChildren().remove(circleBox.getChildren().size() - 1);
+        
+    private void removeCircle(Pane circlePane) {
+        if (!circlePane.getChildren().isEmpty()) {
+            Circle circle = (Circle) circlePane.getChildren().get(circlePane.getChildren().size() - 1);
+            
+            ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(500), circle);
+            scaleTransition.setFromX(1.0);
+            scaleTransition.setFromY(1.0);
+            scaleTransition.setToX(0.0);
+            scaleTransition.setToY(0.0);
+            scaleTransition.setOnFinished(event -> circlePane.getChildren().remove(circle));
+            
+            scaleTransition.play();
         }
     }
     
