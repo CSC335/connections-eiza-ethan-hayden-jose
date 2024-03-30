@@ -54,7 +54,171 @@ public class GameBoard extends Application {
 	private GridPane gridPane;
 	private List<Set<Word>> previousGuesses = new ArrayList<>();
 	private Pane circlePane;
+	
+	private AnimationPane animPane;
+	private StackPane mainStackPane;
 
+	private class AnimationPane extends Pane {
+		private static final int SWAP_TRANS_MS = 1000;	
+		private boolean animActive = false;
+		private int animFinishedCount = 0;
+		private int animFinishedTarget = 0;
+		private List<Integer> swapUnselectedCol = new ArrayList<>();
+		private List<Integer> swapSelectedRow = new ArrayList<>();
+		private List<Integer> swapSelectedCol = new ArrayList<>();
+		private int currentRow;
+		private GridPane watchGridPane;
+
+		public AnimationPane(GridPane watchGridPane) {
+			this.watchGridPane = watchGridPane;
+		}
+
+		private void animSwapSelected() {
+			if (animActive) {
+				return;
+			}
+			animActive = true;
+			
+			swapUnselectedCol = new ArrayList<>();
+			swapSelectedRow = new ArrayList<>();
+			swapSelectedCol = new ArrayList<>();
+
+			for (int c = 0; c < COLS; c++) {
+				StackPane stackPanePiece = (StackPane) getGridNode(currentRow, c);
+				Rectangle rect = (Rectangle) stackPanePiece.getChildren().get(0);
+				if (rect.getFill().equals(DEFAULT_COLOR)) {
+					swapUnselectedCol.add(c);
+				}
+			}
+
+			for (int r = currentRow + 1; r < ROWS; r++) {
+				for (int c = 0; c < COLS; c++) {
+					StackPane stackPanePiece = (StackPane) getGridNode(r, c);
+					Rectangle rect = (Rectangle) stackPanePiece.getChildren().get(0);
+					if (rect.getFill().equals(SELECTED_COLOR)) {
+						swapSelectedRow.add(r);
+						swapSelectedCol.add(c);
+					}
+				}
+			}
+
+			animFinishedCount = 0;
+			animFinishedTarget = swapUnselectedCol.size() * 2;
+			for (int i = 0; i < swapUnselectedCol.size(); i++) {
+				int destRow = swapSelectedRow.get(i);
+				int destCol = swapSelectedCol.get(i);
+				int sourceRow = currentRow;
+				int sourceCol = swapUnselectedCol.get(i);
+
+				this.setVisible(true);
+				setGridNodeVisible(sourceRow, sourceCol, false);
+				setGridNodeVisible(destRow, destCol, false);
+
+				StackPane sourcePiece = createGhostPiece(sourceRow, sourceCol);
+				StackPane destPiece = createGhostPiece(destRow, destCol);
+
+				sourcePiece.setTranslateX(0);
+				sourcePiece.setTranslateY(0);
+
+				destPiece.setTranslateX(0);
+				destPiece.setTranslateY(0);
+
+				TranslateTransition sourceTrans = new TranslateTransition(Duration.millis(SWAP_TRANS_MS), sourcePiece);
+
+				sourceTrans.setToX(destPiece.getLayoutX() - sourcePiece.getLayoutX());
+				sourceTrans.setToY(destPiece.getLayoutY() - sourcePiece.getLayoutY());
+
+				TranslateTransition destTrans = new TranslateTransition(Duration.millis(SWAP_TRANS_MS), destPiece);
+				destTrans.setToX(sourcePiece.getLayoutX() - destPiece.getLayoutX());
+				destTrans.setToY(sourcePiece.getLayoutY() - destPiece.getLayoutY());
+
+				sourceTrans.setOnFinished(event -> {
+					transitionFinished();
+				});
+
+				destTrans.setOnFinished(event -> {
+					transitionFinished();
+				});
+
+				sourceTrans.play();
+				destTrans.play();
+			}
+		}
+
+		private void transitionFinished() {
+			if (!animActive) {
+				return;
+			}
+			
+			animFinishedCount++;
+			
+			if(animFinishedCount == animFinishedTarget) {
+				animActive = false;
+				this.getChildren().clear();
+				
+				for(int i = 0; i < swapUnselectedCol.size(); i++) {
+					swapGridNode(currentRow, swapUnselectedCol.get(i), swapSelectedRow.get(i), swapSelectedCol.get(i));
+				}
+				
+				for (Node node : watchGridPane.getChildren()) {
+					node.setVisible(true);
+				}
+				
+				this.setVisible(false);
+			}
+		}
+
+		private StackPane createGhostPiece(int row, int col) {
+			StackPane original = (StackPane) getGridNode(row, col);
+
+			Rectangle originalRectangle = ((Rectangle) original.getChildren().get(0));
+			Rectangle clonedRectangle = new Rectangle(originalRectangle.getWidth(), originalRectangle.getHeight());
+			clonedRectangle.setFill(originalRectangle.getFill());
+			clonedRectangle.setArcWidth(CORNER_RADIUS);
+			clonedRectangle.setArcHeight(CORNER_RADIUS);
+
+			Text originalText = ((Text) original.getChildren().get(1));
+			Text clonedText = new Text(originalText.getText());
+			clonedText.setFont(originalText.getFont()); // Copy font from original text
+			clonedText.setFill((Color) originalText.getFill());
+
+			StackPane clonedStackPane = new StackPane(clonedRectangle, clonedText);
+			clonedStackPane.setPrefSize(original.getPrefWidth(), original.getPrefHeight());
+
+			this.getChildren().add(clonedStackPane);
+			clonedStackPane.setLayoutX(original.getLayoutX());
+			clonedStackPane.setLayoutY(original.getLayoutY());
+
+			return clonedStackPane;
+		}
+
+		private void setGridNodeVisible(int row, int col, boolean visible) {
+			Node node = getGridNode(row, col);
+			if (node != null) {
+				node.setVisible(visible);
+			}
+		}
+
+		private void swapGridNode(int sourceRow, int sourceCol, int destRow, int destCol) {
+			Node node1 = getGridNode(sourceRow, sourceCol);
+			Node node2 = getGridNode(destRow, destCol);
+
+			gridPane.getChildren().removeAll(node1, node2);
+
+			gridPane.add(node1, destCol, destRow);
+			gridPane.add(node2, sourceCol, sourceRow);
+		}
+
+		private Node getGridNode(int row, int column) {
+			for (Node node : watchGridPane.getChildren()) {
+				if (GridPane.getRowIndex(node) == row && GridPane.getColumnIndex(node) == column) {
+					return node;
+				}
+			}
+			return null;
+		}
+	}
+	
 	@Override
 	public void start(Stage primaryStage) {
 		gridPane = new GridPane();
@@ -62,6 +226,10 @@ public class GameBoard extends Application {
 		gridPane.setVgap(GAP);
 		gridPane.setAlignment(Pos.CENTER);
 
+		animPane = new AnimationPane(gridPane);
+		animPane.setVisible(false);
+		mainStackPane = new StackPane(gridPane, animPane);
+		
 		for (int row = 0; row < ROWS; row++) {
 			for (int col = 0; col < COLS; col++) {
 				Rectangle rectangle = new Rectangle(RECTANGLE_WIDTH, RECTANGLE_HEIGHT);
@@ -148,7 +316,7 @@ public class GameBoard extends Application {
 		buttonBox.setAlignment(Pos.CENTER);
 		buttonBox.getChildren().addAll(shuffleButton, deselectButton, submitButton);
 
-		VBox vbox = new VBox(24, topText, gridPane, bottomBox, buttonBox);
+		VBox vbox = new VBox(24, topText, mainStackPane, bottomBox, buttonBox);
 		vbox.setAlignment(Pos.CENTER);
 
 		StackPane stackPane = new StackPane(vbox);
