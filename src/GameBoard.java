@@ -12,11 +12,13 @@ import javafx.animation.SequentialTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -43,7 +45,7 @@ public class GameBoard extends Application {
 	private static final Color SELECTED_COLOR = Color.rgb(90, 89, 78);
 	private static final Color INCORRECT_COLOR = Color.rgb(130, 131, 122);
 	private static final int STAGE_WIDTH = 800;
-	private static final int STAGE_HEIGHT = 600;
+	private static final int STAGE_HEIGHT = 700;
 	private static final int MAX_SELECTED = 4;
 
 	private int selectedCount = 0;
@@ -57,6 +59,9 @@ public class GameBoard extends Application {
 	private AnimationPane animPane;
 	private StackPane mainStackPane;
 	private int guessCount = 0;
+	private boolean wonGame = false;
+	private boolean gameLost = false;
+	private StackPane resultsPane;
 
 	private class AnimationPane extends Pane {
 		private static final int SWAP_TRANS_MS = 1000;
@@ -388,11 +393,11 @@ public class GameBoard extends Application {
 				pause.play();
 			} else {
 				int matchCount = checkSelectedWords(currentGuess);
+				previousGuesses.add(currentGuess);
 				if (circlePane.getChildren().size() > 1) {
-					previousGuesses.add(currentGuess);
-
 					if (checkAllCategoriesGuessed()) {
-						showAlert("Congratulations!", "You have guessed all categories correctly!");
+						wonGame = true;
+						animateCorrectGuess();
 						disableGameBoard();
 					} else {
 
@@ -404,10 +409,12 @@ public class GameBoard extends Application {
 					}
 				} else {
 					if (checkAllCategoriesGuessed()) {
-						showAlert("Congratulations!", "You have guessed all categories correctly!");
+						wonGame = true;
+						animateCorrectGuess();
 						disableGameBoard();
 					} else {
 						animateIncorrectGuess(matchCount);
+						gameLost = true;
 						disableGameBoard();
 					}
 				}
@@ -533,15 +540,6 @@ public class GameBoard extends Application {
 		return maxMatchCount;
 	}
 
-	private void showAlert(String title, String content) {
-		javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
-				javafx.scene.control.Alert.AlertType.INFORMATION);
-		alert.setTitle(title);
-		alert.setHeaderText(null);
-		alert.setContentText(content);
-		alert.showAndWait();
-	}
-
 	private void removeCircle(Pane circlePane) {
 		if (!circlePane.getChildren().isEmpty()) {
 			Circle circle = (Circle) circlePane.getChildren().get(circlePane.getChildren().size() - 1);
@@ -602,6 +600,87 @@ public class GameBoard extends Application {
 				"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
 	}
 
+	private void showResultsPane(Stage stage) {
+		VBox resultsLayout = new VBox(20);
+		resultsLayout.setAlignment(Pos.CENTER);
+		resultsLayout.setPadding(new Insets(20));
+
+		Label titleLabel = wonGame ? new Label("Perfect!") : new Label("Next Time!");
+		titleLabel.setFont(Font.font(36));
+		VBox.setMargin(titleLabel, new Insets(80, 0, 0, 0));
+
+		Label connectionsLabel = new Label("Connections #294");
+		connectionsLabel.setFont(Font.font(20));
+		VBox.setMargin(connectionsLabel, new Insets(8, 0, 0, 0));
+
+		GridPane gridPane = new GridPane();
+		gridPane.setVgap(GAP);
+		gridPane.setAlignment(Pos.CENTER);
+
+		Color[] colors = { Color.rgb(249, 223, 109), // Yellow
+				Color.rgb(160, 195, 90), // Green
+				Color.rgb(176, 195, 238), // Blue
+				Color.rgb(186, 128, 197) // Purple
+		};
+
+		int i = 0;
+		for (Set<Word> previousGuess : previousGuesses) {
+			int j = 0;
+			for (Word guess : previousGuess) {
+				String color = guess.getColor().toString();
+				Color rectangleColor = null;
+				if (color.equalsIgnoreCase("yellow")) {
+					rectangleColor = colors[0];
+				} else if (color.equalsIgnoreCase("green")) {
+					rectangleColor = colors[1];
+				} else if (color.equalsIgnoreCase("blue")) {
+					rectangleColor = colors[2];
+				} else if (color.equalsIgnoreCase("purple")) {
+					rectangleColor = colors[3];
+				}
+				Rectangle square = new Rectangle(40, 40, rectangleColor);
+				square.setArcWidth(10);
+				square.setArcHeight(10);
+				gridPane.add(square, j, i);
+				j++;
+			}
+			i++;
+		}
+
+		Label timerLabel = new Label("NEXT PUZZLE IN\n");
+		timerLabel.setFont(Font.font(20));
+		timerLabel.setAlignment(Pos.CENTER);
+
+		Button shareButton = new Button("Share Your Results");
+		shareButton.setPrefSize(162, 48);
+		shareButton.setFont(Font.font(16));
+		shareButton.setStyle(
+				"-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50;");
+
+		shareButton.setOnMouseEntered(e -> {
+			shareButton.setStyle(
+					"-fx-background-color: rgb(18,18,18); -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-cursor: hand;");
+		});
+		shareButton.setOnMouseExited(e -> {
+			shareButton.setStyle(
+					"-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-cursor: default;");
+		});
+
+		resultsLayout.getChildren().addAll(titleLabel, connectionsLabel, gridPane, timerLabel, shareButton);
+		
+		StackPane resultsPane = new StackPane(resultsLayout);
+	    resultsPane.setStyle("-fx-background-color: white; -fx-effect: dropshadow(gaussian, black, 20, 0, 0, 0);");
+	    resultsPane.setPrefSize(667, 356 + (guessCount * 40) + ((guessCount - 1) * GAP));
+	    resultsPane.setMaxWidth(667);
+	    resultsPane.setMaxHeight(356 + (guessCount * 40) + ((guessCount - 1) * GAP));
+
+	    StackPane overlayPane = new StackPane(mainStackPane, resultsPane);
+	    overlayPane.setAlignment(Pos.CENTER);
+
+	    Scene scene = new Scene(overlayPane, STAGE_WIDTH, STAGE_HEIGHT);
+	    stage.setScene(scene);
+	}
+
 	private void animateIncorrectGuess(int matchCount) {
 		SequentialTransition sequentialTransition = new SequentialTransition();
 		ParallelTransition jumpTransition = createJumpTransition();
@@ -627,7 +706,7 @@ public class GameBoard extends Application {
 				displayOneAway.setOnFinished(e -> mainStackPane.getChildren().remove(oneAwayPane));
 				displayOneAway.play();
 			}
-			if (guessCount == 4) {
+			if (guessCount == 4 && gameLost) {
 				Rectangle nextTimeRect = new Rectangle(88.13, 42);
 				nextTimeRect.setArcWidth(10);
 				nextTimeRect.setArcHeight(10);
@@ -661,14 +740,20 @@ public class GameBoard extends Application {
 				deselectDelay.setOnFinished(deselectEvent -> {
 					deselectButton.fire();
 					PauseTransition removeCircleDelay = new PauseTransition(Duration.millis(500));
-					removeCircleDelay.setOnFinished(removeCircleEvent -> removeCircle(circlePane));
+					removeCircleDelay.setOnFinished(removeCircleEvent -> {
+						removeCircle(circlePane);
+						if (gameLost) {
+							PauseTransition delay = new PauseTransition(Duration.millis(500));
+							delay.setOnFinished(e -> showResultsPane((Stage) mainStackPane.getScene().getWindow()));
+							delay.play();
+						}
+					});
 					removeCircleDelay.play();
 				});
 				deselectDelay.play();
 			});
 			shakeTransition.play();
 		});
-
 		sequentialTransition.play();
 	}
 
@@ -693,12 +778,25 @@ public class GameBoard extends Application {
 	}
 
 	private void animateCorrectGuess() {
-		SequentialTransition sequentialTransition = new SequentialTransition();
-		ParallelTransition jumpTransition = createJumpTransition();
-		PauseTransition pauseTransition = new PauseTransition(Duration.millis(500));
-		sequentialTransition.getChildren().addAll(jumpTransition, pauseTransition);
-		sequentialTransition.getChildren().addAll(animPane.getSwapTransitions());
-		sequentialTransition.play();
+		if (!wonGame) {
+			SequentialTransition sequentialTransition = new SequentialTransition();
+			ParallelTransition jumpTransition = createJumpTransition();
+			PauseTransition pauseTransition = new PauseTransition(Duration.millis(500));
+			sequentialTransition.getChildren().addAll(jumpTransition, pauseTransition);
+			sequentialTransition.getChildren().addAll(animPane.getSwapTransitions());
+			sequentialTransition.play();
+		} else {
+			SequentialTransition sequentialTransition = new SequentialTransition();
+			ParallelTransition jumpTransition = createJumpTransition();
+			PauseTransition pauseTransition = new PauseTransition(Duration.millis(500));
+			sequentialTransition.getChildren().addAll(jumpTransition, pauseTransition);
+			sequentialTransition.setOnFinished(event -> {
+				if (wonGame) {
+					showResultsPane((Stage) mainStackPane.getScene().getWindow());
+				}
+			});
+			sequentialTransition.play();
+		}
 	}
 
 	private ParallelTransition createJumpTransition() {
