@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javafx.animation.ParallelTransition;
 import javafx.animation.PauseTransition;
 import javafx.animation.ScaleTransition;
@@ -55,9 +54,9 @@ public class GameBoard extends Application {
 	private GridPane gridPane;
 	private List<Set<Word>> previousGuesses = new ArrayList<>();
 	private Pane circlePane;
-
 	private AnimationPane animPane;
 	private StackPane mainStackPane;
+	private int guessCount = 0;
 
 	private class AnimationPane extends Pane {
 		private static final int SWAP_TRANS_MS = 1000;
@@ -363,6 +362,7 @@ public class GameBoard extends Application {
 		stackPane.setStyle("-fx-background-color: white;");
 
 		submitButton.setOnAction(event -> {
+			guessCount++;
 			Set<Word> currentGuess = new HashSet<>(getSelectedWords());
 
 			if (previousGuesses.contains(currentGuess)) {
@@ -395,7 +395,7 @@ public class GameBoard extends Application {
 						showAlert("Congratulations!", "You have guessed all categories correctly!");
 						disableGameBoard();
 					} else {
-						
+
 						if (matchCount == 4) {
 							animateCorrectGuess();
 						} else {
@@ -407,7 +407,6 @@ public class GameBoard extends Application {
 						showAlert("Congratulations!", "You have guessed all categories correctly!");
 						disableGameBoard();
 					} else {
-						showAlert("Game Over!", "You have no more remaining guesses.");
 						animateIncorrectGuess(matchCount);
 						disableGameBoard();
 					}
@@ -489,13 +488,15 @@ public class GameBoard extends Application {
 
 						if (selectedCount != 0) {
 							deselectButton.setStyle(
-							"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
+									"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
 						}
 
 						if (selectedCount == MAX_SELECTED) {
-						    submitButton.setStyle("-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50;");
+							submitButton.setStyle(
+									"-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50;");
 						} else {
-						    submitButton.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-background-radius: 50; -fx-border-radius: 50;");
+							submitButton.setStyle(
+									"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-background-radius: 50; -fx-border-radius: 50;");
 						}
 					});
 
@@ -572,13 +573,13 @@ public class GameBoard extends Application {
 	}
 
 	private boolean checkAllCategoriesGuessed() {
-	    Set<DifficultyColor> guessedColors = new HashSet<>();
-	    for (Set<Word> guess : previousGuesses) {
-	        if (checkSelectedWords(guess) == 4) {
-	            guessedColors.add(guess.iterator().next().getColor());
-	        }
-	    }
-	    return guessedColors.size() == DifficultyColor.getAllColors().size();
+		Set<DifficultyColor> guessedColors = new HashSet<>();
+		for (Set<Word> guess : previousGuesses) {
+			if (checkSelectedWords(guess) == 4) {
+				guessedColors.add(guess.iterator().next().getColor());
+			}
+		}
+		return guessedColors.size() == DifficultyColor.getAllColors().size();
 	}
 
 	private void disableGameBoard() {
@@ -600,80 +601,97 @@ public class GameBoard extends Application {
 		shuffleButton.setStyle(
 				"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
 	}
-	
+
 	private void animateIncorrectGuess(int matchCount) {
-	    SequentialTransition sequentialTransition = new SequentialTransition();
-	    ParallelTransition jumpTransition = createJumpTransition();
-	    PauseTransition pauseAfterJump = new PauseTransition(Duration.millis(500));
+		SequentialTransition sequentialTransition = new SequentialTransition();
+		ParallelTransition jumpTransition = createJumpTransition();
+		PauseTransition pauseAfterJump = new PauseTransition(Duration.millis(500));
 
-	    sequentialTransition.getChildren().addAll(jumpTransition, pauseAfterJump);
+		sequentialTransition.getChildren().addAll(jumpTransition, pauseAfterJump);
 
-	    sequentialTransition.setOnFinished(event -> {
-            if (matchCount == 3) {
-                Rectangle oneAwayRect = new Rectangle(96.09, 42);
-                oneAwayRect.setArcWidth(10);
-                oneAwayRect.setArcHeight(10);
-                oneAwayRect.setFill(Color.BLACK);
+		sequentialTransition.setOnFinished(event -> {
+			if (matchCount == 3 && guessCount < 4) {
+				Rectangle oneAwayRect = new Rectangle(96.09, 42);
+				oneAwayRect.setArcWidth(10);
+				oneAwayRect.setArcHeight(10);
+				oneAwayRect.setFill(Color.BLACK);
 
-                Text oneAwayText = new Text("One away...");
-                oneAwayText.setFill(Color.WHITE);
-                oneAwayText.setFont(Font.font(16));
+				Text oneAwayText = new Text("One away...");
+				oneAwayText.setFill(Color.WHITE);
+				oneAwayText.setFont(Font.font(16));
 
-                StackPane oneAwayPane = new StackPane(oneAwayRect, oneAwayText);
-                mainStackPane.getChildren().add(oneAwayPane);
+				StackPane oneAwayPane = new StackPane(oneAwayRect, oneAwayText);
+				mainStackPane.getChildren().add(oneAwayPane);
 
-                PauseTransition displayOneAway = new PauseTransition(Duration.millis(1000));
-                displayOneAway.setOnFinished(e -> mainStackPane.getChildren().remove(oneAwayPane));
-                displayOneAway.play();
-            }
-	        ParallelTransition shakeTransition = createShakeTransition();
-	        shakeTransition.setOnFinished(shakeEvent -> {
-	            for (Node node : gridPane.getChildren()) {
-	                if (node instanceof StackPane) {
-	                    StackPane stackPane = (StackPane) node;
-	                    Rectangle rectangle = (Rectangle) stackPane.getChildren().get(0);
-	                    Text text = (Text) stackPane.getChildren().get(1);
-	                    if (rectangle.getFill() == INCORRECT_COLOR) {
-	                        rectangle.setFill(DEFAULT_COLOR);
-	                        text.setFill(Color.BLACK);
-	                    }
-	                }
-	            }
-	            PauseTransition deselectDelay = new PauseTransition(Duration.millis(500));
-	            deselectDelay.setOnFinished(deselectEvent -> {
-	                deselectButton.fire();
-	                PauseTransition removeCircleDelay = new PauseTransition(Duration.millis(500));
-	                removeCircleDelay.setOnFinished(removeCircleEvent -> removeCircle(circlePane));
-	                removeCircleDelay.play();
-	            });
-	            deselectDelay.play();
-	        });
-	        shakeTransition.play();
-	    });
+				PauseTransition displayOneAway = new PauseTransition(Duration.millis(1000));
+				displayOneAway.setOnFinished(e -> mainStackPane.getChildren().remove(oneAwayPane));
+				displayOneAway.play();
+			}
+			if (guessCount == 4) {
+				Rectangle nextTimeRect = new Rectangle(88.13, 42);
+				nextTimeRect.setArcWidth(10);
+				nextTimeRect.setArcHeight(10);
+				nextTimeRect.setFill(Color.BLACK);
 
-	    sequentialTransition.play();
+				Text nextTimeText = new Text("Next Time");
+				nextTimeText.setFill(Color.WHITE);
+				nextTimeText.setFont(Font.font(16));
+
+				StackPane nextTimePane = new StackPane(nextTimeRect, nextTimeText);
+				mainStackPane.getChildren().add(nextTimePane);
+
+				PauseTransition displayNextTime = new PauseTransition(Duration.millis(1000));
+				displayNextTime.setOnFinished(e -> mainStackPane.getChildren().remove(nextTimePane));
+				displayNextTime.play();
+			}
+			ParallelTransition shakeTransition = createShakeTransition();
+			shakeTransition.setOnFinished(shakeEvent -> {
+				for (Node node : gridPane.getChildren()) {
+					if (node instanceof StackPane) {
+						StackPane stackPane = (StackPane) node;
+						Rectangle rectangle = (Rectangle) stackPane.getChildren().get(0);
+						Text text = (Text) stackPane.getChildren().get(1);
+						if (rectangle.getFill() == INCORRECT_COLOR) {
+							rectangle.setFill(DEFAULT_COLOR);
+							text.setFill(Color.BLACK);
+						}
+					}
+				}
+				PauseTransition deselectDelay = new PauseTransition(Duration.millis(500));
+				deselectDelay.setOnFinished(deselectEvent -> {
+					deselectButton.fire();
+					PauseTransition removeCircleDelay = new PauseTransition(Duration.millis(500));
+					removeCircleDelay.setOnFinished(removeCircleEvent -> removeCircle(circlePane));
+					removeCircleDelay.play();
+				});
+				deselectDelay.play();
+			});
+			shakeTransition.play();
+		});
+
+		sequentialTransition.play();
 	}
 
 	private ParallelTransition createShakeTransition() {
-	    ParallelTransition shakeTransition = new ParallelTransition();
-	    for (Node node : gridPane.getChildren()) {
-	        if (node instanceof StackPane) {
-	            StackPane stackPane = (StackPane) node;
-	            Rectangle rectangle = (Rectangle) stackPane.getChildren().get(0);
-	            if (rectangle.getFill() == SELECTED_COLOR) {
-	                rectangle.setFill(INCORRECT_COLOR);
-	                TranslateTransition individualShakeTransition = new TranslateTransition(Duration.millis(100),
-	                        stackPane);
-	                individualShakeTransition.setByX(8);
-	                individualShakeTransition.setAutoReverse(true);
-	                individualShakeTransition.setCycleCount(4);
-	                shakeTransition.getChildren().add(individualShakeTransition);
-	            }
-	        }
-	    }
-	    return shakeTransition;
+		ParallelTransition shakeTransition = new ParallelTransition();
+		for (Node node : gridPane.getChildren()) {
+			if (node instanceof StackPane) {
+				StackPane stackPane = (StackPane) node;
+				Rectangle rectangle = (Rectangle) stackPane.getChildren().get(0);
+				if (rectangle.getFill() == SELECTED_COLOR) {
+					rectangle.setFill(INCORRECT_COLOR);
+					TranslateTransition individualShakeTransition = new TranslateTransition(Duration.millis(100),
+							stackPane);
+					individualShakeTransition.setByX(8);
+					individualShakeTransition.setAutoReverse(true);
+					individualShakeTransition.setCycleCount(4);
+					shakeTransition.getChildren().add(individualShakeTransition);
+				}
+			}
+		}
+		return shakeTransition;
 	}
-	
+
 	private void animateCorrectGuess() {
 		SequentialTransition sequentialTransition = new SequentialTransition();
 		ParallelTransition jumpTransition = createJumpTransition();
