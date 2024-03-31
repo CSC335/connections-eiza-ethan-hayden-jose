@@ -27,6 +27,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -78,7 +79,7 @@ public class GameBoard extends Application {
 		}
 
 		private SequentialTransition getSwapTransitions() {
-			if(animActive) {
+			if (animActive) {
 				return null;
 			}
 			SequentialTransition sequence = new SequentialTransition();
@@ -87,10 +88,10 @@ public class GameBoard extends Application {
 			preparePause.setOnFinished(event -> {
 				animActive = true;
 				this.setVisible(true);
-				for(StackPane piece : usedOriginalPieces) {
+				for (StackPane piece : usedOriginalPieces) {
 					piece.setVisible(false);
 				}
-				for(StackPane piece : usedGhostPieces) {
+				for (StackPane piece : usedGhostPieces) {
 					piece.setVisible(true);
 				}
 //				
@@ -154,7 +155,7 @@ public class GameBoard extends Application {
 
 				destPiece.setTranslateX(0);
 				destPiece.setTranslateY(0);
-				
+
 				sourcePiece.setVisible(false);
 				destPiece.setVisible(false);
 
@@ -286,10 +287,10 @@ public class GameBoard extends Application {
 		}
 
 		Text topText = new Text("Create four groups of four!");
-		topText.setFont(Font.font(24));
+		topText.setFont(Font.font(18));
 
 		Text bottomText = new Text("Mistakes remaining:");
-		bottomText.setFont(Font.font(24));
+		bottomText.setFont(Font.font(16));
 
 		circlePane = new Pane();
 		circlePane.setPrefWidth(100);
@@ -298,7 +299,7 @@ public class GameBoard extends Application {
 			Circle circle = new Circle(8);
 			circle.setFill(Color.rgb(90, 89, 78));
 			circle.setLayoutX(i * 28 + 10);
-			circle.setLayoutY(circlePane.getPrefHeight() / 2 + 17);
+			circle.setLayoutY(circlePane.getPrefHeight() / 2 + 12);
 			circlePane.getChildren().add(circle);
 		}
 
@@ -386,6 +387,7 @@ public class GameBoard extends Application {
 				});
 				pause.play();
 			} else {
+				int matchCount = checkSelectedWords(currentGuess);
 				if (circlePane.getChildren().size() > 1) {
 					previousGuesses.add(currentGuess);
 
@@ -393,12 +395,11 @@ public class GameBoard extends Application {
 						showAlert("Congratulations!", "You have guessed all categories correctly!");
 						disableGameBoard();
 					} else {
-						if (checkSelectedWords(currentGuess)) {
-//							animPane.animSwapSelected();
+						
+						if (matchCount == 4) {
 							animateCorrectGuess();
-//							showAlert("Correct!", "You guessed correctly!");
 						} else {
-							animateIncorrectGuess();
+							animateIncorrectGuess(matchCount);
 						}
 					}
 				} else {
@@ -407,7 +408,7 @@ public class GameBoard extends Application {
 						disableGameBoard();
 					} else {
 						showAlert("Game Over!", "You have no more remaining guesses.");
-						animateIncorrectGuess();
+						animateIncorrectGuess(matchCount);
 						disableGameBoard();
 					}
 				}
@@ -459,6 +460,7 @@ public class GameBoard extends Application {
 					StackPane stackPane = (StackPane) node;
 					Rectangle rectangle = (Rectangle) stackPane.getChildren().get(0);
 					Text text = (Text) stackPane.getChildren().get(1);
+					text.setFont(Font.font("System", FontWeight.BOLD, 18));
 					Word word = words.get(index);
 					text.setText(word.getText().toUpperCase());
 					rectangle.setUserData(word);
@@ -466,7 +468,7 @@ public class GameBoard extends Application {
 					Rectangle rectangle = (Rectangle) node;
 					Word word = words.get(index);
 					Text text = new Text(word.getText().toUpperCase());
-					text.setFont(Font.font(18));
+					text.setFont(Font.font("System", FontWeight.BOLD, 18));
 					StackPane stackPane = new StackPane(rectangle, text);
 					gridPane.add(stackPane, col, row);
 					rectangle.setUserData(word);
@@ -518,16 +520,15 @@ public class GameBoard extends Application {
 		return null;
 	}
 
-	private boolean checkSelectedWords(Set<Word> selectedWords) {
+	private int checkSelectedWords(Set<Word> selectedWords) {
+		int maxMatchCount = 0;
 		for (DifficultyColor color : DifficultyColor.getAllColors()) {
 			GameAnswerColor answer = currentGame.getAnswerForColor(color);
 			List<String> colorWords = Arrays.asList(answer.getWords());
-			if (selectedWords.size() == colorWords.size()
-					&& selectedWords.stream().allMatch(word -> colorWords.contains(word.getText()))) {
-				return true;
-			}
+			int matchCount = (int) selectedWords.stream().filter(word -> colorWords.contains(word.getText())).count();
+			maxMatchCount = Math.max(maxMatchCount, matchCount);
 		}
-		return false;
+		return maxMatchCount;
 	}
 
 	private void showAlert(String title, String content) {
@@ -570,13 +571,13 @@ public class GameBoard extends Application {
 	}
 
 	private boolean checkAllCategoriesGuessed() {
-		Set<DifficultyColor> guessedColors = new HashSet<>();
-		for (Set<Word> guess : previousGuesses) {
-			if (checkSelectedWords(guess)) {
-				guessedColors.add(guess.iterator().next().getColor());
-			}
-		}
-		return guessedColors.size() == DifficultyColor.getAllColors().size();
+	    Set<DifficultyColor> guessedColors = new HashSet<>();
+	    for (Set<Word> guess : previousGuesses) {
+	        if (checkSelectedWords(guess) == 4) {
+	            guessedColors.add(guess.iterator().next().getColor());
+	        }
+	    }
+	    return guessedColors.size() == DifficultyColor.getAllColors().size();
 	}
 
 	private void disableGameBoard() {
@@ -598,16 +599,43 @@ public class GameBoard extends Application {
 		shuffleButton.setStyle(
 				"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 32px;");
 	}
+	
+	private void animateIncorrectGuess(int matchCount) {
+	    SequentialTransition sequentialTransition = new SequentialTransition();
+	    ParallelTransition jumpTransition = createJumpTransition();
+	    PauseTransition pauseAfterJump = new PauseTransition(Duration.millis(500));
 
-	private void animateIncorrectGuess() {
-		SequentialTransition sequentialTransition = new SequentialTransition();
-		ParallelTransition jumpTransition = createJumpTransition();
-		PauseTransition pauseTransition = new PauseTransition(Duration.millis(500));
-		ParallelTransition shakeTransition = createShakeTransition();
-		sequentialTransition.getChildren().addAll(jumpTransition, pauseTransition, shakeTransition);
-		sequentialTransition.play();
+	    sequentialTransition.getChildren().addAll(jumpTransition, pauseAfterJump);
+
+	    ParallelTransition shakeTransition = createShakeTransition();
+
+	    if (matchCount == 3) {
+	        Rectangle oneAwayRect = new Rectangle(96.09, 42);
+	        oneAwayRect.setArcWidth(10);
+	        oneAwayRect.setArcHeight(10);
+	        oneAwayRect.setFill(Color.BLACK);
+
+	        Text oneAwayText = new Text("One away...");
+	        oneAwayText.setFill(Color.WHITE);
+	        oneAwayText.setFont(Font.font(16));
+
+	        StackPane oneAwayPane = new StackPane(oneAwayRect, oneAwayText);
+	        
+	        sequentialTransition.setOnFinished(event -> {
+	            mainStackPane.getChildren().add(oneAwayPane);
+	            shakeTransition.play();
+
+	            PauseTransition displayOneAway = new PauseTransition(Duration.millis(1000));
+	            displayOneAway.setOnFinished(e -> mainStackPane.getChildren().remove(oneAwayPane));
+	            displayOneAway.play();
+	        });
+	    } else {
+	        sequentialTransition.setOnFinished(event -> shakeTransition.play());
+	    }
+
+	    sequentialTransition.play();
 	}
-
+	
 	private void animateCorrectGuess() {
 		SequentialTransition sequentialTransition = new SequentialTransition();
 		ParallelTransition jumpTransition = createJumpTransition();
