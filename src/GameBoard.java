@@ -344,10 +344,10 @@ public class GameBoard extends Application {
 			selectedCount = 0;
 			deselectButton.setDisable(true);
 			deselectButton.setStyle(
-					"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 32px;");
+					"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
 			submitButton.setDisable(true);
 			submitButton.setStyle(
-					"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 32px;");
+					"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
 		});
 
 		submitButton.setDisable(true);
@@ -425,7 +425,7 @@ public class GameBoard extends Application {
 	private Button createButton(String text, double width) {
 		Button button = new Button(text);
 		button.setStyle(
-				"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 32px;");
+				"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
 		button.setPrefHeight(48);
 		button.setPrefWidth(width);
 		button.setFont(Font.font(18));
@@ -489,12 +489,13 @@ public class GameBoard extends Application {
 
 						if (selectedCount != 0) {
 							deselectButton.setStyle(
-									"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 32px;");
+							"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
 						}
 
 						if (selectedCount == MAX_SELECTED) {
-							submitButton.setStyle(
-									"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 32px;");
+						    submitButton.setStyle("-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50;");
+						} else {
+						    submitButton.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-background-radius: 50; -fx-border-radius: 50;");
 						}
 					});
 
@@ -591,13 +592,13 @@ public class GameBoard extends Application {
 		});
 		deselectButton.setDisable(true);
 		deselectButton.setStyle(
-				"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 32px;");
+				"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
 		submitButton.setDisable(true);
 		submitButton.setStyle(
-				"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 32px;");
+				"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
 		shuffleButton.setDisable(true);
 		shuffleButton.setStyle(
-				"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 32px;");
+				"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
 	}
 	
 	private void animateIncorrectGuess(int matchCount) {
@@ -607,33 +608,70 @@ public class GameBoard extends Application {
 
 	    sequentialTransition.getChildren().addAll(jumpTransition, pauseAfterJump);
 
-	    ParallelTransition shakeTransition = createShakeTransition();
+	    sequentialTransition.setOnFinished(event -> {
+            if (matchCount == 3) {
+                Rectangle oneAwayRect = new Rectangle(96.09, 42);
+                oneAwayRect.setArcWidth(10);
+                oneAwayRect.setArcHeight(10);
+                oneAwayRect.setFill(Color.BLACK);
 
-	    if (matchCount == 3) {
-	        Rectangle oneAwayRect = new Rectangle(96.09, 42);
-	        oneAwayRect.setArcWidth(10);
-	        oneAwayRect.setArcHeight(10);
-	        oneAwayRect.setFill(Color.BLACK);
+                Text oneAwayText = new Text("One away...");
+                oneAwayText.setFill(Color.WHITE);
+                oneAwayText.setFont(Font.font(16));
 
-	        Text oneAwayText = new Text("One away...");
-	        oneAwayText.setFill(Color.WHITE);
-	        oneAwayText.setFont(Font.font(16));
+                StackPane oneAwayPane = new StackPane(oneAwayRect, oneAwayText);
+                mainStackPane.getChildren().add(oneAwayPane);
 
-	        StackPane oneAwayPane = new StackPane(oneAwayRect, oneAwayText);
-	        
-	        sequentialTransition.setOnFinished(event -> {
-	            mainStackPane.getChildren().add(oneAwayPane);
-	            shakeTransition.play();
-
-	            PauseTransition displayOneAway = new PauseTransition(Duration.millis(1000));
-	            displayOneAway.setOnFinished(e -> mainStackPane.getChildren().remove(oneAwayPane));
-	            displayOneAway.play();
+                PauseTransition displayOneAway = new PauseTransition(Duration.millis(1000));
+                displayOneAway.setOnFinished(e -> mainStackPane.getChildren().remove(oneAwayPane));
+                displayOneAway.play();
+            }
+	        ParallelTransition shakeTransition = createShakeTransition();
+	        shakeTransition.setOnFinished(shakeEvent -> {
+	            for (Node node : gridPane.getChildren()) {
+	                if (node instanceof StackPane) {
+	                    StackPane stackPane = (StackPane) node;
+	                    Rectangle rectangle = (Rectangle) stackPane.getChildren().get(0);
+	                    Text text = (Text) stackPane.getChildren().get(1);
+	                    if (rectangle.getFill() == INCORRECT_COLOR) {
+	                        rectangle.setFill(DEFAULT_COLOR);
+	                        text.setFill(Color.BLACK);
+	                    }
+	                }
+	            }
+	            PauseTransition deselectDelay = new PauseTransition(Duration.millis(500));
+	            deselectDelay.setOnFinished(deselectEvent -> {
+	                deselectButton.fire();
+	                PauseTransition removeCircleDelay = new PauseTransition(Duration.millis(500));
+	                removeCircleDelay.setOnFinished(removeCircleEvent -> removeCircle(circlePane));
+	                removeCircleDelay.play();
+	            });
+	            deselectDelay.play();
 	        });
-	    } else {
-	        sequentialTransition.setOnFinished(event -> shakeTransition.play());
-	    }
+	        shakeTransition.play();
+	    });
 
 	    sequentialTransition.play();
+	}
+
+	private ParallelTransition createShakeTransition() {
+	    ParallelTransition shakeTransition = new ParallelTransition();
+	    for (Node node : gridPane.getChildren()) {
+	        if (node instanceof StackPane) {
+	            StackPane stackPane = (StackPane) node;
+	            Rectangle rectangle = (Rectangle) stackPane.getChildren().get(0);
+	            if (rectangle.getFill() == SELECTED_COLOR) {
+	                rectangle.setFill(INCORRECT_COLOR);
+	                TranslateTransition individualShakeTransition = new TranslateTransition(Duration.millis(100),
+	                        stackPane);
+	                individualShakeTransition.setByX(8);
+	                individualShakeTransition.setAutoReverse(true);
+	                individualShakeTransition.setCycleCount(4);
+	                shakeTransition.getChildren().add(individualShakeTransition);
+	            }
+	        }
+	    }
+	    return shakeTransition;
 	}
 	
 	private void animateCorrectGuess() {
@@ -665,48 +703,6 @@ public class GameBoard extends Application {
 			}
 		}
 		return jumpTransition;
-	}
-
-	private ParallelTransition createShakeTransition() {
-		ParallelTransition shakeTransition = new ParallelTransition();
-		for (Node node : gridPane.getChildren()) {
-			if (node instanceof StackPane) {
-				StackPane stackPane = (StackPane) node;
-				Rectangle rectangle = (Rectangle) stackPane.getChildren().get(0);
-				Text text = (Text) stackPane.getChildren().get(1);
-				if (rectangle.getFill() == SELECTED_COLOR) {
-					rectangle.setFill(INCORRECT_COLOR);
-					TranslateTransition individualShakeTransition = new TranslateTransition(Duration.millis(100),
-							stackPane);
-					individualShakeTransition.setByX(8);
-					individualShakeTransition.setAutoReverse(true);
-					individualShakeTransition.setCycleCount(2);
-					shakeTransition.getChildren().add(individualShakeTransition);
-				}
-			}
-		}
-		shakeTransition.setOnFinished(event -> {
-			for (Node node : gridPane.getChildren()) {
-				if (node instanceof StackPane) {
-					StackPane stackPane = (StackPane) node;
-					Rectangle rectangle = (Rectangle) stackPane.getChildren().get(0);
-					Text text = (Text) stackPane.getChildren().get(1);
-					if (rectangle.getFill() == INCORRECT_COLOR) {
-						rectangle.setFill(DEFAULT_COLOR);
-						text.setFill(Color.BLACK);
-					}
-				}
-			}
-			PauseTransition deselectDelay = new PauseTransition(Duration.millis(500));
-			deselectDelay.setOnFinished(deselectEvent -> {
-				deselectButton.fire();
-				PauseTransition removeCircleDelay = new PauseTransition(Duration.millis(500));
-				removeCircleDelay.setOnFinished(removeCircleEvent -> removeCircle(circlePane));
-				removeCircleDelay.play();
-			});
-			deselectDelay.play();
-		});
-		return shakeTransition;
 	}
 
 	public static void main(String[] args) {
