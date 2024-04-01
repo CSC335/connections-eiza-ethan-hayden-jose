@@ -1,4 +1,3 @@
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -218,6 +217,7 @@ public class GameBoard extends Application {
 
 			this.setVisible(false);
 			deselectButton.fire();
+			forceDeselect();
 			currentRow++;
 		}
 
@@ -278,7 +278,7 @@ public class GameBoard extends Application {
 		gridPane.setHgap(GAP);
 		gridPane.setVgap(GAP);
 		gridPane.setAlignment(Pos.CENTER);
-		
+
 		animPane = new AnimationPane(gridPane);
 		animPane.setVisible(false);
 		mainStackPane = new StackPane(gridPane, animPane);
@@ -346,16 +346,7 @@ public class GameBoard extends Application {
 		deselectButton.setDisable(true);
 
 		deselectButton.setOnAction(event -> {
-			gridPane.getChildren().forEach(node -> {
-				if (node instanceof StackPane) {
-					StackPane stackPane = (StackPane) node;
-					Rectangle rectangle = (Rectangle) stackPane.getChildren().get(0);
-					Text text = (Text) stackPane.getChildren().get(1);
-					rectangle.setFill(DEFAULT_COLOR);
-					text.setFill(Color.BLACK);
-				}
-			});
-			selectedCount = 0;
+			forceDeselect();
 			deselectButton.setDisable(true);
 			deselectButton.setStyle(
 					"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
@@ -380,7 +371,7 @@ public class GameBoard extends Application {
 		submitButton.setOnAction(event -> {
 			guessCount++;
 			Set<Word> currentGuess = new HashSet<>(getSelectedWords());
-			
+
 			if (previousGuesses.contains(currentGuess)) {
 				Rectangle alreadyGuessedRect = new Rectangle(132.09, 42);
 				alreadyGuessedRect.setArcWidth(10);
@@ -400,6 +391,7 @@ public class GameBoard extends Application {
 				pause.setOnFinished(pauseEvent -> {
 					wholeGameStackPane.getChildren().remove(alreadyGuessedPane);
 					deselectButton.fire();
+					forceDeselect();
 				});
 				pause.play();
 			} else {
@@ -632,7 +624,7 @@ public class GameBoard extends Application {
 
 		Label titleLabel = wonGame ? new Label("Perfect!") : new Label("Next Time!");
 		titleLabel.setFont(Font.font(36));
-		VBox.setMargin(titleLabel, new Insets(80, 0, 0, 0));
+		VBox.setMargin(titleLabel, new Insets(54, 0, 0, 0));
 
 		Label connectionsLabel = new Label("Connections #294");
 		connectionsLabel.setFont(Font.font(20));
@@ -685,22 +677,22 @@ public class GameBoard extends Application {
 
 		// Create a timeline to update the timer every second
 		Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
-		    LocalDateTime now = LocalDateTime.now();
-		    LocalDateTime midnight = LocalDateTime.of(now.toLocalDate().plusDays(1), LocalTime.MIDNIGHT);
+			LocalDateTime now = LocalDateTime.now();
+			LocalDateTime midnight = LocalDateTime.of(now.toLocalDate().plusDays(1), LocalTime.MIDNIGHT);
 
-		    // Convert LocalDateTime to milliseconds
-		    long nowMillis = now.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-		    long midnightMillis = midnight.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+			// Convert LocalDateTime to milliseconds
+			long nowMillis = now.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+			long midnightMillis = midnight.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
-		    // Calculate the duration from the difference in milliseconds
-		    Duration duration = Duration.millis(midnightMillis - nowMillis);
+			// Calculate the duration from the difference in milliseconds
+			Duration duration = Duration.millis(midnightMillis - nowMillis);
 
-		    long hours = (long) duration.toHours();
-		    long minutes = (long) (duration.toMinutes() % 60);
-		    long seconds = (long) (duration.toSeconds() % 60);
+			long hours = (long) duration.toHours();
+			long minutes = (long) (duration.toMinutes() % 60);
+			long seconds = (long) (duration.toSeconds() % 60);
 
-		    String timerText = String.format("%02d:%02d:%02d", hours, minutes, seconds);
-		    timerLabel.setText(timerText);
+			String timerText = String.format("%02d:%02d:%02d", hours, minutes, seconds);
+			timerLabel.setText(timerText);
 		}));
 
 		timeline.setCycleCount(Timeline.INDEFINITE);
@@ -712,6 +704,8 @@ public class GameBoard extends Application {
 		shareButton.setStyle(
 				"-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50;");
 
+		VBox.setMargin(shareButton, new Insets(0, 0, 20, 0));
+
 		shareButton.setOnMouseEntered(e -> {
 			shareButton.setStyle(
 					"-fx-background-color: rgb(18,18,18); -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-cursor: hand;");
@@ -721,13 +715,15 @@ public class GameBoard extends Application {
 					"-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-cursor: default;");
 		});
 
+		shareButton.setTranslateY(4);
+
 		resultsLayout.getChildren().addAll(titleLabel, connectionsLabel, gridPane, timerBox, shareButton);
 
 		StackPane resultsPane = new StackPane(resultsLayout);
 		resultsPane.setStyle("-fx-background-color: white; -fx-effect: dropshadow(gaussian, black, 20, 0, 0, 0);");
-		resultsPane.setPrefSize(667, 356 + (guessCount * 40) + ((guessCount - 1) * GAP) + 52);
+		resultsPane.setPrefSize(667, 356 + (guessCount * 40) + ((guessCount - 1) * GAP) + 49);
 		resultsPane.setMaxWidth(667);
-		resultsPane.setMaxHeight(356 + (guessCount * 40) + ((guessCount - 1) * GAP) + 52);
+		resultsPane.setMaxHeight(356 + (guessCount * 40) + ((guessCount - 1) * GAP) + 49);
 
 		HBox backToPuzzleBox = new HBox(6.4);
 		backToPuzzleBox.setAlignment(Pos.TOP_RIGHT);
@@ -735,12 +731,12 @@ public class GameBoard extends Application {
 		Text backToPuzzleText = new Text("Back to puzzle");
 		backToPuzzleText.setFont(Font.font(16));
 		backToPuzzleText.setOnMouseEntered(e -> {
-		    backToPuzzleText.setUnderline(true);
-		    backToPuzzleText.setCursor(Cursor.HAND);
+			backToPuzzleText.setUnderline(true);
+			backToPuzzleText.setCursor(Cursor.HAND);
 		});
 		backToPuzzleText.setOnMouseExited(e -> {
-		    backToPuzzleText.setUnderline(false);
-		    backToPuzzleText.setCursor(Cursor.DEFAULT);
+			backToPuzzleText.setUnderline(false);
+			backToPuzzleText.setCursor(Cursor.DEFAULT);
 		});
 		backToPuzzleText.setTextAlignment(TextAlignment.CENTER);
 		backToPuzzleText.setTextOrigin(VPos.CENTER);
@@ -748,12 +744,12 @@ public class GameBoard extends Application {
 		Text xText = new Text("X");
 		xText.setFont(Font.font(20));
 		xText.setOnMouseEntered(e -> {
-		    xText.setCursor(Cursor.HAND);
+			xText.setCursor(Cursor.HAND);
 		});
 		xText.setOnMouseExited(e -> {
-		    xText.setCursor(Cursor.DEFAULT);
+			xText.setCursor(Cursor.DEFAULT);
 		});
-		
+
 		xText.setTranslateY(-2);
 
 		backToPuzzleBox.getChildren().addAll(backToPuzzleText, xText);
@@ -769,8 +765,12 @@ public class GameBoard extends Application {
 		Scene scene = new Scene(overlayPane, STAGE_WIDTH, STAGE_HEIGHT);
 		stage.setScene(scene);
 
-		backToPuzzleBox.setOnMouseClicked(e -> {
-		    overlayPane.getChildren().remove(resultsPane);
+		backToPuzzleText.setOnMouseClicked(e -> {
+			overlayPane.getChildren().remove(resultsPane);
+		});
+
+		xText.setOnMouseClicked(e -> {
+			overlayPane.getChildren().remove(resultsPane);
 		});
 	}
 
@@ -834,6 +834,7 @@ public class GameBoard extends Application {
 				PauseTransition deselectDelay = new PauseTransition(Duration.millis(500));
 				deselectDelay.setOnFinished(deselectEvent -> {
 					deselectButton.fire();
+					forceDeselect();
 					PauseTransition removeCircleDelay = new PauseTransition(Duration.millis(500));
 					removeCircleDelay.setOnFinished(removeCircleEvent -> {
 						removeCircle(circlePane);
@@ -932,7 +933,8 @@ public class GameBoard extends Application {
 		shuffleButton.setDisable(true);
 		deselectButton.setDisable(true);
 		submitButton.setDisable(true);
-	    submitButton.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-background-radius: 50; -fx-border-radius: 50;");
+		submitButton.setStyle(
+				"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-background-radius: 50; -fx-border-radius: 50;");
 	}
 
 	private void enableButtons() {
@@ -940,21 +942,34 @@ public class GameBoard extends Application {
 		deselectButton.setDisable(false);
 		selectedCount = 0;
 	}
-	
+
 	private void disableRectangles() {
-	    for (Node node : gridPane.getChildren()) {
-	        if (node instanceof StackPane) {
-	            node.setDisable(true);
-	        }
-	    }
+		for (Node node : gridPane.getChildren()) {
+			if (node instanceof StackPane) {
+				node.setDisable(true);
+			}
+		}
 	}
-	
+
 	private void enableRectangles() {
-	    for (Node node : gridPane.getChildren()) {
-	        if (node instanceof StackPane) {
-	            node.setDisable(false);
-	        }
-	    }
+		for (Node node : gridPane.getChildren()) {
+			if (node instanceof StackPane) {
+				node.setDisable(false);
+			}
+		}
+	}
+
+	private void forceDeselect() {
+		gridPane.getChildren().forEach(node -> {
+			if (node instanceof StackPane) {
+				StackPane stackPane = (StackPane) node;
+				Rectangle rectangle = (Rectangle) stackPane.getChildren().get(0);
+				Text text = (Text) stackPane.getChildren().get(1);
+				rectangle.setFill(DEFAULT_COLOR);
+				text.setFill(Color.BLACK);
+			}
+		});
+		selectedCount = 0;
 	}
 
 	public static void main(String[] args) {
