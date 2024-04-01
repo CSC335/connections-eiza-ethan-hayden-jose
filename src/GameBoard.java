@@ -275,7 +275,7 @@ public class GameBoard extends Application {
 	}
 
 	@Override
-	public void start(Stage primaryStage) {
+	public void start(Stage primaryStage) throws FileNotFoundException {
 		gridPane = new GridPane();
 		gridPane.setHgap(GAP);
 		gridPane.setVgap(GAP);
@@ -303,10 +303,12 @@ public class GameBoard extends Application {
 		}
 
 		Text topText = new Text("Create four groups of four!");
-		topText.setFont(Font.font(18));
+		Font franklin500_18 = Font.loadFont(new FileInputStream("Fonts/franklin-normal-500.ttf"), 18);
+		topText.setFont(franklin500_18);
 
 		Text bottomText = new Text("Mistakes remaining:");
-		bottomText.setFont(Font.font(16));
+		Font franklin500_16 = Font.loadFont(new FileInputStream("Fonts/franklin-normal-500.ttf"), 16);
+		bottomText.setFont(franklin500_16);
 
 		circlePane = new Pane();
 		circlePane.setPrefWidth(100);
@@ -406,7 +408,12 @@ public class GameBoard extends Application {
 					if (checkAllCategoriesGuessed()) {
 						wonGame = true;
 						animateCorrectGuess();
-						disableGameBoard();
+						try {
+							disableGameBoard();
+						} catch (FileNotFoundException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					} else {
 						if (matchCount == 4) {
 							animateCorrectGuess();
@@ -417,7 +424,12 @@ public class GameBoard extends Application {
 				} else {
 					gameLost = true;
 					animateIncorrectGuess(matchCount);
-					disableGameBoard();
+					try {
+						disableGameBoard();
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			}
 		});
@@ -435,13 +447,14 @@ public class GameBoard extends Application {
 //		}
 	}
 
-	private Button createButton(String text, double width) {
+	private Button createButton(String text, double width) throws FileNotFoundException {
 		Button button = new Button(text);
 		button.setStyle(
 				"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
 		button.setPrefHeight(48);
 		button.setPrefWidth(width);
-		button.setFont(Font.font(18));
+		Font franklin600_16 = Font.loadFont(new FileInputStream("Fonts/franklin-normal-600.ttf"), 16);
+		button.setFont(franklin600_16);
 
 		button.setOnMouseEntered(event -> {
 			button.setCursor(Cursor.HAND);
@@ -454,7 +467,7 @@ public class GameBoard extends Application {
 		return button;
 	}
 
-	private void placeWordsInRectangles(GameData game, GridPane gridPane) {
+	private void placeWordsInRectangles(GameData game, GridPane gridPane) throws FileNotFoundException {
 		List<Word> words = new ArrayList<>();
 		for (DifficultyColor color : DifficultyColor.getAllColors()) {
 			GameAnswerColor answer = game.getAnswerForColor(color);
@@ -464,7 +477,7 @@ public class GameBoard extends Application {
 		}
 
 		Collections.shuffle(words);
-
+		Font franklin700_18 = Font.loadFont(new FileInputStream("Fonts/franklin-normal-700.ttf"), 18);
 		int index = 0;
 		for (int row = 0; row < ROWS; row++) {
 			for (int col = 0; col < COLS; col++) {
@@ -473,7 +486,7 @@ public class GameBoard extends Application {
 					StackPane stackPane = (StackPane) node;
 					Rectangle rectangle = (Rectangle) stackPane.getChildren().get(0);
 					Text text = (Text) stackPane.getChildren().get(1);
-					text.setFont(Font.font("System", FontWeight.BOLD, 18));
+					text.setFont(franklin700_18);
 					Word word = words.get(index);
 					text.setText(word.getText().toUpperCase());
 					rectangle.setUserData(word);
@@ -481,7 +494,7 @@ public class GameBoard extends Application {
 					Rectangle rectangle = (Rectangle) node;
 					Word word = words.get(index);
 					Text text = new Text(word.getText().toUpperCase());
-					text.setFont(Font.font("System", FontWeight.BOLD, 18));
+					text.setFont(franklin700_18);
 					StackPane stackPane = new StackPane(rectangle, text);
 					gridPane.add(stackPane, col, row);
 					rectangle.setUserData(word);
@@ -587,7 +600,7 @@ public class GameBoard extends Application {
 		return guessedColors.size() == DifficultyColor.getAllColors().size();
 	}
 
-	private void disableGameBoard() {
+	private void disableGameBoard() throws FileNotFoundException {
 		gridPane.getChildren().forEach(node -> {
 			if (node instanceof StackPane) {
 				node.setDisable(true);
@@ -608,7 +621,9 @@ public class GameBoard extends Application {
 		viewResultsButton.setStyle(
 				"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
 		viewResultsButton.setPrefSize(160, 48);
-		viewResultsButton.setFont(Font.font(18));
+
+		Font franklin600_16 = Font.loadFont(new FileInputStream("Fonts/franklin-normal-600.ttf"), 16);
+		viewResultsButton.setFont(franklin600_16);
 
 		viewResultsButton.setOnMouseEntered(event -> {
 			viewResultsButton.setCursor(Cursor.HAND);
@@ -632,13 +647,14 @@ public class GameBoard extends Application {
 //		resultsLayout.setPadding(new Insets(20));
 
 		Label titleLabel = wonGame ? new Label("Perfect!") : new Label("Next Time!");
-		Font karnakFont = Font.loadFont(new FileInputStream("Fonts/karnakpro-condensedblack.ttf"), 36);
-		titleLabel.setFont(karnakFont);
+		Font karnakFont36 = Font.loadFont(new FileInputStream("Fonts/karnakpro-condensedblack.ttf"), 36);
+		titleLabel.setFont(karnakFont36);
 		titleLabel.setTextFill(Color.BLACK);
 		VBox.setMargin(titleLabel, new Insets(80, 0, 0, 0));
-		
+
 		Label connectionsLabel = new Label("Connections #294");
-		connectionsLabel.setFont(Font.font(20));
+		Font franklin500_20 = Font.loadFont(new FileInputStream("Fonts/franklin-normal-500.ttf"), 20);
+		connectionsLabel.setFont(franklin500_20);
 		VBox.setMargin(connectionsLabel, new Insets(18, 0, 0, 0));
 
 		GridPane gridPane = new GridPane();
@@ -677,12 +693,14 @@ public class GameBoard extends Application {
 		}
 
 		Label nextPuzzleInLabel = new Label("NEXT PUZZLE IN");
-		nextPuzzleInLabel.setFont(Font.font(20));
+		Font franklin600_20 = Font.loadFont(new FileInputStream("Fonts/franklin-normal-600.ttf"), 20);
+		nextPuzzleInLabel.setFont(franklin600_20);
 		nextPuzzleInLabel.setAlignment(Pos.CENTER);
 		VBox.setMargin(nextPuzzleInLabel, new Insets(20, 0, 0, 0));
 
 		Label timerLabel = new Label();
-		timerLabel.setFont(Font.font(40));
+		Font franklin600_40 = Font.loadFont(new FileInputStream("Fonts/franklin-normal-600.ttf"), 40);
+		timerLabel.setFont(franklin600_40);
 		timerLabel.setAlignment(Pos.CENTER);
 		VBox.setMargin(timerLabel, new Insets(-10, 0, 0, 0));
 
@@ -711,19 +729,20 @@ public class GameBoard extends Application {
 
 		Button shareButton = new Button("Share Your Results");
 		shareButton.setPrefSize(162, 48);
-		shareButton.setFont(Font.font("System", FontWeight.BOLD, 16));
+		Font franklin600_16 = Font.loadFont(new FileInputStream("Fonts/franklin-normal-600.ttf"), 16);
+		shareButton.setFont(franklin600_16);
 		shareButton.setStyle(
-		        "-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;");
-		
+				"-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;");
+
 		VBox.setMargin(shareButton, new Insets(21, 0, 20, 0));
 
 		shareButton.setOnMouseEntered(e -> {
-		    shareButton.setStyle(
-		            "-fx-background-color: rgb(18,18,18); -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-cursor: hand; -fx-min-height: 48px; -fx-max-height: 48px;");
+			shareButton.setStyle(
+					"-fx-background-color: rgb(18,18,18); -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-cursor: hand; -fx-min-height: 48px; -fx-max-height: 48px;");
 		});
 		shareButton.setOnMouseExited(e -> {
-		    shareButton.setStyle(
-		            "-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-cursor: default; -fx-min-height: 48px; -fx-max-height: 48px;");
+			shareButton.setStyle(
+					"-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-cursor: default; -fx-min-height: 48px; -fx-max-height: 48px;");
 		});
 
 		shareButton.setTranslateY(4);
@@ -740,7 +759,7 @@ public class GameBoard extends Application {
 		backToPuzzleBox.setAlignment(Pos.TOP_RIGHT);
 
 		Text backToPuzzleText = new Text("Back to puzzle");
-		backToPuzzleText.setFont(Font.font(16));
+		backToPuzzleText.setFont(franklin600_16);
 		backToPuzzleText.setOnMouseEntered(e -> {
 			backToPuzzleText.setUnderline(true);
 			backToPuzzleText.setCursor(Cursor.HAND);
@@ -753,7 +772,7 @@ public class GameBoard extends Application {
 		backToPuzzleText.setTextOrigin(VPos.CENTER);
 
 		Text xText = new Text("X");
-		xText.setFont(Font.font(20));
+		xText.setFont(franklin600_20);
 		xText.setOnMouseEntered(e -> {
 			xText.setCursor(Cursor.HAND);
 		});
@@ -853,15 +872,14 @@ public class GameBoard extends Application {
 						enableRectangles();
 						if (gameLost) {
 							PauseTransition delay = new PauseTransition(Duration.millis(500));
-							delay.setOnFinished(
-									e -> {
-										try {
-											showResultsPane((Stage) wholeGameStackPane.getScene().getWindow());
-										} catch (FileNotFoundException e1) {
-											// TODO Auto-generated catch block
-											e1.printStackTrace();
-										}
-									});
+							delay.setOnFinished(e -> {
+								try {
+									showResultsPane((Stage) wholeGameStackPane.getScene().getWindow());
+								} catch (FileNotFoundException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+							});
 							delay.play();
 						}
 					});
