@@ -1,3 +1,5 @@
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -8,7 +10,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javafx.animation.KeyFrame;
 import javafx.animation.ParallelTransition;
 import javafx.animation.PauseTransition;
@@ -426,9 +427,15 @@ public class GameBoard extends Application {
 
 		Scene scene = new Scene(wholeGameStackPane, STAGE_WIDTH, STAGE_HEIGHT);
 		primaryStage.setScene(scene);
-		primaryStage.setTitle("Game Board");
+		primaryStage.setTitle("Connections");
 		primaryStage.setResizable(false);
 		primaryStage.show();
+//		try {
+//			showResultsPane((Stage) wholeGameStackPane.getScene().getWindow());
+//		} catch (FileNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 
 	private Button createButton(String text, double width) {
@@ -610,22 +617,29 @@ public class GameBoard extends Application {
 			viewResultsButton.setCursor(Cursor.HAND);
 		});
 		viewResultsButton.setOnMouseClicked(event -> {
-			showResultsPane((Stage) wholeGameStackPane.getScene().getWindow());
+			try {
+				showResultsPane((Stage) wholeGameStackPane.getScene().getWindow());
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		});
 
 		buttonBox.setAlignment(Pos.CENTER);
 		buttonBox.getChildren().add(viewResultsButton);
 	}
 
-	private void showResultsPane(Stage stage) {
+	private void showResultsPane(Stage stage) throws FileNotFoundException {
 		VBox resultsLayout = new VBox(20);
 		resultsLayout.setAlignment(Pos.CENTER);
 		resultsLayout.setPadding(new Insets(20));
 
 		Label titleLabel = wonGame ? new Label("Perfect!") : new Label("Next Time!");
-		titleLabel.setFont(Font.font(36));
+		Font karnakFont = Font.loadFont(new FileInputStream("Fonts/karnakpro-condensedblack.ttf"), 36);
+		titleLabel.setFont(karnakFont);
+		titleLabel.setTextFill(Color.BLACK);
 		VBox.setMargin(titleLabel, new Insets(54, 0, 0, 0));
-
+		
 		Label connectionsLabel = new Label("Connections #294");
 		connectionsLabel.setFont(Font.font(20));
 		VBox.setMargin(connectionsLabel, new Insets(8, 0, 0, 0));
@@ -675,16 +689,13 @@ public class GameBoard extends Application {
 		VBox timerBox = new VBox(5, nextPuzzleInLabel, timerLabel);
 		timerBox.setAlignment(Pos.CENTER);
 
-		// Create a timeline to update the timer every second
 		Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
 			LocalDateTime now = LocalDateTime.now();
 			LocalDateTime midnight = LocalDateTime.of(now.toLocalDate().plusDays(1), LocalTime.MIDNIGHT);
 
-			// Convert LocalDateTime to milliseconds
 			long nowMillis = now.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 			long midnightMillis = midnight.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
-			// Calculate the duration from the difference in milliseconds
 			Duration duration = Duration.millis(midnightMillis - nowMillis);
 
 			long hours = (long) duration.toHours();
@@ -700,19 +711,19 @@ public class GameBoard extends Application {
 
 		Button shareButton = new Button("Share Your Results");
 		shareButton.setPrefSize(162, 48);
-		shareButton.setFont(Font.font(16));
+		shareButton.setFont(Font.font("System", FontWeight.BOLD, 16));
 		shareButton.setStyle(
-				"-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50;");
-
+		        "-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;");
+		
 		VBox.setMargin(shareButton, new Insets(0, 0, 20, 0));
 
 		shareButton.setOnMouseEntered(e -> {
-			shareButton.setStyle(
-					"-fx-background-color: rgb(18,18,18); -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-cursor: hand;");
+		    shareButton.setStyle(
+		            "-fx-background-color: rgb(18,18,18); -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-cursor: hand; -fx-min-height: 48px; -fx-max-height: 48px;");
 		});
 		shareButton.setOnMouseExited(e -> {
-			shareButton.setStyle(
-					"-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-cursor: default;");
+		    shareButton.setStyle(
+		            "-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-cursor: default; -fx-min-height: 48px; -fx-max-height: 48px;");
 		});
 
 		shareButton.setTranslateY(4);
@@ -843,7 +854,14 @@ public class GameBoard extends Application {
 						if (gameLost) {
 							PauseTransition delay = new PauseTransition(Duration.millis(500));
 							delay.setOnFinished(
-									e -> showResultsPane((Stage) wholeGameStackPane.getScene().getWindow()));
+									e -> {
+										try {
+											showResultsPane((Stage) wholeGameStackPane.getScene().getWindow());
+										} catch (FileNotFoundException e1) {
+											// TODO Auto-generated catch block
+											e1.printStackTrace();
+										}
+									});
 							delay.play();
 						}
 					});
@@ -897,7 +915,13 @@ public class GameBoard extends Application {
 			sequentialTransition.getChildren().addAll(jumpTransition, pauseTransition);
 			sequentialTransition.setOnFinished(event -> {
 				if (wonGame) {
-					showResultsPane((Stage) wholeGameStackPane.getScene().getWindow());
+					forceDeselect();
+					try {
+						showResultsPane((Stage) wholeGameStackPane.getScene().getWindow());
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				} else {
 					enableButtons();
 					enableRectangles();
