@@ -21,6 +21,7 @@ import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
@@ -37,6 +38,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -727,21 +729,39 @@ public class GameBoard extends Application {
 		resultsPane.setMaxWidth(667);
 		resultsPane.setMaxHeight(356 + (guessCount * 40) + ((guessCount - 1) * GAP) + 52);
 
+		HBox backToPuzzleBox = new HBox(6.4);
+		backToPuzzleBox.setAlignment(Pos.TOP_RIGHT);
+
 		Text backToPuzzleText = new Text("Back to puzzle");
 		backToPuzzleText.setFont(Font.font(16));
 		backToPuzzleText.setOnMouseEntered(e -> {
-			backToPuzzleText.setUnderline(true);
-			backToPuzzleText.setCursor(Cursor.HAND);
+		    backToPuzzleText.setUnderline(true);
+		    backToPuzzleText.setCursor(Cursor.HAND);
 		});
 		backToPuzzleText.setOnMouseExited(e -> {
-			backToPuzzleText.setUnderline(false);
-			backToPuzzleText.setCursor(Cursor.DEFAULT);
+		    backToPuzzleText.setUnderline(false);
+		    backToPuzzleText.setCursor(Cursor.DEFAULT);
 		});
+		backToPuzzleText.setTextAlignment(TextAlignment.CENTER);
+		backToPuzzleText.setTextOrigin(VPos.CENTER);
 
-		StackPane.setAlignment(backToPuzzleText, Pos.TOP_RIGHT);
-		StackPane.setMargin(backToPuzzleText, new Insets(19.2, 19.2, 0, 0));
+		Text xText = new Text("X");
+		xText.setFont(Font.font(20));
+		xText.setOnMouseEntered(e -> {
+		    xText.setCursor(Cursor.HAND);
+		});
+		xText.setOnMouseExited(e -> {
+		    xText.setCursor(Cursor.DEFAULT);
+		});
+		
+		xText.setTranslateY(-2);
 
-		resultsPane.getChildren().add(backToPuzzleText);
+		backToPuzzleBox.getChildren().addAll(backToPuzzleText, xText);
+
+		StackPane.setAlignment(backToPuzzleBox, Pos.TOP_RIGHT);
+		StackPane.setMargin(backToPuzzleBox, new Insets(19.2, 19.2, 0, 0));
+
+		resultsPane.getChildren().add(backToPuzzleBox);
 
 		StackPane overlayPane = new StackPane(wholeGameStackPane, resultsPane);
 		overlayPane.setAlignment(Pos.CENTER);
@@ -749,8 +769,8 @@ public class GameBoard extends Application {
 		Scene scene = new Scene(overlayPane, STAGE_WIDTH, STAGE_HEIGHT);
 		stage.setScene(scene);
 
-		backToPuzzleText.setOnMouseClicked(e -> {
-			overlayPane.getChildren().remove(resultsPane);
+		backToPuzzleBox.setOnMouseClicked(e -> {
+		    overlayPane.getChildren().remove(resultsPane);
 		});
 	}
 
