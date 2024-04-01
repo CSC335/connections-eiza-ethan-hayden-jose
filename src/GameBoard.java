@@ -54,7 +54,7 @@ public class GameBoard extends Application {
 	private static final Color SELECTED_COLOR = Color.rgb(90, 89, 78);
 	private static final Color INCORRECT_COLOR = Color.rgb(130, 131, 122);
 	private static final int STAGE_WIDTH = 800;
-	private static final int STAGE_HEIGHT = 700;
+	private static final int STAGE_HEIGHT = 720;
 	private static final int MAX_SELECTED = 4;
 
 	private int selectedCount = 0;
@@ -415,15 +415,9 @@ public class GameBoard extends Application {
 						}
 					}
 				} else {
-					if (checkAllCategoriesGuessed()) {
-						wonGame = true;
-						animateCorrectGuess();
-						disableGameBoard();
-					} else {
-						gameLost = true;
-						animateIncorrectGuess(matchCount);
-						disableGameBoard();
-					}
+					gameLost = true;
+					animateIncorrectGuess(matchCount);
+					disableGameBoard();
 				}
 			}
 		});
@@ -633,23 +627,24 @@ public class GameBoard extends Application {
 	}
 
 	private void showResultsPane(Stage stage) throws FileNotFoundException {
-		VBox resultsLayout = new VBox(20);
-		resultsLayout.setAlignment(Pos.CENTER);
-		resultsLayout.setPadding(new Insets(20));
+		VBox resultsLayout = new VBox(0);
+		resultsLayout.setAlignment(Pos.TOP_CENTER);
+//		resultsLayout.setPadding(new Insets(20));
 
 		Label titleLabel = wonGame ? new Label("Perfect!") : new Label("Next Time!");
 		Font karnakFont = Font.loadFont(new FileInputStream("Fonts/karnakpro-condensedblack.ttf"), 36);
 		titleLabel.setFont(karnakFont);
 		titleLabel.setTextFill(Color.BLACK);
-		VBox.setMargin(titleLabel, new Insets(54, 0, 0, 0));
+		VBox.setMargin(titleLabel, new Insets(80, 0, 0, 0));
 		
 		Label connectionsLabel = new Label("Connections #294");
 		connectionsLabel.setFont(Font.font(20));
-		VBox.setMargin(connectionsLabel, new Insets(-2, 0, 0, 0));
+		VBox.setMargin(connectionsLabel, new Insets(18, 0, 0, 0));
 
 		GridPane gridPane = new GridPane();
 		gridPane.setVgap(GAP);
 		gridPane.setAlignment(Pos.CENTER);
+		VBox.setMargin(gridPane, new Insets(20, 0, 0, 0));
 
 		Color[] colors = { Color.rgb(249, 223, 109), // Yellow
 				Color.rgb(160, 195, 90), // Green
@@ -684,10 +679,12 @@ public class GameBoard extends Application {
 		Label nextPuzzleInLabel = new Label("NEXT PUZZLE IN");
 		nextPuzzleInLabel.setFont(Font.font(20));
 		nextPuzzleInLabel.setAlignment(Pos.CENTER);
+		VBox.setMargin(nextPuzzleInLabel, new Insets(20, 0, 0, 0));
 
 		Label timerLabel = new Label();
 		timerLabel.setFont(Font.font(40));
 		timerLabel.setAlignment(Pos.CENTER);
+		VBox.setMargin(timerLabel, new Insets(-10, 0, 0, 0));
 
 		VBox timerBox = new VBox(5, nextPuzzleInLabel, timerLabel);
 		timerBox.setAlignment(Pos.CENTER);
@@ -718,7 +715,7 @@ public class GameBoard extends Application {
 		shareButton.setStyle(
 		        "-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;");
 		
-		VBox.setMargin(shareButton, new Insets(0, 0, 20, 0));
+		VBox.setMargin(shareButton, new Insets(21, 0, 20, 0));
 
 		shareButton.setOnMouseEntered(e -> {
 		    shareButton.setStyle(
@@ -735,9 +732,9 @@ public class GameBoard extends Application {
 
 		StackPane resultsPane = new StackPane(resultsLayout);
 		resultsPane.setStyle("-fx-background-color: white; -fx-effect: dropshadow(gaussian, black, 20, 0, 0, 0);");
-		resultsPane.setPrefSize(667, 356 + (guessCount * 40) + ((guessCount - 1) * GAP) + 39);
+		resultsPane.setPrefSize(667, 356 + (guessCount * 40) + ((guessCount - 1) * GAP) + 29);
 		resultsPane.setMaxWidth(667);
-		resultsPane.setMaxHeight(356 + (guessCount * 40) + ((guessCount - 1) * GAP) + 39);
+		resultsPane.setMaxHeight(356 + (guessCount * 40) + ((guessCount - 1) * GAP) + 29);
 
 		HBox backToPuzzleBox = new HBox(6.4);
 		backToPuzzleBox.setAlignment(Pos.TOP_RIGHT);
