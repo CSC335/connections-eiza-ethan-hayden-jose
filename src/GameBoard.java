@@ -61,7 +61,7 @@ public class GameBoard extends Application {
 	private int guessCount = 0;
 	private boolean wonGame = false;
 	private boolean gameLost = false;
-	private StackPane resultsPane;
+	private StackPane wholeGameStackPane;
 
 	private class AnimationPane extends Pane {
 		private static final int SWAP_TRANS_MS = 1000;
@@ -363,13 +363,14 @@ public class GameBoard extends Application {
 		VBox vbox = new VBox(24, topText, mainStackPane, bottomBox, buttonBox);
 		vbox.setAlignment(Pos.CENTER);
 
-		StackPane stackPane = new StackPane(vbox);
-		stackPane.setStyle("-fx-background-color: white;");
+		StackPane wholeGameStackPane = new StackPane(vbox);
+		wholeGameStackPane.setStyle("-fx-background-color: white;");
+		this.wholeGameStackPane = wholeGameStackPane;
 
 		submitButton.setOnAction(event -> {
 			guessCount++;
 			Set<Word> currentGuess = new HashSet<>(getSelectedWords());
-
+			
 			if (previousGuesses.contains(currentGuess)) {
 				Rectangle alreadyGuessedRect = new Rectangle(132.09, 42);
 				alreadyGuessedRect.setArcWidth(10);
@@ -383,11 +384,11 @@ public class GameBoard extends Application {
 				StackPane alreadyGuessedPane = new StackPane(alreadyGuessedRect, alreadyGuessedText);
 
 				alreadyGuessedPane.setTranslateY(-(alreadyGuessedRect.getHeight()) + 5);
-				stackPane.getChildren().add(alreadyGuessedPane);
+				wholeGameStackPane.getChildren().add(alreadyGuessedPane);
 
 				PauseTransition pause = new PauseTransition(Duration.millis(1000));
 				pause.setOnFinished(pauseEvent -> {
-					stackPane.getChildren().remove(alreadyGuessedPane);
+					wholeGameStackPane.getChildren().remove(alreadyGuessedPane);
 					deselectButton.fire();
 				});
 				pause.play();
@@ -421,7 +422,7 @@ public class GameBoard extends Application {
 			}
 		});
 
-		Scene scene = new Scene(stackPane, STAGE_WIDTH, STAGE_HEIGHT);
+		Scene scene = new Scene(wholeGameStackPane, STAGE_WIDTH, STAGE_HEIGHT);
 		primaryStage.setScene(scene);
 		primaryStage.setTitle("Game Board");
 		primaryStage.setResizable(false);
@@ -589,15 +590,29 @@ public class GameBoard extends Application {
 				node.setOnMouseExited(null);
 			}
 		});
-		deselectButton.setDisable(true);
-		deselectButton.setStyle(
+
+		VBox vbox = (VBox) wholeGameStackPane.getChildren().get(0);
+		HBox buttonBox = (HBox) vbox.getChildren().get(3);
+		buttonBox.getChildren().clear();
+
+		HBox bottomBox = (HBox) vbox.getChildren().get(2);
+		vbox.getChildren().remove(bottomBox);
+
+		Button viewResultsButton = new Button("View Results");
+		viewResultsButton.setStyle(
 				"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
-		submitButton.setDisable(true);
-		submitButton.setStyle(
-				"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
-		shuffleButton.setDisable(true);
-		shuffleButton.setStyle(
-				"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
+		viewResultsButton.setPrefSize(160, 48);
+		viewResultsButton.setFont(Font.font(18));
+
+		viewResultsButton.setOnMouseEntered(event -> {
+			viewResultsButton.setCursor(Cursor.HAND);
+		});
+		viewResultsButton.setOnMouseClicked(event -> {
+			showResultsPane((Stage) wholeGameStackPane.getScene().getWindow());
+		});
+
+		buttonBox.setAlignment(Pos.CENTER);
+		buttonBox.getChildren().add(viewResultsButton);
 	}
 
 	private void showResultsPane(Stage stage) {
@@ -667,21 +682,43 @@ public class GameBoard extends Application {
 		});
 
 		resultsLayout.getChildren().addAll(titleLabel, connectionsLabel, gridPane, timerLabel, shareButton);
-		
+
 		StackPane resultsPane = new StackPane(resultsLayout);
-	    resultsPane.setStyle("-fx-background-color: white; -fx-effect: dropshadow(gaussian, black, 20, 0, 0, 0);");
-	    resultsPane.setPrefSize(667, 356 + (guessCount * 40) + ((guessCount - 1) * GAP));
-	    resultsPane.setMaxWidth(667);
-	    resultsPane.setMaxHeight(356 + (guessCount * 40) + ((guessCount - 1) * GAP));
+		resultsPane.setStyle("-fx-background-color: white; -fx-effect: dropshadow(gaussian, black, 20, 0, 0, 0);");
+		resultsPane.setPrefSize(667, 356 + (guessCount * 40) + ((guessCount - 1) * GAP));
+		resultsPane.setMaxWidth(667);
+		resultsPane.setMaxHeight(356 + (guessCount * 40) + ((guessCount - 1) * GAP));
 
-	    StackPane overlayPane = new StackPane(mainStackPane, resultsPane);
-	    overlayPane.setAlignment(Pos.CENTER);
+		Text backToPuzzleText = new Text("Back to puzzle");
+		backToPuzzleText.setFont(Font.font(16));
+		backToPuzzleText.setOnMouseEntered(e -> {
+			backToPuzzleText.setUnderline(true);
+			backToPuzzleText.setCursor(Cursor.HAND);
+		});
+		backToPuzzleText.setOnMouseExited(e -> {
+			backToPuzzleText.setUnderline(false);
+			backToPuzzleText.setCursor(Cursor.DEFAULT);
+		});
 
-	    Scene scene = new Scene(overlayPane, STAGE_WIDTH, STAGE_HEIGHT);
-	    stage.setScene(scene);
+		StackPane.setAlignment(backToPuzzleText, Pos.TOP_RIGHT);
+		StackPane.setMargin(backToPuzzleText, new Insets(19.2, 19.2, 0, 0));
+
+		resultsPane.getChildren().add(backToPuzzleText);
+
+		StackPane overlayPane = new StackPane(wholeGameStackPane, resultsPane);
+		overlayPane.setAlignment(Pos.CENTER);
+
+		Scene scene = new Scene(overlayPane, STAGE_WIDTH, STAGE_HEIGHT);
+		stage.setScene(scene);
+
+		backToPuzzleText.setOnMouseClicked(e -> {
+			overlayPane.getChildren().remove(resultsPane);
+		});
 	}
 
 	private void animateIncorrectGuess(int matchCount) {
+		disableButtons();
+		disableRectangles();
 		SequentialTransition sequentialTransition = new SequentialTransition();
 		ParallelTransition jumpTransition = createJumpTransition();
 		PauseTransition pauseAfterJump = new PauseTransition(Duration.millis(500));
@@ -742,9 +779,12 @@ public class GameBoard extends Application {
 					PauseTransition removeCircleDelay = new PauseTransition(Duration.millis(500));
 					removeCircleDelay.setOnFinished(removeCircleEvent -> {
 						removeCircle(circlePane);
+						enableButtons();
+						enableRectangles();
 						if (gameLost) {
 							PauseTransition delay = new PauseTransition(Duration.millis(500));
-							delay.setOnFinished(e -> showResultsPane((Stage) mainStackPane.getScene().getWindow()));
+							delay.setOnFinished(
+									e -> showResultsPane((Stage) wholeGameStackPane.getScene().getWindow()));
 							delay.play();
 						}
 					});
@@ -778,6 +818,8 @@ public class GameBoard extends Application {
 	}
 
 	private void animateCorrectGuess() {
+		disableButtons();
+		disableRectangles();
 		if (!wonGame) {
 			SequentialTransition sequentialTransition = new SequentialTransition();
 			ParallelTransition jumpTransition = createJumpTransition();
@@ -785,6 +827,10 @@ public class GameBoard extends Application {
 			sequentialTransition.getChildren().addAll(jumpTransition, pauseTransition);
 			sequentialTransition.getChildren().addAll(animPane.getSwapTransitions());
 			sequentialTransition.play();
+			sequentialTransition.setOnFinished(event -> {
+				enableButtons();
+				enableRectangles();
+			});
 		} else {
 			SequentialTransition sequentialTransition = new SequentialTransition();
 			ParallelTransition jumpTransition = createJumpTransition();
@@ -792,7 +838,10 @@ public class GameBoard extends Application {
 			sequentialTransition.getChildren().addAll(jumpTransition, pauseTransition);
 			sequentialTransition.setOnFinished(event -> {
 				if (wonGame) {
-					showResultsPane((Stage) mainStackPane.getScene().getWindow());
+					showResultsPane((Stage) wholeGameStackPane.getScene().getWindow());
+				} else {
+					enableButtons();
+					enableRectangles();
 				}
 			});
 			sequentialTransition.play();
@@ -819,6 +868,35 @@ public class GameBoard extends Application {
 			}
 		}
 		return jumpTransition;
+	}
+
+	private void disableButtons() {
+		shuffleButton.setDisable(true);
+		deselectButton.setDisable(true);
+		submitButton.setDisable(true);
+	    submitButton.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-background-radius: 50; -fx-border-radius: 50;");
+	}
+
+	private void enableButtons() {
+		shuffleButton.setDisable(false);
+		deselectButton.setDisable(false);
+		selectedCount = 0;
+	}
+	
+	private void disableRectangles() {
+	    for (Node node : gridPane.getChildren()) {
+	        if (node instanceof StackPane) {
+	            node.setDisable(true);
+	        }
+	    }
+	}
+	
+	private void enableRectangles() {
+	    for (Node node : gridPane.getChildren()) {
+	        if (node instanceof StackPane) {
+	            node.setDisable(false);
+	        }
+	    }
 	}
 
 	public static void main(String[] args) {
