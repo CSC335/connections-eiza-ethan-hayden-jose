@@ -68,6 +68,7 @@ public class GameBoard extends Application {
 	private AnimationPane animPane;
 	private StackPane mainStackPane;
 	private int guessCount = 0;
+	private int incorrectGuessCount = 0;
 	private boolean wonGame = false;
 	private boolean gameLost = false;
 	private StackPane wholeGameStackPane;
@@ -397,14 +398,16 @@ public class GameBoard extends Application {
 				pause.play();
 			} else {
 				int matchCount = checkSelectedWords(currentGuess);
+				if (matchCount != 4) {
+					incorrectGuessCount++;
+				}
 				previousGuesses.add(currentGuess);
-				if (circlePane.getChildren().size() > 1) {
+				if (incorrectGuessCount < 4) {
 					if (checkAllCategoriesGuessed()) {
 						wonGame = true;
 						animateCorrectGuess();
 						disableGameBoard();
 					} else {
-
 						if (matchCount == 4) {
 							animateCorrectGuess();
 						} else {
@@ -417,8 +420,8 @@ public class GameBoard extends Application {
 						animateCorrectGuess();
 						disableGameBoard();
 					} else {
-						animateIncorrectGuess(matchCount);
 						gameLost = true;
+						animateIncorrectGuess(matchCount);
 						disableGameBoard();
 					}
 				}
@@ -642,7 +645,7 @@ public class GameBoard extends Application {
 		
 		Label connectionsLabel = new Label("Connections #294");
 		connectionsLabel.setFont(Font.font(20));
-		VBox.setMargin(connectionsLabel, new Insets(8, 0, 0, 0));
+		VBox.setMargin(connectionsLabel, new Insets(-2, 0, 0, 0));
 
 		GridPane gridPane = new GridPane();
 		gridPane.setVgap(GAP);
@@ -732,9 +735,9 @@ public class GameBoard extends Application {
 
 		StackPane resultsPane = new StackPane(resultsLayout);
 		resultsPane.setStyle("-fx-background-color: white; -fx-effect: dropshadow(gaussian, black, 20, 0, 0, 0);");
-		resultsPane.setPrefSize(667, 356 + (guessCount * 40) + ((guessCount - 1) * GAP) + 49);
+		resultsPane.setPrefSize(667, 356 + (guessCount * 40) + ((guessCount - 1) * GAP) + 39);
 		resultsPane.setMaxWidth(667);
-		resultsPane.setMaxHeight(356 + (guessCount * 40) + ((guessCount - 1) * GAP) + 49);
+		resultsPane.setMaxHeight(356 + (guessCount * 40) + ((guessCount - 1) * GAP) + 39);
 
 		HBox backToPuzzleBox = new HBox(6.4);
 		backToPuzzleBox.setAlignment(Pos.TOP_RIGHT);
@@ -795,7 +798,7 @@ public class GameBoard extends Application {
 		sequentialTransition.getChildren().addAll(jumpTransition, pauseAfterJump);
 
 		sequentialTransition.setOnFinished(event -> {
-			if (matchCount == 3 && guessCount < 4) {
+			if (matchCount == 3 && incorrectGuessCount < 4) {
 				Rectangle oneAwayRect = new Rectangle(96.09, 42);
 				oneAwayRect.setArcWidth(10);
 				oneAwayRect.setArcHeight(10);
@@ -812,7 +815,7 @@ public class GameBoard extends Application {
 				displayOneAway.setOnFinished(e -> mainStackPane.getChildren().remove(oneAwayPane));
 				displayOneAway.play();
 			}
-			if (guessCount == 4 && gameLost) {
+			if (gameLost) {
 				Rectangle nextTimeRect = new Rectangle(88.13, 42);
 				nextTimeRect.setArcWidth(10);
 				nextTimeRect.setArcHeight(10);
