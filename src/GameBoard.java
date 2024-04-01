@@ -36,7 +36,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
@@ -54,7 +53,7 @@ public class GameBoard extends Application {
 	private static final Color SELECTED_COLOR = Color.rgb(90, 89, 78);
 	private static final Color INCORRECT_COLOR = Color.rgb(130, 131, 122);
 	private static final int STAGE_WIDTH = 800;
-	private static final int STAGE_HEIGHT = 720;
+	private static final int STAGE_HEIGHT = 750;
 	private static final int MAX_SELECTED = 4;
 
 	private int selectedCount = 0;
@@ -439,6 +438,9 @@ public class GameBoard extends Application {
 		primaryStage.setTitle("Connections");
 		primaryStage.setResizable(false);
 		primaryStage.show();
+
+//		SEE RESULTS PANE UPON LOAD FOR DEBUGGING
+
 //		try {
 //			showResultsPane((Stage) wholeGameStackPane.getScene().getWindow());
 //		} catch (FileNotFoundException e) {
@@ -644,7 +646,6 @@ public class GameBoard extends Application {
 	private void showResultsPane(Stage stage) throws FileNotFoundException {
 		VBox resultsLayout = new VBox(0);
 		resultsLayout.setAlignment(Pos.TOP_CENTER);
-//		resultsLayout.setPadding(new Insets(20));
 
 		Label titleLabel = wonGame ? new Label("Perfect!") : new Label("Next Time!");
 		Font karnakFont36 = Font.loadFont(new FileInputStream("Fonts/karnakpro-condensedblack.ttf"), 36);
@@ -751,9 +752,9 @@ public class GameBoard extends Application {
 
 		StackPane resultsPane = new StackPane(resultsLayout);
 		resultsPane.setStyle("-fx-background-color: white; -fx-effect: dropshadow(gaussian, black, 20, 0, 0, 0);");
-		resultsPane.setPrefSize(667, 356 + (guessCount * 40) + ((guessCount - 1) * GAP) + 29);
+		resultsPane.setPrefSize(667, 402 + (guessCount * 40) + ((guessCount - 1) * GAP));
 		resultsPane.setMaxWidth(667);
-		resultsPane.setMaxHeight(356 + (guessCount * 40) + ((guessCount - 1) * GAP) + 29);
+		resultsPane.setMaxHeight(402 + (guessCount * 40) + ((guessCount - 1) * GAP));
 
 		HBox backToPuzzleBox = new HBox(6.4);
 		backToPuzzleBox.setAlignment(Pos.TOP_RIGHT);
