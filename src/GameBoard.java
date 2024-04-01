@@ -1,3 +1,7 @@
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -5,10 +9,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import javafx.animation.KeyFrame;
 import javafx.animation.ParallelTransition;
 import javafx.animation.PauseTransition;
 import javafx.animation.ScaleTransition;
 import javafx.animation.SequentialTransition;
+import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
@@ -269,7 +276,7 @@ public class GameBoard extends Application {
 		gridPane.setHgap(GAP);
 		gridPane.setVgap(GAP);
 		gridPane.setAlignment(Pos.CENTER);
-
+		
 		animPane = new AnimationPane(gridPane);
 		animPane.setVisible(false);
 		mainStackPane = new StackPane(gridPane, animPane);
@@ -284,6 +291,7 @@ public class GameBoard extends Application {
 			}
 		}
 
+		// get first game
 		GameDataCollection collection = new GameDataCollection("nyt-connections-games.txt");
 		if (!collection.getGameList().isEmpty()) {
 			currentGame = collection.getGameList().get(0);
@@ -662,9 +670,39 @@ public class GameBoard extends Application {
 			i++;
 		}
 
-		Label timerLabel = new Label("NEXT PUZZLE IN\n");
-		timerLabel.setFont(Font.font(20));
+		Label nextPuzzleInLabel = new Label("NEXT PUZZLE IN");
+		nextPuzzleInLabel.setFont(Font.font(20));
+		nextPuzzleInLabel.setAlignment(Pos.CENTER);
+
+		Label timerLabel = new Label();
+		timerLabel.setFont(Font.font(40));
 		timerLabel.setAlignment(Pos.CENTER);
+
+		VBox timerBox = new VBox(5, nextPuzzleInLabel, timerLabel);
+		timerBox.setAlignment(Pos.CENTER);
+
+		// Create a timeline to update the timer every second
+		Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+		    LocalDateTime now = LocalDateTime.now();
+		    LocalDateTime midnight = LocalDateTime.of(now.toLocalDate().plusDays(1), LocalTime.MIDNIGHT);
+
+		    // Convert LocalDateTime to milliseconds
+		    long nowMillis = now.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+		    long midnightMillis = midnight.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+
+		    // Calculate the duration from the difference in milliseconds
+		    Duration duration = Duration.millis(midnightMillis - nowMillis);
+
+		    long hours = (long) duration.toHours();
+		    long minutes = (long) (duration.toMinutes() % 60);
+		    long seconds = (long) (duration.toSeconds() % 60);
+
+		    String timerText = String.format("%02d:%02d:%02d", hours, minutes, seconds);
+		    timerLabel.setText(timerText);
+		}));
+
+		timeline.setCycleCount(Timeline.INDEFINITE);
+		timeline.play();
 
 		Button shareButton = new Button("Share Your Results");
 		shareButton.setPrefSize(162, 48);
@@ -681,13 +719,13 @@ public class GameBoard extends Application {
 					"-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-cursor: default;");
 		});
 
-		resultsLayout.getChildren().addAll(titleLabel, connectionsLabel, gridPane, timerLabel, shareButton);
+		resultsLayout.getChildren().addAll(titleLabel, connectionsLabel, gridPane, timerBox, shareButton);
 
 		StackPane resultsPane = new StackPane(resultsLayout);
 		resultsPane.setStyle("-fx-background-color: white; -fx-effect: dropshadow(gaussian, black, 20, 0, 0, 0);");
-		resultsPane.setPrefSize(667, 356 + (guessCount * 40) + ((guessCount - 1) * GAP));
+		resultsPane.setPrefSize(667, 356 + (guessCount * 40) + ((guessCount - 1) * GAP) + 52);
 		resultsPane.setMaxWidth(667);
-		resultsPane.setMaxHeight(356 + (guessCount * 40) + ((guessCount - 1) * GAP));
+		resultsPane.setMaxHeight(356 + (guessCount * 40) + ((guessCount - 1) * GAP) + 52);
 
 		Text backToPuzzleText = new Text("Back to puzzle");
 		backToPuzzleText.setFont(Font.font(16));
