@@ -21,7 +21,6 @@ import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
@@ -37,9 +36,9 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import javafx.scene.shape.SVGPath;
 
 public class GameBoard extends Application {
 
@@ -756,51 +755,48 @@ public class GameBoard extends Application {
 		resultsPane.setMaxWidth(667);
 		resultsPane.setMaxHeight(402 + (guessCount * 40) + ((guessCount - 1) * GAP));
 
-		HBox backToPuzzleBox = new HBox(6.4);
-		backToPuzzleBox.setAlignment(Pos.TOP_RIGHT);
+		SVGPath xPath = new SVGPath();
+		xPath.setContent("M18.717 6.697l-1.414-1.414-5.303 5.303-5.303-5.303-1.414 1.414 5.303 5.303-5.303 5.303 1.414 1.414 5.303-5.303 5.303 5.303 1.414-1.414-5.303-5.303z");
+		xPath.setScaleX(0.8);
+		xPath.setScaleY(0.8);
+		xPath.setOnMouseEntered(e -> {
+		    xPath.setCursor(Cursor.HAND);
+		});
+		xPath.setOnMouseExited(e -> {
+		    xPath.setCursor(Cursor.DEFAULT);
+		});
+
+		HBox backToPuzzleBox = new HBox(10);
+		backToPuzzleBox.setAlignment(Pos.CENTER);
 
 		Text backToPuzzleText = new Text("Back to puzzle");
 		backToPuzzleText.setFont(franklin600_16);
-		backToPuzzleText.setOnMouseEntered(e -> {
+		backToPuzzleBox.setOnMouseEntered(e -> {
 			backToPuzzleText.setUnderline(true);
-			backToPuzzleText.setCursor(Cursor.HAND);
+		    backToPuzzleText.setCursor(Cursor.HAND);
 		});
-		backToPuzzleText.setOnMouseExited(e -> {
-			backToPuzzleText.setUnderline(false);
-			backToPuzzleText.setCursor(Cursor.DEFAULT);
-		});
-		backToPuzzleText.setTextAlignment(TextAlignment.CENTER);
-		backToPuzzleText.setTextOrigin(VPos.CENTER);
-
-		Text xText = new Text("X");
-		xText.setFont(franklin600_20);
-		xText.setOnMouseEntered(e -> {
-			xText.setCursor(Cursor.HAND);
-		});
-		xText.setOnMouseExited(e -> {
-			xText.setCursor(Cursor.DEFAULT);
+		backToPuzzleBox.setOnMouseExited(e -> {
+		    backToPuzzleText.setUnderline(false);
+		    backToPuzzleText.setCursor(Cursor.DEFAULT);
 		});
 
-		xText.setTranslateY(-2);
+		xPath.setScaleX(1);
+		xPath.setScaleY(1);
+		xPath.setTranslateY(4);
 
-		backToPuzzleBox.getChildren().addAll(backToPuzzleText, xText);
-
-		StackPane.setAlignment(backToPuzzleBox, Pos.TOP_RIGHT);
-		StackPane.setMargin(backToPuzzleBox, new Insets(19.2, 19.2, 0, 0));
-
+		backToPuzzleBox.getChildren().addAll(backToPuzzleText, xPath);
+		
 		resultsPane.getChildren().add(backToPuzzleBox);
-
+		backToPuzzleBox.setStyle("-fx-alignment: top-right;");
+		StackPane.setMargin(backToPuzzleBox, new Insets(19.2, 19.2, 0, 0));
+		
 		StackPane overlayPane = new StackPane(wholeGameStackPane, resultsPane);
 		overlayPane.setAlignment(Pos.CENTER);
 
 		Scene scene = new Scene(overlayPane, STAGE_WIDTH, STAGE_HEIGHT);
 		stage.setScene(scene);
 
-		backToPuzzleText.setOnMouseClicked(e -> {
-			overlayPane.getChildren().remove(resultsPane);
-		});
-
-		xText.setOnMouseClicked(e -> {
+		backToPuzzleBox.setOnMouseClicked(e -> {
 			overlayPane.getChildren().remove(resultsPane);
 		});
 	}
