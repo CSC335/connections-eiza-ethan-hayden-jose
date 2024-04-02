@@ -51,7 +51,7 @@ public class GameBoard extends Application {
 	protected static final int STAGE_HEIGHT = 750;
 	protected static final int MAX_SELECTED = 4;
 
-	private ColorManager colorManager = new ColorManager();
+	private StyleManager styleManager = new StyleManager();
 	private int selectedCount = 0;
 	private GameData currentGame;
 	private Button deselectButton;
@@ -68,14 +68,6 @@ public class GameBoard extends Application {
 	private boolean wonGame = false;
 	private boolean gameLost = false;
 	private StackPane wholeGameStackPane;
-	private Font karnakFont36;
-	private Font franklin700_18;
-	private Font franklin500_18;
-	private Font franklin500_16;
-	private Font franklin600_16;
-	private Font franklin500_20;
-	private Font franklin600_20;
-	private Font franklin600_40;
 
 	private void initGridPane() {
 		gridPane = new GridPane();
@@ -85,7 +77,7 @@ public class GameBoard extends Application {
 
 		for (int row = 0; row < ROWS; row++) {
 			for (int col = 0; col < COLS; col++) {
-				gridPane.add(new GameTileWord(franklin700_18, this), col, row);
+				gridPane.add(new GameTileWord(styleManager.getFont("franklin-normal", 700, 18), this), col, row);
 			}
 		}
 	}
@@ -158,7 +150,7 @@ public class GameBoard extends Application {
 
 			Text alreadyGuessedText = new Text("Already guessed!");
 			alreadyGuessedText.setFill(Color.WHITE);
-			alreadyGuessedText.setFont(franklin600_16);
+			alreadyGuessedText.setFont(styleManager.getFont("franklin-normal", 600, 16));
 
 			StackPane alreadyGuessedPane = new StackPane(alreadyGuessedRect, alreadyGuessedText);
 
@@ -230,15 +222,6 @@ public class GameBoard extends Application {
 
 	@Override
 	public void start(Stage primaryStage) throws FileNotFoundException {
-		franklin700_18 = Font.loadFont(new FileInputStream("Fonts/franklin-normal-700.ttf"), 18);
-		franklin500_18 = Font.loadFont(new FileInputStream("Fonts/franklin-normal-500.ttf"), 18);
-		franklin500_16 = Font.loadFont(new FileInputStream("Fonts/franklin-normal-500.ttf"), 16);
-		franklin600_16 = Font.loadFont(new FileInputStream("Fonts/franklin-normal-600.ttf"), 16);
-		karnakFont36 = Font.loadFont(new FileInputStream("Fonts/karnakpro-condensedblack.ttf"), 36);
-		franklin500_20 = Font.loadFont(new FileInputStream("Fonts/franklin-normal-500.ttf"), 20);
-		franklin600_20 = Font.loadFont(new FileInputStream("Fonts/franklin-normal-600.ttf"), 20);
-		franklin600_40 = Font.loadFont(new FileInputStream("Fonts/franklin-normal-600.ttf"), 40);
-		
 		initGridPane();
 		
 		animPane = new AnimationPane(this);
@@ -248,10 +231,10 @@ public class GameBoard extends Application {
 		initGameData();
 		
 		Text topText = new Text("Create four groups of four!");
-		topText.setFont(franklin500_18);
+		topText.setFont(styleManager.getFont("franklin-normal", 500, 18));
 
 		Text bottomText = new Text("Mistakes remaining:");
-		bottomText.setFont(franklin500_16);
+		bottomText.setFont(styleManager.getFont("franklin-normal", 500, 16));
 
 		circlePane = new Pane();
 		circlePane.setPrefWidth(100);
@@ -309,7 +292,7 @@ public class GameBoard extends Application {
 				"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
 		button.setPrefHeight(48);
 		button.setPrefWidth(width);
-		button.setFont(franklin600_16);
+		button.setFont(styleManager.getFont("franklin-normal", 600, 16));
 
 		button.setOnMouseEntered(event -> {
 			button.setCursor(Cursor.HAND);
@@ -390,7 +373,7 @@ public class GameBoard extends Application {
 		viewResultsButton.setStyle(
 				"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
 		viewResultsButton.setPrefSize(160, 48);
-		viewResultsButton.setFont(franklin600_16);
+		viewResultsButton.setFont(styleManager.getFont("franklin-normal", 600, 16));
 
 		viewResultsButton.setOnMouseEntered(event -> {
 			viewResultsButton.setCursor(Cursor.HAND);
@@ -413,12 +396,12 @@ public class GameBoard extends Application {
 		resultsLayout.setAlignment(Pos.TOP_CENTER);
 
 		Label titleLabel = wonGame ? new Label("Perfect!") : new Label("Next Time!");
-		titleLabel.setFont(karnakFont36);
+		titleLabel.setFont(styleManager.getFont("karnakpro-condensedblack", 36));
 		titleLabel.setTextFill(Color.BLACK);
 		VBox.setMargin(titleLabel, new Insets(80, 0, 0, 0));
 
 		Label connectionsLabel = new Label("Connections #294");
-		connectionsLabel.setFont(franklin500_20);
+		connectionsLabel.setFont(styleManager.getFont("franklin-normal", 500, 20));
 		VBox.setMargin(connectionsLabel, new Insets(18, 0, 0, 0));
 
 		GridPane gridPane = new GridPane();
@@ -457,12 +440,12 @@ public class GameBoard extends Application {
 		}
 
 		Label nextPuzzleInLabel = new Label("NEXT PUZZLE IN");
-		nextPuzzleInLabel.setFont(franklin600_20);
+		nextPuzzleInLabel.setFont(styleManager.getFont("franklin-normal", 600, 20));
 		nextPuzzleInLabel.setAlignment(Pos.CENTER);
 		VBox.setMargin(nextPuzzleInLabel, new Insets(20, 0, 0, 0));
 
 		Label timerLabel = new Label();
-		timerLabel.setFont(franklin600_40);
+		timerLabel.setFont(styleManager.getFont("franklin-normal", 600, 40));
 		timerLabel.setAlignment(Pos.CENTER);
 		VBox.setMargin(timerLabel, new Insets(-10, 0, 0, 0));
 
@@ -491,7 +474,7 @@ public class GameBoard extends Application {
 
 		Button shareButton = new Button("Share Your Results");
 		shareButton.setPrefSize(162, 48);
-		shareButton.setFont(franklin600_16);
+		shareButton.setFont(styleManager.getFont("franklin-normal", 600, 16));
 		shareButton.setStyle(
 				"-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;");
 
@@ -532,7 +515,7 @@ public class GameBoard extends Application {
 		backToPuzzleBox.setAlignment(Pos.CENTER);
 
 		Text backToPuzzleText = new Text("Back to puzzle");
-		backToPuzzleText.setFont(franklin600_16);
+		backToPuzzleText.setFont(styleManager.getFont("franklin-normal", 600, 16));
 		backToPuzzleBox.setOnMouseEntered(e -> {
 			backToPuzzleText.setUnderline(true);
 			backToPuzzleText.setCursor(Cursor.HAND);
@@ -581,7 +564,7 @@ public class GameBoard extends Application {
 
 				Text oneAwayText = new Text("One away...");
 				oneAwayText.setFill(Color.WHITE);
-				oneAwayText.setFont(franklin600_16);
+				oneAwayText.setFont(styleManager.getFont("franklin-normal", 600, 16));
 //				oneAwayText.setFont(Font.font(16));
 
 				StackPane oneAwayPane = new StackPane(oneAwayRect, oneAwayText);
@@ -599,7 +582,7 @@ public class GameBoard extends Application {
 
 				Text nextTimeText = new Text("Next Time");
 				nextTimeText.setFill(Color.WHITE);
-				nextTimeText.setFont(franklin600_16);
+				nextTimeText.setFont(styleManager.getFont("franklin-normal", 600, 16));
 
 				StackPane nextTimePane = new StackPane(nextTimeRect, nextTimeText);
 				mainStackPane.getChildren().add(nextTimePane);
@@ -789,12 +772,16 @@ public class GameBoard extends Application {
 		currentRow++;
 	}
 	
-	public ColorManager getColorManager() {
-		return colorManager;
+	public StyleManager getStyleManager() {
+		return styleManager;
 	}
 	
 	public GridPane getWordGridPane() {
 		return gridPane;
+	}
+	
+	public GameData getCurrentGame() {
+		return currentGame;
 	}
 
 	public static void main(String[] args) {

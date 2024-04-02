@@ -16,13 +16,13 @@ public class GameTileWord extends StackPane {
 	private Text text;
 	private Font font;
 	private Word word;
-	private ColorManager colorManager;
+	private StyleManager styleManager;
 	private GameBoard gameBoard;
 
 	public GameTileWord(GameTileWord other) {
 		selected = other.selected;
 		incorrect = other.incorrect;
-		colorManager = other.colorManager;
+		styleManager = other.styleManager;
 		gameBoard = other.gameBoard;
 		word = other.word;
 		font = other.font;
@@ -45,7 +45,7 @@ public class GameTileWord extends StackPane {
 		this.word = null;
 		this.font = font;
 		this.gameBoard = gameBoard;
-		this.colorManager = gameBoard.getColorManager();
+		this.styleManager = gameBoard.getStyleManager();
 		initAssets();
 		enable();
 	}
@@ -98,7 +98,7 @@ public class GameTileWord extends StackPane {
 		rectangle = new Rectangle(GameBoard.RECTANGLE_WIDTH, GameBoard.RECTANGLE_HEIGHT);
 		rectangle.setArcWidth(GameBoard.CORNER_RADIUS);
 		rectangle.setArcHeight(GameBoard.CORNER_RADIUS);
-		rectangle.setFill(colorManager.defaultRectangleColor());
+		rectangle.setFill(styleManager.colorDefaultRectangle());
 
 		text = new Text();
 		text.setFont(font);
@@ -109,17 +109,17 @@ public class GameTileWord extends StackPane {
 	}
 
 	private void setStyleDefault() {
-		rectangle.setFill(colorManager.defaultRectangleColor());
+		rectangle.setFill(styleManager.colorDefaultRectangle());
 		text.setFill(Color.BLACK);
 	}
 
 	private void setStyleSelected() {
-		rectangle.setFill(colorManager.selectedRectangleColor());
+		rectangle.setFill(styleManager.colorSelectedRectangle());
 		text.setFill(Color.WHITE);
 	}
 
 	private void setStyleIncorrect() {
-		rectangle.setFill(colorManager.incorrectRectangleColor());
+		rectangle.setFill(styleManager.colorIncorrectRectangle());
 		text.setFill(Color.WHITE);
 	}
 

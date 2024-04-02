@@ -7,10 +7,10 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
 public class GameTileAnswer extends StackPane {
-	private ColorManager colorManager;
+	private StyleManager styleManager;
 	
-	public GameTileAnswer(GameAnswerColor answer, ColorManager colorManager) {
-		this.colorManager = colorManager;
+	public GameTileAnswer(GameAnswerColor answer, GameBoard gameBoard) {
+		this.styleManager = gameBoard.getStyleManager();
 		
 		Text categoryNameText = new Text(answer.getDescription().toUpperCase());
 		categoryNameText.setFont(Font.font("Arial", FontWeight.BOLD, 18));
@@ -21,7 +21,7 @@ public class GameTileAnswer extends StackPane {
 		VBox textVBox = new VBox(categoryNameText, wordListText);
 		textVBox.setAlignment(Pos.CENTER);
 		Rectangle rectBackground = new Rectangle(GameBoard.RECTANGLE_WIDTH * 4 + GameBoard.GAP * 3, GameBoard.RECTANGLE_HEIGHT);
-		rectBackground.setFill(colorManager.difficultyColor(answer.getColor()));
+		rectBackground.setFill(styleManager.colorDifficulty(answer.getColor()));
 		rectBackground.setArcWidth(GameBoard.CORNER_RADIUS);
 		rectBackground.setArcHeight(GameBoard.CORNER_RADIUS);
 

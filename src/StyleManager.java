@@ -1,8 +1,12 @@
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.HashMap;
+import java.util.Map;
+
+import javafx.scene.text.Font;
 import javafx.scene.paint.Color;
 
-public class ColorManager {
-	private boolean darkMode;
-
+public class StyleManager {
 	protected static final Color YELLOW_LIGHT = Color.rgb(249, 223, 109);
 	protected static final Color GREEN_LIGHT = Color.rgb(160, 195, 90);
 	protected static final Color BLUE_LIGHT = Color.rgb(176, 195, 238);
@@ -21,50 +25,87 @@ public class ColorManager {
 	protected static final Color RECTANGLE_SELECTED_COLOR_DARK = Color.rgb(90, 89, 78);
 	protected static final Color RECTANGLE_INCORRECT_COLOR_DARK = Color.rgb(130, 131, 122);
 
+	private boolean darkMode;
+	private Map<String, Font> fontMap = new HashMap<>();
+
+	public Font getFont(String fontName, int weight, int size) {
+		try {
+			String key = String.format("%s-%d-%d", fontName, size, weight);
+			Font font = fontMap.get(key);
+
+			if (font == null) {
+				font = Font.loadFont(new FileInputStream(String.format("Fonts/%s-%d.ttf", fontName, weight)), size);
+			}
+
+			return font;
+		} catch (FileNotFoundException e) {
+			System.out.printf("ERROR: could not load font %s with weight %d and size %d!\n", fontName, weight, size);
+		}
+
+		return Font.font("System", size);
+	}
+
+	public Font getFont(String fontName, int size) throws FileNotFoundException {
+		try {
+			String key = String.format("%s-%d", fontName, size);
+			Font font = fontMap.get(key);
+
+			if (font == null) {
+				font = Font.loadFont(new FileInputStream(String.format("Fonts/%s.ttf", fontName)), size);
+			}
+
+			return font;
+		} catch (FileNotFoundException e) {
+			System.out.printf("ERROR: could not load font %s with size %d!\n", fontName, size);
+		}
+
+		return Font.font("System", size);
+	}
+
 	public void setDarkMode(boolean darkMode) {
 		this.darkMode = darkMode;
 	}
 
-	public Color yellow() {
+	public Color colorYellow() {
 		return darkMode ? YELLOW_DARK : YELLOW_LIGHT;
 	}
 
-	public Color green() {
+	public Color colorGreen() {
 		return darkMode ? GREEN_DARK : GREEN_LIGHT;
 	}
 
-	public Color blue() {
+	public Color colorBlue() {
 		return darkMode ? BLUE_DARK : BLUE_LIGHT;
 	}
 
-	public Color purple() {
+	public Color colorPurple() {
 		return darkMode ? PURPLE_DARK : PURPLE_LIGHT;
 	}
 
-	public Color difficultyColor(DifficultyColor dc) {
+	public Color colorDifficulty(DifficultyColor dc) {
 		switch (dc) {
 		case YELLOW:
-			return yellow();
+			return colorYellow();
 		case GREEN:
-			return green();
+			return colorGreen();
 		case BLUE:
-			return blue();
+			return colorBlue();
 		case PURPLE:
-			return purple();
+			return colorPurple();
 		}
-		
-		return defaultRectangleColor();
+
+		return colorDefaultRectangle();
 	}
 
-	public Color defaultRectangleColor() {
+	public Color colorDefaultRectangle() {
 		return darkMode ? RECTANGLE_DEFAULT_COLOR_DARK : RECTANGLE_DEFAULT_COLOR_LIGHT;
 	}
 
-	public Color selectedRectangleColor() {
+	public Color colorSelectedRectangle() {
 		return darkMode ? RECTANGLE_SELECTED_COLOR_DARK : RECTANGLE_RECT_SELECTED_COLOR_LIGHT;
 	}
 
-	public Color incorrectRectangleColor() {
+	public Color colorIncorrectRectangle() {
 		return darkMode ? RECTANGLE_INCORRECT_COLOR_DARK : RECTANGLE_INCORRECT_COLOR_LIGHT;
 	}
 }
