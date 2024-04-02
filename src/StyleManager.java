@@ -45,7 +45,7 @@ public class StyleManager {
 		return Font.font("System", size);
 	}
 
-	public Font getFont(String fontName, int size) throws FileNotFoundException {
+	public Font getFont(String fontName, int size) {
 		try {
 			String key = String.format("%s-%d", fontName, size);
 			Font font = fontMap.get(key);

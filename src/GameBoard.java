@@ -27,6 +27,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -50,6 +51,7 @@ public class GameBoard extends Application {
 	protected static final int STAGE_WIDTH = 800;
 	protected static final int STAGE_HEIGHT = 750;
 	protected static final int MAX_SELECTED = 4;
+	protected static final int GRID_ANIM_PANE_WIDTH = RECTANGLE_WIDTH * 4 + GAP * 3;
 
 	private StyleManager styleManager = new StyleManager();
 	private int selectedCount = 0;
@@ -74,12 +76,19 @@ public class GameBoard extends Application {
 		gridPane.setHgap(GAP);
 		gridPane.setVgap(GAP);
 		gridPane.setAlignment(Pos.CENTER);
+		gridPane.setMaxWidth(GRID_ANIM_PANE_WIDTH);
 
 		for (int row = 0; row < ROWS; row++) {
 			for (int col = 0; col < COLS; col++) {
 				gridPane.add(new GameTileWord(styleManager.getFont("franklin-normal", 700, 18), this), col, row);
 			}
 		}
+	}
+	
+	private void initAnimPane() {
+		animPane = new AnimationPane(this);
+		animPane.setVisible(false);
+		animPane.setMaxWidth(GRID_ANIM_PANE_WIDTH);
 	}
 
 	private void initWordTiles(GameData game) {
@@ -171,31 +180,21 @@ public class GameBoard extends Application {
 			}
 			previousGuesses.add(currentGuess);
 			if (incorrectGuessCount < 4) {
-				if (checkAllCategoriesGuessed()) {
-					wonGame = true;
-					animateCorrectGuess();
-					try {
-						disableGameBoard();
-					} catch (FileNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+				if (matchCount == 4) {
+					if (checkAllCategoriesGuessed()) {
+						wonGame = true;
+						animateCorrectGuess();
+//						disableGameBoard();
+					} else {
+						animateCorrectGuess();
 					}
 				} else {
-					if (matchCount == 4) {
-						animateCorrectGuess();
-					} else {
-						animateIncorrectGuess(matchCount);
-					}
+					animateIncorrectGuess(matchCount);
 				}
 			} else {
 				gameLost = true;
 				animateIncorrectGuess(matchCount);
-				try {
-					disableGameBoard();
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				disableGameBoard();
 			}
 		}
 	}
@@ -221,11 +220,9 @@ public class GameBoard extends Application {
 	}
 
 	@Override
-	public void start(Stage primaryStage) throws FileNotFoundException {
+	public void start(Stage primaryStage) {
 		initGridPane();
-		
-		animPane = new AnimationPane(this);
-		animPane.setVisible(false);
+		initAnimPane();
 		mainStackPane = new StackPane(gridPane, animPane);
 		
 		initGameData();
@@ -286,7 +283,7 @@ public class GameBoard extends Application {
 //		}
 	}
 
-	private Button createButton(String text, double width) throws FileNotFoundException {
+	private Button createButton(String text, double width) {
 		Button button = new Button(text);
 		button.setStyle(
 				"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
@@ -354,7 +351,7 @@ public class GameBoard extends Application {
 		return guessedColors.size() == DifficultyColor.getAllColors().size();
 	}
 
-	private void disableGameBoard() throws FileNotFoundException {
+	private void disableGameBoard() {
 		gridPane.getChildren().forEach(node -> {
 			if (node instanceof GameTileWord) {
 				GameTileWord tileWord = (GameTileWord) node;
@@ -379,19 +376,14 @@ public class GameBoard extends Application {
 			viewResultsButton.setCursor(Cursor.HAND);
 		});
 		viewResultsButton.setOnMouseClicked(event -> {
-			try {
-				showResultsPane((Stage) wholeGameStackPane.getScene().getWindow());
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			showResultsPane((Stage) wholeGameStackPane.getScene().getWindow());
 		});
 
 		buttonBox.setAlignment(Pos.CENTER);
 		buttonBox.getChildren().add(viewResultsButton);
 	}
 
-	private void showResultsPane(Stage stage) throws FileNotFoundException {
+	private void showResultsPane(Stage stage) {
 		VBox resultsLayout = new VBox(0);
 		resultsLayout.setAlignment(Pos.TOP_CENTER);
 
@@ -615,12 +607,7 @@ public class GameBoard extends Application {
 						if (gameLost) {
 							PauseTransition delay = new PauseTransition(Duration.millis(500));
 							delay.setOnFinished(e -> {
-								try {
-									showResultsPane((Stage) wholeGameStackPane.getScene().getWindow());
-								} catch (FileNotFoundException e1) {
-									// TODO Auto-generated catch block
-									e1.printStackTrace();
-								}
+								showResultsPane((Stage) wholeGameStackPane.getScene().getWindow());
 							});
 							delay.play();
 						}
@@ -658,12 +645,14 @@ public class GameBoard extends Application {
 	private void animateCorrectGuess() {
 		disableButtons();
 		disableRectangles();
+		
+		SequentialTransition swapAndAnswerTileSequence = animPane.getSequenceCorrectAnswer();
+		
 		if (!wonGame) {
 			SequentialTransition sequentialTransition = new SequentialTransition();
 			ParallelTransition jumpTransition = createJumpTransition();
 			PauseTransition pauseTransition = new PauseTransition(Duration.millis(500));
-			sequentialTransition.getChildren().addAll(jumpTransition, pauseTransition);
-			sequentialTransition.getChildren().addAll(animPane.getSwapTransitions());
+			sequentialTransition.getChildren().addAll(jumpTransition, pauseTransition, swapAndAnswerTileSequence);
 			sequentialTransition.play();
 			sequentialTransition.setOnFinished(event -> {
 				enableButtons();
@@ -673,16 +662,12 @@ public class GameBoard extends Application {
 			SequentialTransition sequentialTransition = new SequentialTransition();
 			ParallelTransition jumpTransition = createJumpTransition();
 			PauseTransition pauseTransition = new PauseTransition(Duration.millis(500));
-			sequentialTransition.getChildren().addAll(jumpTransition, pauseTransition);
+			sequentialTransition.getChildren().addAll(jumpTransition, pauseTransition, swapAndAnswerTileSequence);
 			sequentialTransition.setOnFinished(event -> {
 				if (wonGame) {
+					disableGameBoard();
 					gameDeselect();
-					try {
-						showResultsPane((Stage) wholeGameStackPane.getScene().getWindow());
-					} catch (FileNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					showResultsPane((Stage) wholeGameStackPane.getScene().getWindow());
 				} else {
 					enableButtons();
 					enableRectangles();
