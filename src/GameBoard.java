@@ -126,13 +126,13 @@ public class GameBoard extends Application {
 	
 	private void gameShuffleWords() {
 		ObservableList<Node> children = gridPane.getChildren();
-		List<StackPane> stackPanes = children.stream().filter(node -> node instanceof StackPane)
-				.map(node -> (StackPane) node).collect(Collectors.toList());
+		List<StackPane> stackPanes = children.stream().filter(node -> node instanceof GameTileWord)
+				.map(node -> (GameTileWord) node).collect(Collectors.toList());
 
 		Collections.shuffle(stackPanes);
 
 		int index = 0;
-		for (int row = 0; row < ROWS; row++) {
+		for (int row = currentRow; row < ROWS; row++) {
 			for (int col = 0; col < COLS; col++) {
 				GridPane.setRowIndex(stackPanes.get(index), row);
 				GridPane.setColumnIndex(stackPanes.get(index), col);
