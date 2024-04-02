@@ -26,6 +26,8 @@ import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.GridPane;
@@ -40,6 +42,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.scene.shape.SVGPath;
+import javafx.geometry.Bounds;
 
 public class GameBoard extends Application {
 	protected static final int ROWS = 4;
@@ -392,7 +395,9 @@ public class GameBoard extends Application {
 		titleLabel.setTextFill(Color.BLACK);
 		VBox.setMargin(titleLabel, new Insets(80, 0, 0, 0));
 
-		Label connectionsLabel = new Label("Connections #294");
+		// get the real one later on
+		int puzzleNumber = 294;
+		Label connectionsLabel = new Label("Connections #" + puzzleNumber);
 		connectionsLabel.setFont(styleManager.getFont("franklin-normal", 500, 20));
 		VBox.setMargin(connectionsLabel, new Insets(18, 0, 0, 0));
 
@@ -468,24 +473,65 @@ public class GameBoard extends Application {
 		shareButton.setPrefSize(162, 48);
 		shareButton.setFont(styleManager.getFont("franklin-normal", 600, 16));
 		shareButton.setStyle(
-				"-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;");
-
+		        "-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;");
 		VBox.setMargin(shareButton, new Insets(21, 0, 20, 0));
-
-		shareButton.setOnMouseEntered(e -> {
-			shareButton.setStyle(
-					"-fx-background-color: rgb(18,18,18); -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-cursor: hand; -fx-min-height: 48px; -fx-max-height: 48px;");
-		});
-		shareButton.setOnMouseExited(e -> {
-			shareButton.setStyle(
-					"-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-cursor: default; -fx-min-height: 48px; -fx-max-height: 48px;");
-		});
 
 		shareButton.setTranslateY(4);
 
 		resultsLayout.getChildren().addAll(titleLabel, connectionsLabel, gridPane, timerBox, shareButton);
-
+		
 		StackPane resultsPane = new StackPane(resultsLayout);
+		
+		shareButton.setOnMouseEntered(e -> {
+			shareButton.setCursor(Cursor.HAND);
+		    shareButton.setStyle(
+		            "-fx-background-color: rgb(18,18,18); -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-cursor: hand;");
+		});
+
+		shareButton.setOnMouseExited(e -> {
+			shareButton.setCursor(Cursor.DEFAULT);
+		    shareButton.setStyle(
+		            "-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50;");
+		});
+		shareButton.setOnAction(e -> {
+		    Rectangle copiedRect = new Rectangle(204.54, 42);
+		    copiedRect.setArcWidth(10);
+		    copiedRect.setArcHeight(10);
+		    copiedRect.setFill(Color.BLACK);
+
+		    Text copiedText = new Text("Copied results to clipboard");
+		    copiedText.setFill(Color.WHITE);
+		    copiedText.setFont(styleManager.getFont("franklin-normal", 600, 16));
+
+		    StackPane copiedPane = new StackPane(copiedRect, copiedText);
+		    resultsPane.getChildren().add(copiedPane);
+
+		    PauseTransition displayCopied = new PauseTransition(Duration.millis(1000));
+		    displayCopied.setOnFinished(event -> resultsPane.getChildren().remove(copiedPane));
+		    displayCopied.play();
+		    
+		    final Clipboard clipboard = Clipboard.getSystemClipboard();
+		    final ClipboardContent content = new ClipboardContent();
+		    String copiedString = "Connections\nPuzzle #" + puzzleNumber + "\n";
+		    for (Set<Word> previousGuess : previousGuesses) {
+		        for (Word guess : previousGuess) {
+		            String color = guess.getColor().toString();
+		            if (color.equalsIgnoreCase("yellow")) {
+		                copiedString += "\ud83d\udfe8";
+		            } else if (color.equalsIgnoreCase("green")) {
+		                copiedString += "\ud83d\udfe9";
+		            } else if (color.equalsIgnoreCase("blue")) {
+		                copiedString += "\ud83d\udfe6";
+		            } else if (color.equalsIgnoreCase("purple")) {
+		                copiedString += "\ud83d\udfea";
+		            }
+		        }
+		        copiedString += "\n";
+		    }
+		    content.putString(copiedString);
+		    clipboard.setContent(content);
+		});
+		
 		resultsPane.setStyle("-fx-background-color: white; -fx-effect: dropshadow(gaussian, black, 20, 0, 0, 0);");
 		resultsPane.setPrefSize(667, 402 + (guessCount * 40) + ((guessCount - 1) * GAP));
 		resultsPane.setMaxWidth(667);
@@ -508,11 +554,11 @@ public class GameBoard extends Application {
 
 		Text backToPuzzleText = new Text("Back to puzzle");
 		backToPuzzleText.setFont(styleManager.getFont("franklin-normal", 600, 16));
-		backToPuzzleBox.setOnMouseEntered(e -> {
+		backToPuzzleText.setOnMouseEntered(e -> {
 			backToPuzzleText.setUnderline(true);
 			backToPuzzleText.setCursor(Cursor.HAND);
 		});
-		backToPuzzleBox.setOnMouseExited(e -> {
+		backToPuzzleText.setOnMouseExited(e -> {
 			backToPuzzleText.setUnderline(false);
 			backToPuzzleText.setCursor(Cursor.DEFAULT);
 		});
@@ -529,11 +575,37 @@ public class GameBoard extends Application {
 
 		StackPane overlayPane = new StackPane(wholeGameStackPane, resultsPane);
 		overlayPane.setAlignment(Pos.CENTER);
+		
+		overlayPane.setOnMouseMoved(event -> {
+            Bounds bounds = overlayPane.getBoundsInLocal();
+            double mouseX = event.getX();
+            double mouseY = event.getY();
+            
+            double minMouseX = backToPuzzleText.getLayoutX();
+            double maxMouseX = resultsPane.getLayoutX() + resultsPane.getWidth();
+            double minMouseY = resultsPane.getLayoutY() + 19;
+            double maxMouseY = resultsPane.getLayoutY() + 36;
+            
+            if (mouseX >= minMouseX && mouseX <= maxMouseX && mouseY >= minMouseY && mouseY <= maxMouseY) {
+//            	System.out.println("at " + mouseX);
+//            	System.out.println("at " + mouseY);
+            	backToPuzzleBox.setMouseTransparent(false);
+            } else {
+//            	System.out.printf("X[%f %f] Y[%f %f]\n", minMouseX, maxMouseX, minMouseY, maxMouseY);
+//            	System.out.println("not at " + mouseX);
+//            	System.out.println("not at " + mouseY);
+            	backToPuzzleBox.setMouseTransparent(true);
+            }
+        });
 
 		Scene scene = new Scene(overlayPane, STAGE_WIDTH, STAGE_HEIGHT);
 		stage.setScene(scene);
 
-		backToPuzzleBox.setOnMouseClicked(e -> {
+		backToPuzzleText.setOnMouseClicked(e -> {
+			overlayPane.getChildren().remove(resultsPane);
+		});
+		
+		xPath.setOnMouseClicked(e -> {
 			overlayPane.getChildren().remove(resultsPane);
 		});
 	}
