@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javafx.animation.ParallelTransition;
 import javafx.animation.PauseTransition;
+import javafx.animation.ScaleTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.TranslateTransition;
 import javafx.scene.Node;
@@ -21,6 +22,7 @@ public class AnimationPane extends Pane {
 	private static final int BUFFER_MS = 50;
 	private static final int PLACEHOLDER_MS = 5;
 	private static final int SHOW_CORRECT_MS = 750;
+	private static final int CATEGORY_SCALE_MS = 400;
 	private Set<GameTileWord> usedOriginalPieces = new HashSet<>();
 	private Set<GameTileWord> usedGhostPieces = new HashSet<>();
 	private List<Integer> swapUnselectedCol = new ArrayList<>();
@@ -141,86 +143,85 @@ public class AnimationPane extends Pane {
 		usedOriginalPieces = new HashSet<>();
 
 		this.setVisible(false);
-		gameBoard.gameDeselect();
 		gameBoard.advanceRow();
+		playCategoryAnimation();
 	}
-//	
-//	private void playCategoryAnimation() {
-//		Set<GameTileWord> displayRowPieces = new HashSet<>();
-//		Set<String> displayRowWordsLower = new HashSet<>();
-//		
-//		for (Node node : watchGridPane.getChildren()) {
-//			if (GridPane.getRowIndex(node) == gameBoard.getCurrentRow() - 1) {
-//				GameTileWord tileWord = (GameTileWord) node; 
-//				
-//				displayRowPieces.add(tileWord);
-//				displayRowWordsLower.add(tileWord.getWord().getText().toLowerCase());
-//			}
-//		}
-//		
-//		GameAnswerColor matchedAnswer = null;
-//		for(DifficultyColor color : DifficultyColor.getAllColors()) {
-//			GameAnswerColor colorAnswer = gameBoard.getCurrentGame().getAnswerForColor(color);
-//			if(colorAnswer.wordMatchesSet(displayRowWordsLower)) {
-//				matchedAnswer = colorAnswer;
-//			}
-//		}
-//		
-//		if(matchedAnswer == null) {
-//			System.out.println("ERROR: could not find color difficulty");
-//			return;
-//			
-//		}
-//
-//		int hardCodeX = 88;
-//		int hardCodeY = 88;
-//		
-////		Node leftmostNode = getGridNode(currentRow - 1, 0);
-////		System.out.println("first element " + ((Text)((StackPane) leftmostNode ).getChildren().get(1)).getText());
-////		System.out.println(leftmostNode.getLayoutX());
-////		System.out.println(leftmostNode.getLayoutY());
-//		
-//		SequentialTransition sequence = new SequentialTransition();
-//		GameTileAnswer tileAnswer = new GameTileAnswer(matchedAnswer, gameBoard);  
-//		
-//		this.getChildren().add(displayCategoryStack);
-////		displayCategoryStack.setLayoutX(leftmostNode.getLayoutX());
-////		displayCategoryStack.setLayoutY(leftmostNode.getLayoutY() * (currentRow - 1));
-//		displayCategoryStack.setLayoutX(hardCodeX);
-//		displayCategoryStack.setLayoutY((GAP + RECTANGLE_HEIGHT) * (currentRow - 1));
-//		displayCategoryStack.setVisible(false);
-//		
-//		ScaleTransition scaleTrans = new ScaleTransition(Duration.millis(CATEGORY_SCALE_MS), displayCategoryStack); 
-//		
-//		scaleTrans.setFromX(1); // Initial scaleX
-//		scaleTrans.setFromY(1); // Initial scaleY
-//		scaleTrans.setToX(1.75); // Initial scaleX
-//		scaleTrans.setToY(1.75); // Initial scaleY
-//        scaleTrans.setAutoReverse(true);
-//        scaleTrans.setCycleCount(2);
-//        
-//        System.out.println(displayRowPieces);
-//        
-//		PauseTransition preparePause = new PauseTransition(Duration.millis(PLACEHOLDER_MS));
-//		preparePause.setOnFinished(event -> {
-//			for(Node node : displayRowPieces) {
-//				node.setVisible(false);
-//			}
-//			displayCategoryStack.setVisible(true);
-//			this.setVisible(true);
-//		});
-//		
-//		scaleTrans.setOnFinished(event -> {
-//			this.getChildren().remove(displayCategoryStack);
-//			this.setVisible(false);
-//			watchGridPane.getChildren().removeAll(displayRowPieces);
-//			watchGridPane.add(displayCategoryStack, 0, currentRow - 1);
-//			GridPane.setColumnSpan(displayCategoryStack, COLS);
-//		});
-//        
-//        sequence.getChildren().addAll(preparePause, scaleTrans);
-//        sequence.play();
-//	}
+	
+	private void playCategoryAnimation() {
+		Set<GameTileWord> displayRowPieces = new HashSet<>();
+		Set<String> displayRowWordsLower = new HashSet<>();
+		
+		for (Node node : watchGridPane.getChildren()) {
+			if (GridPane.getRowIndex(node) == gameBoard.getCurrentRow() - 1) {
+				GameTileWord tileWord = (GameTileWord) node; 
+				
+				displayRowPieces.add(tileWord);
+				displayRowWordsLower.add(tileWord.getWord().getText().toLowerCase());
+			}
+		}
+		
+		GameAnswerColor matchedAnswer = null;
+		for(DifficultyColor color : DifficultyColor.getAllColors()) {
+			GameAnswerColor colorAnswer = gameBoard.getCurrentGame().getAnswerForColor(color);
+			if(colorAnswer.wordMatchesSet(displayRowWordsLower)) {
+				matchedAnswer = colorAnswer;
+			}
+		}
+		
+		if(matchedAnswer == null) {
+			System.out.println("ERROR: could not find color difficulty");
+			return;
+			
+		}
+
+		int hardCodeX = 88;
+		int hardCodeY = 88;
+		
+//		Node leftmostNode = getGridNode(currentRow - 1, 0);
+//		System.out.println("first element " + ((Text)((StackPane) leftmostNode ).getChildren().get(1)).getText());
+//		System.out.println(leftmostNode.getLayoutX());
+//		System.out.println(leftmostNode.getLayoutY());
+		
+		SequentialTransition sequence = new SequentialTransition();
+		GameTileAnswer tileAnswer = new GameTileAnswer(matchedAnswer, gameBoard);  
+		
+		this.getChildren().add(tileAnswer);
+//		tileAnswer.setLayoutX(leftmostNode.getLayoutX());
+//		tileAnswer.setLayoutY(leftmostNode.getLayoutY() * (currentRow - 1));
+		tileAnswer.setLayoutX(hardCodeX);
+		tileAnswer.setLayoutY((GameBoard.GAP + GameBoard.RECTANGLE_HEIGHT) * (gameBoard.getCurrentRow() - 1));
+		tileAnswer.setVisible(false);
+		
+		ScaleTransition scaleTrans = new ScaleTransition(Duration.millis(CATEGORY_SCALE_MS), tileAnswer); 
+		
+		scaleTrans.setFromX(1); // Initial scaleX
+		scaleTrans.setFromY(1); // Initial scaleY
+		scaleTrans.setToX(1.75); // Initial scaleX
+		scaleTrans.setToY(1.75); // Initial scaleY
+        scaleTrans.setAutoReverse(true);
+        scaleTrans.setCycleCount(2);
+        
+		PauseTransition preparePause = new PauseTransition(Duration.millis(PLACEHOLDER_MS));
+		preparePause.setOnFinished(event -> {
+			for(Node node : displayRowPieces) {
+				node.setVisible(false);
+			}
+			tileAnswer.setVisible(true);
+			this.setVisible(true);
+		});
+		
+		scaleTrans.setOnFinished(event -> {
+			this.getChildren().remove(tileAnswer);
+			this.setVisible(false);
+			watchGridPane.getChildren().removeAll(displayRowPieces);
+			watchGridPane.add(tileAnswer, 0, gameBoard.getCurrentRow() - 1);
+			GridPane.setColumnSpan(tileAnswer, GameBoard.COLS);
+			gameBoard.gameDeselect();
+		});
+        
+        sequence.getChildren().addAll(preparePause, scaleTrans);
+        sequence.play();
+	}
 
 	private GameTileWord createGhostPiece(int row, int col) {
 		GameTileWord original = (GameTileWord) getGridNode(row, col);
