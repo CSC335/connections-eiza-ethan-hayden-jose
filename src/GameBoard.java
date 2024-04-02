@@ -718,23 +718,20 @@ public class GameBoard extends Application {
 		disableButtons();
 		disableRectangles();
 		
+		SequentialTransition sequentialTransition = new SequentialTransition();
+		ParallelTransition jumpTransition = createJumpTransition();
 		SequentialTransition swapAndAnswerTileSequence = animPane.getSequenceCorrectAnswer();
+		PauseTransition pauseTransition = new PauseTransition(Duration.millis(500));
+		sequentialTransition.getChildren().addAll(jumpTransition, pauseTransition, swapAndAnswerTileSequence);
 		
 		if (!wonGame) {
-			SequentialTransition sequentialTransition = new SequentialTransition();
-			ParallelTransition jumpTransition = createJumpTransition();
-			PauseTransition pauseTransition = new PauseTransition(Duration.millis(500));
-			sequentialTransition.getChildren().addAll(jumpTransition, pauseTransition, swapAndAnswerTileSequence);
-			sequentialTransition.play();
 			sequentialTransition.setOnFinished(event -> {
 				enableButtons();
 				enableRectangles();
 			});
 		} else {
-			SequentialTransition sequentialTransition = new SequentialTransition();
-			ParallelTransition jumpTransition = createJumpTransition();
-			PauseTransition pauseTransition = new PauseTransition(Duration.millis(500));
-			sequentialTransition.getChildren().addAll(jumpTransition, pauseTransition, swapAndAnswerTileSequence);
+			PauseTransition endPauseTransition = new PauseTransition(Duration.millis(1250));
+			sequentialTransition.getChildren().add(endPauseTransition);
 			sequentialTransition.setOnFinished(event -> {
 				if (wonGame) {
 					disableGameBoard();
@@ -745,8 +742,9 @@ public class GameBoard extends Application {
 					enableRectangles();
 				}
 			});
-			sequentialTransition.play();
 		}
+		
+		sequentialTransition.play();
 	}
 
 	private ParallelTransition createJumpTransition() {
