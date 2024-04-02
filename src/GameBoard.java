@@ -1,5 +1,3 @@
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -29,7 +27,6 @@ import javafx.scene.control.Label;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.Border;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -37,12 +34,10 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.scene.shape.SVGPath;
-import javafx.geometry.Bounds;
 
 public class GameBoard extends Application {
 	protected static final int ROWS = 4;
@@ -409,12 +404,6 @@ public class GameBoard extends Application {
 		gridPane.setAlignment(Pos.CENTER);
 		VBox.setMargin(gridPane, new Insets(20, 0, 0, 0));
 
-		Color[] colors = { Color.rgb(249, 223, 109), // Yellow
-				Color.rgb(160, 195, 90), // Green
-				Color.rgb(176, 195, 238), // Blue
-				Color.rgb(186, 128, 197) // Purple
-		};
-
 		int i = 0;
 		for (Set<Word> previousGuess : previousGuesses) {
 			int j = 0;
@@ -422,13 +411,13 @@ public class GameBoard extends Application {
 				String color = guess.getColor().toString();
 				Color rectangleColor = null;
 				if (color.equalsIgnoreCase("yellow")) {
-					rectangleColor = colors[0];
+					rectangleColor = styleManager.colorYellow();
 				} else if (color.equalsIgnoreCase("green")) {
-					rectangleColor = colors[1];
+					rectangleColor = styleManager.colorGreen();
 				} else if (color.equalsIgnoreCase("blue")) {
-					rectangleColor = colors[2];
+					rectangleColor = styleManager.colorBlue();
 				} else if (color.equalsIgnoreCase("purple")) {
-					rectangleColor = colors[3];
+					rectangleColor = styleManager.colorPurple();
 				}
 				Rectangle square = new Rectangle(40, 40, rectangleColor);
 				square.setArcWidth(10);
