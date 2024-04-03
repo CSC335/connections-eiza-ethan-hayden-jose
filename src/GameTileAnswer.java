@@ -13,10 +13,10 @@ public class GameTileAnswer extends StackPane {
 		this.styleManager = gameBoard.getStyleManager();
 		
 		Text categoryNameText = new Text(answer.getDescription().toUpperCase());
-		categoryNameText.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+		categoryNameText.setFont(styleManager.getFont("franklin-normal",700, 20));
 
 		Text wordListText = new Text(answer.getWordListString());
-		wordListText.setFont(Font.font(18));
+		wordListText.setFont(styleManager.getFont("franklin-noraml",500, 20));
 
 		VBox textVBox = new VBox(categoryNameText, wordListText);
 		textVBox.setAlignment(Pos.CENTER);
