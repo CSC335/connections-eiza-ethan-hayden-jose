@@ -1,5 +1,3 @@
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -29,7 +27,6 @@ import javafx.scene.control.Label;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.Border;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -37,12 +34,10 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.scene.shape.SVGPath;
-import javafx.geometry.Bounds;
 
 public class GameBoard extends Application {
 	protected static final int ROWS = 4;
@@ -125,14 +120,14 @@ public class GameBoard extends Application {
 
 	public void gameDeselect() {
 		gridPane.getChildren().forEach(node -> {
-			if(node instanceof GameTileWord) {
+			if (node instanceof GameTileWord) {
 				GameTileWord tileWord = (GameTileWord) node;
 				tileWord.setSelectedStatus(false);
 			}
 		});
 		selectedCount = 0;
 	}
-	
+
 	private void gameShuffleWords() {
 		ObservableList<Node> children = gridPane.getChildren();
 		List<StackPane> stackPanes = children.stream().filter(node -> node instanceof GameTileWord)
@@ -149,7 +144,7 @@ public class GameBoard extends Application {
 			}
 		}
 	}
-	
+
 	private void gameSubmitSelectedWords() {
 		guessCount++;
 		Set<Word> currentGuess = new HashSet<>(getSelectedWords());
@@ -225,11 +220,14 @@ public class GameBoard extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		initGridPane();
+
+		animPane = new AnimationPane(this);
+		animPane.setVisible(false);
 		initAnimPane();
 		mainStackPane = new StackPane(gridPane, animPane);
-		
+
 		initGameData();
-		
+
 		Text topText = new Text("Create four groups of four!");
 		topText.setFont(styleManager.getFont("franklin-normal", 500, 18));
 
@@ -336,7 +334,7 @@ public class GameBoard extends Application {
 		for (Node node : gridPane.getChildren()) {
 			if (node instanceof GameTileWord) {
 				GameTileWord tileWord = (GameTileWord) node;
-				if(tileWord.getSelectedStatus()) {
+				if (tileWord.getSelectedStatus()) {
 					selectedWords.add(tileWord.getWord());
 				}
 			}
@@ -406,12 +404,6 @@ public class GameBoard extends Application {
 		gridPane.setAlignment(Pos.CENTER);
 		VBox.setMargin(gridPane, new Insets(20, 0, 0, 0));
 
-		Color[] colors = { Color.rgb(249, 223, 109), // Yellow
-				Color.rgb(160, 195, 90), // Green
-				Color.rgb(176, 195, 238), // Blue
-				Color.rgb(186, 128, 197) // Purple
-		};
-
 		int i = 0;
 		for (Set<Word> previousGuess : previousGuesses) {
 			int j = 0;
@@ -419,13 +411,13 @@ public class GameBoard extends Application {
 				String color = guess.getColor().toString();
 				Color rectangleColor = null;
 				if (color.equalsIgnoreCase("yellow")) {
-					rectangleColor = colors[0];
+					rectangleColor = styleManager.colorYellow();
 				} else if (color.equalsIgnoreCase("green")) {
-					rectangleColor = colors[1];
+					rectangleColor = styleManager.colorGreen();
 				} else if (color.equalsIgnoreCase("blue")) {
-					rectangleColor = colors[2];
+					rectangleColor = styleManager.colorBlue();
 				} else if (color.equalsIgnoreCase("purple")) {
-					rectangleColor = colors[3];
+					rectangleColor = styleManager.colorPurple();
 				}
 				Rectangle square = new Rectangle(40, 40, rectangleColor);
 				square.setArcWidth(10);
@@ -473,65 +465,65 @@ public class GameBoard extends Application {
 		shareButton.setPrefSize(162, 48);
 		shareButton.setFont(styleManager.getFont("franklin-normal", 600, 16));
 		shareButton.setStyle(
-		        "-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;");
+				"-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;");
 		VBox.setMargin(shareButton, new Insets(21, 0, 20, 0));
 
 		shareButton.setTranslateY(4);
 
 		resultsLayout.getChildren().addAll(titleLabel, connectionsLabel, gridPane, timerBox, shareButton);
-		
+
 		StackPane resultsPane = new StackPane(resultsLayout);
-		
+
 		shareButton.setOnMouseEntered(e -> {
 			shareButton.setCursor(Cursor.HAND);
-		    shareButton.setStyle(
-		            "-fx-background-color: rgb(18,18,18); -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-cursor: hand;");
+			shareButton.setStyle(
+					"-fx-background-color: rgb(18,18,18); -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-cursor: hand;");
 		});
 
 		shareButton.setOnMouseExited(e -> {
 			shareButton.setCursor(Cursor.DEFAULT);
-		    shareButton.setStyle(
-		            "-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50;");
+			shareButton.setStyle(
+					"-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50;");
 		});
 		shareButton.setOnAction(e -> {
-		    Rectangle copiedRect = new Rectangle(204.54, 42);
-		    copiedRect.setArcWidth(10);
-		    copiedRect.setArcHeight(10);
-		    copiedRect.setFill(Color.BLACK);
+			Rectangle copiedRect = new Rectangle(204.54, 42);
+			copiedRect.setArcWidth(10);
+			copiedRect.setArcHeight(10);
+			copiedRect.setFill(Color.BLACK);
 
-		    Text copiedText = new Text("Copied results to clipboard");
-		    copiedText.setFill(Color.WHITE);
-		    copiedText.setFont(styleManager.getFont("franklin-normal", 600, 16));
+			Text copiedText = new Text("Copied results to clipboard");
+			copiedText.setFill(Color.WHITE);
+			copiedText.setFont(styleManager.getFont("franklin-normal", 600, 16));
 
-		    StackPane copiedPane = new StackPane(copiedRect, copiedText);
-		    resultsPane.getChildren().add(copiedPane);
+			StackPane copiedPane = new StackPane(copiedRect, copiedText);
+			resultsPane.getChildren().add(copiedPane);
 
-		    PauseTransition displayCopied = new PauseTransition(Duration.millis(1000));
-		    displayCopied.setOnFinished(event -> resultsPane.getChildren().remove(copiedPane));
-		    displayCopied.play();
-		    
-		    final Clipboard clipboard = Clipboard.getSystemClipboard();
-		    final ClipboardContent content = new ClipboardContent();
-		    String copiedString = "Connections\nPuzzle #" + puzzleNumber + "\n";
-		    for (Set<Word> previousGuess : previousGuesses) {
-		        for (Word guess : previousGuess) {
-		            String color = guess.getColor().toString();
-		            if (color.equalsIgnoreCase("yellow")) {
-		                copiedString += "\ud83d\udfe8";
-		            } else if (color.equalsIgnoreCase("green")) {
-		                copiedString += "\ud83d\udfe9";
-		            } else if (color.equalsIgnoreCase("blue")) {
-		                copiedString += "\ud83d\udfe6";
-		            } else if (color.equalsIgnoreCase("purple")) {
-		                copiedString += "\ud83d\udfea";
-		            }
-		        }
-		        copiedString += "\n";
-		    }
-		    content.putString(copiedString);
-		    clipboard.setContent(content);
+			PauseTransition displayCopied = new PauseTransition(Duration.millis(1000));
+			displayCopied.setOnFinished(event -> resultsPane.getChildren().remove(copiedPane));
+			displayCopied.play();
+
+			final Clipboard clipboard = Clipboard.getSystemClipboard();
+			final ClipboardContent content = new ClipboardContent();
+			String copiedString = "Connections\nPuzzle #" + puzzleNumber + "\n";
+			for (Set<Word> previousGuess : previousGuesses) {
+				for (Word guess : previousGuess) {
+					String color = guess.getColor().toString();
+					if (color.equalsIgnoreCase("yellow")) {
+						copiedString += "\ud83d\udfe8";
+					} else if (color.equalsIgnoreCase("green")) {
+						copiedString += "\ud83d\udfe9";
+					} else if (color.equalsIgnoreCase("blue")) {
+						copiedString += "\ud83d\udfe6";
+					} else if (color.equalsIgnoreCase("purple")) {
+						copiedString += "\ud83d\udfea";
+					}
+				}
+				copiedString += "\n";
+			}
+			content.putString(copiedString);
+			clipboard.setContent(content);
 		});
-		
+
 		resultsPane.setStyle("-fx-background-color: white; -fx-effect: dropshadow(gaussian, black, 20, 0, 0, 0);");
 		resultsPane.setPrefSize(667, 402 + (guessCount * 40) + ((guessCount - 1) * GAP));
 		resultsPane.setMaxWidth(667);
@@ -575,28 +567,27 @@ public class GameBoard extends Application {
 
 		StackPane overlayPane = new StackPane(wholeGameStackPane, resultsPane);
 		overlayPane.setAlignment(Pos.CENTER);
-		
+
 		overlayPane.setOnMouseMoved(event -> {
-            Bounds bounds = overlayPane.getBoundsInLocal();
-            double mouseX = event.getX();
-            double mouseY = event.getY();
-            
-            double minMouseX = backToPuzzleText.getLayoutX();
-            double maxMouseX = resultsPane.getLayoutX() + resultsPane.getWidth();
-            double minMouseY = resultsPane.getLayoutY() + 19;
-            double maxMouseY = resultsPane.getLayoutY() + 36;
-            
-            if (mouseX >= minMouseX && mouseX <= maxMouseX && mouseY >= minMouseY && mouseY <= maxMouseY) {
+			double mouseX = event.getX();
+			double mouseY = event.getY();
+
+			double minMouseX = backToPuzzleText.getLayoutX();
+			double maxMouseX = resultsPane.getLayoutX() + resultsPane.getWidth();
+			double minMouseY = resultsPane.getLayoutY() + 19;
+			double maxMouseY = resultsPane.getLayoutY() + 36;
+
+			if (mouseX >= minMouseX && mouseX <= maxMouseX && mouseY >= minMouseY && mouseY <= maxMouseY) {
 //            	System.out.println("at " + mouseX);
 //            	System.out.println("at " + mouseY);
-            	backToPuzzleBox.setMouseTransparent(false);
-            } else {
+				backToPuzzleBox.setMouseTransparent(false);
+			} else {
 //            	System.out.printf("X[%f %f] Y[%f %f]\n", minMouseX, maxMouseX, minMouseY, maxMouseY);
 //            	System.out.println("not at " + mouseX);
 //            	System.out.println("not at " + mouseY);
-            	backToPuzzleBox.setMouseTransparent(true);
-            }
-        });
+				backToPuzzleBox.setMouseTransparent(true);
+			}
+		});
 
 		Scene scene = new Scene(overlayPane, STAGE_WIDTH, STAGE_HEIGHT);
 		stage.setScene(scene);
@@ -604,7 +595,7 @@ public class GameBoard extends Application {
 		backToPuzzleText.setOnMouseClicked(e -> {
 			overlayPane.getChildren().remove(resultsPane);
 		});
-		
+
 		xPath.setOnMouseClicked(e -> {
 			overlayPane.getChildren().remove(resultsPane);
 		});
@@ -660,7 +651,7 @@ public class GameBoard extends Application {
 				for (Node node : gridPane.getChildren()) {
 					if (node instanceof GameTileWord) {
 						GameTileWord tileWord = (GameTileWord) node;
-						if(tileWord.getIncorrectStatus()) {
+						if (tileWord.getIncorrectStatus()) {
 							tileWord.setIncorrectStatus(false);
 							// implies
 							// tileWord.setStyleDefault();
@@ -698,8 +689,8 @@ public class GameBoard extends Application {
 		for (Node node : gridPane.getChildren()) {
 			if (node instanceof GameTileWord) {
 				GameTileWord tileWord = (GameTileWord) node;
-				
-				if(tileWord.getSelectedStatus()) {
+
+				if (tileWord.getSelectedStatus()) {
 					tileWord.setSelectedStatus(false);
 					tileWord.setIncorrectStatus(true);
 					TranslateTransition individualShakeTransition = new TranslateTransition(Duration.millis(100),
@@ -753,8 +744,8 @@ public class GameBoard extends Application {
 		for (Node node : gridPane.getChildren()) {
 			if (node instanceof GameTileWord) {
 				GameTileWord tileWord = (GameTileWord) node;
-				
-				if(tileWord.getSelectedStatus()) {
+
+				if (tileWord.getSelectedStatus()) {
 					TranslateTransition individualJumpTransition = new TranslateTransition(Duration.millis(200),
 							tileWord);
 					individualJumpTransition.setByY(-8);
@@ -798,11 +789,11 @@ public class GameBoard extends Application {
 			}
 		}
 	}
-	
+
 	public Button getDeselectButton() {
 		return deselectButton;
 	}
-	
+
 	public Button getSubmitButton() {
 		return submitButton;
 	}
@@ -810,15 +801,15 @@ public class GameBoard extends Application {
 	public int getSelectedCount() {
 		return selectedCount;
 	}
-	
+
 	public void incrementSelectedCount() {
 		selectedCount++;
 	}
-	
+
 	public void decrementSelectedCount() {
 		selectedCount--;
 	}
-	
+
 	public int getCurrentRow() {
 		return currentRow;
 	}
@@ -826,15 +817,15 @@ public class GameBoard extends Application {
 	public void advanceRow() {
 		currentRow++;
 	}
-	
+
 	public StyleManager getStyleManager() {
 		return styleManager;
 	}
-	
+
 	public GridPane getWordGridPane() {
 		return gridPane;
 	}
-	
+
 	public GameData getCurrentGame() {
 		return currentGame;
 	}
