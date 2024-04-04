@@ -150,21 +150,20 @@ public class GameBoard extends Application {
 	}
 
 	private void gameSubmitSelectedWords() {
-		guessCount++;
 		Set<Word> currentGuess = new HashSet<>(getSelectedWords());
 
 		if (previousGuesses.contains(currentGuess)) {
 			Rectangle alreadyGuessedRect = new Rectangle(132.09, 42);
 			alreadyGuessedRect.setArcWidth(10);
 			alreadyGuessedRect.setArcHeight(10);
-			alreadyGuessedRect.setFill(Color.BLACK);
+			alreadyGuessedRect.setFill(styleManager.colorPopupBackground());
 
 			Text alreadyGuessedText = new Text("Already guessed!");
-			alreadyGuessedText.setFill(Color.WHITE);
+			alreadyGuessedText.setFill(styleManager.colorPopupText());
 			alreadyGuessedText.setFont(styleManager.getFont("franklin-normal", 600, 16));
 
 			StackPane alreadyGuessedPane = new StackPane(alreadyGuessedRect, alreadyGuessedText);
-
+			alreadyGuessedPane.getStyleClass().add("popup-pane");
 			alreadyGuessedPane.setTranslateY(-(alreadyGuessedRect.getHeight()) + 5);
 			wholeGameStackPane.getChildren().add(alreadyGuessedPane);
 
@@ -176,6 +175,7 @@ public class GameBoard extends Application {
 			});
 			pause.play();
 		} else {
+			guessCount++;
 			int matchCount = checkSelectedWords(currentGuess);
 			if (matchCount != 4) {
 				incorrectGuessCount++;
@@ -311,6 +311,25 @@ public class GameBoard extends Application {
 			}
 		}
 		updateResultsPaneStyle();
+		updatePopupStyle();
+	}
+	
+	private void updatePopupStyle() {
+	    for (Node node : wholeGameStackPane.lookupAll(".popup-pane")) {
+	        if (node instanceof StackPane) {
+	            StackPane popupPane = (StackPane) node;
+	            if (popupPane.getChildren().size() == 2) {
+	                Node firstChild = popupPane.getChildren().get(0);
+	                Node secondChild = popupPane.getChildren().get(1);
+	                if (firstChild instanceof Rectangle && secondChild instanceof Text) {
+	                    Rectangle popupRect = (Rectangle) firstChild;
+	                    Text popupText = (Text) secondChild;
+	                    popupRect.setFill(styleManager.colorPopupBackground());
+	                    popupText.setFill(styleManager.colorPopupText());
+	                }
+	            }
+	        }
+	    }
 	}
 
 	private void updateResultsPaneStyle() {
@@ -364,6 +383,22 @@ public class GameBoard extends Application {
 							"-fx-background-color: white; -fx-effect: dropshadow(gaussian, black, 20, 0, 0, 0);");
 				}
 			}
+			
+			for (Node node : resultsPane.lookupAll(".popup-pane")) {
+                if (node instanceof StackPane) {
+                    StackPane popupPane = (StackPane) node;
+                    if (popupPane.getChildren().size() == 2) {
+                        Node firstChild = popupPane.getChildren().get(0);
+                        Node secondChild = popupPane.getChildren().get(1);
+                        if (firstChild instanceof Rectangle && secondChild instanceof Text) {
+                            Rectangle popupRect = (Rectangle) firstChild;
+                            Text popupText = (Text) secondChild;
+                            popupRect.setFill(styleManager.colorPopupBackground());
+                            popupText.setFill(styleManager.colorPopupText());
+                        }
+                    }
+                }
+            }
 		}
 	}
 
@@ -742,13 +777,14 @@ public class GameBoard extends Application {
 			Rectangle copiedRect = new Rectangle(204.54, 42);
 			copiedRect.setArcWidth(10);
 			copiedRect.setArcHeight(10);
-			copiedRect.setFill(Color.BLACK);
+			copiedRect.setFill(styleManager.colorPopupBackground());
 
 			Text copiedText = new Text("Copied results to clipboard");
-			copiedText.setFill(Color.WHITE);
+			copiedText.setFill(styleManager.colorPopupText());
 			copiedText.setFont(styleManager.getFont("franklin-normal", 600, 16));
 
 			StackPane copiedPane = new StackPane(copiedRect, copiedText);
+			copiedPane.getStyleClass().add("popup-pane");
 			resultsPane.getChildren().add(copiedPane);
 
 			PauseTransition displayCopied = new PauseTransition(Duration.millis(1000));
@@ -810,14 +846,15 @@ public class GameBoard extends Application {
 				Rectangle oneAwayRect = new Rectangle(96.09, 42);
 				oneAwayRect.setArcWidth(10);
 				oneAwayRect.setArcHeight(10);
-				oneAwayRect.setFill(Color.BLACK);
+				oneAwayRect.setFill(styleManager.colorPopupBackground());
 
 				Text oneAwayText = new Text("One away...");
-				oneAwayText.setFill(Color.WHITE);
+				oneAwayText.setFill(styleManager.colorPopupText());
 				oneAwayText.setFont(styleManager.getFont("franklin-normal", 600, 16));
 //				oneAwayText.setFont(Font.font(16));
 
 				StackPane oneAwayPane = new StackPane(oneAwayRect, oneAwayText);
+				oneAwayPane.getStyleClass().add("popup-pane");
 				mainStackPane.getChildren().add(oneAwayPane);
 
 				PauseTransition displayOneAway = new PauseTransition(Duration.millis(1000));
@@ -828,13 +865,14 @@ public class GameBoard extends Application {
 				Rectangle nextTimeRect = new Rectangle(88.13, 42);
 				nextTimeRect.setArcWidth(10);
 				nextTimeRect.setArcHeight(10);
-				nextTimeRect.setFill(Color.BLACK);
+				nextTimeRect.setFill(styleManager.colorPopupBackground());
 
 				Text nextTimeText = new Text("Next Time");
-				nextTimeText.setFill(Color.WHITE);
+				nextTimeText.setFill(styleManager.colorPopupText());
 				nextTimeText.setFont(styleManager.getFont("franklin-normal", 600, 16));
 
 				StackPane nextTimePane = new StackPane(nextTimeRect, nextTimeText);
+				nextTimePane.getStyleClass().add("popup-pane");
 				mainStackPane.getChildren().add(nextTimePane);
 
 				PauseTransition displayNextTime = new PauseTransition(Duration.millis(1000));

@@ -129,4 +129,12 @@ public class StyleManager {
 	public Color colorTextNeutral() {
 		return darkMode ? TEXT_NEUTRAL_DARK : TEXT_NEUTRAL_LIGHT;
 	}
+	
+	public Color colorPopupBackground() {
+	    return darkMode ? Color.WHITE : Color.BLACK;
+	}
+
+	public Color colorPopupText() {
+	    return darkMode ? Color.BLACK : Color.WHITE;
+	}
 }
