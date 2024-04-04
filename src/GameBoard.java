@@ -27,6 +27,9 @@ import javafx.scene.control.Label;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -68,6 +71,7 @@ public class GameBoard extends Application {
 	private boolean wonGame = false;
 	private boolean gameLost = false;
 	private StackPane wholeGameStackPane;
+	private DarkModeToggle darkModeToggle;
 
 	private void initGridPane() {
 		gridPane = new GridPane();
@@ -216,72 +220,85 @@ public class GameBoard extends Application {
 			gameSubmitSelectedWords();
 		});
 	}
+	
+	private void initDarkModeToggle() {
+	    darkModeToggle = new DarkModeToggle(this);
+	    darkModeToggle.setOnMouseClicked(event -> applyDarkMode());
+	}
+
+	private Object applyDarkMode() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	@Override
 	public void start(Stage primaryStage) {
-		initGridPane();
+	    initGridPane();
 
-		animPane = new AnimationPane(this);
-		animPane.setVisible(false);
-		initAnimPane();
-		mainStackPane = new StackPane(gridPane, animPane);
+	    animPane = new AnimationPane(this);
+	    animPane.setVisible(false);
+	    initAnimPane();
+	    mainStackPane = new StackPane(gridPane, animPane);
 
-		initGameData();
+	    initGameData();
 
-		Text topText = new Text("Create four groups of four!");
-		topText.setFont(styleManager.getFont("franklin-normal", 500, 18));
+	    Text topText = new Text("Create four groups of four!");
+	    topText.setFont(styleManager.getFont("franklin-normal", 500, 18));
 
-		Text bottomText = new Text("Mistakes remaining:");
-		bottomText.setFont(styleManager.getFont("franklin-normal", 500, 16));
+	    Text bottomText = new Text("Mistakes remaining:");
+	    bottomText.setFont(styleManager.getFont("franklin-normal", 500, 16));
 
-		circlePane = new Pane();
-		circlePane.setPrefWidth(100);
+	    circlePane = new Pane();
+	    circlePane.setPrefWidth(100);
 
-		for (int i = 0; i < 4; i++) {
-			Circle circle = new Circle(8);
-			circle.setFill(Color.rgb(90, 89, 78));
-			circle.setLayoutX(i * 28 + 10);
-			circle.setLayoutY(circlePane.getPrefHeight() / 2 + 12);
-			circlePane.getChildren().add(circle);
-		}
+	    for (int i = 0; i < 4; i++) {
+	        Circle circle = new Circle(8);
+	        circle.setFill(Color.rgb(90, 89, 78));
+	        circle.setLayoutX(i * 28 + 10);
+	        circle.setLayoutY(circlePane.getPrefHeight() / 2 + 12);
+	        circlePane.getChildren().add(circle);
+	    }
 
-		HBox bottomBox = new HBox(10);
-		bottomBox.setAlignment(Pos.CENTER);
-		bottomBox.getChildren().addAll(bottomText, circlePane);
+	    HBox bottomBox = new HBox(10);
+	    bottomBox.setAlignment(Pos.CENTER);
+	    bottomBox.getChildren().addAll(bottomText, circlePane);
 
-		shuffleButton = createButton("Shuffle", 88);
-		deselectButton = createButton("Deselect all", 120);
-		submitButton = createButton("Submit", 88);
-		deselectButton.setDisable(true);
-		submitButton.setDisable(true);
+	    shuffleButton = createButton("Shuffle", 88);
+	    deselectButton = createButton("Deselect all", 120);
+	    submitButton = createButton("Submit", 88);
+	    deselectButton.setDisable(true);
+	    submitButton.setDisable(true);
 
-		HBox buttonBox = new HBox(8);
-		buttonBox.setAlignment(Pos.CENTER);
-		buttonBox.getChildren().addAll(shuffleButton, deselectButton, submitButton);
+	    HBox buttonBox = new HBox(8);
+	    buttonBox.setAlignment(Pos.CENTER);
+	    buttonBox.getChildren().addAll(shuffleButton, deselectButton, submitButton);
+	    
+	    // Initialize the dark mode toggle
+	    initDarkModeToggle();
 
-		VBox vbox = new VBox(24, topText, mainStackPane, bottomBox, buttonBox);
-		vbox.setAlignment(Pos.CENTER);
+	    // Create an HBox to hold the dark mode toggle
+	    HBox cornerButtonBox = new HBox(10, darkModeToggle);
+	    cornerButtonBox.setStyle("-fx-alignment: center-right;");
+	    
+	    VBox vbox = new VBox(24, topText, mainStackPane, bottomBox, buttonBox);
+	    vbox.setAlignment(Pos.CENTER);
 
-		StackPane wholeGameStackPane = new StackPane(vbox);
-		wholeGameStackPane.setStyle("-fx-background-color: white;");
-		this.wholeGameStackPane = wholeGameStackPane;
+	    BorderPane mainContentPane = new BorderPane();
+	    mainContentPane.setPadding(new Insets(10));
+	    mainContentPane.setTop(cornerButtonBox);
+	    mainContentPane.setCenter(vbox);
+	    
+	    StackPane wholeGameStackPane = new StackPane(mainContentPane);
+	    wholeGameStackPane.setStyle("-fx-background-color: white;");
+	    this.wholeGameStackPane = wholeGameStackPane;
 
-		initListeners();
-
-		Scene scene = new Scene(wholeGameStackPane, STAGE_WIDTH, STAGE_HEIGHT);
-		primaryStage.setScene(scene);
-		primaryStage.setTitle("Connections");
-		primaryStage.setResizable(false);
-		primaryStage.show();
-
-//		SEE RESULTS PANE UPON LOAD FOR DEBUGGING
-
-//		try {
-//			showResultsPane((Stage) wholeGameStackPane.getScene().getWindow());
-//		} catch (FileNotFoundException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+	    initListeners();
+	    
+	    Scene scene = new Scene(wholeGameStackPane, STAGE_WIDTH, STAGE_HEIGHT);
+	    primaryStage.setScene(scene);
+	    primaryStage.setTitle("Connections");
+	    primaryStage.setResizable(false);
+	    primaryStage.show();
 	}
 
 	private Button createButton(String text, double width) {
