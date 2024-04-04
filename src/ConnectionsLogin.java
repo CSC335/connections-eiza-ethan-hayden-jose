@@ -30,7 +30,7 @@ public class ConnectionsLogin extends Application {
         grid.setHgap(10);
         grid.setVgap(5);
 
-        Font franklin600_16 = Font.loadFont(new FileInputStream("./Fonts/franklin-normal-600.ttf"), 16);
+        //Font franklin600_16 = Font.loadFont(new FileInputStream("./Fonts/franklin-normal-600.ttf"), 16);
         Font franklin700 = Font.loadFont(new FileInputStream("./Fonts/franklin-normal-700.ttf"), 12);
         Font karnak = Font.loadFont(new FileInputStream("./Fonts/KarnakPro-Medium_400.otf"), 30);
 
@@ -59,20 +59,19 @@ public class ConnectionsLogin extends Application {
         cont.setOnAction(event -> {
             if (tPassword.isVisible()) {
                 // login
-            	Stage newStage = new Stage();
+                Stage newStage = new Stage();
                 GameBoard gameBoard = new GameBoard();
                 gameBoard.start(newStage);
-
                 // kill current
                 stage.close();
-            	
             } else {
                 TranslateTransition transition = new TranslateTransition(Duration.millis(500), cont);
                 transition.setByY(40);
                 transition.setOnFinished(e -> {
                     password.setVisible(true);
                     tPassword.setVisible(true);
-                    GridPane.setRowIndex(cont, 4);
+                    GridPane.setRowIndex(cont, 5);
+                    GridPane.setMargin(password, new javafx.geometry.Insets(10, 0, 0, 0)); 
                 });
                 transition.play();
             }

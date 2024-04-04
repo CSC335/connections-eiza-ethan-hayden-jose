@@ -51,10 +51,8 @@ public class ConnectionsHome extends Application {
         loginButton.setFont(franklin600_16);
         //button.setText make 
 
-        // Lambda function for button click event
         loginButton.setOnAction(event -> {
             try {
-                // Open a new class
                 Stage newStage = new Stage();
                 ConnectionsLogin gameBoard = new ConnectionsLogin();
                 gameBoard.start(newStage);
@@ -113,7 +111,8 @@ public class ConnectionsHome extends Application {
     }
 
     private ImageView createLogoImageView() {
-        Image logoImage = new Image("conn_logo.png");
+        Image logoImage = new Image("./img/conn_logo.png");
+        ///empty-repo-haydenjoseeizaethan/img
         ImageView logoImageView = new ImageView(logoImage);
         logoImageView.setFitWidth(100);
         logoImageView.setPreserveRatio(true);
