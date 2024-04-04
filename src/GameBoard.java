@@ -86,7 +86,7 @@ public class GameBoard extends Application {
 			}
 		}
 	}
-	
+
 	private void initAnimPane() {
 		animPane = new AnimationPane(this);
 		animPane.setVisible(false);
@@ -205,11 +205,19 @@ public class GameBoard extends Application {
 		deselectButton.setOnAction(event -> {
 			gameDeselect();
 			deselectButton.setDisable(true);
-			deselectButton.setStyle(
-					"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
 			submitButton.setDisable(true);
-			submitButton.setStyle(
-					"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
+
+			if (darkModeToggle.isDarkMode()) {
+				deselectButton.setStyle(
+						"-fx-background-color: black; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 1px; -fx-border-radius: 50;");
+				submitButton.setStyle(
+						"-fx-background-color: black; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 1px; -fx-border-radius: 50;");
+			} else {
+				deselectButton.setStyle(
+						"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
+				submitButton.setStyle(
+						"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
+			}
 		});
 
 		shuffleButton.setOnAction(event -> {
@@ -220,98 +228,143 @@ public class GameBoard extends Application {
 			gameSubmitSelectedWords();
 		});
 	}
-	
+
 	private void initDarkModeToggle() {
-	    darkModeToggle = new DarkModeToggle(this);
+		darkModeToggle = new DarkModeToggle(this);
 	}
 
 	private void applyDarkOrLightMode() {
-		for(Node node : gridPane.getChildren()) {
-			if(node instanceof GameTileWord) {
+		for (Node node : gridPane.getChildren()) {
+			if (node instanceof GameTileWord) {
 				((GameTileWord) node).refreshStyle();
-			} else if(node instanceof GameTileAnswer) {
+			} else if (node instanceof GameTileAnswer) {
 				((GameTileAnswer) node).refreshStyle();
 			}
 		}
 		animPane.refreshStyle();
+		this.refreshStyle();
 	}
-	
+
+	public void refreshStyle() {
+		if (darkModeToggle.isDarkMode()) {
+	        wholeGameStackPane.setStyle("-fx-background-color: black;");
+	        shuffleButton.setStyle(
+	                "-fx-background-color: black; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 1px; -fx-border-radius: 50;");
+	        deselectButton.setStyle(
+	                "-fx-background-color: black; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 1px; -fx-border-radius: 50;");
+	        if (this.getSelectedCount() == GameBoard.MAX_SELECTED && !submitButton.isDisabled()) {
+	            submitButton.setStyle(
+	                    "-fx-background-color: white; -fx-text-fill: black; -fx-background-radius: 50; -fx-border-radius: 50;");
+	        } else {
+	            submitButton.setStyle(
+	                    "-fx-background-color: black; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 1px; -fx-border-radius: 50;");
+	        }
+	    } else {
+	        wholeGameStackPane.setStyle("-fx-background-color: white;");
+	        shuffleButton.setStyle(
+	                "-fx-background-color: white; -fx-text-fill: black; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
+	        deselectButton.setStyle(
+	                "-fx-background-color: white; -fx-text-fill: black; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
+	        if (this.getSelectedCount() == GameBoard.MAX_SELECTED && !submitButton.isDisabled()) {
+	            submitButton.setStyle(
+	                    "-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50;");
+	        } else {
+	            submitButton.setStyle(
+	                    "-fx-background-color: white; -fx-text-fill: black; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
+	        }
+	    }
+
+		// Update the fill color of the text nodes
+		for (Node node : wholeGameStackPane.getChildren()) {
+			if (node instanceof BorderPane) {
+				BorderPane borderPane = (BorderPane) node;
+				VBox vbox = (VBox) borderPane.getCenter();
+				Text topText = (Text) vbox.getChildren().get(0);
+				HBox bottomBox = (HBox) vbox.getChildren().get(2);
+				Text bottomText = (Text) bottomBox.getChildren().get(0);
+
+				topText.setFill(styleManager.colorText());
+				bottomText.setFill(styleManager.colorText());
+			}
+		}
+	}
+
 	public void applyDarkMode() {
 		applyDarkOrLightMode();
 	}
-	
+
 	public void applyLightMode() {
 		applyDarkOrLightMode();
 	}
 
 	@Override
 	public void start(Stage primaryStage) {
-	    initGridPane();
+		initGridPane();
 
-	    animPane = new AnimationPane(this);
-	    animPane.setVisible(false);
-	    initAnimPane();
-	    mainStackPane = new StackPane(gridPane, animPane);
+		animPane = new AnimationPane(this);
+		animPane.setVisible(false);
+		initAnimPane();
+		mainStackPane = new StackPane(gridPane, animPane);
 
-	    initGameData();
+		initGameData();
 
-	    Text topText = new Text("Create four groups of four!");
-	    topText.setFont(styleManager.getFont("franklin-normal", 500, 18));
+		Text topText = new Text("Create four groups of four!");
+		topText.setFont(styleManager.getFont("franklin-normal", 500, 18));
 
-	    Text bottomText = new Text("Mistakes remaining:");
-	    bottomText.setFont(styleManager.getFont("franklin-normal", 500, 16));
+		Text bottomText = new Text("Mistakes remaining:");
+		bottomText.setFont(styleManager.getFont("franklin-normal", 500, 16));
 
-	    circlePane = new Pane();
-	    circlePane.setPrefWidth(100);
+		circlePane = new Pane();
+		circlePane.setPrefWidth(100);
 
-	    for (int i = 0; i < 4; i++) {
-	        Circle circle = new Circle(8);
-	        circle.setFill(Color.rgb(90, 89, 78));
-	        circle.setLayoutX(i * 28 + 10);
-	        circle.setLayoutY(circlePane.getPrefHeight() / 2 + 12);
-	        circlePane.getChildren().add(circle);
-	    }
+		for (int i = 0; i < 4; i++) {
+			Circle circle = new Circle(8);
+			circle.setFill(Color.rgb(90, 89, 78));
+			circle.setLayoutX(i * 28 + 10);
+			circle.setLayoutY(circlePane.getPrefHeight() / 2 + 12);
+			circlePane.getChildren().add(circle);
+		}
 
-	    HBox bottomBox = new HBox(10);
-	    bottomBox.setAlignment(Pos.CENTER);
-	    bottomBox.getChildren().addAll(bottomText, circlePane);
+		HBox bottomBox = new HBox(10);
+		bottomBox.setAlignment(Pos.CENTER);
+		bottomBox.getChildren().addAll(bottomText, circlePane);
 
-	    shuffleButton = createButton("Shuffle", 88);
-	    deselectButton = createButton("Deselect all", 120);
-	    submitButton = createButton("Submit", 88);
-	    deselectButton.setDisable(true);
-	    submitButton.setDisable(true);
+		shuffleButton = createButton("Shuffle", 88);
+		deselectButton = createButton("Deselect all", 120);
+		submitButton = createButton("Submit", 88);
+		deselectButton.setDisable(true);
+		submitButton.setDisable(true);
 
-	    HBox buttonBox = new HBox(8);
-	    buttonBox.setAlignment(Pos.CENTER);
-	    buttonBox.getChildren().addAll(shuffleButton, deselectButton, submitButton);
-	    
-	    // Initialize the dark mode toggle
-	    initDarkModeToggle();
+		HBox buttonBox = new HBox(8);
+		buttonBox.setAlignment(Pos.CENTER);
+		buttonBox.getChildren().addAll(shuffleButton, deselectButton, submitButton);
 
-	    // Create an HBox to hold the dark mode toggle
-	    HBox cornerButtonBox = new HBox(10, darkModeToggle);
-	    cornerButtonBox.setStyle("-fx-alignment: center-right;");
-	    
-	    VBox vbox = new VBox(24, topText, mainStackPane, bottomBox, buttonBox);
-	    vbox.setAlignment(Pos.CENTER);
+		// Initialize the dark mode toggle
+		initDarkModeToggle();
 
-	    BorderPane mainContentPane = new BorderPane();
-	    mainContentPane.setPadding(new Insets(10));
-	    mainContentPane.setTop(cornerButtonBox);
-	    mainContentPane.setCenter(vbox);
-	    
-	    StackPane wholeGameStackPane = new StackPane(mainContentPane);
-	    wholeGameStackPane.setStyle("-fx-background-color: white;");
-	    this.wholeGameStackPane = wholeGameStackPane;
+		// Create an HBox to hold the dark mode toggle
+		HBox cornerButtonBox = new HBox(10, darkModeToggle);
+		cornerButtonBox.setStyle("-fx-alignment: center-right;");
 
-	    initListeners();
-	    
-	    Scene scene = new Scene(wholeGameStackPane, STAGE_WIDTH, STAGE_HEIGHT);
-	    primaryStage.setScene(scene);
-	    primaryStage.setTitle("Connections");
-	    primaryStage.setResizable(false);
-	    primaryStage.show();
+		VBox vbox = new VBox(24, topText, mainStackPane, bottomBox, buttonBox);
+		vbox.setAlignment(Pos.CENTER);
+
+		BorderPane mainContentPane = new BorderPane();
+		mainContentPane.setPadding(new Insets(10));
+		mainContentPane.setTop(cornerButtonBox);
+		mainContentPane.setCenter(vbox);
+
+		StackPane wholeGameStackPane = new StackPane(mainContentPane);
+		wholeGameStackPane.setStyle("-fx-background-color: white;");
+		this.wholeGameStackPane = wholeGameStackPane;
+
+		initListeners();
+
+		Scene scene = new Scene(wholeGameStackPane, STAGE_WIDTH, STAGE_HEIGHT);
+		primaryStage.setScene(scene);
+		primaryStage.setTitle("Connections");
+		primaryStage.setResizable(false);
+		primaryStage.show();
 	}
 
 	private Button createButton(String text, double width) {
@@ -739,13 +792,13 @@ public class GameBoard extends Application {
 	private void animateCorrectGuess() {
 		disableButtons();
 		disableRectangles();
-		
+
 		SequentialTransition sequentialTransition = new SequentialTransition();
 		ParallelTransition jumpTransition = createJumpTransition();
 		SequentialTransition swapAndAnswerTileSequence = animPane.getSequenceCorrectAnswer();
 		PauseTransition pauseTransition = new PauseTransition(Duration.millis(500));
 		sequentialTransition.getChildren().addAll(jumpTransition, pauseTransition, swapAndAnswerTileSequence);
-		
+
 		if (!wonGame) {
 			sequentialTransition.setOnFinished(event -> {
 				enableButtons();
@@ -765,7 +818,7 @@ public class GameBoard extends Application {
 				}
 			});
 		}
-		
+
 		sequentialTransition.play();
 	}
 
@@ -795,8 +848,13 @@ public class GameBoard extends Application {
 		shuffleButton.setDisable(true);
 		deselectButton.setDisable(true);
 		submitButton.setDisable(true);
-		submitButton.setStyle(
-				"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-background-radius: 50; -fx-border-radius: 50;");
+		if (darkModeToggle.isDarkMode()) {
+			submitButton.setStyle(
+					"-fx-background-color: black; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 1px; -fx-border-radius: 50;");
+		} else {
+			submitButton.setStyle(
+					"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-background-radius: 50; -fx-border-radius: 50;");
+		}
 	}
 
 	private void enableButtons() {
@@ -859,6 +917,10 @@ public class GameBoard extends Application {
 
 	public GameData getCurrentGame() {
 		return currentGame;
+	}
+
+	public DarkModeToggle getDarkModeToggle() {
+		return darkModeToggle;
 	}
 
 	public static void main(String[] args) {

@@ -122,43 +122,66 @@ public class GameTileWord extends StackPane {
 	}
 
 	public void enable() {
-		this.setDisable(false);
-		this.setOnMouseClicked(event -> {
-			if(!selected && gameBoard.getSelectedCount() < GameBoard.MAX_SELECTED) {
-				setSelectedStatus(true);
-				gameBoard.incrementSelectedCount();
-			} else if(selected) {
-				setSelectedStatus(false);
-				gameBoard.decrementSelectedCount();
-			}
-			
-			Button deselectButton = gameBoard.getDeselectButton();
-			Button submitButton = gameBoard.getSubmitButton();
+	    this.setDisable(false);
+	    this.setOnMouseClicked(event -> {
+	        if (!selected && gameBoard.getSelectedCount() < GameBoard.MAX_SELECTED) {
+	            setSelectedStatus(true);
+	            gameBoard.incrementSelectedCount();
+	        } else if (selected) {
+	            setSelectedStatus(false);
+	            gameBoard.decrementSelectedCount();
+	        }
 
-			deselectButton.setDisable(gameBoard.getSelectedCount() == 0);
-			submitButton.setDisable(gameBoard.getSelectedCount() != GameBoard.MAX_SELECTED);
+	        Button deselectButton = gameBoard.getDeselectButton();
+	        Button submitButton = gameBoard.getSubmitButton();
 
-			if (gameBoard.getSelectedCount() != 0) {
-				deselectButton.setStyle(
-						"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
-			}
+	        deselectButton.setDisable(gameBoard.getSelectedCount() == 0);
+	        submitButton.setDisable(gameBoard.getSelectedCount() != GameBoard.MAX_SELECTED);
 
-			if (gameBoard.getSelectedCount() == GameBoard.MAX_SELECTED) {
-				submitButton.setStyle(
-						"-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50;");
-			} else {
-				submitButton.setStyle(
-						"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-background-radius: 50; -fx-border-radius: 50;");
-			}
-		});
+	        if (gameBoard.getSelectedCount() != 0) {
+	            if (gameBoard.getDarkModeToggle().isDarkMode()) {
+	                deselectButton.setStyle(
+	                        "-fx-background-color: black; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 1px; -fx-border-radius: 50;");
+	            } else {
+	                deselectButton.setStyle(
+	                        "-fx-background-color: white; -fx-text-fill: black; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
+	            }
+	        } else {
+	            if (gameBoard.getDarkModeToggle().isDarkMode()) {
+	                deselectButton.setStyle(
+	                        "-fx-background-color: black; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 1px; -fx-border-radius: 50;");
+	            } else {
+	                deselectButton.setStyle(
+	                        "-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
+	            }
+	        }
 
-		this.setOnMouseEntered(event -> {
-			this.setCursor(Cursor.HAND);
-		});
+	        if (gameBoard.getSelectedCount() == GameBoard.MAX_SELECTED) {
+	            if (gameBoard.getDarkModeToggle().isDarkMode()) {
+	                submitButton.setStyle(
+	                        "-fx-background-color: white; -fx-text-fill: black; -fx-background-radius: 50; -fx-border-radius: 50;");
+	            } else {
+	                submitButton.setStyle(
+	                        "-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50;");
+	            }
+	        } else {
+	            if (gameBoard.getDarkModeToggle().isDarkMode()) {
+	                submitButton.setStyle(
+	                        "-fx-background-color: black; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 1px; -fx-background-radius: 50; -fx-border-radius: 50;");
+	            } else {
+	                submitButton.setStyle(
+	                        "-fx-background-color: white; -fx-text-fill: black; -fx-border-color: black; -fx-border-width: 1px; -fx-background-radius: 50; -fx-border-radius: 50;");
+	            }
+	        }
+	    });
 
-		this.setOnMouseExited(event -> {
-			this.setCursor(Cursor.DEFAULT);
-		});
+	    this.setOnMouseEntered(event -> {
+	        this.setCursor(Cursor.HAND);
+	    });
+
+	    this.setOnMouseExited(event -> {
+	        this.setCursor(Cursor.DEFAULT);
+	    });
 	}
 	
 	public void refreshStyle() {
