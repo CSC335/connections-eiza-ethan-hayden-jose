@@ -67,7 +67,7 @@ public class DarkModeToggle extends StackPane {
 		TranslateTransition transitionSVG = new TranslateTransition(Duration.millis(300), svgPane);
 		if (isDarkMode) {
 			label.setStyle(
-					"-fx-background-color: #242424; -fx-background-radius: 200px; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 5, 0, 0, 5), dropshadow(gaussian, rgba(255, 255, 255, 0.4), 5, 0, 0, -5);");
+	                "-fx-background-color: #242424; -fx-background-radius: 200px; -fx-effect: dropshadow(gaussian, rgba(176, 247, 21, 0.4), 10, 0, 0, 5), dropshadow(gaussian, rgba(0, 0, 0, 0.4), 10, 0, 0, 5);");
 			circle.setStyle(
 					"-fx-fill: linear-gradient(from 0% 0% to 100% 100%, #777, #3a3a3a); -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0, 0, 5);");
 			transition.setToX(27.5);
@@ -78,7 +78,7 @@ public class DarkModeToggle extends StackPane {
 			gameBoard.applyDarkMode();
 		} else {
 			label.setStyle(
-					"-fx-background-color: #ebebeb; -fx-background-radius: 200px; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 5, 0, 0, 5), dropshadow(gaussian, rgba(255, 255, 255, 0.4), 5, 0, 0, -5);");
+					"-fx-background-color: #ebebeb; -fx-background-radius: 200px; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 10, 0, 0, 5), dropshadow(gaussian, rgba(255, 255, 255, 0.4), 5, 0, 0, -5);");
 			circle.setStyle(
 					"-fx-fill: linear-gradient(from 0% 0% to 100% 100%, #ffcc89, #d8860b); -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0, 0, 5);");
 			transition.setToX(-27.5);

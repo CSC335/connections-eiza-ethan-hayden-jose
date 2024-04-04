@@ -281,6 +281,7 @@ public class GameBoard extends Application {
 				VBox vbox = (VBox) borderPane.getCenter();
 				Text topText = (Text) vbox.getChildren().get(0);
 				HBox bottomBox = (HBox) vbox.getChildren().get(2);
+				//error here for dark mode in results pane
 				Text bottomText = (Text) bottomBox.getChildren().get(0);
 
 				topText.setFill(styleManager.colorText());
