@@ -377,7 +377,8 @@ public class GameBoard extends Application {
 			}
 		});
 
-		VBox vbox = (VBox) wholeGameStackPane.getChildren().get(0);
+		BorderPane borderPane = (BorderPane) wholeGameStackPane.getChildren().get(0);
+		VBox vbox = (VBox) borderPane.getChildren().get(1);
 		HBox buttonBox = (HBox) vbox.getChildren().get(3);
 		buttonBox.getChildren().clear();
 
