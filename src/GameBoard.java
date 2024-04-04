@@ -310,6 +310,61 @@ public class GameBoard extends Application {
 				topText.setFill(styleManager.colorText());
 			}
 		}
+		updateResultsPaneStyle();
+	}
+
+	private void updateResultsPaneStyle() {
+		if (wholeGameStackPane.getParent() != null) {
+			StackPane resultsPane = (StackPane) wholeGameStackPane.getParent().lookup(".results-pane");
+			if (resultsPane != null) {
+				VBox resultsLayout = (VBox) resultsPane.getChildren().get(0);
+				for (Node child : resultsLayout.getChildren()) {
+					if (child instanceof Label) {
+						Label label = (Label) child;
+						label.setTextFill(styleManager.colorText());
+					} else if (child instanceof Text) {
+						Text text = (Text) child;
+						text.setFill(styleManager.colorText());
+					} else if (child instanceof VBox) {
+						VBox timerBox = (VBox) child;
+						for (Node timerChild : timerBox.getChildren()) {
+							if (timerChild instanceof Label) {
+								Label label = (Label) timerChild;
+								label.setTextFill(styleManager.colorText());
+							}
+						}
+					} else if (child instanceof Button) {
+						Button shareButton = (Button) child;
+						if (darkModeToggle.isDarkMode()) {
+							shareButton.setStyle(
+									"-fx-background-color: white; -fx-text-fill: black; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;");
+						} else {
+							shareButton.setStyle(
+									"-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;");
+						}
+					}
+				}
+
+				HBox backToPuzzleBox = (HBox) resultsPane.lookup(".back-to-puzzle-box");
+				if (backToPuzzleBox != null) {
+					Text backToPuzzleText = (Text) backToPuzzleBox.getChildren().get(0);
+					backToPuzzleText.setFill(styleManager.colorText());
+				}
+
+				SVGPath xPath = (SVGPath) resultsPane.lookup(".x-path");
+				if (xPath != null) {
+					xPath.setFill(styleManager.colorText());
+				}
+
+				if (darkModeToggle.isDarkMode()) {
+					resultsPane.setStyle(
+							"-fx-background-color: black; -fx-effect: dropshadow(gaussian, rgb(176, 247, 121), 20, 0, 0, 0);");
+				} else {
+					resultsPane.setStyle(
+							"-fx-background-color: white; -fx-effect: dropshadow(gaussian, black, 20, 0, 0, 0);");
+				}
+			}
+		}
 	}
 
 	public void applyDarkMode() {
@@ -502,10 +557,8 @@ public class GameBoard extends Application {
 
 		Label titleLabel = wonGame ? new Label("Perfect!") : new Label("Next Time!");
 		titleLabel.setFont(styleManager.getFont("karnakpro-condensedblack", 36));
-		titleLabel.setTextFill(Color.BLACK);
 		VBox.setMargin(titleLabel, new Insets(80, 0, 0, 0));
 
-		// get the real one later on
 		int puzzleNumber = 294;
 		Label connectionsLabel = new Label("Connections #" + puzzleNumber);
 		connectionsLabel.setFont(styleManager.getFont("franklin-normal", 500, 20));
@@ -576,8 +629,13 @@ public class GameBoard extends Application {
 		Button shareButton = new Button("Share Your Results");
 		shareButton.setPrefSize(162, 48);
 		shareButton.setFont(styleManager.getFont("franklin-normal", 600, 16));
-		shareButton.setStyle(
-				"-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;");
+		if (darkModeToggle.isDarkMode()) {
+			shareButton.setStyle(
+					"-fx-background-color: white; -fx-text-fill: black; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;");
+		} else {
+			shareButton.setStyle(
+					"-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;");
+		}
 		VBox.setMargin(shareButton, new Insets(21, 0, 20, 0));
 
 		shareButton.setTranslateY(4);
@@ -586,17 +644,100 @@ public class GameBoard extends Application {
 
 		StackPane resultsPane = new StackPane(resultsLayout);
 
+		if (darkModeToggle.isDarkMode()) {
+			resultsPane.setStyle(
+					"-fx-background-color: black; -fx-effect: dropshadow(gaussian, rgb(176, 247, 121), 20, 0, 0, 0);");
+		} else {
+			resultsPane.setStyle("-fx-background-color: white; -fx-effect: dropshadow(gaussian, black, 20, 0, 0, 0);");
+		}
+
+		resultsPane.setPrefSize(667, 402 + (guessCount * 40) + ((guessCount - 1) * GAP));
+		resultsPane.setMaxWidth(667);
+		resultsPane.setMaxHeight(402 + (guessCount * 40) + ((guessCount - 1) * GAP));
+
+		SVGPath xPath = new SVGPath();
+		xPath.setContent(
+				"M18.717 6.697l-1.414-1.414-5.303 5.303-5.303-5.303-1.414 1.414 5.303 5.303-5.303 5.303 1.414 1.414 5.303-5.303 5.303 5.303 1.414-1.414-5.303-5.303z");
+		xPath.setScaleX(0.8);
+		xPath.setScaleY(0.8);
+		xPath.setOnMouseEntered(e -> {
+			xPath.setCursor(Cursor.HAND);
+		});
+		xPath.setOnMouseExited(e -> {
+			xPath.setCursor(Cursor.DEFAULT);
+		});
+
+		xPath.getStyleClass().add("x-path");
+
+		HBox backToPuzzleBox = new HBox(10);
+		backToPuzzleBox.setAlignment(Pos.CENTER);
+		backToPuzzleBox.getStyleClass().add("back-to-puzzle-box");
+
+		Text backToPuzzleText = new Text("Back to puzzle");
+		backToPuzzleText.setFont(styleManager.getFont("franklin-normal", 600, 16));
+		backToPuzzleText.setOnMouseEntered(e -> {
+			backToPuzzleText.setUnderline(true);
+			backToPuzzleText.setCursor(Cursor.HAND);
+		});
+		backToPuzzleText.setOnMouseExited(e -> {
+			backToPuzzleText.setUnderline(false);
+			backToPuzzleText.setCursor(Cursor.DEFAULT);
+		});
+
+		xPath.setScaleX(1);
+		xPath.setScaleY(1);
+		xPath.setTranslateY(4);
+
+		backToPuzzleBox.getChildren().addAll(backToPuzzleText, xPath);
+
+		resultsPane.getChildren().add(backToPuzzleBox);
+		backToPuzzleBox.setStyle("-fx-alignment: top-right;");
+		StackPane.setMargin(backToPuzzleBox, new Insets(19.2, 19.2, 0, 0));
+
+		resultsPane.getStyleClass().add("results-pane");
+
+		StackPane overlayPane = new StackPane(wholeGameStackPane, resultsPane);
+		overlayPane.setAlignment(Pos.CENTER);
+
+		overlayPane.setOnMouseMoved(event -> {
+			double mouseX = event.getX();
+			double mouseY = event.getY();
+
+			double minMouseX = backToPuzzleText.getLayoutX();
+			double maxMouseX = resultsPane.getLayoutX() + resultsPane.getWidth();
+			double minMouseY = resultsPane.getLayoutY() + 19;
+			double maxMouseY = resultsPane.getLayoutY() + 36;
+
+			if (mouseX >= minMouseX && mouseX <= maxMouseX && mouseY >= minMouseY && mouseY <= maxMouseY) {
+				backToPuzzleBox.setMouseTransparent(false);
+			} else {
+				backToPuzzleBox.setMouseTransparent(true);
+			}
+		});
+
+		Scene scene = new Scene(overlayPane, STAGE_WIDTH, STAGE_HEIGHT);
+		stage.setScene(scene);
+
+		backToPuzzleText.setOnMouseClicked(e -> {
+			overlayPane.getChildren().remove(resultsPane);
+		});
+
+		xPath.setOnMouseClicked(e -> {
+			overlayPane.getChildren().remove(resultsPane);
+		});
+
 		shareButton.setOnMouseEntered(e -> {
 			shareButton.setCursor(Cursor.HAND);
-			shareButton.setStyle(
-					"-fx-background-color: rgb(18,18,18); -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-cursor: hand;");
+//			shareButton.setStyle(
+//					"-fx-background-color: rgb(18,18,18); -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-cursor: hand;");
 		});
 
 		shareButton.setOnMouseExited(e -> {
 			shareButton.setCursor(Cursor.DEFAULT);
-			shareButton.setStyle(
-					"-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50;");
+//			shareButton.setStyle(
+//					"-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50;");
 		});
+
 		shareButton.setOnAction(e -> {
 			Rectangle copiedRect = new Rectangle(204.54, 42);
 			copiedRect.setArcWidth(10);
@@ -636,81 +777,23 @@ public class GameBoard extends Application {
 			clipboard.setContent(content);
 		});
 
-		resultsPane.setStyle("-fx-background-color: white; -fx-effect: dropshadow(gaussian, black, 20, 0, 0, 0);");
-		resultsPane.setPrefSize(667, 402 + (guessCount * 40) + ((guessCount - 1) * GAP));
-		resultsPane.setMaxWidth(667);
-		resultsPane.setMaxHeight(402 + (guessCount * 40) + ((guessCount - 1) * GAP));
+		updateResultsPaneStyle();
 
-		SVGPath xPath = new SVGPath();
-		xPath.setContent(
-				"M18.717 6.697l-1.414-1.414-5.303 5.303-5.303-5.303-1.414 1.414 5.303 5.303-5.303 5.303 1.414 1.414 5.303-5.303 5.303 5.303 1.414-1.414-5.303-5.303z");
-		xPath.setScaleX(0.8);
-		xPath.setScaleY(0.8);
-		xPath.setOnMouseEntered(e -> {
-			xPath.setCursor(Cursor.HAND);
-		});
-		xPath.setOnMouseExited(e -> {
-			xPath.setCursor(Cursor.DEFAULT);
-		});
-
-		HBox backToPuzzleBox = new HBox(10);
-		backToPuzzleBox.setAlignment(Pos.CENTER);
-
-		Text backToPuzzleText = new Text("Back to puzzle");
-		backToPuzzleText.setFont(styleManager.getFont("franklin-normal", 600, 16));
-		backToPuzzleText.setOnMouseEntered(e -> {
-			backToPuzzleText.setUnderline(true);
-			backToPuzzleText.setCursor(Cursor.HAND);
-		});
-		backToPuzzleText.setOnMouseExited(e -> {
-			backToPuzzleText.setUnderline(false);
-			backToPuzzleText.setCursor(Cursor.DEFAULT);
-		});
-
-		xPath.setScaleX(1);
-		xPath.setScaleY(1);
-		xPath.setTranslateY(4);
-
-		backToPuzzleBox.getChildren().addAll(backToPuzzleText, xPath);
-
-		resultsPane.getChildren().add(backToPuzzleBox);
-		backToPuzzleBox.setStyle("-fx-alignment: top-right;");
-		StackPane.setMargin(backToPuzzleBox, new Insets(19.2, 19.2, 0, 0));
-
-		StackPane overlayPane = new StackPane(wholeGameStackPane, resultsPane);
-		overlayPane.setAlignment(Pos.CENTER);
-
-		overlayPane.setOnMouseMoved(event -> {
-			double mouseX = event.getX();
-			double mouseY = event.getY();
-
-			double minMouseX = backToPuzzleText.getLayoutX();
-			double maxMouseX = resultsPane.getLayoutX() + resultsPane.getWidth();
-			double minMouseY = resultsPane.getLayoutY() + 19;
-			double maxMouseY = resultsPane.getLayoutY() + 36;
-
-			if (mouseX >= minMouseX && mouseX <= maxMouseX && mouseY >= minMouseY && mouseY <= maxMouseY) {
-//            	System.out.println("at " + mouseX);
-//            	System.out.println("at " + mouseY);
-				backToPuzzleBox.setMouseTransparent(false);
-			} else {
-//            	System.out.printf("X[%f %f] Y[%f %f]\n", minMouseX, maxMouseX, minMouseY, maxMouseY);
-//            	System.out.println("not at " + mouseX);
-//            	System.out.println("not at " + mouseY);
-				backToPuzzleBox.setMouseTransparent(true);
-			}
-		});
-
-		Scene scene = new Scene(overlayPane, STAGE_WIDTH, STAGE_HEIGHT);
-		stage.setScene(scene);
-
-		backToPuzzleText.setOnMouseClicked(e -> {
-			overlayPane.getChildren().remove(resultsPane);
-		});
-
-		xPath.setOnMouseClicked(e -> {
-			overlayPane.getChildren().remove(resultsPane);
-		});
+		if (darkModeToggle.isDarkMode()) {
+			xPath.setFill(styleManager.colorText());
+			titleLabel.setTextFill(styleManager.colorText());
+			connectionsLabel.setTextFill(styleManager.colorText());
+			nextPuzzleInLabel.setTextFill(styleManager.colorText());
+			timerLabel.setTextFill(styleManager.colorText());
+			backToPuzzleText.setFill(styleManager.colorText());
+		} else {
+			xPath.setFill(Color.BLACK);
+			titleLabel.setTextFill(Color.BLACK);
+			connectionsLabel.setTextFill(Color.BLACK);
+			nextPuzzleInLabel.setTextFill(Color.BLACK);
+			timerLabel.setTextFill(Color.BLACK);
+			backToPuzzleText.setFill(Color.BLACK);
+		}
 	}
 
 	private void animateIncorrectGuess(int matchCount) {
