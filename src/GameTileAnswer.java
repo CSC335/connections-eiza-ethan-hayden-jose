@@ -8,8 +8,10 @@ import javafx.scene.text.Text;
 
 public class GameTileAnswer extends StackPane {
 	private StyleManager styleManager;
+	private GameAnswerColor answer;
 	
 	public GameTileAnswer(GameAnswerColor answer, GameBoard gameBoard) {
+		this.answer = answer;
 		this.styleManager = gameBoard.getStyleManager();
 		
 		Text categoryNameText = new Text(answer.getDescription().toUpperCase());
@@ -26,5 +28,9 @@ public class GameTileAnswer extends StackPane {
 		rectBackground.setArcHeight(GameBoard.CORNER_RADIUS);
 
 		this.getChildren().addAll(rectBackground, textVBox);
+	}
+	
+	public GameAnswerColor getGameAnswerColor() {
+		return answer;
 	}
 }

@@ -4,6 +4,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -82,7 +83,7 @@ public class GameBoard extends Application {
 			}
 		}
 	}
-	
+
 	private void initAnimPane() {
 		animPane = new AnimationPane(this);
 		animPane.setVisible(false);
@@ -255,9 +256,14 @@ public class GameBoard extends Application {
 		deselectButton.setDisable(true);
 		submitButton.setDisable(true);
 
+		Button autoSolveButton = new Button("Auto Solve");
+		autoSolveButton.setOnAction(event -> {
+			animateAutoSolve();
+		});
+		
 		HBox buttonBox = new HBox(8);
 		buttonBox.setAlignment(Pos.CENTER);
-		buttonBox.getChildren().addAll(shuffleButton, deselectButton, submitButton);
+		buttonBox.getChildren().addAll(autoSolveButton, shuffleButton, deselectButton, submitButton);
 
 		VBox vbox = new VBox(24, topText, mainStackPane, bottomBox, buttonBox);
 		vbox.setAlignment(Pos.CENTER);
@@ -708,13 +714,13 @@ public class GameBoard extends Application {
 	private void animateCorrectGuess() {
 		disableButtons();
 		disableRectangles();
-		
+
 		SequentialTransition sequentialTransition = new SequentialTransition();
 		ParallelTransition jumpTransition = createJumpTransition();
 		SequentialTransition swapAndAnswerTileSequence = animPane.getSequenceCorrectAnswer();
 		PauseTransition pauseTransition = new PauseTransition(Duration.millis(500));
 		sequentialTransition.getChildren().addAll(jumpTransition, pauseTransition, swapAndAnswerTileSequence);
-		
+
 		if (!wonGame) {
 			sequentialTransition.setOnFinished(event -> {
 				enableButtons();
@@ -734,8 +740,64 @@ public class GameBoard extends Application {
 				}
 			});
 		}
-		
+
 		sequentialTransition.play();
+	}
+
+	private void animateAutoSolvePart(List<GameAnswerColor> remainingAnswerCategories) {
+		if (currentRow < ROWS) {
+			GameAnswerColor currentColorAnswer = remainingAnswerCategories.remove(0);
+			Set<String> wordStringSet = new HashSet<>(Arrays.asList(currentColorAnswer.getWords()));
+			gameDeselect();
+			
+			for(Node node : gridPane.getChildren()) {
+				if(node instanceof GameTileWord) {
+					GameTileWord tileWord = (GameTileWord) node;
+					String tileWordText = tileWord.getWord().getText().toLowerCase();
+					if(wordStringSet.contains(tileWordText)) {
+						tileWord.setSelectedStatus(true);
+					}
+				}
+			}
+			
+			SequentialTransition sequentialTransition = new SequentialTransition();
+			PauseTransition beforeJumppauseTransition = new PauseTransition(Duration.millis(500));
+			ParallelTransition jumpTransition = createJumpTransition();
+			SequentialTransition swapAndAnswerTileSequence = animPane.getSequenceCorrectAnswer();
+			PauseTransition afterJumpPauseTransition = new PauseTransition(Duration.millis(500));
+			PauseTransition pauseAfterSwapTransition = new PauseTransition(Duration.millis(1000));
+			sequentialTransition.getChildren().addAll(beforeJumppauseTransition, jumpTransition, afterJumpPauseTransition, swapAndAnswerTileSequence,
+					pauseAfterSwapTransition);
+			
+			pauseAfterSwapTransition.setOnFinished(event -> {
+				animateAutoSolvePart(remainingAnswerCategories);
+			});
+			
+			sequentialTransition.play();
+		}
+	}
+
+	private void animateAutoSolve() {
+		List<DifficultyColor> unansweredColor = new ArrayList<>(DifficultyColor.getAllColors());
+
+		for (Node node : gridPane.getChildren()) {
+			if (node instanceof GameTileAnswer) {
+				GameTileAnswer tileAnswer = (GameTileAnswer) node;
+				unansweredColor.remove(tileAnswer.getGameAnswerColor().getColor());
+			}
+		}
+		
+		// Sort in order of difficulty (YELLOW, GREEN, BLUE, PURPLE);
+		Collections.sort(unansweredColor);
+
+		List<GameAnswerColor> remainingAnswerCategories = new ArrayList<>();
+		for (DifficultyColor color : unansweredColor) {
+			GameAnswerColor colorAnswer = currentGame.getAnswerForColor(color);
+			remainingAnswerCategories.add(colorAnswer);
+		}
+		
+		disableGameBoard();
+		animateAutoSolvePart(remainingAnswerCategories);
 	}
 
 	private ParallelTransition createJumpTransition() {
