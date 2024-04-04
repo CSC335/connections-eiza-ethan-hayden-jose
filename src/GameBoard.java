@@ -223,12 +223,25 @@ public class GameBoard extends Application {
 	
 	private void initDarkModeToggle() {
 	    darkModeToggle = new DarkModeToggle(this);
-	    darkModeToggle.setOnMouseClicked(event -> applyDarkMode());
 	}
 
-	private Object applyDarkMode() {
-		// TODO Auto-generated method stub
-		return null;
+	private void applyDarkOrLightMode() {
+		for(Node node : gridPane.getChildren()) {
+			if(node instanceof GameTileWord) {
+				((GameTileWord) node).refreshStyle();
+			} else if(node instanceof GameTileAnswer) {
+				((GameTileAnswer) node).refreshStyle();
+			}
+		}
+		animPane.refreshStyle();
+	}
+	
+	public void applyDarkMode() {
+		applyDarkOrLightMode();
+	}
+	
+	public void applyLightMode() {
+		applyDarkOrLightMode();
 	}
 
 	@Override

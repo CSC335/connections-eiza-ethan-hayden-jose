@@ -224,4 +224,14 @@ public class AnimationPane extends Pane {
 		}
 		return null;
 	}
+	
+	public void refreshStyle() {
+		for(Node node : getChildren()) {
+			if(node instanceof GameTileWord) {
+				((GameTileWord) node).refreshStyle();
+			} else if(node instanceof GameTileAnswer) {
+				((GameTileAnswer) node).refreshStyle();
+			}
+		}
+	}
 }

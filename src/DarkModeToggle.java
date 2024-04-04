@@ -12,12 +12,14 @@ public class DarkModeToggle extends StackPane {
 	private Label label;
 	private Circle circle;
 	private GameBoard gameBoard;
+	private StyleManager styleManager;
 	private Pane svgPane;
 	private SVGPath sunIconSVG;
 	private SVGPath moonIconSVG;
 
 	public DarkModeToggle(GameBoard gameBoard) {
 		this.gameBoard = gameBoard;
+		this.styleManager = gameBoard.getStyleManager();
 		label = new Label();
 		label.setPrefSize(92.5, 37);
 		label.setStyle(
@@ -72,6 +74,8 @@ public class DarkModeToggle extends StackPane {
 			transitionSVG.setToX(27.5);
 			moonIconSVG.setVisible(true);
 			sunIconSVG.setVisible(false);
+			styleManager.setDarkMode(true);
+			gameBoard.applyDarkMode();
 		} else {
 			label.setStyle(
 					"-fx-background-color: #ebebeb; -fx-background-radius: 200px; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 5, 0, 0, 5), dropshadow(gaussian, rgba(255, 255, 255, 0.4), 5, 0, 0, -5);");
@@ -81,6 +85,8 @@ public class DarkModeToggle extends StackPane {
 			transitionSVG.setToX(-27.5);
 			moonIconSVG.setVisible(false);
 			sunIconSVG.setVisible(true);
+			styleManager.setDarkMode(false);
+			gameBoard.applyLightMode();
 		}
 		transition.play();
 		transitionSVG.play();

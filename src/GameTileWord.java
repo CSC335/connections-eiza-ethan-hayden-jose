@@ -29,16 +29,7 @@ public class GameTileWord extends StackPane {
 		
 		initAssets();
 		enable();
-		
-		if(selected && incorrect) {
-			setStyleDefault();
-		} else if(selected) {
-			setStyleSelected();
-		} else if(incorrect) {
-			setStyleIncorrect();
-		} else {
-			setStyleDefault();
-		}
+		refreshStyle();
 	}
 	
 	public GameTileWord(Font font, GameBoard gameBoard) {
@@ -102,7 +93,7 @@ public class GameTileWord extends StackPane {
 
 		text = new Text();
 		text.setFont(font);
-		text.setFill(Color.BLACK);
+		text.setFill(styleManager.colorText());
 		setWord(word);
 		
 		this.getChildren().addAll(rectangle, text);
@@ -110,17 +101,17 @@ public class GameTileWord extends StackPane {
 
 	private void setStyleDefault() {
 		rectangle.setFill(styleManager.colorDefaultRectangle());
-		text.setFill(Color.BLACK);
+		text.setFill(styleManager.colorText());
 	}
 
 	private void setStyleSelected() {
 		rectangle.setFill(styleManager.colorSelectedRectangle());
-		text.setFill(Color.WHITE);
+		text.setFill(styleManager.colorTextInverted());
 	}
 
 	private void setStyleIncorrect() {
 		rectangle.setFill(styleManager.colorIncorrectRectangle());
-		text.setFill(Color.WHITE);
+		text.setFill(styleManager.colorTextInverted());
 	}
 
 	public void disable() {
@@ -168,5 +159,17 @@ public class GameTileWord extends StackPane {
 		this.setOnMouseExited(event -> {
 			this.setCursor(Cursor.DEFAULT);
 		});
+	}
+	
+	public void refreshStyle() {
+		if(selected && incorrect) {
+			setStyleDefault();
+		} else if(selected) {
+			setStyleSelected();
+		} else if(incorrect) {
+			setStyleIncorrect();
+		} else {
+			setStyleDefault();
+		}
 	}
 }

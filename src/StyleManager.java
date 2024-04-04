@@ -21,10 +21,19 @@ public class StyleManager {
 	protected static final Color BLUE_DARK = Color.rgb(176, 195, 238);
 	protected static final Color PURPLE_DARK = Color.rgb(186, 128, 197);
 
-	protected static final Color RECTANGLE_DEFAULT_COLOR_DARK = Color.rgb(239, 239, 230);
-	protected static final Color RECTANGLE_SELECTED_COLOR_DARK = Color.rgb(90, 89, 78);
-	protected static final Color RECTANGLE_INCORRECT_COLOR_DARK = Color.rgb(130, 131, 122);
+	protected static final Color RECTANGLE_DEFAULT_COLOR_DARK = Color.rgb(50, 50, 50);
+	protected static final Color RECTANGLE_SELECTED_COLOR_DARK = Color.rgb(150, 150, 150);
+	protected static final Color RECTANGLE_INCORRECT_COLOR_DARK = Color.rgb(90, 90, 90);
+	
+	protected static final Color TEXT_LIGHT = Color.BLACK;
+	protected static final Color TEXT_DARK = Color.rgb(176, 247, 121);
 
+	protected static final Color TEXT_INVERTED_LIGHT = Color.WHITE;
+	protected static final Color TEXT_INVERTED_DARK = Color.WHITE;
+
+	protected static final Color TEXT_NEUTRAL_LIGHT = Color.BLACK;
+	protected static final Color TEXT_NEUTRAL_DARK = Color.BLACK;
+	
 	private boolean darkMode;
 	private Map<String, Font> fontMap = new HashMap<>();
 
@@ -107,5 +116,17 @@ public class StyleManager {
 
 	public Color colorIncorrectRectangle() {
 		return darkMode ? RECTANGLE_INCORRECT_COLOR_DARK : RECTANGLE_INCORRECT_COLOR_LIGHT;
+	}
+	
+	public Color colorText() {
+		return darkMode ? TEXT_DARK : TEXT_LIGHT;
+	}
+
+	public Color colorTextInverted() {
+		return darkMode ? TEXT_INVERTED_DARK : TEXT_INVERTED_LIGHT;
+	}
+
+	public Color colorTextNeutral() {
+		return darkMode ? TEXT_NEUTRAL_DARK : TEXT_NEUTRAL_LIGHT;
 	}
 }
