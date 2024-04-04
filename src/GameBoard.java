@@ -72,7 +72,17 @@ public class GameBoard extends Application {
 	private boolean gameLost = false;
 	private StackPane wholeGameStackPane;
 	private DarkModeToggle darkModeToggle;
-
+	private String buttonNormalMode = "-fx-background-color: white; -fx-text-fill: black; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;";
+	private String buttonDarkMode = "-fx-background-color: black; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 1px; -fx-border-radius: 50;";
+	private String submitButtonFillDarkMode = "-fx-background-color: white; -fx-text-fill: black; -fx-background-radius: 50; -fx-border-radius: 50;";
+	private String submitButtonFillNormalMode = "-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50;";
+	private String resultsPaneShareButtonNormalMode = "-fx-background-color: white; -fx-text-fill: black; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;";
+	private String resultsPaneShareButtonDarkMode = "-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;";
+	private String resultsPaneNormalMode = "-fx-background-color: white; -fx-effect: dropshadow(gaussian, black, 20, 0, 0, 0);";
+	private String resultsPaneDarkMode = "-fx-background-color: black; -fx-effect: dropshadow(gaussian, rgb(176, 247, 121), 20, 0, 0, 0);";
+	private String wholeGameDarkMode = "-fx-background-color: black;";
+	private String wholeGameNoramlMode = "-fx-background-color: white;";
+	
 	private void initGridPane() {
 		gridPane = new GridPane();
 		gridPane.setHgap(GAP);
@@ -207,17 +217,6 @@ public class GameBoard extends Application {
 			deselectButton.setDisable(true);
 			submitButton.setDisable(true);
 
-			if (darkModeToggle.isDarkMode()) {
-				deselectButton.setStyle(
-						"-fx-background-color: black; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 1px; -fx-border-radius: 50;");
-				submitButton.setStyle(
-						"-fx-background-color: black; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 1px; -fx-border-radius: 50;");
-			} else {
-				deselectButton.setStyle(
-						"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
-				submitButton.setStyle(
-						"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
-			}
 		});
 
 		shuffleButton.setOnAction(event -> {
@@ -247,17 +246,13 @@ public class GameBoard extends Application {
 
 	public void refreshStyle() {
 		if (darkModeToggle.isDarkMode()) {
-			wholeGameStackPane.setStyle("-fx-background-color: black;");
-			shuffleButton.setStyle(
-					"-fx-background-color: black; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 1px; -fx-border-radius: 50;");
-			deselectButton.setStyle(
-					"-fx-background-color: black; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 1px; -fx-border-radius: 50;");
+			wholeGameStackPane.setStyle(wholeGameDarkMode);
+			shuffleButton.setStyle(buttonDarkMode);
+			deselectButton.setStyle(buttonDarkMode);
 			if (this.getSelectedCount() == GameBoard.MAX_SELECTED && !submitButton.isDisabled()) {
-				submitButton.setStyle(
-						"-fx-background-color: white; -fx-text-fill: black; -fx-background-radius: 50; -fx-border-radius: 50;");
+				submitButton.setStyle(submitButtonFillDarkMode);
 			} else {
-				submitButton.setStyle(
-						"-fx-background-color: black; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 1px; -fx-border-radius: 50;");
+				submitButton.setStyle(buttonDarkMode);
 			}
 
 			BorderPane borderPane = (BorderPane) wholeGameStackPane.getChildren().get(0);
@@ -265,30 +260,24 @@ public class GameBoard extends Application {
 			HBox buttonBox = (HBox) vbox.getChildren().get(2);
 			if (buttonBox.getChildren().size() > 0 && buttonBox.getChildren().get(0) instanceof Button) {
 				Button viewResultsButton = (Button) buttonBox.getChildren().get(0);
-				viewResultsButton.setStyle(
-						"-fx-background-color: black; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 1px; -fx-border-radius: 50;");
+				viewResultsButton.setStyle(buttonDarkMode);
 			}
 
 		} else {
-			wholeGameStackPane.setStyle("-fx-background-color: white;");
-			shuffleButton.setStyle(
-					"-fx-background-color: white; -fx-text-fill: black; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
-			deselectButton.setStyle(
-					"-fx-background-color: white; -fx-text-fill: black; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
+			wholeGameStackPane.setStyle(wholeGameNoramlMode);
+			shuffleButton.setStyle(buttonNormalMode);
+			deselectButton.setStyle(buttonNormalMode);
 			if (this.getSelectedCount() == GameBoard.MAX_SELECTED && !submitButton.isDisabled()) {
-				submitButton.setStyle(
-						"-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50;");
+				submitButton.setStyle(submitButtonFillNormalMode);
 			} else {
-				submitButton.setStyle(
-						"-fx-background-color: white; -fx-text-fill: black; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
+				submitButton.setStyle(buttonNormalMode);
 			}
 			BorderPane borderPane = (BorderPane) wholeGameStackPane.getChildren().get(0);
 			VBox vbox = (VBox) borderPane.getChildren().get(1);
 			HBox buttonBox = (HBox) vbox.getChildren().get(2);
 			if (buttonBox.getChildren().size() > 0 && buttonBox.getChildren().get(0) instanceof Button) {
 				Button viewResultsButton = (Button) buttonBox.getChildren().get(0);
-				viewResultsButton.setStyle(
-						"-fx-background-color: white; -fx-text-fill: black; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
+				viewResultsButton.setStyle(buttonNormalMode);
 			}
 		}
 
@@ -313,23 +302,23 @@ public class GameBoard extends Application {
 		updateResultsPaneStyle();
 		updatePopupStyle();
 	}
-	
+
 	private void updatePopupStyle() {
-	    for (Node node : wholeGameStackPane.lookupAll(".popup-pane")) {
-	        if (node instanceof StackPane) {
-	            StackPane popupPane = (StackPane) node;
-	            if (popupPane.getChildren().size() == 2) {
-	                Node firstChild = popupPane.getChildren().get(0);
-	                Node secondChild = popupPane.getChildren().get(1);
-	                if (firstChild instanceof Rectangle && secondChild instanceof Text) {
-	                    Rectangle popupRect = (Rectangle) firstChild;
-	                    Text popupText = (Text) secondChild;
-	                    popupRect.setFill(styleManager.colorPopupBackground());
-	                    popupText.setFill(styleManager.colorPopupText());
-	                }
-	            }
-	        }
-	    }
+		for (Node node : wholeGameStackPane.lookupAll(".popup-pane")) {
+			if (node instanceof StackPane) {
+				StackPane popupPane = (StackPane) node;
+				if (popupPane.getChildren().size() == 2) {
+					Node firstChild = popupPane.getChildren().get(0);
+					Node secondChild = popupPane.getChildren().get(1);
+					if (firstChild instanceof Rectangle && secondChild instanceof Text) {
+						Rectangle popupRect = (Rectangle) firstChild;
+						Text popupText = (Text) secondChild;
+						popupRect.setFill(styleManager.colorPopupBackground());
+						popupText.setFill(styleManager.colorPopupText());
+					}
+				}
+			}
+		}
 	}
 
 	private void updateResultsPaneStyle() {
@@ -355,11 +344,9 @@ public class GameBoard extends Application {
 					} else if (child instanceof Button) {
 						Button shareButton = (Button) child;
 						if (darkModeToggle.isDarkMode()) {
-							shareButton.setStyle(
-									"-fx-background-color: white; -fx-text-fill: black; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;");
+							shareButton.setStyle(resultsPaneShareButtonNormalMode);
 						} else {
-							shareButton.setStyle(
-									"-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;");
+							shareButton.setStyle(resultsPaneShareButtonDarkMode);
 						}
 					}
 				}
@@ -376,29 +363,27 @@ public class GameBoard extends Application {
 				}
 
 				if (darkModeToggle.isDarkMode()) {
-					resultsPane.setStyle(
-							"-fx-background-color: black; -fx-effect: dropshadow(gaussian, rgb(176, 247, 121), 20, 0, 0, 0);");
+					resultsPane.setStyle(resultsPaneDarkMode);
 				} else {
-					resultsPane.setStyle(
-							"-fx-background-color: white; -fx-effect: dropshadow(gaussian, black, 20, 0, 0, 0);");
+					resultsPane.setStyle(resultsPaneNormalMode);
 				}
 			}
-			
+
 			for (Node node : resultsPane.lookupAll(".popup-pane")) {
-                if (node instanceof StackPane) {
-                    StackPane popupPane = (StackPane) node;
-                    if (popupPane.getChildren().size() == 2) {
-                        Node firstChild = popupPane.getChildren().get(0);
-                        Node secondChild = popupPane.getChildren().get(1);
-                        if (firstChild instanceof Rectangle && secondChild instanceof Text) {
-                            Rectangle popupRect = (Rectangle) firstChild;
-                            Text popupText = (Text) secondChild;
-                            popupRect.setFill(styleManager.colorPopupBackground());
-                            popupText.setFill(styleManager.colorPopupText());
-                        }
-                    }
-                }
-            }
+				if (node instanceof StackPane) {
+					StackPane popupPane = (StackPane) node;
+					if (popupPane.getChildren().size() == 2) {
+						Node firstChild = popupPane.getChildren().get(0);
+						Node secondChild = popupPane.getChildren().get(1);
+						if (firstChild instanceof Rectangle && secondChild instanceof Text) {
+							Rectangle popupRect = (Rectangle) firstChild;
+							Text popupText = (Text) secondChild;
+							popupRect.setFill(styleManager.colorPopupBackground());
+							popupText.setFill(styleManager.colorPopupText());
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -468,7 +453,7 @@ public class GameBoard extends Application {
 		mainContentPane.setCenter(vbox);
 
 		StackPane wholeGameStackPane = new StackPane(mainContentPane);
-		wholeGameStackPane.setStyle("-fx-background-color: white;");
+		wholeGameStackPane.setStyle(wholeGameNoramlMode);
 		this.wholeGameStackPane = wholeGameStackPane;
 
 		initListeners();
@@ -482,8 +467,7 @@ public class GameBoard extends Application {
 
 	private Button createButton(String text, double width) {
 		Button button = new Button(text);
-		button.setStyle(
-				"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
+		button.setStyle(buttonNormalMode);
 		button.setPrefHeight(48);
 		button.setPrefWidth(width);
 		button.setFont(styleManager.getFont("franklin-normal", 600, 16));
@@ -566,11 +550,9 @@ public class GameBoard extends Application {
 
 		Button viewResultsButton = new Button("View Results");
 		if (darkModeToggle.isDarkMode()) {
-			viewResultsButton.setStyle(
-					"-fx-background-color: black; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 1px; -fx-border-radius: 50;");
+			viewResultsButton.setStyle(buttonDarkMode);
 		} else {
-			viewResultsButton.setStyle(
-					"-fx-background-color: white; -fx-text-fill: black; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
+			viewResultsButton.setStyle(buttonNormalMode);
 		}
 		viewResultsButton.setPrefSize(160, 48);
 		viewResultsButton.setFont(styleManager.getFont("franklin-normal", 600, 16));
@@ -665,11 +647,9 @@ public class GameBoard extends Application {
 		shareButton.setPrefSize(162, 48);
 		shareButton.setFont(styleManager.getFont("franklin-normal", 600, 16));
 		if (darkModeToggle.isDarkMode()) {
-			shareButton.setStyle(
-					"-fx-background-color: white; -fx-text-fill: black; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;");
+			shareButton.setStyle(resultsPaneShareButtonNormalMode);
 		} else {
-			shareButton.setStyle(
-					"-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;");
+			shareButton.setStyle(resultsPaneShareButtonDarkMode);
 		}
 		VBox.setMargin(shareButton, new Insets(21, 0, 20, 0));
 
@@ -680,10 +660,9 @@ public class GameBoard extends Application {
 		StackPane resultsPane = new StackPane(resultsLayout);
 
 		if (darkModeToggle.isDarkMode()) {
-			resultsPane.setStyle(
-					"-fx-background-color: black; -fx-effect: dropshadow(gaussian, rgb(176, 247, 121), 20, 0, 0, 0);");
+			resultsPane.setStyle(resultsPaneDarkMode);
 		} else {
-			resultsPane.setStyle("-fx-background-color: white; -fx-effect: dropshadow(gaussian, black, 20, 0, 0, 0);");
+			resultsPane.setStyle(resultsPaneNormalMode);
 		}
 
 		resultsPane.setPrefSize(667, 402 + (guessCount * 40) + ((guessCount - 1) * GAP));
@@ -763,14 +742,10 @@ public class GameBoard extends Application {
 
 		shareButton.setOnMouseEntered(e -> {
 			shareButton.setCursor(Cursor.HAND);
-//			shareButton.setStyle(
-//					"-fx-background-color: rgb(18,18,18); -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-cursor: hand;");
 		});
 
 		shareButton.setOnMouseExited(e -> {
 			shareButton.setCursor(Cursor.DEFAULT);
-//			shareButton.setStyle(
-//					"-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50;");
 		});
 
 		shareButton.setOnAction(e -> {
@@ -998,11 +973,9 @@ public class GameBoard extends Application {
 		deselectButton.setDisable(true);
 		submitButton.setDisable(true);
 		if (darkModeToggle.isDarkMode()) {
-			submitButton.setStyle(
-					"-fx-background-color: black; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 1px; -fx-border-radius: 50;");
+			submitButton.setStyle(buttonDarkMode);
 		} else {
-			submitButton.setStyle(
-					"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-background-radius: 50; -fx-border-radius: 50;");
+			submitButton.setStyle(buttonNormalMode);
 		}
 	}
 
