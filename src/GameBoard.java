@@ -354,18 +354,19 @@ public class GameBoard extends Application {
 					resultsPane.setStyle(styleManager.getResultsPaneNormalMode());
 				}
 			}
-
-			for (Node node : resultsPane.lookupAll(".popup-pane")) {
-				if (node instanceof StackPane) {
-					StackPane popupPane = (StackPane) node;
-					if (popupPane.getChildren().size() == 2) {
-						Node firstChild = popupPane.getChildren().get(0);
-						Node secondChild = popupPane.getChildren().get(1);
-						if (firstChild instanceof Rectangle && secondChild instanceof Text) {
-							Rectangle popupRect = (Rectangle) firstChild;
-							Text popupText = (Text) secondChild;
-							popupRect.setFill(styleManager.colorPopupBackground());
-							popupText.setFill(styleManager.colorPopupText());
+			if (resultsPane != null) {
+				for (Node node : resultsPane.lookupAll(".popup-pane")) {
+					if (node instanceof StackPane) {
+						StackPane popupPane = (StackPane) node;
+						if (popupPane.getChildren().size() == 2) {
+							Node firstChild = popupPane.getChildren().get(0);
+							Node secondChild = popupPane.getChildren().get(1);
+							if (firstChild instanceof Rectangle && secondChild instanceof Text) {
+								Rectangle popupRect = (Rectangle) firstChild;
+								Text popupText = (Text) secondChild;
+								popupRect.setFill(styleManager.colorPopupBackground());
+								popupText.setFill(styleManager.colorPopupText());
+							}
 						}
 					}
 				}
