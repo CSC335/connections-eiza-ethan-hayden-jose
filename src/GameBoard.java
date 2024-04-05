@@ -27,9 +27,7 @@ import javafx.scene.control.Label;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -72,17 +70,7 @@ public class GameBoard extends Application {
 	private boolean gameLost = false;
 	private StackPane wholeGameStackPane;
 	private DarkModeToggle darkModeToggle;
-	private String buttonNormalMode = "-fx-background-color: white; -fx-text-fill: black; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;";
-	private String buttonDarkMode = "-fx-background-color: black; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 1px; -fx-border-radius: 50;";
-	private String submitButtonFillDarkMode = "-fx-background-color: white; -fx-text-fill: black; -fx-background-radius: 50; -fx-border-radius: 50;";
-	private String submitButtonFillNormalMode = "-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50;";
-	private String resultsPaneShareButtonNormalMode = "-fx-background-color: white; -fx-text-fill: black; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;";
-	private String resultsPaneShareButtonDarkMode = "-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;";
-	private String resultsPaneNormalMode = "-fx-background-color: white; -fx-effect: dropshadow(gaussian, black, 20, 0, 0, 0);";
-	private String resultsPaneDarkMode = "-fx-background-color: black; -fx-effect: dropshadow(gaussian, rgb(176, 247, 121), 20, 0, 0, 0);";
-	private String wholeGameDarkMode = "-fx-background-color: black;";
-	private String wholeGameNoramlMode = "-fx-background-color: white;";
-	
+
 	private void initGridPane() {
 		gridPane = new GridPane();
 		gridPane.setHgap(GAP);
@@ -246,13 +234,13 @@ public class GameBoard extends Application {
 
 	public void refreshStyle() {
 		if (darkModeToggle.isDarkMode()) {
-			wholeGameStackPane.setStyle(wholeGameDarkMode);
-			shuffleButton.setStyle(buttonDarkMode);
-			deselectButton.setStyle(buttonDarkMode);
+			wholeGameStackPane.setStyle(styleManager.getWholeGameDarkMode());
+			shuffleButton.setStyle(styleManager.getButtonDarkMode());
+			deselectButton.setStyle(styleManager.getButtonDarkMode());
 			if (this.getSelectedCount() == GameBoard.MAX_SELECTED && !submitButton.isDisabled()) {
-				submitButton.setStyle(submitButtonFillDarkMode);
+				submitButton.setStyle(styleManager.getSubmitButtonFillDarkMode());
 			} else {
-				submitButton.setStyle(buttonDarkMode);
+				submitButton.setStyle(styleManager.getButtonDarkMode());
 			}
 
 			BorderPane borderPane = (BorderPane) wholeGameStackPane.getChildren().get(0);
@@ -260,35 +248,33 @@ public class GameBoard extends Application {
 			HBox buttonBox = (HBox) vbox.getChildren().get(2);
 			if (buttonBox.getChildren().size() > 0 && buttonBox.getChildren().get(0) instanceof Button) {
 				Button viewResultsButton = (Button) buttonBox.getChildren().get(0);
-				viewResultsButton.setStyle(buttonDarkMode);
+				viewResultsButton.setStyle(styleManager.getButtonDarkMode());
 			}
 
 		} else {
-			wholeGameStackPane.setStyle(wholeGameNoramlMode);
-			shuffleButton.setStyle(buttonNormalMode);
-			deselectButton.setStyle(buttonNormalMode);
+			wholeGameStackPane.setStyle(styleManager.getWholeGameNormalMode());
+			shuffleButton.setStyle(styleManager.getButtonNormalMode());
+			deselectButton.setStyle(styleManager.getButtonNormalMode());
 			if (this.getSelectedCount() == GameBoard.MAX_SELECTED && !submitButton.isDisabled()) {
-				submitButton.setStyle(submitButtonFillNormalMode);
+				submitButton.setStyle(styleManager.getSubmitButtonFillNormalMode());
 			} else {
-				submitButton.setStyle(buttonNormalMode);
+				submitButton.setStyle(styleManager.getButtonNormalMode());
 			}
 			BorderPane borderPane = (BorderPane) wholeGameStackPane.getChildren().get(0);
 			VBox vbox = (VBox) borderPane.getChildren().get(1);
 			HBox buttonBox = (HBox) vbox.getChildren().get(2);
 			if (buttonBox.getChildren().size() > 0 && buttonBox.getChildren().get(0) instanceof Button) {
 				Button viewResultsButton = (Button) buttonBox.getChildren().get(0);
-				viewResultsButton.setStyle(buttonNormalMode);
+				viewResultsButton.setStyle(styleManager.getButtonNormalMode());
 			}
 		}
 
-		// Update the fill color of the text nodes
 		for (Node node : wholeGameStackPane.getChildren()) {
 			if (node instanceof BorderPane) {
 				BorderPane borderPane = (BorderPane) node;
 				VBox vbox = (VBox) borderPane.getCenter();
 				Text topText = (Text) vbox.getChildren().get(0);
 
-				// Check if bottomBox exists and contains the bottomText node
 				if (vbox.getChildren().size() > 2) {
 					HBox bottomBox = (HBox) vbox.getChildren().get(2);
 					if (bottomBox.getChildren().size() > 0 && bottomBox.getChildren().get(0) instanceof Text) {
@@ -344,9 +330,9 @@ public class GameBoard extends Application {
 					} else if (child instanceof Button) {
 						Button shareButton = (Button) child;
 						if (darkModeToggle.isDarkMode()) {
-							shareButton.setStyle(resultsPaneShareButtonNormalMode);
+							shareButton.setStyle(styleManager.getResultsPaneShareButtonNormalMode());
 						} else {
-							shareButton.setStyle(resultsPaneShareButtonDarkMode);
+							shareButton.setStyle(styleManager.getResultsPaneShareButtonDarkMode());
 						}
 					}
 				}
@@ -363,9 +349,9 @@ public class GameBoard extends Application {
 				}
 
 				if (darkModeToggle.isDarkMode()) {
-					resultsPane.setStyle(resultsPaneDarkMode);
+					resultsPane.setStyle(styleManager.getResultsPaneDarkMode());
 				} else {
-					resultsPane.setStyle(resultsPaneNormalMode);
+					resultsPane.setStyle(styleManager.getResultsPaneNormalMode());
 				}
 			}
 
@@ -453,7 +439,7 @@ public class GameBoard extends Application {
 		mainContentPane.setCenter(vbox);
 
 		StackPane wholeGameStackPane = new StackPane(mainContentPane);
-		wholeGameStackPane.setStyle(wholeGameNoramlMode);
+		wholeGameStackPane.setStyle(styleManager.getWholeGameNormalMode());
 		this.wholeGameStackPane = wholeGameStackPane;
 
 		initListeners();
@@ -467,7 +453,7 @@ public class GameBoard extends Application {
 
 	private Button createButton(String text, double width) {
 		Button button = new Button(text);
-		button.setStyle(buttonNormalMode);
+		button.setStyle(styleManager.getButtonNormalMode());
 		button.setPrefHeight(48);
 		button.setPrefWidth(width);
 		button.setFont(styleManager.getFont("franklin-normal", 600, 16));
@@ -550,9 +536,9 @@ public class GameBoard extends Application {
 
 		Button viewResultsButton = new Button("View Results");
 		if (darkModeToggle.isDarkMode()) {
-			viewResultsButton.setStyle(buttonDarkMode);
+			viewResultsButton.setStyle(styleManager.getButtonDarkMode());
 		} else {
-			viewResultsButton.setStyle(buttonNormalMode);
+			viewResultsButton.setStyle(styleManager.getButtonNormalMode());
 		}
 		viewResultsButton.setPrefSize(160, 48);
 		viewResultsButton.setFont(styleManager.getFont("franklin-normal", 600, 16));
@@ -647,9 +633,9 @@ public class GameBoard extends Application {
 		shareButton.setPrefSize(162, 48);
 		shareButton.setFont(styleManager.getFont("franklin-normal", 600, 16));
 		if (darkModeToggle.isDarkMode()) {
-			shareButton.setStyle(resultsPaneShareButtonNormalMode);
+			shareButton.setStyle(styleManager.getResultsPaneShareButtonNormalMode());
 		} else {
-			shareButton.setStyle(resultsPaneShareButtonDarkMode);
+			shareButton.setStyle(styleManager.getResultsPaneShareButtonDarkMode());
 		}
 		VBox.setMargin(shareButton, new Insets(21, 0, 20, 0));
 
@@ -660,9 +646,9 @@ public class GameBoard extends Application {
 		StackPane resultsPane = new StackPane(resultsLayout);
 
 		if (darkModeToggle.isDarkMode()) {
-			resultsPane.setStyle(resultsPaneDarkMode);
+			resultsPane.setStyle(styleManager.getResultsPaneDarkMode());
 		} else {
-			resultsPane.setStyle(resultsPaneNormalMode);
+			resultsPane.setStyle(styleManager.getResultsPaneNormalMode());
 		}
 
 		resultsPane.setPrefSize(667, 402 + (guessCount * 40) + ((guessCount - 1) * GAP));
@@ -826,7 +812,6 @@ public class GameBoard extends Application {
 				Text oneAwayText = new Text("One away...");
 				oneAwayText.setFill(styleManager.colorPopupText());
 				oneAwayText.setFont(styleManager.getFont("franklin-normal", 600, 16));
-//				oneAwayText.setFont(Font.font(16));
 
 				StackPane oneAwayPane = new StackPane(oneAwayRect, oneAwayText);
 				oneAwayPane.getStyleClass().add("popup-pane");
@@ -861,8 +846,6 @@ public class GameBoard extends Application {
 						GameTileWord tileWord = (GameTileWord) node;
 						if (tileWord.getIncorrectStatus()) {
 							tileWord.setIncorrectStatus(false);
-							// implies
-							// tileWord.setStyleDefault();
 						}
 					}
 				}
@@ -973,9 +956,9 @@ public class GameBoard extends Application {
 		deselectButton.setDisable(true);
 		submitButton.setDisable(true);
 		if (darkModeToggle.isDarkMode()) {
-			submitButton.setStyle(buttonDarkMode);
+			submitButton.setStyle(styleManager.getButtonDarkMode());
 		} else {
-			submitButton.setStyle(buttonNormalMode);
+			submitButton.setStyle(styleManager.getButtonNormalMode());
 		}
 	}
 

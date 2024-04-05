@@ -1,12 +1,8 @@
-import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
 public class GameTileWord extends StackPane {
@@ -26,12 +22,12 @@ public class GameTileWord extends StackPane {
 		gameBoard = other.gameBoard;
 		word = other.word;
 		font = other.font;
-		
+
 		initAssets();
 		enable();
 		refreshStyle();
 	}
-	
+
 	public GameTileWord(Font font, GameBoard gameBoard) {
 		this.word = null;
 		this.font = font;
@@ -47,9 +43,9 @@ public class GameTileWord extends StackPane {
 	}
 
 	public void setWord(Word word) {
-		if(word != null) {
+		if (word != null) {
 			this.word = word;
-			text.setText(word.getText().toUpperCase());	
+			text.setText(word.getText().toUpperCase());
 		}
 	}
 
@@ -66,17 +62,17 @@ public class GameTileWord extends StackPane {
 	public boolean getSelectedStatus() {
 		return selected;
 	}
-	
+
 	public void setIncorrectStatus(boolean incorrect) {
 		this.incorrect = incorrect;
-		
-		if(incorrect) {
+
+		if (incorrect) {
 			setStyleIncorrect();
 		} else {
 			setStyleDefault();
 		}
 	}
-	
+
 	public boolean getIncorrectStatus() {
 		return incorrect;
 	}
@@ -95,7 +91,7 @@ public class GameTileWord extends StackPane {
 		text.setFont(font);
 		text.setFill(styleManager.colorText());
 		setWord(word);
-		
+
 		this.getChildren().addAll(rectangle, text);
 	}
 
@@ -122,74 +118,66 @@ public class GameTileWord extends StackPane {
 	}
 
 	public void enable() {
-	    this.setDisable(false);
-	    this.setOnMouseClicked(event -> {
-	        if (!selected && gameBoard.getSelectedCount() < GameBoard.MAX_SELECTED) {
-	            setSelectedStatus(true);
-	            gameBoard.incrementSelectedCount();
-	        } else if (selected) {
-	            setSelectedStatus(false);
-	            gameBoard.decrementSelectedCount();
-	        }
+		this.setDisable(false);
+		this.setOnMouseClicked(event -> {
+			if (!selected && gameBoard.getSelectedCount() < GameBoard.MAX_SELECTED) {
+				setSelectedStatus(true);
+				gameBoard.incrementSelectedCount();
+			} else if (selected) {
+				setSelectedStatus(false);
+				gameBoard.decrementSelectedCount();
+			}
 
-	        Button deselectButton = gameBoard.getDeselectButton();
-	        Button submitButton = gameBoard.getSubmitButton();
+			Button deselectButton = gameBoard.getDeselectButton();
+			Button submitButton = gameBoard.getSubmitButton();
 
-	        deselectButton.setDisable(gameBoard.getSelectedCount() == 0);
-	        submitButton.setDisable(gameBoard.getSelectedCount() != GameBoard.MAX_SELECTED);
+			deselectButton.setDisable(gameBoard.getSelectedCount() == 0);
+			submitButton.setDisable(gameBoard.getSelectedCount() != GameBoard.MAX_SELECTED);
 
-	        if (gameBoard.getSelectedCount() != 0) {
-	            if (gameBoard.getDarkModeToggle().isDarkMode()) {
-	                deselectButton.setStyle(
-	                        "-fx-background-color: black; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 1px; -fx-border-radius: 50;");
-	            } else {
-	                deselectButton.setStyle(
-	                        "-fx-background-color: white; -fx-text-fill: black; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
-	            }
-	        } else {
-	            if (gameBoard.getDarkModeToggle().isDarkMode()) {
-	                deselectButton.setStyle(
-	                        "-fx-background-color: black; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 1px; -fx-border-radius: 50;");
-	            } else {
-	                deselectButton.setStyle(
-	                        "-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
-	            }
-	        }
+			if (gameBoard.getSelectedCount() != 0) {
+				if (gameBoard.getDarkModeToggle().isDarkMode()) {
+					deselectButton.setStyle(styleManager.getButtonDarkMode());
+				} else {
+					deselectButton.setStyle(styleManager.getButtonNormalMode());
+				}
+			} else {
+				if (gameBoard.getDarkModeToggle().isDarkMode()) {
+					deselectButton.setStyle(styleManager.getButtonDarkMode());
+				} else {
+					deselectButton.setStyle(styleManager.getButtonNormalMode());
+				}
+			}
 
-	        if (gameBoard.getSelectedCount() == GameBoard.MAX_SELECTED) {
-	            if (gameBoard.getDarkModeToggle().isDarkMode()) {
-	                submitButton.setStyle(
-	                        "-fx-background-color: white; -fx-text-fill: black; -fx-background-radius: 50; -fx-border-radius: 50;");
-	            } else {
-	                submitButton.setStyle(
-	                        "-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50;");
-	            }
-	        } else {
-	            if (gameBoard.getDarkModeToggle().isDarkMode()) {
-	                submitButton.setStyle(
-	                        "-fx-background-color: black; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 1px; -fx-background-radius: 50; -fx-border-radius: 50;");
-	            } else {
-	                submitButton.setStyle(
-	                        "-fx-background-color: white; -fx-text-fill: black; -fx-border-color: black; -fx-border-width: 1px; -fx-background-radius: 50; -fx-border-radius: 50;");
-	            }
-	        }
-	    });
+			if (gameBoard.getSelectedCount() == GameBoard.MAX_SELECTED) {
+				if (gameBoard.getDarkModeToggle().isDarkMode()) {
+					submitButton.setStyle(styleManager.getSubmitButtonFillDarkMode());
+				} else {
+					submitButton.setStyle(styleManager.getSubmitButtonFillNormalMode());
+				}
+			} else {
+				if (gameBoard.getDarkModeToggle().isDarkMode()) {
+					submitButton.setStyle(styleManager.getButtonDarkMode());
+				} else {
+					submitButton.setStyle(styleManager.getButtonNormalMode());
+				}
+			}
+		});
 
-	    this.setOnMouseEntered(event -> {
-	        this.setCursor(Cursor.HAND);
-	    });
+		this.setOnMouseEntered(event -> {
+			this.setCursor(Cursor.HAND);
+		});
 
-	    this.setOnMouseExited(event -> {
-	        this.setCursor(Cursor.DEFAULT);
-	    });
+		this.setOnMouseExited(event -> {
+			this.setCursor(Cursor.DEFAULT);
+		});
 	}
-	
+
 	public void refreshStyle() {
-		if(selected && incorrect) {
+		if (selected && incorrect) {
 			setStyleDefault();
-		} else if(selected) {
+		} else if (selected) {
 			setStyleSelected();
-		} else if(incorrect) {
+		} else if (incorrect) {
 			setStyleIncorrect();
 		} else {
 			setStyleDefault();
