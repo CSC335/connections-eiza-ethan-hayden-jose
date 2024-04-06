@@ -1,3 +1,6 @@
+import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
+import javafx.animation.ScaleTransition;
 import javafx.geometry.Pos;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -5,8 +8,11 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 
 public class GameTileAnswer extends StackPane {
+	private static final int POP_UP_MS = 125;
+	private static final int FADE_IN_MS = 500;
 	private GameBoard gameBoard;
 	private GameAnswerColor answer;
 	private StyleManager styleManager;
@@ -46,5 +52,23 @@ public class GameTileAnswer extends StackPane {
 		wordListText.setFill(styleManager.colorTextNeutral());
 		categoryNameText.setFill(styleManager.colorTextNeutral());
 		rectBackground.setFill(styleManager.colorDifficulty(answer.getColor()));
+	}
+	
+	public ParallelTransition getAppearAnimation() {
+		ScaleTransition tileScaleTransition = new ScaleTransition(Duration.millis(POP_UP_MS), this);
+		tileScaleTransition.setFromX(1);
+		tileScaleTransition.setFromY(1);
+		tileScaleTransition.setToX(1.4);
+		tileScaleTransition.setToY(1.4);
+		tileScaleTransition.setAutoReverse(true);
+		tileScaleTransition.setCycleCount(2);
+		
+		FadeTransition textFadeTransition = new FadeTransition(Duration.millis(FADE_IN_MS), textVBox);
+		textFadeTransition.setFromValue(0.0);
+		textFadeTransition.setToValue(1.0);
+		
+		ParallelTransition parallelTransition = new ParallelTransition(textFadeTransition, tileScaleTransition); 
+		
+		return parallelTransition;
 	}
 }

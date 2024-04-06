@@ -1,13 +1,19 @@
+import javafx.animation.FillTransition;
+import javafx.animation.ParallelTransition;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 
 public class GameTileWord extends StackPane {
+	protected static final int FILL_TRANSITION_MS = 100;
 	private boolean selected;
 	private boolean incorrect;
+	private boolean styleChangeable;
 	private Rectangle rectangle;
 	private Text text;
 	private Font font;
@@ -18,6 +24,7 @@ public class GameTileWord extends StackPane {
 	public GameTileWord(GameTileWord other) {
 		selected = other.selected;
 		incorrect = other.incorrect;
+		styleChangeable = other.styleChangeable;
 		styleManager = other.styleManager;
 		gameBoard = other.gameBoard;
 		word = other.word;
@@ -33,6 +40,7 @@ public class GameTileWord extends StackPane {
 		this.font = font;
 		this.gameBoard = gameBoard;
 		this.styleManager = gameBoard.getStyleManager();
+		this.styleChangeable = true;
 		initAssets();
 		enable();
 	}
@@ -47,6 +55,10 @@ public class GameTileWord extends StackPane {
 			this.word = word;
 			text.setText(word.getText().toUpperCase());
 		}
+	}
+	
+	public void setStyleChangeable(boolean styleChangeable) {
+		this.styleChangeable = styleChangeable;
 	}
 
 	public void setSelectedStatus(boolean selected) {
@@ -96,18 +108,26 @@ public class GameTileWord extends StackPane {
 	}
 
 	private void setStyleDefault() {
-		rectangle.setFill(styleManager.colorDefaultRectangle());
-		text.setFill(styleManager.colorText());
+		styleTransition(styleManager.colorDefaultRectangle(), styleManager.colorText());
 	}
 
 	private void setStyleSelected() {
-		rectangle.setFill(styleManager.colorSelectedRectangle());
-		text.setFill(styleManager.colorTextInverted());
+		styleTransition(styleManager.colorSelectedRectangle(), styleManager.colorTextInverted());
 	}
 
 	private void setStyleIncorrect() {
-		rectangle.setFill(styleManager.colorIncorrectRectangle());
-		text.setFill(styleManager.colorTextInverted());
+		styleTransition(styleManager.colorIncorrectRectangle(), styleManager.colorTextInverted());
+	}
+	
+	private void styleTransition(Color rectangleFill, Color textFill) {
+		if(styleChangeable) {
+			FillTransition rectangleFillTransition = new FillTransition(Duration.millis(FILL_TRANSITION_MS), rectangle);
+			rectangleFillTransition.setToValue(rectangleFill);
+			FillTransition textFillTransition = new FillTransition(Duration.millis(FILL_TRANSITION_MS), text);
+			textFillTransition.setToValue(textFill);
+			ParallelTransition parallelTransition = new ParallelTransition(rectangleFillTransition, textFillTransition);
+			parallelTransition.play();
+		}
 	}
 
 	public void disable() {

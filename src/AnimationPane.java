@@ -3,6 +3,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javafx.animation.Interpolator;
 import javafx.animation.ParallelTransition;
 import javafx.animation.PauseTransition;
 import javafx.animation.ScaleTransition;
@@ -18,10 +19,9 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 public class AnimationPane extends Pane {
-	private static final int SWAP_TRANS_MS = 400;
-	private static final int BUFFER_MS = 50;
+	private static final int SWAP_TRANS_MS = 350;
+	private static final int BUFFER_MS = 5;
 	private static final int PLACEHOLDER_MS = 5;
-	private static final int CATEGORY_SCALE_MS = 150;
 
 	private GridPane gameBoardGridPane;
 	private GameBoard gameBoard;
@@ -29,6 +29,13 @@ public class AnimationPane extends Pane {
 	public AnimationPane(GameBoard gameBoard) {
 		this.gameBoard = gameBoard;
 		this.gameBoardGridPane = gameBoard.getWordGridPane();
+	}
+	
+	private class EaseOutInterpolator extends Interpolator {
+	    @Override
+	    protected double curve(double t) {
+	    	return 1-Math.pow(1-t, 3);
+	    }
 	}
 
 	private void getWordSwap(Set<GameTileWord> ghostPieceSet, ParallelTransition parallel, int destRow, int destCol,
@@ -48,10 +55,12 @@ public class AnimationPane extends Pane {
 		TranslateTransition sourceTrans = new TranslateTransition(Duration.millis(SWAP_TRANS_MS), sourcePiece);
 		sourceTrans.setToX(destPiece.getLayoutX() - sourcePiece.getLayoutX());
 		sourceTrans.setToY(destPiece.getLayoutY() - sourcePiece.getLayoutY());
+		sourceTrans.setInterpolator(new EaseOutInterpolator());
 
 		TranslateTransition destTrans = new TranslateTransition(Duration.millis(SWAP_TRANS_MS), destPiece);
 		destTrans.setToX(sourcePiece.getLayoutX() - destPiece.getLayoutX());
 		destTrans.setToY(sourcePiece.getLayoutY() - destPiece.getLayoutY());
+		destTrans.setInterpolator(new EaseOutInterpolator());
 
 		parallel.getChildren().addAll(sourceTrans, destTrans);
 		ghostPieceSet.add(sourcePiece);
@@ -168,9 +177,10 @@ public class AnimationPane extends Pane {
 					node.setVisible(false);
 				}
 			});
-
-			ScaleTransition scaleAnswerTile = new ScaleTransition(Duration.millis(CATEGORY_SCALE_MS), tileAnswer);
-			scaleAnswerTile.setOnFinished(event -> {
+			
+			ParallelTransition tileAppear = tileAnswer.getAppearAnimation();
+			
+			tileAppear.setOnFinished(event -> {
 				this.getChildren().remove(tileAnswer);
 				this.setVisible(false);
 				gameBoardGridPane.getChildren().removeAll(originalSelectedPieceSet);
@@ -179,14 +189,7 @@ public class AnimationPane extends Pane {
 				gameBoard.gameDeselect();
 			});
 
-			scaleAnswerTile.setFromX(1);
-			scaleAnswerTile.setFromY(1);
-			scaleAnswerTile.setToX(1.4);
-			scaleAnswerTile.setToY(1.4);
-			scaleAnswerTile.setAutoReverse(true);
-			scaleAnswerTile.setCycleCount(2);
-
-			sequence.getChildren().addAll(pauseBeforeDisplayAnswer, scaleAnswerTile);
+			sequence.getChildren().addAll(pauseBeforeDisplayAnswer, tileAppear);
 		} else {
 			System.out.printf("ERROR: could not match words %s\n", displayRowWordsLower);
 		}

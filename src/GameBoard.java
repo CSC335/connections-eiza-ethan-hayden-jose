@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.ParallelTransition;
 import javafx.animation.PauseTransition;
@@ -695,11 +697,22 @@ public class GameBoard extends Application {
 		resultsPane.getChildren().add(backToPuzzleBox);
 		backToPuzzleBox.setStyle("-fx-alignment: top-right;");
 		StackPane.setMargin(backToPuzzleBox, new Insets(19.2, 19.2, 0, 0));
-
 		resultsPane.getStyleClass().add("results-pane");
 
 		StackPane overlayPane = new StackPane(wholeGameStackPane, resultsPane);
 		overlayPane.setAlignment(Pos.CENTER);
+		
+		TranslateTransition resultsPaneMoveUp = new TranslateTransition(Duration.millis(150), resultsPane);
+		resultsPane.setTranslateX(0);
+		resultsPane.setTranslateY(45);
+		resultsPaneMoveUp.setToX(0);
+		resultsPaneMoveUp.setToY(0);
+		
+		FadeTransition resultsPaneFadeIn = new FadeTransition(Duration.millis(150), resultsPane);
+		resultsPaneFadeIn.setFromValue(0);
+		resultsPaneFadeIn.setToValue(1);
+		
+		ParallelTransition resultsAppearTransition = new ParallelTransition(resultsPaneMoveUp, resultsPaneFadeIn);
 
 		overlayPane.setOnMouseMoved(event -> {
 			double mouseX = event.getX();
@@ -793,6 +806,8 @@ public class GameBoard extends Application {
 			timerLabel.setTextFill(Color.BLACK);
 			backToPuzzleText.setFill(Color.BLACK);
 		}
+		
+		resultsAppearTransition.play();
 	}
 
 	private void animateIncorrectGuess(int matchCount) {
@@ -966,6 +981,7 @@ public class GameBoard extends Application {
 			PauseTransition pauseBeforeResultsTransition = new PauseTransition(Duration.millis(1000));
 			pauseBeforeResultsTransition.setOnFinished(event -> {
 				showResultsPane((Stage) wholeGameStackPane.getScene().getWindow());
+				setWordTileStyleChangeable(true);
 			});
 			pauseBeforeResultsTransition.play();
 		}
@@ -981,16 +997,19 @@ public class GameBoard extends Application {
 			}
 		}
 		
-		// Sort in order of difficulty (YELLOW, GREEN, BLUE, PURPLE);
-		Collections.sort(unansweredColor);
+		if(unansweredColor.size() > 0) {
+			// Sort in order of difficulty (YELLOW, GREEN, BLUE, PURPLE);
+			Collections.sort(unansweredColor);
 
-		List<GameAnswerColor> remainingAnswerCategories = new ArrayList<>();
-		for (DifficultyColor color : unansweredColor) {
-			GameAnswerColor colorAnswer = currentGame.getAnswerForColor(color);
-			remainingAnswerCategories.add(colorAnswer);
+			List<GameAnswerColor> remainingAnswerCategories = new ArrayList<>();
+			for (DifficultyColor color : unansweredColor) {
+				GameAnswerColor colorAnswer = currentGame.getAnswerForColor(color);
+				remainingAnswerCategories.add(colorAnswer);
+			}
+			
+			setWordTileStyleChangeable(false);
+			animateAutoSolvePart(remainingAnswerCategories);
 		}
-		
-		animateAutoSolvePart(remainingAnswerCategories);
 	}
 
 	private ParallelTransition createJumpTransition() {
@@ -1028,7 +1047,9 @@ public class GameBoard extends Application {
 
 	private void enableButtons() {
 		shuffleButton.setDisable(false);
-		deselectButton.setDisable(false);
+		if(selectedCount > 0) {
+			deselectButton.setDisable(false);
+		}
 		selectedCount = 0;
 	}
 
@@ -1044,6 +1065,15 @@ public class GameBoard extends Application {
 		for (Node node : gridPane.getChildren()) {
 			if (node instanceof GameTileWord) {
 				node.setDisable(false);
+			}
+		}
+	}
+	
+	public void setWordTileStyleChangeable(boolean changeable) {
+		for(Node node : gridPane.getChildren()) {
+			if(node instanceof GameTileWord) {
+				GameTileWord tileWord = (GameTileWord) node;
+				tileWord.setStyleChangeable(changeable);
 			}
 		}
 	}
