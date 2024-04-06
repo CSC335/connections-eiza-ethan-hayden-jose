@@ -18,6 +18,7 @@ import javafx.util.Duration;
 
 public class ConnectionsLogin extends Application {
     private PasswordField tPassword;
+    private StyleManager styleManager = new StyleManager();
 
     public static void main(String[] args) {
         launch(args);
@@ -28,25 +29,28 @@ public class ConnectionsLogin extends Application {
         BorderPane window = new BorderPane();
         GridPane grid = new GridPane();
         grid.setHgap(10);
-        grid.setVgap(5);
+        grid.setVgap(8);
 
-        //Font franklin600_16 = Font.loadFont(new FileInputStream("./Fonts/franklin-normal-600.ttf"), 16);
-        Font franklin700 = Font.loadFont(new FileInputStream("./Fonts/franklin-normal-700.ttf"), 12);
-        Font karnak = Font.loadFont(new FileInputStream("./Fonts/KarnakPro-Medium_400.otf"), 30);
+        Font franklin700_14 = styleManager.getFont("franklin-normal", 700, 14);
+        Font franklin700_16 = styleManager.getFont("franklin-normal", 700, 16);
+        Font cheltenham = styleManager.getFont("cheltenham-normal", 400, 30);
 
         Label login = new Label("Log in or create an account");
-        login.setFont(karnak);
+        login.setFont(cheltenham);
+        login.setTextFill(Color.BLACK);
 
         Label email = new Label("Email Address");
-        email.setFont(franklin700);
+        email.setFont(franklin700_14);
 
         TextField tEmail = new TextField();
+        tEmail.setPrefSize(450, 46);
 
         Label password = new Label("Password");
-        password.setFont(franklin700);
+        password.setFont(franklin700_14);
         password.setVisible(false);
 
         tPassword = new PasswordField();
+        tPassword.setPrefSize(450, 46);
         tPassword.setVisible(false);
 
         Button cont = new Button("Continue");
@@ -54,7 +58,11 @@ public class ConnectionsLogin extends Application {
                 "-fx-background-color: rgba(0, 0, 0, 1); -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50; -fx-font-size: 20px;");
         cont.setPrefHeight(30);
         cont.setPrefWidth(450);
+        cont.setPrefSize(450, 44);
+        cont.setFont(franklin700_16);
         cont.setTextFill(Color.WHITE);
+        
+        GridPane.setMargin(cont, new javafx.geometry.Insets(16, 0, 0, 0));
 
         cont.setOnAction(event -> {
             if (tPassword.isVisible()) {
@@ -90,8 +98,7 @@ public class ConnectionsLogin extends Application {
         box.getChildren().addAll(login, grid);
 
         window.setCenter(box);
-
-        Scene scene = new Scene(window, 800, 750);
+        Scene scene = new Scene(window, 800, 750, Color.WHITE);
         stage.setScene(scene);
         stage.show();
     }
