@@ -1,5 +1,4 @@
 import java.util.Scanner;
-import java.util.Set;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -102,6 +101,7 @@ public class GameDataCollection {
 	 * @param filePath the String path to read from
 	 * @return true if the file was successfully read and false if otherwise
 	 */
+	@SuppressWarnings("hiding")
 	public boolean readFile(String filePath) {
 		try {
 			List<GameData> fileGameList = new ArrayList<>();

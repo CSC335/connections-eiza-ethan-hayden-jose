@@ -1,12 +1,8 @@
-import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
 public class GameTileWord extends StackPane {
@@ -26,21 +22,12 @@ public class GameTileWord extends StackPane {
 		gameBoard = other.gameBoard;
 		word = other.word;
 		font = other.font;
-		
+
 		initAssets();
 		enable();
-		
-		if(selected && incorrect) {
-			setStyleDefault();
-		} else if(selected) {
-			setStyleSelected();
-		} else if(incorrect) {
-			setStyleIncorrect();
-		} else {
-			setStyleDefault();
-		}
+		refreshStyle();
 	}
-	
+
 	public GameTileWord(Font font, GameBoard gameBoard) {
 		this.word = null;
 		this.font = font;
@@ -56,9 +43,9 @@ public class GameTileWord extends StackPane {
 	}
 
 	public void setWord(Word word) {
-		if(word != null) {
+		if (word != null) {
 			this.word = word;
-			text.setText(word.getText().toUpperCase());	
+			text.setText(word.getText().toUpperCase());
 		}
 	}
 
@@ -75,17 +62,17 @@ public class GameTileWord extends StackPane {
 	public boolean getSelectedStatus() {
 		return selected;
 	}
-	
+
 	public void setIncorrectStatus(boolean incorrect) {
 		this.incorrect = incorrect;
-		
-		if(incorrect) {
+
+		if (incorrect) {
 			setStyleIncorrect();
 		} else {
 			setStyleDefault();
 		}
 	}
-	
+
 	public boolean getIncorrectStatus() {
 		return incorrect;
 	}
@@ -102,25 +89,25 @@ public class GameTileWord extends StackPane {
 
 		text = new Text();
 		text.setFont(font);
-		text.setFill(Color.BLACK);
+		text.setFill(styleManager.colorText());
 		setWord(word);
-		
+
 		this.getChildren().addAll(rectangle, text);
 	}
 
 	private void setStyleDefault() {
 		rectangle.setFill(styleManager.colorDefaultRectangle());
-		text.setFill(Color.BLACK);
+		text.setFill(styleManager.colorText());
 	}
 
 	private void setStyleSelected() {
 		rectangle.setFill(styleManager.colorSelectedRectangle());
-		text.setFill(Color.WHITE);
+		text.setFill(styleManager.colorTextInverted());
 	}
 
 	private void setStyleIncorrect() {
 		rectangle.setFill(styleManager.colorIncorrectRectangle());
-		text.setFill(Color.WHITE);
+		text.setFill(styleManager.colorTextInverted());
 	}
 
 	public void disable() {
@@ -133,14 +120,14 @@ public class GameTileWord extends StackPane {
 	public void enable() {
 		this.setDisable(false);
 		this.setOnMouseClicked(event -> {
-			if(!selected && gameBoard.getSelectedCount() < GameBoard.MAX_SELECTED) {
+			if (!selected && gameBoard.getSelectedCount() < GameBoard.MAX_SELECTED) {
 				setSelectedStatus(true);
 				gameBoard.incrementSelectedCount();
-			} else if(selected) {
+			} else if (selected) {
 				setSelectedStatus(false);
 				gameBoard.decrementSelectedCount();
 			}
-			
+
 			Button deselectButton = gameBoard.getDeselectButton();
 			Button submitButton = gameBoard.getSubmitButton();
 
@@ -148,16 +135,31 @@ public class GameTileWord extends StackPane {
 			submitButton.setDisable(gameBoard.getSelectedCount() != GameBoard.MAX_SELECTED);
 
 			if (gameBoard.getSelectedCount() != 0) {
-				deselectButton.setStyle(
-						"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;");
+				if (gameBoard.getDarkModeToggle().isDarkMode()) {
+					deselectButton.setStyle(styleManager.getButtonDarkMode());
+				} else {
+					deselectButton.setStyle(styleManager.getButtonNormalMode());
+				}
+			} else {
+				if (gameBoard.getDarkModeToggle().isDarkMode()) {
+					deselectButton.setStyle(styleManager.getButtonDarkMode());
+				} else {
+					deselectButton.setStyle(styleManager.getButtonNormalMode());
+				}
 			}
 
 			if (gameBoard.getSelectedCount() == GameBoard.MAX_SELECTED) {
-				submitButton.setStyle(
-						"-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50;");
+				if (gameBoard.getDarkModeToggle().isDarkMode()) {
+					submitButton.setStyle(styleManager.getSubmitButtonFillDarkMode());
+				} else {
+					submitButton.setStyle(styleManager.getSubmitButtonFillNormalMode());
+				}
 			} else {
-				submitButton.setStyle(
-						"-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1px; -fx-background-radius: 50; -fx-border-radius: 50;");
+				if (gameBoard.getDarkModeToggle().isDarkMode()) {
+					submitButton.setStyle(styleManager.getButtonDarkMode());
+				} else {
+					submitButton.setStyle(styleManager.getButtonNormalMode());
+				}
 			}
 		});
 
@@ -168,5 +170,17 @@ public class GameTileWord extends StackPane {
 		this.setOnMouseExited(event -> {
 			this.setCursor(Cursor.DEFAULT);
 		});
+	}
+
+	public void refreshStyle() {
+		if (selected && incorrect) {
+			setStyleDefault();
+		} else if (selected) {
+			setStyleSelected();
+		} else if (incorrect) {
+			setStyleIncorrect();
+		} else {
+			setStyleDefault();
+		}
 	}
 }
