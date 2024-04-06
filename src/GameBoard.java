@@ -134,20 +134,31 @@ public class GameBoard extends Application {
 	}
 
 	private void gameShuffleWords() {
-		ObservableList<Node> children = gridPane.getChildren();
-		List<StackPane> stackPanes = children.stream().filter(node -> node instanceof GameTileWord)
-				.map(node -> (GameTileWord) node).collect(Collectors.toList());
+	    ObservableList<Node> children = gridPane.getChildren();
+	    List<StackPane> stackPanes = children.stream().filter(node -> node instanceof GameTileWord)
+	            .map(node -> (GameTileWord) node).collect(Collectors.toList());
 
-		Collections.shuffle(stackPanes);
+	    Collections.shuffle(stackPanes);
 
-		int index = 0;
-		for (int row = currentRow; row < ROWS; row++) {
-			for (int col = 0; col < COLS; col++) {
-				GridPane.setRowIndex(stackPanes.get(index), row);
-				GridPane.setColumnIndex(stackPanes.get(index), col);
-				index++;
-			}
-		}
+	    int index = 0;
+	    for (int row = currentRow; row < ROWS; row++) {
+	        for (int col = 0; col < COLS; col++) {
+	            GridPane.setRowIndex(stackPanes.get(index), row);
+	            GridPane.setColumnIndex(stackPanes.get(index), col);
+	            index++;
+	        }
+	    }
+
+	    ParallelTransition fadeInTransition = new ParallelTransition();
+	    
+	    for (Node node : gridPane.getChildren()) {
+	        if (node instanceof GameTileWord) {
+	            GameTileWord tileWord = (GameTileWord) node;
+	            tileWord.fadeInWordText(fadeInTransition);
+	        }
+	    }
+
+	    fadeInTransition.play();
 	}
 
 	private void gameSubmitSelectedWords() {

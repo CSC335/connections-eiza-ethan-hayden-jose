@@ -1,3 +1,4 @@
+import javafx.animation.FadeTransition;
 import javafx.animation.FillTransition;
 import javafx.animation.ParallelTransition;
 import javafx.scene.Cursor;
@@ -202,5 +203,14 @@ public class GameTileWord extends StackPane {
 		} else {
 			setStyleDefault();
 		}
+	}
+	
+	public void fadeInWordText(ParallelTransition fadeInTransition) {
+	    text.setOpacity(0);
+
+	    FadeTransition fadeTransition = new FadeTransition(Duration.millis(500), text);
+	    fadeTransition.setFromValue(0);
+	    fadeTransition.setToValue(1);
+	    fadeInTransition.getChildren().add(fadeTransition);
 	}
 }
