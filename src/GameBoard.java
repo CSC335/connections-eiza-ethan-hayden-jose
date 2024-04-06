@@ -421,14 +421,9 @@ public class GameBoard extends Application {
 		deselectButton.setDisable(true);
 		submitButton.setDisable(true);
 
-		Button autoSolveButton = new Button("Auto Solve");
-		autoSolveButton.setOnAction(event -> {
-			animateAutoSolve();
-		});
-		
 		HBox buttonBox = new HBox(8);
 		buttonBox.setAlignment(Pos.CENTER);
-		buttonBox.getChildren().addAll(autoSolveButton, shuffleButton, deselectButton, submitButton);
+		buttonBox.getChildren().addAll(shuffleButton, deselectButton, submitButton);
 
 		// Initialize the dark mode toggle
 		initDarkModeToggle();
@@ -843,7 +838,10 @@ public class GameBoard extends Application {
 				mainStackPane.getChildren().add(nextTimePane);
 
 				PauseTransition displayNextTime = new PauseTransition(Duration.millis(1000));
-				displayNextTime.setOnFinished(e -> mainStackPane.getChildren().remove(nextTimePane));
+				displayNextTime.setOnFinished(e -> {
+					mainStackPane.getChildren().remove(nextTimePane);
+				});
+				
 				displayNextTime.play();
 			}
 			ParallelTransition shakeTransition = createShakeTransition();
@@ -868,7 +866,7 @@ public class GameBoard extends Application {
 						if (gameLost) {
 							PauseTransition delay = new PauseTransition(Duration.millis(500));
 							delay.setOnFinished(e -> {
-								showResultsPane((Stage) wholeGameStackPane.getScene().getWindow());
+								animateAutoSolve();
 							});
 							delay.play();
 						}
@@ -935,7 +933,7 @@ public class GameBoard extends Application {
 
 		sequentialTransition.play();
 	}
-
+	
 	private void animateAutoSolvePart(List<GameAnswerColor> remainingAnswerCategories) {
 		if (currentRow < ROWS) {
 			GameAnswerColor currentColorAnswer = remainingAnswerCategories.remove(0);
@@ -953,12 +951,10 @@ public class GameBoard extends Application {
 			}
 			
 			SequentialTransition sequentialTransition = new SequentialTransition();
-			PauseTransition beforeJumppauseTransition = new PauseTransition(Duration.millis(500));
-			ParallelTransition jumpTransition = createJumpTransition();
+			PauseTransition pauseBeforeSwapTransition = new PauseTransition(Duration.millis(350));
 			SequentialTransition swapAndAnswerTileSequence = animPane.getSequenceCorrectAnswer();
-			PauseTransition afterJumpPauseTransition = new PauseTransition(Duration.millis(500));
-			PauseTransition pauseAfterSwapTransition = new PauseTransition(Duration.millis(1000));
-			sequentialTransition.getChildren().addAll(beforeJumppauseTransition, jumpTransition, afterJumpPauseTransition, swapAndAnswerTileSequence,
+			PauseTransition pauseAfterSwapTransition = new PauseTransition(Duration.millis(350));
+			sequentialTransition.getChildren().addAll(pauseBeforeSwapTransition, swapAndAnswerTileSequence,
 					pauseAfterSwapTransition);
 			
 			pauseAfterSwapTransition.setOnFinished(event -> {
@@ -966,6 +962,12 @@ public class GameBoard extends Application {
 			});
 			
 			sequentialTransition.play();
+		} else {
+			PauseTransition pauseBeforeResultsTransition = new PauseTransition(Duration.millis(1000));
+			pauseBeforeResultsTransition.setOnFinished(event -> {
+				showResultsPane((Stage) wholeGameStackPane.getScene().getWindow());
+			});
+			pauseBeforeResultsTransition.play();
 		}
 	}
 
@@ -988,7 +990,6 @@ public class GameBoard extends Application {
 			remainingAnswerCategories.add(colorAnswer);
 		}
 		
-		disableGameBoard();
 		animateAutoSolvePart(remainingAnswerCategories);
 	}
 

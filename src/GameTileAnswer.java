@@ -38,6 +38,10 @@ public class GameTileAnswer extends StackPane {
 		this.getChildren().addAll(rectBackground, textVBox);
 	}
 	
+	public GameAnswerColor getGameAnswerColor() {
+		return answer;
+	}
+	
 	public void refreshStyle() {
 		wordListText.setFill(styleManager.colorTextNeutral());
 		categoryNameText.setFill(styleManager.colorTextNeutral());
