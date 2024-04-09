@@ -1,3 +1,4 @@
+package view_controller;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -41,6 +42,11 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import model.DifficultyColor;
+import model.GameData;
+import model.GameDataCollection;
+import model.Word;
+import model.GameAnswerColor;
 import javafx.scene.shape.SVGPath;
 
 public class GameBoard extends Application {

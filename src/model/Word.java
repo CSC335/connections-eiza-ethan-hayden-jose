@@ -1,3 +1,4 @@
+package model;
 public class Word {
     private String text;
     private DifficultyColor color;

@@ -1,3 +1,4 @@
+package model;
 import java.util.EnumSet;
 
 public enum DifficultyColor implements Comparable<DifficultyColor> {

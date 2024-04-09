@@ -1,3 +1,4 @@
+package view_controller;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -17,6 +18,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+import model.DifficultyColor;
+import model.GameAnswerColor;
+
+
 
 public class AnimationPane extends Pane {
 	private static final int SWAP_TRANS_MS = 350;

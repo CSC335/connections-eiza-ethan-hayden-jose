@@ -1,3 +1,4 @@
+package view_controller;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import javafx.animation.TranslateTransition;
