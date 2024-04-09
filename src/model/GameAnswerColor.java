@@ -38,14 +38,7 @@ public class GameAnswerColor {
 	}
 	
 	public String getWordListString() {
-		String result = "";
-		for (int i = 0; i < words.length; i++) {
-            result += words[i];
-            if (i < words.length - 1) {
-                result += ", ";
-            }
-        }
-		return result.toUpperCase();
+		return String.join(", ", words).toUpperCase();
 	}
 
 }
