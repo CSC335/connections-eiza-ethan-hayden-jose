@@ -210,4 +210,8 @@ public class StyleManager {
 	public String getCircleDarkMode() {
 		return circleDarkMode;
 	}
+	
+	public Color getwholeAchievementsPane() {
+		return darkMode ? Color.BLACK : Color.WHITE;
+	}
 }

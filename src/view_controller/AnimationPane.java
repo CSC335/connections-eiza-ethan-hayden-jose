@@ -31,8 +31,8 @@ public class AnimationPane extends Pane {
 	private GridPane gameBoardGridPane;
 	private GameBoard gameBoard;
 	
-	private boolean allowChangeVisibility;
-	private boolean paneShouldBeVisible;
+	private boolean allowChangeVisibility = true;
+	private boolean paneShouldBeVisible = false;
 
 	public AnimationPane(GameBoard gameBoard) {
 		this.gameBoard = gameBoard;

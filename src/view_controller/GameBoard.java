@@ -255,26 +255,27 @@ public class GameBoard extends Application {
 		});
 
 		achievementsIconSVG.setOnMouseClicked(event -> {
-			if(achievementsVisible) {
-				if(wholeAchievementsPane != null) {
+			if (achievementsVisible) {
+				if (wholeAchievementsPane != null) {
 					mainStackPane.getChildren().remove(wholeAchievementsPane);
 					wholeAchievementsPane = null;
 				}
-				for(Node node : wholeGameVbox.getChildren()) {
+				for (Node node : wholeGameVbox.getChildren()) {
 					node.setVisible(true);
 				}
 				animPane.setAllowChangeVisibility(true);
-				if(animPane.getPaneShouldBeVisible()) {
+				if (animPane.getPaneShouldBeVisible()) {
 					animPane.setVisible(true);
 				}
 			} else {
 				wholeAchievementsPane = createAchievementsPane();
-				wholeAchievementsPane.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
+				wholeAchievementsPane.setBackground(
+						new Background(new BackgroundFill(styleManager.getwholeAchievementsPane(), null, null)));
 				mainStackPane.getChildren().add(wholeAchievementsPane);
-				for(Node node : wholeGameVbox.getChildren()) {
-					if(node instanceof StackPane) {
+				for (Node node : wholeGameVbox.getChildren()) {
+					if (node instanceof StackPane) {
 						StackPane nodeStackPane = (StackPane) node;
-						if(nodeStackPane != mainStackPane) {
+						if (nodeStackPane != mainStackPane) {
 							node.setVisible(false);
 						}
 					} else {
@@ -284,7 +285,7 @@ public class GameBoard extends Application {
 				animPane.setAllowChangeVisibility(false);
 				animPane.setVisible(false);
 			}
-			
+
 			achievementsVisible = !achievementsVisible;
 		});
 	}
@@ -360,8 +361,31 @@ public class GameBoard extends Application {
 				topText.setFill(styleManager.colorText());
 			}
 		}
+		updateAchievementsPaneStyle();
 		updateResultsPaneStyle();
 		updatePopupStyle();
+	}
+
+	private void updateAchievementsPaneStyle() {
+		if (wholeAchievementsPane != null) {
+			wholeAchievementsPane.setBackground(
+					new Background(new BackgroundFill(styleManager.getwholeAchievementsPane(), null, null)));
+			for (Node node : wholeAchievementsPane.getChildren()) {
+				if (node instanceof GridPane) {
+					GridPane achievementsGrid = (GridPane) node;
+					for (Node achievementNode : achievementsGrid.getChildren()) {
+						if (achievementNode instanceof StackPane) {
+							StackPane achievementPane = (StackPane) achievementNode;
+							Rectangle rect = (Rectangle) achievementPane.getChildren().get(0);
+							Label label = (Label) achievementPane.getChildren().get(1);
+
+							rect.setFill(styleManager.colorDefaultRectangle());
+							label.setTextFill(styleManager.colorText());
+						}
+					}
+				}
+			}
+		}
 	}
 
 	private void updatePopupStyle() {
@@ -561,7 +585,7 @@ public class GameBoard extends Application {
 			label.setFont(styleManager.getFont("franklin-normal", 500, 14));
 			label.setTextFill(styleManager.colorText());
 			label.setWrapText(true);
-			label.setAlignment(Pos.CENTER);
+			label.setStyle("-fx-text-alignment: center;");
 			label.setMaxWidth(RECTANGLE_WIDTH - 20);
 
 			StackPane achievementPane = new StackPane(rect, label);
