@@ -130,7 +130,7 @@ public class StyleManager {
 	public Color colorSelectedRectangle() {
 		return darkMode ? RECTANGLE_SELECTED_COLOR_DARK : RECTANGLE_RECT_SELECTED_COLOR_LIGHT;
 	}
-
+	
 	public Color colorIncorrectRectangle() {
 		return darkMode ? RECTANGLE_INCORRECT_COLOR_DARK : RECTANGLE_INCORRECT_COLOR_LIGHT;
 	}

@@ -30,6 +30,9 @@ public class AnimationPane extends Pane {
 
 	private GridPane gameBoardGridPane;
 	private GameBoard gameBoard;
+	
+	private boolean allowChangeVisibility;
+	private boolean paneShouldBeVisible;
 
 	public AnimationPane(GameBoard gameBoard) {
 		this.gameBoard = gameBoard;
@@ -120,7 +123,10 @@ public class AnimationPane extends Pane {
 
 		PauseTransition pausePrepareSwapping = new PauseTransition(Duration.millis(PLACEHOLDER_MS));
 		pausePrepareSwapping.setOnFinished(event -> {
-			this.setVisible(true);
+			if(allowChangeVisibility) {
+				this.setVisible(true);
+			}
+			paneShouldBeVisible = true;
 			for (GameTileWord piece : originalPieceSet) {
 				piece.setVisible(false);
 			}
@@ -149,7 +155,10 @@ public class AnimationPane extends Pane {
 					node.setVisible(true);
 				}
 			}
-			this.setVisible(false);
+			if(allowChangeVisibility) {
+				this.setVisible(false);
+			}
+			paneShouldBeVisible = false;
 			gameBoard.advanceRow();
 		});
 
@@ -177,7 +186,10 @@ public class AnimationPane extends Pane {
 			PauseTransition pauseBeforeDisplayAnswer = new PauseTransition(Duration.millis(PLACEHOLDER_MS));
 			pauseBeforeDisplayAnswer.setOnFinished(event -> {
 				this.getChildren().add(tileAnswer);
-				this.setVisible(true);
+				if(allowChangeVisibility) {
+					this.setVisible(true);
+				}
+				paneShouldBeVisible = true;
 				for (Node node : originalSelectedPieceSet) {
 					node.setVisible(false);
 				}
@@ -187,7 +199,10 @@ public class AnimationPane extends Pane {
 			
 			tileAppear.setOnFinished(event -> {
 				this.getChildren().remove(tileAnswer);
-				this.setVisible(false);
+				if(allowChangeVisibility) {
+					this.setVisible(false);
+				}
+				paneShouldBeVisible = false;
 				gameBoardGridPane.getChildren().removeAll(originalSelectedPieceSet);
 				gameBoardGridPane.add(tileAnswer, 0, gameBoard.getCurrentRow() - 1);
 				GridPane.setColumnSpan(tileAnswer, GameBoard.COLS);
@@ -241,5 +256,17 @@ public class AnimationPane extends Pane {
 				((GameTileAnswer) node).refreshStyle();
 			}
 		}
+	}
+	
+	public boolean getAllowChangeVisibility() {
+		return allowChangeVisibility;
+	}
+	
+	public boolean getPaneShouldBeVisible() {
+		return paneShouldBeVisible;
+	}
+
+	public void setAllowChangeVisibility(boolean status) {
+		allowChangeVisibility = status;
 	}
 }

@@ -1,4 +1,5 @@
 package view_controller;
+
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.ParallelTransition;
@@ -18,6 +20,7 @@ import javafx.animation.PauseTransition;
 import javafx.animation.ScaleTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
+import javafx.animation.Transition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
@@ -31,6 +34,8 @@ import javafx.scene.control.Label;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -76,9 +81,15 @@ public class GameBoard extends Application {
 	private int currentRow = 0;
 	private int incorrectGuessCount = 0;
 	private boolean wonGame = false;
+	private boolean achievementsVisible = false;
 	private boolean gameLost = false;
 	private StackPane wholeGameStackPane;
 	private DarkModeToggle darkModeToggle;
+	private SVGPath achievementsIconSVG;
+	private Pane wholeAchievementsPane;
+	private VBox wholeGameVbox;
+	private SequentialTransition sequentialIncorrectTrans;
+	private SequentialTransition sequentialCorrectTrans;
 
 	private void initGridPane() {
 		gridPane = new GridPane();
@@ -140,31 +151,31 @@ public class GameBoard extends Application {
 	}
 
 	private void gameShuffleWords() {
-	    ObservableList<Node> children = gridPane.getChildren();
-	    List<StackPane> stackPanes = children.stream().filter(node -> node instanceof GameTileWord)
-	            .map(node -> (GameTileWord) node).collect(Collectors.toList());
+		ObservableList<Node> children = gridPane.getChildren();
+		List<StackPane> stackPanes = children.stream().filter(node -> node instanceof GameTileWord)
+				.map(node -> (GameTileWord) node).collect(Collectors.toList());
 
-	    Collections.shuffle(stackPanes);
+		Collections.shuffle(stackPanes);
 
-	    int index = 0;
-	    for (int row = currentRow; row < ROWS; row++) {
-	        for (int col = 0; col < COLS; col++) {
-	            GridPane.setRowIndex(stackPanes.get(index), row);
-	            GridPane.setColumnIndex(stackPanes.get(index), col);
-	            index++;
-	        }
-	    }
+		int index = 0;
+		for (int row = currentRow; row < ROWS; row++) {
+			for (int col = 0; col < COLS; col++) {
+				GridPane.setRowIndex(stackPanes.get(index), row);
+				GridPane.setColumnIndex(stackPanes.get(index), col);
+				index++;
+			}
+		}
 
-	    ParallelTransition fadeInTransition = new ParallelTransition();
-	    
-	    for (Node node : gridPane.getChildren()) {
-	        if (node instanceof GameTileWord) {
-	            GameTileWord tileWord = (GameTileWord) node;
-	            tileWord.fadeInWordText(fadeInTransition);
-	        }
-	    }
+		ParallelTransition fadeInTransition = new ParallelTransition();
 
-	    fadeInTransition.play();
+		for (Node node : gridPane.getChildren()) {
+			if (node instanceof GameTileWord) {
+				GameTileWord tileWord = (GameTileWord) node;
+				tileWord.fadeInWordText(fadeInTransition);
+			}
+		}
+
+		fadeInTransition.play();
 	}
 
 	private void gameSubmitSelectedWords() {
@@ -234,6 +245,48 @@ public class GameBoard extends Application {
 		submitButton.setOnAction(event -> {
 			gameSubmitSelectedWords();
 		});
+
+		achievementsIconSVG.setOnMouseEntered(event -> {
+			achievementsIconSVG.setCursor(Cursor.HAND);
+		});
+
+		achievementsIconSVG.setOnMouseExited(event -> {
+			achievementsIconSVG.setCursor(Cursor.DEFAULT);
+		});
+
+		achievementsIconSVG.setOnMouseClicked(event -> {
+			if(achievementsVisible) {
+				if(wholeAchievementsPane != null) {
+					mainStackPane.getChildren().remove(wholeAchievementsPane);
+					wholeAchievementsPane = null;
+				}
+				for(Node node : wholeGameVbox.getChildren()) {
+					node.setVisible(true);
+				}
+				animPane.setAllowChangeVisibility(true);
+				if(animPane.getPaneShouldBeVisible()) {
+					animPane.setVisible(true);
+				}
+			} else {
+				wholeAchievementsPane = createAchievementsPane();
+				wholeAchievementsPane.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
+				mainStackPane.getChildren().add(wholeAchievementsPane);
+				for(Node node : wholeGameVbox.getChildren()) {
+					if(node instanceof StackPane) {
+						StackPane nodeStackPane = (StackPane) node;
+						if(nodeStackPane != mainStackPane) {
+							node.setVisible(false);
+						}
+					} else {
+						node.setVisible(false);
+					}
+				}
+				animPane.setAllowChangeVisibility(false);
+				animPane.setVisible(false);
+			}
+			
+			achievementsVisible = !achievementsVisible;
+		});
 	}
 
 	private void initDarkModeToggle() {
@@ -255,6 +308,7 @@ public class GameBoard extends Application {
 	public void refreshStyle() {
 		if (darkModeToggle.isDarkMode()) {
 			wholeGameStackPane.setStyle(styleManager.getWholeGameDarkMode());
+			achievementsIconSVG.setFill(styleManager.colorText());
 			shuffleButton.setStyle(styleManager.getButtonDarkMode());
 			deselectButton.setStyle(styleManager.getButtonDarkMode());
 			if (this.getSelectedCount() == GameBoard.MAX_SELECTED && !submitButton.isDisabled()) {
@@ -273,6 +327,7 @@ public class GameBoard extends Application {
 
 		} else {
 			wholeGameStackPane.setStyle(styleManager.getWholeGameNormalMode());
+			achievementsIconSVG.setFill(styleManager.colorText());
 			shuffleButton.setStyle(styleManager.getButtonNormalMode());
 			deselectButton.setStyle(styleManager.getButtonNormalMode());
 			if (this.getSelectedCount() == GameBoard.MAX_SELECTED && !submitButton.isDisabled()) {
@@ -447,17 +502,24 @@ public class GameBoard extends Application {
 		// Initialize the dark mode toggle
 		initDarkModeToggle();
 
-		// Create an HBox to hold the dark mode toggle
-		HBox cornerButtonBox = new HBox(10, darkModeToggle);
+		// Create an HBox to hold the dark mode toggle, achievements, and leader board
+		achievementsIconSVG = new SVGPath();
+		achievementsIconSVG.setContent(
+				"M60,4H48c0-2.215-1.789-4-4-4H20c-2.211,0-4,1.785-4,4H4C1.789,4,0,5.785,0,8v8c0,8.836,7.164,16,16,16  c0.188,0,0.363-0.051,0.547-0.059C17.984,37.57,22.379,41.973,28,43.43V56h-8c-2.211,0-4,1.785-4,4v4h32v-4c0-2.215-1.789-4-4-4h-8  V43.43c5.621-1.457,10.016-5.859,11.453-11.488C47.637,31.949,47.812,32,48,32c8.836,0,16-7.164,16-16V8C64,5.785,62.211,4,60,4z   M8,16v-4h8v12C11.582,24,8,20.414,8,16z M56,16c0,4.414-3.582,8-8,8V12h8V16z");
+
+		achievementsIconSVG.setScaleX(0.5203125);
+		achievementsIconSVG.setScaleY(0.5203125);
+
+		HBox cornerButtonBox = new HBox(10, achievementsIconSVG, darkModeToggle);
 		cornerButtonBox.setStyle("-fx-alignment: center-right;");
 
-		VBox vbox = new VBox(24, topText, mainStackPane, bottomBox, buttonBox);
-		vbox.setAlignment(Pos.CENTER);
+		wholeGameVbox = new VBox(24, topText, mainStackPane, bottomBox, buttonBox);
+		wholeGameVbox.setAlignment(Pos.CENTER);
 
 		BorderPane mainContentPane = new BorderPane();
 		mainContentPane.setPadding(new Insets(10));
 		mainContentPane.setTop(cornerButtonBox);
-		mainContentPane.setCenter(vbox);
+		mainContentPane.setCenter(wholeGameVbox);
 
 		StackPane wholeGameStackPane = new StackPane(mainContentPane);
 		wholeGameStackPane.setStyle(styleManager.getWholeGameNormalMode());
@@ -470,6 +532,50 @@ public class GameBoard extends Application {
 		primaryStage.setTitle("Connections");
 		primaryStage.setResizable(false);
 		primaryStage.show();
+	}
+
+	private Pane createAchievementsPane() {
+		GridPane achievementsGrid = new GridPane();
+		achievementsGrid.setHgap(GAP);
+		achievementsGrid.setVgap(GAP);
+		achievementsGrid.setAlignment(Pos.CENTER);
+
+		String[] achievementLabels = { "1 standard game completed", "10 standard games completed",
+				"50 standard games completed", "100 standard games completed", "1 time trial game completed",
+				"10 time trial games completed", "50 time trial games completed", "100 time trial games completed",
+				"Solved 1 puzzle with no mistakes", "Solved 10 puzzles with no mistakes",
+				"Solved 50 puzzles with no mistakes", "Solved 100 puzzles with no mistakes",
+				"Solved 1 time trial puzzle in under 30 seconds", "Solved 10 time trial puzzles in under 30 seconds",
+				"Solved 50 time trial puzzles in under 30 seconds",
+				"Solved 100 time trial puzzles in under 30 seconds" };
+
+		int row = 0;
+		int col = 0;
+		for (String labelText : achievementLabels) {
+			Rectangle rect = new Rectangle(RECTANGLE_WIDTH, RECTANGLE_HEIGHT);
+			rect.setArcWidth(CORNER_RADIUS);
+			rect.setArcHeight(CORNER_RADIUS);
+			rect.setFill(styleManager.colorDefaultRectangle());
+
+			Label label = new Label(labelText);
+			label.setFont(styleManager.getFont("franklin-normal", 500, 14));
+			label.setTextFill(styleManager.colorText());
+			label.setWrapText(true);
+			label.setAlignment(Pos.CENTER);
+			label.setMaxWidth(RECTANGLE_WIDTH - 20);
+
+			StackPane achievementPane = new StackPane(rect, label);
+			achievementsGrid.add(achievementPane, col, row);
+
+			col++;
+			if (col == COLS) {
+				col = 0;
+				row++;
+			}
+		}
+
+		StackPane stackPane = new StackPane(achievementsGrid);
+		return stackPane;
 	}
 
 	private Button createButton(String text, double width) {
@@ -718,17 +824,17 @@ public class GameBoard extends Application {
 
 		StackPane overlayPane = new StackPane(wholeGameStackPane, resultsPane);
 		overlayPane.setAlignment(Pos.CENTER);
-		
+
 		TranslateTransition resultsPaneMoveUp = new TranslateTransition(Duration.millis(150), resultsPane);
 		resultsPane.setTranslateX(0);
 		resultsPane.setTranslateY(45);
 		resultsPaneMoveUp.setToX(0);
 		resultsPaneMoveUp.setToY(0);
-		
+
 		FadeTransition resultsPaneFadeIn = new FadeTransition(Duration.millis(150), resultsPane);
 		resultsPaneFadeIn.setFromValue(0);
 		resultsPaneFadeIn.setToValue(1);
-		
+
 		ParallelTransition resultsAppearTransition = new ParallelTransition(resultsPaneMoveUp, resultsPaneFadeIn);
 
 		overlayPane.setOnMouseMoved(event -> {
@@ -823,20 +929,20 @@ public class GameBoard extends Application {
 			timerLabel.setTextFill(Color.BLACK);
 			backToPuzzleText.setFill(Color.BLACK);
 		}
-		
+
 		resultsAppearTransition.play();
 	}
 
 	private void animateIncorrectGuess(int matchCount) {
 		disableButtons();
 		disableRectangles();
-		SequentialTransition sequentialTransition = new SequentialTransition();
+		sequentialIncorrectTrans = new SequentialTransition();
 		ParallelTransition jumpTransition = createJumpTransition();
 		PauseTransition pauseAfterJump = new PauseTransition(Duration.millis(500));
 
-		sequentialTransition.getChildren().addAll(jumpTransition, pauseAfterJump);
+		sequentialIncorrectTrans.getChildren().addAll(jumpTransition, pauseAfterJump);
 
-		sequentialTransition.setOnFinished(event -> {
+		sequentialIncorrectTrans.setOnFinished(event -> {
 			if (matchCount == 3 && incorrectGuessCount < 4) {
 				Rectangle oneAwayRect = new Rectangle(96.09, 42);
 				oneAwayRect.setArcWidth(10);
@@ -873,7 +979,7 @@ public class GameBoard extends Application {
 				displayNextTime.setOnFinished(e -> {
 					mainStackPane.getChildren().remove(nextTimePane);
 				});
-				
+
 				displayNextTime.play();
 			}
 			ParallelTransition shakeTransition = createShakeTransition();
@@ -909,7 +1015,7 @@ public class GameBoard extends Application {
 			});
 			shakeTransition.play();
 		});
-		sequentialTransition.play();
+		sequentialIncorrectTrans.play();
 	}
 
 	private ParallelTransition createShakeTransition() {
@@ -937,21 +1043,21 @@ public class GameBoard extends Application {
 		disableButtons();
 		disableRectangles();
 
-		SequentialTransition sequentialTransition = new SequentialTransition();
+		sequentialCorrectTrans = new SequentialTransition();
 		ParallelTransition jumpTransition = createJumpTransition();
 		SequentialTransition swapAndAnswerTileSequence = animPane.getSequenceCorrectAnswer();
 		PauseTransition pauseTransition = new PauseTransition(Duration.millis(500));
-		sequentialTransition.getChildren().addAll(jumpTransition, pauseTransition, swapAndAnswerTileSequence);
+		sequentialCorrectTrans.getChildren().addAll(jumpTransition, pauseTransition, swapAndAnswerTileSequence);
 
 		if (!wonGame) {
-			sequentialTransition.setOnFinished(event -> {
+			sequentialCorrectTrans.setOnFinished(event -> {
 				enableButtons();
 				enableRectangles();
 			});
 		} else {
 			PauseTransition endPauseTransition = new PauseTransition(Duration.millis(1250));
-			sequentialTransition.getChildren().add(endPauseTransition);
-			sequentialTransition.setOnFinished(event -> {
+			sequentialCorrectTrans.getChildren().add(endPauseTransition);
+			sequentialCorrectTrans.setOnFinished(event -> {
 				if (wonGame) {
 					disableGameBoard();
 					gameDeselect();
@@ -963,36 +1069,36 @@ public class GameBoard extends Application {
 			});
 		}
 
-		sequentialTransition.play();
+		sequentialCorrectTrans.play();
 	}
-	
+
 	private void animateAutoSolvePart(List<GameAnswerColor> remainingAnswerCategories) {
 		if (currentRow < ROWS) {
 			GameAnswerColor currentColorAnswer = remainingAnswerCategories.remove(0);
 			Set<String> wordStringSet = new HashSet<>(Arrays.asList(currentColorAnswer.getWords()));
 			gameDeselect();
-			
-			for(Node node : gridPane.getChildren()) {
-				if(node instanceof GameTileWord) {
+
+			for (Node node : gridPane.getChildren()) {
+				if (node instanceof GameTileWord) {
 					GameTileWord tileWord = (GameTileWord) node;
 					String tileWordText = tileWord.getWord().getText().toLowerCase();
-					if(wordStringSet.contains(tileWordText)) {
+					if (wordStringSet.contains(tileWordText)) {
 						tileWord.setSelectedStatus(true);
 					}
 				}
 			}
-			
+
 			SequentialTransition sequentialTransition = new SequentialTransition();
 			PauseTransition pauseBeforeSwapTransition = new PauseTransition(Duration.millis(350));
 			SequentialTransition swapAndAnswerTileSequence = animPane.getSequenceCorrectAnswer();
 			PauseTransition pauseAfterSwapTransition = new PauseTransition(Duration.millis(350));
 			sequentialTransition.getChildren().addAll(pauseBeforeSwapTransition, swapAndAnswerTileSequence,
 					pauseAfterSwapTransition);
-			
+
 			pauseAfterSwapTransition.setOnFinished(event -> {
 				animateAutoSolvePart(remainingAnswerCategories);
 			});
-			
+
 			sequentialTransition.play();
 		} else {
 			PauseTransition pauseBeforeResultsTransition = new PauseTransition(Duration.millis(1000));
@@ -1013,8 +1119,8 @@ public class GameBoard extends Application {
 				unansweredColor.remove(tileAnswer.getGameAnswerColor().getColor());
 			}
 		}
-		
-		if(unansweredColor.size() > 0) {
+
+		if (unansweredColor.size() > 0) {
 			// Sort in order of difficulty (YELLOW, GREEN, BLUE, PURPLE);
 			Collections.sort(unansweredColor);
 
@@ -1023,7 +1129,7 @@ public class GameBoard extends Application {
 				GameAnswerColor colorAnswer = currentGame.getAnswerForColor(color);
 				remainingAnswerCategories.add(colorAnswer);
 			}
-			
+
 			setWordTileStyleChangeable(false);
 			animateAutoSolvePart(remainingAnswerCategories);
 		}
@@ -1064,7 +1170,7 @@ public class GameBoard extends Application {
 
 	private void enableButtons() {
 		shuffleButton.setDisable(false);
-		if(selectedCount > 0) {
+		if (selectedCount > 0) {
 			deselectButton.setDisable(false);
 		}
 		selectedCount = 0;
@@ -1085,10 +1191,10 @@ public class GameBoard extends Application {
 			}
 		}
 	}
-	
+
 	public void setWordTileStyleChangeable(boolean changeable) {
-		for(Node node : gridPane.getChildren()) {
-			if(node instanceof GameTileWord) {
+		for (Node node : gridPane.getChildren()) {
+			if (node instanceof GameTileWord) {
 				GameTileWord tileWord = (GameTileWord) node;
 				tileWord.setStyleChangeable(changeable);
 			}
