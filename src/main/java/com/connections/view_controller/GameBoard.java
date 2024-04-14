@@ -51,6 +51,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.scene.shape.SVGPath;
@@ -370,7 +372,12 @@ public class GameBoard extends Application {
 									Rectangle rect = (Rectangle) firstChild;
 									Label label = (Label) secondChild;
 									rect.setFill(styleManager.colorDefaultRectangle());
-									label.setTextFill(styleManager.colorText());
+									TextFlow textFlow = (TextFlow) label.getGraphic();
+									for (Node textNode : textFlow.getChildren()) {
+										if (textNode instanceof Text) {
+											((Text) textNode).setFill(styleManager.colorText());
+										}
+									}
 								}
 							}
 						}
@@ -572,7 +579,7 @@ public class GameBoard extends Application {
 		Text topText = new Text("Achievements:");
 		topText.getStyleClass().add("toptext");
 		topText.setFont(styleManager.getFont("franklin-normal", 500, 18));
-		
+
 		GridPane achievementsGrid = new GridPane();
 		achievementsGrid.getStyleClass().add("achievements-grid");
 		achievementsGrid.setHgap(GAP);
@@ -582,25 +589,49 @@ public class GameBoard extends Application {
 		String[] achievementLabels = { "1 standard game completed", "10 standard games completed",
 				"50 standard games completed", "100 standard games completed", "1 time trial game completed",
 				"10 time trial games completed", "50 time trial games completed", "100 time trial games completed",
-				"Solved 1 puzzle with no mistakes", "Solved 10 puzzles with no mistakes",
-				"Solved 50 puzzles with no mistakes", "Solved 100 puzzles with no mistakes",
-				"Solved 1 time trial puzzle in under 30 seconds", "Solved 10 time trial puzzles in under 30 seconds",
-				"Solved 50 time trial puzzles in under 30 seconds",
-				"Solved 100 time trial puzzles in under 30 seconds" };
+				"1 puzzle completed with no mistakes", "10 puzzles completed with no mistakes",
+				"50 puzzles completed with no mistakes", "100 puzzles completed with no mistakes",
+				"1 time trial puzzle completed in under 30 seconds",
+				"10 time trial puzzles completed in under 30 seconds",
+				"50 time trial puzzles completed in under 30 seconds",
+				"100 time trial puzzles completed in under 30 seconds" };
 
 		int row = 0;
 		int col = 0;
+
 		for (String labelText : achievementLabels) {
 			Rectangle rect = new Rectangle(RECTANGLE_WIDTH, RECTANGLE_HEIGHT);
 			rect.setArcWidth(CORNER_RADIUS);
 			rect.setArcHeight(CORNER_RADIUS);
 			rect.setFill(styleManager.colorDefaultRectangle());
 
-			Label label = new Label(labelText);
-			label.setFont(styleManager.getFont("franklin-normal", 500, 14));
+			Label label = new Label();
+
+			String[] parts = labelText.split("completed", 2);
+
+			Text part1 = new Text(parts[0]);
+			part1.setFont(styleManager.getFont("franklin-normal", 500, 14));
+
+			Text completedText = new Text("completed");
+
+			// actually check later on here if the user has completed the achievement
+			boolean hasCompleted = true;
+
+			if (hasCompleted) {
+				completedText.setFont(styleManager.getFont("franklin-normal", 700, 14));
+			} else {
+				completedText.setFont(styleManager.getFont("franklin-normal", 500, 14));
+			}
+
+			Text part2 = new Text(parts.length > 1 ? parts[1] : "");
+			part2.setFont(styleManager.getFont("franklin-normal", 500, 14));
+
+			TextFlow textFlow = new TextFlow(part1, completedText, part2);
+			textFlow.setTextAlignment(TextAlignment.CENTER);
+			label.setGraphic(textFlow);
+
 			label.setTextFill(styleManager.colorText());
 			label.setWrapText(true);
-			label.setStyle("-fx-text-alignment: center;");
 			label.setMaxWidth(RECTANGLE_WIDTH - 20);
 
 			StackPane achievementPane = new StackPane(rect, label);
