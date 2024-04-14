@@ -1,7 +1,6 @@
-package test;
+package com.connections.test;
 
-import model.DifficultyColor;
-import model.GameAnswerColor;
+import com.connections.model.*;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.Assert.assertArrayEquals;

@@ -1,4 +1,4 @@
-package model;
+package com.connections.model;
 import java.util.Map;
 
 public class GameData {

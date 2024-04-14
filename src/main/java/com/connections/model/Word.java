@@ -1,4 +1,4 @@
-package model;
+package com.connections.model;
 public class Word {
     private String text;
     private DifficultyColor color;

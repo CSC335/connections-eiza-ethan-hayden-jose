@@ -1,4 +1,6 @@
-package view_controller;
+package com.connections.view_controller;
+
+import com.connections.model.*;
 import javafx.animation.FadeTransition;
 import javafx.animation.FillTransition;
 import javafx.animation.ParallelTransition;
@@ -10,7 +12,6 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
-import model.Word;
 
 public class GameTileWord extends StackPane {
 	protected static final int FILL_TRANSITION_MS = 100;

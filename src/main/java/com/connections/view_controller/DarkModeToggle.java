@@ -1,4 +1,5 @@
-package view_controller;
+package com.connections.view_controller;
+
 import javafx.animation.TranslateTransition;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;

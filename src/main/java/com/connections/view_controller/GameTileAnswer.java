@@ -1,4 +1,6 @@
-package view_controller;
+package com.connections.view_controller;
+
+import com.connections.model.*;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
@@ -10,7 +12,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
-import model.GameAnswerColor;
 
 public class GameTileAnswer extends StackPane {
 	private static final int POP_UP_MS = 125;

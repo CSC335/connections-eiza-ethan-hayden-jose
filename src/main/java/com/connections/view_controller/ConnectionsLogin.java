@@ -1,4 +1,5 @@
-package view_controller;
+package com.connections.view_controller;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 

@@ -1,4 +1,6 @@
-package view_controller;
+package com.connections.view_controller;
+
+import com.connections.model.*;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -51,11 +53,6 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import model.DifficultyColor;
-import model.GameData;
-import model.GameDataCollection;
-import model.Word;
-import model.GameAnswerColor;
 import javafx.scene.shape.SVGPath;
 
 public class GameBoard extends Application {

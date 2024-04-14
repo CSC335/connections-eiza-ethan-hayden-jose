@@ -1,11 +1,9 @@
-package test;
+package com.connections.test;
+
+import com.connections.model.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import model.DifficultyColor;
-import model.GameAnswerColor;
-import model.GameData;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;

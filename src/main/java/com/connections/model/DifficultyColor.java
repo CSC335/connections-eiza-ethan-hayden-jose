@@ -1,4 +1,4 @@
-package model;
+package com.connections.model;
 import java.util.EnumSet;
 
 public enum DifficultyColor implements Comparable<DifficultyColor> {

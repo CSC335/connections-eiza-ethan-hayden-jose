@@ -1,11 +1,13 @@
-package view_controller;
+package com.connections.view_controller;
+
+import com.connections.model.*;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
 import javafx.scene.text.Font;
-import model.DifficultyColor;
 import javafx.scene.paint.Color;
 
 public class StyleManager {
