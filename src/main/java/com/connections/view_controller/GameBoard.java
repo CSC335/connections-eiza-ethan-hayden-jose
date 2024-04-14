@@ -89,7 +89,6 @@ public class GameBoard extends Application {
 	private SVGPath achievementsIconSVG;
 	private SVGPath leaderBoardIconSVG;
 	private VBox wholeGameVbox;
-	private Text topText;
 	private Pane achievementsSVGPane;
 	private Pane leaderSVGPane;
 	private SequentialTransition sequentialIncorrectTrans;
@@ -272,11 +271,10 @@ public class GameBoard extends Application {
 				if (achievementsPane != null) {
 					((Pane) wholeGameStackPane.getParent()).getChildren().remove(achievementsPane);
 				}
-				animPane.setAllowChangeVisibility(true);
-				animPane.setVisible(true);
+//				animPane.setAllowChangeVisibility(true);
+//				animPane.setVisible(true);
 			} else {
-				// Check if the results pane is visible and wholeGameStackPane has a parent,
-				// also do leaderboard check later
+//				do leaderboard check later here too
 				if (wholeGameStackPane.getParent() != null) {
 					StackPane resultsPane = (StackPane) wholeGameStackPane.getParent().lookup(".results-pane");
 					if (resultsPane != null) {
@@ -284,8 +282,8 @@ public class GameBoard extends Application {
 					}
 				}
 				showachievementsPane((Stage) wholeGameStackPane.getScene().getWindow());
-				animPane.setAllowChangeVisibility(false);
-				animPane.setVisible(false);
+//				animPane.setAllowChangeVisibility(false);
+//				animPane.setVisible(false);
 			}
 
 			achievementsVisible = !achievementsVisible;
@@ -356,6 +354,10 @@ public class GameBoard extends Application {
 		if (wholeGameStackPane.getParent() != null) {
 			StackPane achievementsPane = (StackPane) wholeGameStackPane.getParent().lookup(".achievements-pane");
 			if (achievementsPane != null) {
+				Text topText = (Text) achievementsPane.lookup(".toptext");
+				if (topText != null) {
+					topText.setFill(styleManager.colorText());
+				}
 				GridPane achievementsGrid = (GridPane) achievementsPane.lookup(".achievements-grid");
 				if (achievementsGrid != null) {
 					for (Node node : achievementsGrid.getChildren()) {
@@ -473,7 +475,7 @@ public class GameBoard extends Application {
 
 		initGameData();
 
-		topText = new Text("Create four groups of four!");
+		Text topText = new Text("Create four groups of four!");
 		topText.setFont(styleManager.getFont("franklin-normal", 500, 18));
 
 		Text bottomText = new Text("Mistakes remaining:");
@@ -567,6 +569,10 @@ public class GameBoard extends Application {
 	}
 
 	private void showachievementsPane(Stage stage) {
+		Text topText = new Text("Achievements:");
+		topText.getStyleClass().add("toptext");
+		topText.setFont(styleManager.getFont("franklin-normal", 500, 18));
+		
 		GridPane achievementsGrid = new GridPane();
 		achievementsGrid.getStyleClass().add("achievements-grid");
 		achievementsGrid.setHgap(GAP);
@@ -609,10 +615,10 @@ public class GameBoard extends Application {
 
 		StackPane stackPane = new StackPane(achievementsGrid);
 
-		VBox achievementsLayout = new VBox(0);
+		VBox achievementsLayout = new VBox(24, topText, stackPane);
 		achievementsLayout.setAlignment(Pos.CENTER);
 
-		achievementsLayout.getChildren().addAll(stackPane);
+//		achievementsLayout.getChildren().addAll(stackPane);
 
 		StackPane achievementsPane = new StackPane(achievementsLayout);
 
