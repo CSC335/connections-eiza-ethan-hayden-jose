@@ -272,6 +272,8 @@ public class GameBoard extends Application {
 				if (achievementsPane != null) {
 					((Pane) wholeGameStackPane.getParent()).getChildren().remove(achievementsPane);
 				}
+				animPane.setAllowChangeVisibility(true);
+				animPane.setVisible(true);
 			} else {
 				// Check if the results pane is visible and wholeGameStackPane has a parent,
 				// also do leaderboard check later
