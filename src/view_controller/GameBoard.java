@@ -36,7 +36,11 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -86,8 +90,12 @@ public class GameBoard extends Application {
 	private StackPane wholeGameStackPane;
 	private DarkModeToggle darkModeToggle;
 	private SVGPath achievementsIconSVG;
+	private SVGPath leaderBoardIconSVG;
 	private Pane wholeAchievementsPane;
 	private VBox wholeGameVbox;
+	private Text topText;
+	private Pane achievementsSVGPane;
+	private Pane leaderSVGPane;
 	private SequentialTransition sequentialIncorrectTrans;
 	private SequentialTransition sequentialCorrectTrans;
 
@@ -246,15 +254,23 @@ public class GameBoard extends Application {
 			gameSubmitSelectedWords();
 		});
 
-		achievementsIconSVG.setOnMouseEntered(event -> {
-			achievementsIconSVG.setCursor(Cursor.HAND);
+		achievementsSVGPane.setOnMouseEntered(event -> {
+			achievementsSVGPane.setCursor(Cursor.HAND);
 		});
 
-		achievementsIconSVG.setOnMouseExited(event -> {
-			achievementsIconSVG.setCursor(Cursor.DEFAULT);
+		achievementsSVGPane.setOnMouseExited(event -> {
+			achievementsSVGPane.setCursor(Cursor.DEFAULT);
+		});
+		
+		leaderSVGPane.setOnMouseEntered(event -> {
+			leaderSVGPane.setCursor(Cursor.HAND);
 		});
 
-		achievementsIconSVG.setOnMouseClicked(event -> {
+		leaderSVGPane.setOnMouseExited(event -> {
+			leaderSVGPane.setCursor(Cursor.DEFAULT);
+		});
+
+		achievementsSVGPane.setOnMouseClicked(event -> {
 			if (achievementsVisible) {
 				if (wholeAchievementsPane != null) {
 					mainStackPane.getChildren().remove(wholeAchievementsPane);
@@ -263,6 +279,7 @@ public class GameBoard extends Application {
 				for (Node node : wholeGameVbox.getChildren()) {
 					node.setVisible(true);
 				}
+				topText.setText("Create four groups of four!");
 				animPane.setAllowChangeVisibility(true);
 				if (animPane.getPaneShouldBeVisible()) {
 					animPane.setVisible(true);
@@ -273,15 +290,11 @@ public class GameBoard extends Application {
 						new Background(new BackgroundFill(styleManager.getwholeAchievementsPane(), null, null)));
 				mainStackPane.getChildren().add(wholeAchievementsPane);
 				for (Node node : wholeGameVbox.getChildren()) {
-					if (node instanceof StackPane) {
-						StackPane nodeStackPane = (StackPane) node;
-						if (nodeStackPane != mainStackPane) {
-							node.setVisible(false);
-						}
-					} else {
-						node.setVisible(false);
-					}
+					node.setVisible(false);
 				}
+				mainStackPane.setVisible(true);
+				topText.setVisible(true);
+				topText.setText("Achievements:");
 				animPane.setAllowChangeVisibility(false);
 				animPane.setVisible(false);
 			}
@@ -311,6 +324,8 @@ public class GameBoard extends Application {
 			wholeGameStackPane.setStyle(styleManager.getWholeGameDarkMode());
 			achievementsIconSVG.setStroke(styleManager.colorText());
 			achievementsIconSVG.setFill(Color.BLACK);
+			leaderBoardIconSVG.setStroke(styleManager.colorText());
+			leaderBoardIconSVG.setFill(Color.BLACK);
 			shuffleButton.setStyle(styleManager.getButtonDarkMode());
 			deselectButton.setStyle(styleManager.getButtonDarkMode());
 			if (this.getSelectedCount() == GameBoard.MAX_SELECTED && !submitButton.isDisabled()) {
@@ -331,6 +346,8 @@ public class GameBoard extends Application {
 			wholeGameStackPane.setStyle(styleManager.getWholeGameNormalMode());
 			achievementsIconSVG.setStroke(styleManager.colorText());
 			achievementsIconSVG.setFill(Color.WHITE);
+			leaderBoardIconSVG.setStroke(styleManager.colorText());
+			leaderBoardIconSVG.setFill(Color.WHITE);
 			shuffleButton.setStyle(styleManager.getButtonNormalMode());
 			deselectButton.setStyle(styleManager.getButtonNormalMode());
 			if (this.getSelectedCount() == GameBoard.MAX_SELECTED && !submitButton.isDisabled()) {
@@ -494,7 +511,7 @@ public class GameBoard extends Application {
 
 		initGameData();
 
-		Text topText = new Text("Create four groups of four!");
+		topText = new Text("Create four groups of four!");
 		topText.setFont(styleManager.getFont("franklin-normal", 500, 18));
 
 		Text bottomText = new Text("Mistakes remaining:");
@@ -527,6 +544,9 @@ public class GameBoard extends Application {
 
 		// Initialize the dark mode toggle
 		initDarkModeToggle();
+		
+		Border redBorder = new Border(new javafx.scene.layout.BorderStroke(
+	                Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT));
 
 		// Create an HBox to hold the dark mode toggle, achievements, and leader board
 		achievementsIconSVG = new SVGPath();
@@ -539,8 +559,35 @@ public class GameBoard extends Application {
 		achievementsIconSVG.setFill(Color.WHITE);
 		achievementsIconSVG.setScaleX(1.58571428571);
 		achievementsIconSVG.setScaleY(1.58571428571);
+		achievementsIconSVG.setTranslateX(3);
+		achievementsIconSVG.setTranslateY(7);
+		
+		achievementsSVGPane = new Pane(achievementsIconSVG);
+		achievementsSVGPane.setPrefWidth(30);
+		achievementsSVGPane.prefHeightProperty().bind(achievementsSVGPane.widthProperty());
+//		achievementsSVGPane.setPadding(new Insets(0, 0, 0, 35));
 
-		HBox cornerButtonBox = new HBox(10, achievementsIconSVG, darkModeToggle);
+		leaderBoardIconSVG = new SVGPath();
+		leaderBoardIconSVG.setContent(
+				"M15 21H9V12.6C9 12.2686 9.26863 12 9.6 12H14.4C14.7314 12 15 12.2686 15 12.6V21Z M20.4 21H15V18.1C15 17.7686 15.2686 17.5 15.6 17.5H20.4C20.7314 17.5 21 17.7686 21 18.1V20.4C21 20.7314 20.7314 21 20.4 21Z M9 21V16.1C9 15.7686 8.73137 15.5 8.4 15.5H3.6C3.26863 15.5 3 15.7686 3 16.1V20.4C3 20.7314 3.26863 21 3.6 21H9Z M10.8056 5.11325L11.7147 3.1856C11.8314 2.93813 12.1686 2.93813 12.2853 3.1856L13.1944 5.11325L15.2275 5.42427C15.4884 5.46418 15.5923 5.79977 15.4035 5.99229L13.9326 7.4917L14.2797 9.60999C14.3243 9.88202 14.0515 10.0895 13.8181 9.96099L12 8.96031L10.1819 9.96099C9.94851 10.0895 9.67568 9.88202 9.72026 9.60999L10.0674 7.4917L8.59651 5.99229C8.40766 5.79977 8.51163 5.46418 8.77248 5.42427L10.8056 5.11325Z");
+		leaderBoardIconSVG.setStrokeLineCap(javafx.scene.shape.StrokeLineCap.ROUND);
+		leaderBoardIconSVG.setStrokeLineJoin(javafx.scene.shape.StrokeLineJoin.ROUND);
+		leaderBoardIconSVG.setStrokeWidth(2);
+		leaderBoardIconSVG.setStroke(Color.BLACK);
+		leaderBoardIconSVG.setFill(Color.WHITE);
+		leaderBoardIconSVG.setScaleX(1.58571428571);
+		leaderBoardIconSVG.setScaleY(1.58571428571);
+		leaderBoardIconSVG.setTranslateX(3);
+		leaderBoardIconSVG.setTranslateY(7);
+
+		leaderSVGPane = new Pane(leaderBoardIconSVG);
+		leaderSVGPane.setPrefWidth(30);
+		leaderSVGPane.prefHeightProperty().bind(leaderSVGPane.widthProperty());
+		
+//		achievementsSVGPane.setBorder(redBorder);
+//		leaderSVGPane.setBorder(redBorder);
+
+		HBox cornerButtonBox = new HBox(10, leaderSVGPane, achievementsSVGPane, darkModeToggle);
 		cornerButtonBox.setStyle("-fx-alignment: center-right;");
 
 		wholeGameVbox = new VBox(24, topText, mainStackPane, bottomBox, buttonBox);
