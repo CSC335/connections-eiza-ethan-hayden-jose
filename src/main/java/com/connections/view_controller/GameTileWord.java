@@ -60,7 +60,7 @@ public class GameTileWord extends StackPane {
 			text.setText(word.getText().toUpperCase());
 		}
 	}
-	
+
 	public void setStyleChangeable(boolean styleChangeable) {
 		this.styleChangeable = styleChangeable;
 	}
@@ -122,9 +122,9 @@ public class GameTileWord extends StackPane {
 	private void setStyleIncorrect() {
 		styleTransition(styleManager.colorIncorrectRectangle(), styleManager.colorTextInverted());
 	}
-	
+
 	private void styleTransition(Color rectangleFill, Color textFill) {
-		if(styleChangeable) {
+		if (styleChangeable) {
 			FillTransition rectangleFillTransition = new FillTransition(Duration.millis(FILL_TRANSITION_MS), rectangle);
 			rectangleFillTransition.setToValue(rectangleFill);
 			FillTransition textFillTransition = new FillTransition(Duration.millis(FILL_TRANSITION_MS), text);
@@ -159,31 +159,15 @@ public class GameTileWord extends StackPane {
 			submitButton.setDisable(gameBoard.getSelectedCount() != GameBoard.MAX_SELECTED);
 
 			if (gameBoard.getSelectedCount() != 0) {
-				if (gameBoard.getDarkModeToggle().isDarkMode()) {
-					deselectButton.setStyle(styleManager.getButtonDarkMode());
-				} else {
-					deselectButton.setStyle(styleManager.getButtonNormalMode());
-				}
+				deselectButton.setStyle(styleManager.getButton());
 			} else {
-				if (gameBoard.getDarkModeToggle().isDarkMode()) {
-					deselectButton.setStyle(styleManager.getButtonDarkMode());
-				} else {
-					deselectButton.setStyle(styleManager.getButtonNormalMode());
-				}
+				deselectButton.setStyle(styleManager.getButton());
 			}
 
 			if (gameBoard.getSelectedCount() == GameBoard.MAX_SELECTED) {
-				if (gameBoard.getDarkModeToggle().isDarkMode()) {
-					submitButton.setStyle(styleManager.getSubmitButtonFillDarkMode());
-				} else {
-					submitButton.setStyle(styleManager.getSubmitButtonFillNormalMode());
-				}
+				submitButton.setStyle(styleManager.getSubmitButton());
 			} else {
-				if (gameBoard.getDarkModeToggle().isDarkMode()) {
-					submitButton.setStyle(styleManager.getButtonDarkMode());
-				} else {
-					submitButton.setStyle(styleManager.getButtonNormalMode());
-				}
+				submitButton.setStyle(styleManager.getButton());
 			}
 		});
 
@@ -207,13 +191,13 @@ public class GameTileWord extends StackPane {
 			setStyleDefault();
 		}
 	}
-	
-	public void fadeInWordText(ParallelTransition fadeInTransition) {
-	    text.setOpacity(0);
 
-	    FadeTransition fadeTransition = new FadeTransition(Duration.millis(500), text);
-	    fadeTransition.setFromValue(0);
-	    fadeTransition.setToValue(1);
-	    fadeInTransition.getChildren().add(fadeTransition);
+	public void fadeInWordText(ParallelTransition fadeInTransition) {
+		text.setOpacity(0);
+
+		FadeTransition fadeTransition = new FadeTransition(Duration.millis(500), text);
+		fadeTransition.setFromValue(0);
+		fadeTransition.setToValue(1);
+		fadeInTransition.getChildren().add(fadeTransition);
 	}
 }

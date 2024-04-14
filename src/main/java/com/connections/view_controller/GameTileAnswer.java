@@ -23,40 +23,40 @@ public class GameTileAnswer extends StackPane {
 	private Text wordListText;
 	private VBox textVBox;
 	private Rectangle rectBackground;
-	
+
 	public GameTileAnswer(GameAnswerColor answer, GameBoard gameBoard) {
 		this.answer = answer;
 		this.styleManager = gameBoard.getStyleManager();
 		this.gameBoard = gameBoard;
 		this.answer = answer;
-		
+
 		categoryNameText = new Text(answer.getDescription().toUpperCase());
-		categoryNameText.setFont(styleManager.getFont("franklin-normal",700, 20));
+		categoryNameText.setFont(styleManager.getFont("franklin-normal", 700, 20));
 
 		wordListText = new Text(answer.getWordListString());
-		wordListText.setFont(styleManager.getFont("franklin-normal",500, 20));
-		
+		wordListText.setFont(styleManager.getFont("franklin-normal", 500, 20));
+
 		textVBox = new VBox(categoryNameText, wordListText);
 		textVBox.setAlignment(Pos.CENTER);
 		rectBackground = new Rectangle(GameBoard.RECTANGLE_WIDTH * 4 + GameBoard.GAP * 3, GameBoard.RECTANGLE_HEIGHT);
 		rectBackground.setArcWidth(GameBoard.CORNER_RADIUS);
 		rectBackground.setArcHeight(GameBoard.CORNER_RADIUS);
-		
+
 		refreshStyle();
 
 		this.getChildren().addAll(rectBackground, textVBox);
 	}
-	
+
 	public GameAnswerColor getGameAnswerColor() {
 		return answer;
 	}
-	
+
 	public void refreshStyle() {
 		wordListText.setFill(styleManager.colorTextNeutral());
 		categoryNameText.setFill(styleManager.colorTextNeutral());
 		rectBackground.setFill(styleManager.colorDifficulty(answer.getColor()));
 	}
-	
+
 	public ParallelTransition getAppearAnimation() {
 		ScaleTransition tileScaleTransition = new ScaleTransition(Duration.millis(POP_UP_MS), this);
 		tileScaleTransition.setFromX(1);
@@ -65,13 +65,13 @@ public class GameTileAnswer extends StackPane {
 		tileScaleTransition.setToY(1.4);
 		tileScaleTransition.setAutoReverse(true);
 		tileScaleTransition.setCycleCount(2);
-		
+
 		FadeTransition textFadeTransition = new FadeTransition(Duration.millis(FADE_IN_MS), textVBox);
 		textFadeTransition.setFromValue(0.0);
 		textFadeTransition.setToValue(1.0);
-		
-		ParallelTransition parallelTransition = new ParallelTransition(textFadeTransition, tileScaleTransition); 
-		
+
+		ParallelTransition parallelTransition = new ParallelTransition(textFadeTransition, tileScaleTransition);
+
 		return parallelTransition;
 	}
 }

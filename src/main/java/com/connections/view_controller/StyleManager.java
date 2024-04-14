@@ -44,8 +44,8 @@ public class StyleManager {
 	protected static final String submitButtonFillNormalMode = "-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50;";
 	protected static final String resultsPaneShareButtonNormalMode = "-fx-background-color: white; -fx-text-fill: black; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;";
 	protected static final String resultsPaneShareButtonDarkMode = "-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;";
-	protected static final String resultsPaneNormalMode = "-fx-background-color: white; -fx-effect: dropshadow(gaussian, black, 20, 0, 0, 0);";
-	protected static final String resultsPaneDarkMode = "-fx-background-color: black; -fx-effect: dropshadow(gaussian, rgb(176, 247, 121), 20, 0, 0, 0);";
+	protected static final String overlayPaneNormalMode = "-fx-background-color: white; -fx-effect: dropshadow(gaussian, black, 20, 0, 0, 0);";
+	protected static final String overlayPaneDarkMode = "-fx-background-color: black; -fx-effect: dropshadow(gaussian, rgb(176, 247, 121), 20, 0, 0, 0);";
 	protected static final String wholeGameDarkMode = "-fx-background-color: black;";
 	protected static final String wholeGameNormalMode = "-fx-background-color: white;";
 	protected static final String labelNormalMode = "-fx-background-color: #ebebeb; -fx-background-radius: 200px; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 10, 0, 0, 5), dropshadow(gaussian, rgba(255, 255, 255, 0.4), 5, 0, 0, -5);";
@@ -132,7 +132,7 @@ public class StyleManager {
 	public Color colorSelectedRectangle() {
 		return darkMode ? RECTANGLE_SELECTED_COLOR_DARK : RECTANGLE_RECT_SELECTED_COLOR_LIGHT;
 	}
-	
+
 	public Color colorIncorrectRectangle() {
 		return darkMode ? RECTANGLE_INCORRECT_COLOR_DARK : RECTANGLE_INCORRECT_COLOR_LIGHT;
 	}
@@ -157,63 +157,39 @@ public class StyleManager {
 		return darkMode ? Color.BLACK : Color.WHITE;
 	}
 
-	public String getButtonNormalMode() {
-		return buttonNormalMode;
+	public String getButton() {
+		return darkMode ? buttonDarkMode : buttonNormalMode;
 	}
 
-	public String getButtonDarkMode() {
-		return buttonDarkMode;
+	public String getSubmitButton() {
+		return darkMode ? submitButtonFillDarkMode : submitButtonFillNormalMode;
 	}
 
-	public String getSubmitButtonFillDarkMode() {
-		return submitButtonFillDarkMode;
+	public String getResultsPaneShareButton() {
+		return darkMode ? resultsPaneShareButtonDarkMode : resultsPaneShareButtonNormalMode;
 	}
 
-	public String getSubmitButtonFillNormalMode() {
-		return submitButtonFillNormalMode;
+	public String overlayPane() {
+		return darkMode ? overlayPaneDarkMode : overlayPaneNormalMode;
 	}
 
-	public String getResultsPaneShareButtonNormalMode() {
-		return resultsPaneShareButtonNormalMode;
+	public String getWholeGame() {
+		return darkMode ? wholeGameDarkMode : wholeGameNormalMode;
 	}
 
-	public String getResultsPaneShareButtonDarkMode() {
-		return resultsPaneShareButtonDarkMode;
+	public String getLabel() {
+		return darkMode ? labelDarkMode : labelNormalMode;
 	}
 
-	public String getResultsPaneNormalMode() {
-		return resultsPaneNormalMode;
+	public String getCircle() {
+		return darkMode ? circleDarkMode : circleLightMode;
 	}
 
-	public String getResultsPaneDarkMode() {
-		return resultsPaneDarkMode;
-	}
-
-	public String getWholeGameDarkMode() {
-		return wholeGameDarkMode;
-	}
-
-	public String getWholeGameNormalMode() {
-		return wholeGameNormalMode;
-	}
-
-	public String getLabelNormalMode() {
-		return labelNormalMode;
-	}
-
-	public String getLabelDarkMode() {
-		return labelDarkMode;
-	}
-
-	public String getCircleLightMode() {
-		return circleLightMode;
-	}
-
-	public String getCircleDarkMode() {
-		return circleDarkMode;
-	}
-	
 	public Color getwholeAchievementsPane() {
+		return darkMode ? Color.BLACK : Color.WHITE;
+	}
+
+	public Color getSVGFill() {
 		return darkMode ? Color.BLACK : Color.WHITE;
 	}
 }
