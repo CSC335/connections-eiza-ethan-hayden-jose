@@ -86,15 +86,17 @@ public class GameBoard extends Application {
 	private boolean gameLost = false;
 	private StackPane wholeGameStackPane;
 	private DarkModeToggle darkModeToggle;
-	private SVGPath achievementsIconSVG;
-	private SVGPath leaderBoardIconSVG;
 	private Pane wholeAchievementsPane;
 	private VBox wholeGameVbox;
 	private Text topText;
-	private Pane achievementsSVGPane;
-	private Pane leaderSVGPane;
 	private SequentialTransition sequentialIncorrectTrans;
 	private SequentialTransition sequentialCorrectTrans;
+	private CircleRowPane hintsPane;
+	private CircleRowPane mistakesPane;
+	private HintButton hintButton;
+	private AchievementsButton achievementsButton;
+	private LeaderboardButton leaderboardButton;
+	private boolean hintDisplayActive;
 
 	private void initGridPane() {
 		gridPane = new GridPane();
@@ -251,23 +253,7 @@ public class GameBoard extends Application {
 			gameSubmitSelectedWords();
 		});
 
-		achievementsSVGPane.setOnMouseEntered(event -> {
-			achievementsSVGPane.setCursor(Cursor.HAND);
-		});
-
-		achievementsSVGPane.setOnMouseExited(event -> {
-			achievementsSVGPane.setCursor(Cursor.DEFAULT);
-		});
-		
-		leaderSVGPane.setOnMouseEntered(event -> {
-			leaderSVGPane.setCursor(Cursor.HAND);
-		});
-
-		leaderSVGPane.setOnMouseExited(event -> {
-			leaderSVGPane.setCursor(Cursor.DEFAULT);
-		});
-
-		achievementsSVGPane.setOnMouseClicked(event -> {
+		achievementsButton.setOnMouseClicked(event -> {
 			if (achievementsVisible) {
 				if (wholeAchievementsPane != null) {
 					mainStackPane.getChildren().remove(wholeAchievementsPane);
@@ -284,7 +270,7 @@ public class GameBoard extends Application {
 			} else {
 				wholeAchievementsPane = createAchievementsPane();
 				wholeAchievementsPane.setBackground(
-						new Background(new BackgroundFill(styleManager.getwholeAchievementsPane(), null, null)));
+						new Background(new BackgroundFill(styleManager.colorWholeAchievementsPane(), null, null)));
 				mainStackPane.getChildren().add(wholeAchievementsPane);
 				for (Node node : wholeGameVbox.getChildren()) {
 					node.setVisible(false);
@@ -297,6 +283,10 @@ public class GameBoard extends Application {
 			}
 
 			achievementsVisible = !achievementsVisible;
+		});
+		
+		hintButton.setOnMouseClicked(event -> {
+			useHint();
 		});
 	}
 
@@ -317,66 +307,31 @@ public class GameBoard extends Application {
 	}
 
 	public void refreshStyle() {
-		if (darkModeToggle.isDarkMode()) {
-			wholeGameStackPane.setStyle(styleManager.getWholeGameDarkMode());
-			achievementsIconSVG.setStroke(styleManager.colorText());
-			achievementsIconSVG.setFill(Color.BLACK);
-			leaderBoardIconSVG.setStroke(styleManager.colorText());
-			leaderBoardIconSVG.setFill(Color.BLACK);
-			shuffleButton.setStyle(styleManager.getButtonDarkMode());
-			deselectButton.setStyle(styleManager.getButtonDarkMode());
-			if (this.getSelectedCount() == GameBoard.MAX_SELECTED && !submitButton.isDisabled()) {
-				submitButton.setStyle(styleManager.getSubmitButtonFillDarkMode());
-			} else {
-				submitButton.setStyle(styleManager.getButtonDarkMode());
-			}
-
-			BorderPane borderPane = (BorderPane) wholeGameStackPane.getChildren().get(0);
-			VBox vbox = (VBox) borderPane.getChildren().get(1);
-			HBox buttonBox = (HBox) vbox.getChildren().get(2);
-			if (buttonBox.getChildren().size() > 0 && buttonBox.getChildren().get(0) instanceof Button) {
-				Button viewResultsButton = (Button) buttonBox.getChildren().get(0);
-				viewResultsButton.setStyle(styleManager.getButtonDarkMode());
-			}
-
+		wholeGameStackPane.setStyle(styleManager.wholeGameStyle());
+		shuffleButton.setStyle(styleManager.buttonStyle());
+		deselectButton.setStyle(styleManager.buttonStyle());
+		hintButton.refreshStyle();
+		achievementsButton.refreshStyle();
+		leaderboardButton.refreshStyle();
+		
+		if (this.getSelectedCount() == GameBoard.MAX_SELECTED && !submitButton.isDisabled()) {
+			submitButton.setStyle(styleManager.submitButtonFillStyle());
 		} else {
-			wholeGameStackPane.setStyle(styleManager.getWholeGameNormalMode());
-			achievementsIconSVG.setStroke(styleManager.colorText());
-			achievementsIconSVG.setFill(Color.WHITE);
-			leaderBoardIconSVG.setStroke(styleManager.colorText());
-			leaderBoardIconSVG.setFill(Color.WHITE);
-			shuffleButton.setStyle(styleManager.getButtonNormalMode());
-			deselectButton.setStyle(styleManager.getButtonNormalMode());
-			if (this.getSelectedCount() == GameBoard.MAX_SELECTED && !submitButton.isDisabled()) {
-				submitButton.setStyle(styleManager.getSubmitButtonFillNormalMode());
-			} else {
-				submitButton.setStyle(styleManager.getButtonNormalMode());
-			}
-			BorderPane borderPane = (BorderPane) wholeGameStackPane.getChildren().get(0);
-			VBox vbox = (VBox) borderPane.getChildren().get(1);
-			HBox buttonBox = (HBox) vbox.getChildren().get(2);
-			if (buttonBox.getChildren().size() > 0 && buttonBox.getChildren().get(0) instanceof Button) {
-				Button viewResultsButton = (Button) buttonBox.getChildren().get(0);
-				viewResultsButton.setStyle(styleManager.getButtonNormalMode());
-			}
+			submitButton.setStyle(styleManager.buttonStyle());
 		}
-
-		for (Node node : wholeGameStackPane.getChildren()) {
-			if (node instanceof BorderPane) {
-				BorderPane borderPane = (BorderPane) node;
-				VBox vbox = (VBox) borderPane.getCenter();
-				Text topText = (Text) vbox.getChildren().get(0);
-
-				if (vbox.getChildren().size() > 2) {
-					HBox bottomBox = (HBox) vbox.getChildren().get(2);
-					if (bottomBox.getChildren().size() > 0 && bottomBox.getChildren().get(0) instanceof Text) {
-						Text bottomText = (Text) bottomBox.getChildren().get(0);
-						bottomText.setFill(styleManager.colorText());
-					}
-				}
-				topText.setFill(styleManager.colorText());
-			}
+		
+		BorderPane borderPane = (BorderPane) wholeGameStackPane.getChildren().get(0);
+		VBox vbox = (VBox) borderPane.getChildren().get(1);
+		HBox buttonBox = (HBox) vbox.getChildren().get(2);
+		if (buttonBox.getChildren().size() > 0 && buttonBox.getChildren().get(0) instanceof Button) {
+			Button viewResultsButton = (Button) buttonBox.getChildren().get(0);
+			viewResultsButton.setStyle(styleManager.buttonStyle());
 		}
+		
+		hintsPane.refreshStyle();
+		mistakesPane.refreshStyle();
+		topText.setFill(styleManager.colorText());
+		
 		updateAchievementsPaneStyle();
 		updateResultsPaneStyle();
 		updatePopupStyle();
@@ -385,7 +340,7 @@ public class GameBoard extends Application {
 	private void updateAchievementsPaneStyle() {
 		if (wholeAchievementsPane != null) {
 			wholeAchievementsPane.setBackground(
-					new Background(new BackgroundFill(styleManager.getwholeAchievementsPane(), null, null)));
+					new Background(new BackgroundFill(styleManager.colorWholeAchievementsPane(), null, null)));
 			for (Node node : wholeAchievementsPane.getChildren()) {
 				if (node instanceof GridPane) {
 					GridPane achievementsGrid = (GridPane) node;
@@ -444,11 +399,7 @@ public class GameBoard extends Application {
 						}
 					} else if (child instanceof Button) {
 						Button shareButton = (Button) child;
-						if (darkModeToggle.isDarkMode()) {
-							shareButton.setStyle(styleManager.getResultsPaneShareButtonNormalMode());
-						} else {
-							shareButton.setStyle(styleManager.getResultsPaneShareButtonDarkMode());
-						}
+						shareButton.setStyle(styleManager.resultsPaneShareButtonStyle());
 					}
 				}
 
@@ -463,11 +414,7 @@ public class GameBoard extends Application {
 					xPath.setFill(styleManager.colorText());
 				}
 
-				if (darkModeToggle.isDarkMode()) {
-					resultsPane.setStyle(styleManager.getResultsPaneDarkMode());
-				} else {
-					resultsPane.setStyle(styleManager.getResultsPaneNormalMode());
-				}
+				resultsPane.setStyle(styleManager.resultsPaneStyle());
 			}
 			if (resultsPane != null) {
 				for (Node node : resultsPane.lookupAll(".popup-pane")) {
@@ -500,34 +447,18 @@ public class GameBoard extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		initGridPane();
-
-		animPane = new AnimationPane(this);
-		animPane.setVisible(false);
 		initAnimPane();
 		mainStackPane = new StackPane(gridPane, animPane);
 
 		initGameData();
+		
+		hintButton = new HintButton(this);
 
 		topText = new Text("Create four groups of four!");
 		topText.setFont(styleManager.getFont("franklin-normal", 500, 18));
-
-		Text bottomText = new Text("Mistakes remaining:");
-		bottomText.setFont(styleManager.getFont("franklin-normal", 500, 16));
-
-		circlePane = new Pane();
-		circlePane.setPrefWidth(100);
-
-		for (int i = 0; i < 4; i++) {
-			Circle circle = new Circle(8);
-			circle.setFill(Color.rgb(90, 89, 78));
-			circle.setLayoutX(i * 28 + 10);
-			circle.setLayoutY(circlePane.getPrefHeight() / 2 + 12);
-			circlePane.getChildren().add(circle);
-		}
-
-		HBox bottomBox = new HBox(10);
-		bottomBox.setAlignment(Pos.CENTER);
-		bottomBox.getChildren().addAll(bottomText, circlePane);
+		
+		hintsPane = new CircleRowPane("Hints remaining:", this);
+		mistakesPane = new CircleRowPane("Mistakes remaining:", this);
 
 		shuffleButton = createButton("Shuffle", 88);
 		deselectButton = createButton("Deselect all", 120);
@@ -546,48 +477,14 @@ public class GameBoard extends Application {
 	                Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT));
 
 		// Create an HBox to hold the dark mode toggle, achievements, and leader board
-		achievementsIconSVG = new SVGPath();
-		achievementsIconSVG.setContent(
-				"M12 14V17M12 14C9.58104 14 7.56329 12.2822 7.10002 10M12 14C14.419 14 16.4367 12.2822 16.9 10M17 5H19.75C19.9823 5 20.0985 5 20.1951 5.01921C20.5918 5.09812 20.9019 5.40822 20.9808 5.80491C21 5.90151 21 6.01767 21 6.25C21 6.94698 21 7.29547 20.9424 7.58527C20.7056 8.77534 19.7753 9.70564 18.5853 9.94236C18.2955 10 17.947 10 17.25 10H17H16.9M7 5H4.25C4.01767 5 3.90151 5 3.80491 5.01921C3.40822 5.09812 3.09812 5.40822 3.01921 5.80491C3 5.90151 3 6.01767 3 6.25C3 6.94698 3 7.29547 3.05764 7.58527C3.29436 8.77534 4.22466 9.70564 5.41473 9.94236C5.70453 10 6.05302 10 6.75 10H7H7.10002M12 17C12.93 17 13.395 17 13.7765 17.1022C14.8117 17.3796 15.6204 18.1883 15.8978 19.2235C16 19.605 16 20.07 16 21H8C8 20.07 8 19.605 8.10222 19.2235C8.37962 18.1883 9.18827 17.3796 10.2235 17.1022C10.605 17 11.07 17 12 17ZM7.10002 10C7.03443 9.67689 7 9.34247 7 9V4.57143C7 4.03831 7 3.77176 7.09903 3.56612C7.19732 3.36201 7.36201 3.19732 7.56612 3.09903C7.77176 3 8.03831 3 8.57143 3H15.4286C15.9617 3 16.2282 3 16.4339 3.09903C16.638 3.19732 16.8027 3.36201 16.901 3.56612C17 3.77176 17 4.03831 17 4.57143V9C17 9.34247 16.9656 9.67689 16.9 10");
-		achievementsIconSVG.setStrokeLineCap(javafx.scene.shape.StrokeLineCap.ROUND);
-		achievementsIconSVG.setStrokeLineJoin(javafx.scene.shape.StrokeLineJoin.ROUND);
-		achievementsIconSVG.setStrokeWidth(2);
-		achievementsIconSVG.setStroke(Color.BLACK);
-		achievementsIconSVG.setFill(Color.WHITE);
-		achievementsIconSVG.setScaleX(1.58571428571);
-		achievementsIconSVG.setScaleY(1.58571428571);
-		achievementsIconSVG.setTranslateX(3);
-		achievementsIconSVG.setTranslateY(7);
+
+		leaderboardButton = new LeaderboardButton(this);
+		achievementsButton = new AchievementsButton(this);
 		
-		achievementsSVGPane = new Pane(achievementsIconSVG);
-		achievementsSVGPane.setPrefWidth(30);
-		achievementsSVGPane.prefHeightProperty().bind(achievementsSVGPane.widthProperty());
-//		achievementsSVGPane.setPadding(new Insets(0, 0, 0, 35));
-
-		leaderBoardIconSVG = new SVGPath();
-		leaderBoardIconSVG.setContent(
-				"M15 21H9V12.6C9 12.2686 9.26863 12 9.6 12H14.4C14.7314 12 15 12.2686 15 12.6V21Z M20.4 21H15V18.1C15 17.7686 15.2686 17.5 15.6 17.5H20.4C20.7314 17.5 21 17.7686 21 18.1V20.4C21 20.7314 20.7314 21 20.4 21Z M9 21V16.1C9 15.7686 8.73137 15.5 8.4 15.5H3.6C3.26863 15.5 3 15.7686 3 16.1V20.4C3 20.7314 3.26863 21 3.6 21H9Z M10.8056 5.11325L11.7147 3.1856C11.8314 2.93813 12.1686 2.93813 12.2853 3.1856L13.1944 5.11325L15.2275 5.42427C15.4884 5.46418 15.5923 5.79977 15.4035 5.99229L13.9326 7.4917L14.2797 9.60999C14.3243 9.88202 14.0515 10.0895 13.8181 9.96099L12 8.96031L10.1819 9.96099C9.94851 10.0895 9.67568 9.88202 9.72026 9.60999L10.0674 7.4917L8.59651 5.99229C8.40766 5.79977 8.51163 5.46418 8.77248 5.42427L10.8056 5.11325Z");
-		leaderBoardIconSVG.setStrokeLineCap(javafx.scene.shape.StrokeLineCap.ROUND);
-		leaderBoardIconSVG.setStrokeLineJoin(javafx.scene.shape.StrokeLineJoin.ROUND);
-		leaderBoardIconSVG.setStrokeWidth(2);
-		leaderBoardIconSVG.setStroke(Color.BLACK);
-		leaderBoardIconSVG.setFill(Color.WHITE);
-		leaderBoardIconSVG.setScaleX(1.58571428571);
-		leaderBoardIconSVG.setScaleY(1.58571428571);
-		leaderBoardIconSVG.setTranslateX(3);
-		leaderBoardIconSVG.setTranslateY(7);
-
-		leaderSVGPane = new Pane(leaderBoardIconSVG);
-		leaderSVGPane.setPrefWidth(30);
-		leaderSVGPane.prefHeightProperty().bind(leaderSVGPane.widthProperty());
-		
-//		achievementsSVGPane.setBorder(redBorder);
-//		leaderSVGPane.setBorder(redBorder);
-
-		HBox cornerButtonBox = new HBox(10, leaderSVGPane, achievementsSVGPane, darkModeToggle);
+		HBox cornerButtonBox = new HBox(10, hintButton, leaderboardButton, achievementsButton, darkModeToggle);
 		cornerButtonBox.setStyle("-fx-alignment: center-right;");
 
-		wholeGameVbox = new VBox(24, topText, mainStackPane, bottomBox, buttonBox);
+		wholeGameVbox = new VBox(24, topText, mainStackPane, hintsPane, mistakesPane, buttonBox);
 		wholeGameVbox.setAlignment(Pos.CENTER);
 
 		BorderPane mainContentPane = new BorderPane();
@@ -596,7 +493,7 @@ public class GameBoard extends Application {
 		mainContentPane.setCenter(wholeGameVbox);
 
 		StackPane wholeGameStackPane = new StackPane(mainContentPane);
-		wholeGameStackPane.setStyle(styleManager.getWholeGameNormalMode());
+		wholeGameStackPane.setStyle(styleManager.wholeGameStyle());
 		this.wholeGameStackPane = wholeGameStackPane;
 
 		initListeners();
@@ -606,6 +503,27 @@ public class GameBoard extends Application {
 		primaryStage.setTitle("Connections");
 		primaryStage.setResizable(false);
 		primaryStage.show();
+	}
+	
+	public void useHint() {
+		if(hintsPane.getNumCircles() > 0) {
+			if(hintDisplayActive) {
+				
+			} else {
+				hintDisplayActive = true;
+				for(Node node : gridPane.getChildren()) {
+					if(node instanceof GameTileWord) {
+						GameTileWord tileWord = (GameTileWord) node;
+						ParallelTransition pulseTransition = tileWord.getPulseAnswerColorAnimation();
+						pulseTransition.setOnFinished(event -> {
+							hintsPane.removeCircle();
+							hintDisplayActive = false;
+						});
+						pulseTransition.play();
+					}
+				}
+			}
+		}
 	}
 
 	private Pane createAchievementsPane() {
@@ -654,7 +572,7 @@ public class GameBoard extends Application {
 
 	private Button createButton(String text, double width) {
 		Button button = new Button(text);
-		button.setStyle(styleManager.getButtonNormalMode());
+		button.setStyle(styleManager.buttonStyle());
 		button.setPrefHeight(48);
 		button.setPrefWidth(width);
 		button.setFont(styleManager.getFont("franklin-normal", 600, 16));
@@ -679,21 +597,6 @@ public class GameBoard extends Application {
 			maxMatchCount = Math.max(maxMatchCount, matchCount);
 		}
 		return maxMatchCount;
-	}
-
-	private void removeCircle(Pane circlePane) {
-		if (!circlePane.getChildren().isEmpty()) {
-			Circle circle = (Circle) circlePane.getChildren().get(circlePane.getChildren().size() - 1);
-
-			ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(500), circle);
-			scaleTransition.setFromX(1.0);
-			scaleTransition.setFromY(1.0);
-			scaleTransition.setToX(0.0);
-			scaleTransition.setToY(0.0);
-			scaleTransition.setOnFinished(event -> circlePane.getChildren().remove(circle));
-
-			scaleTransition.play();
-		}
 	}
 
 	private List<Word> getSelectedWords() {
@@ -732,15 +635,14 @@ public class GameBoard extends Application {
 		HBox buttonBox = (HBox) vbox.getChildren().get(3);
 		buttonBox.getChildren().clear();
 
-		HBox bottomBox = (HBox) vbox.getChildren().get(2);
-		vbox.getChildren().remove(bottomBox);
+		vbox.getChildren().remove(mistakesPane);
+		
+		if(hintsPane != null && vbox.getChildren().contains(hintsPane)) {
+			vbox.getChildren().remove(hintsPane);
+		}
 
 		Button viewResultsButton = new Button("View Results");
-		if (darkModeToggle.isDarkMode()) {
-			viewResultsButton.setStyle(styleManager.getButtonDarkMode());
-		} else {
-			viewResultsButton.setStyle(styleManager.getButtonNormalMode());
-		}
+		viewResultsButton.setStyle(styleManager.buttonStyle());
 		viewResultsButton.setPrefSize(160, 48);
 		viewResultsButton.setFont(styleManager.getFont("franklin-normal", 600, 16));
 
@@ -833,11 +735,7 @@ public class GameBoard extends Application {
 		Button shareButton = new Button("Share Your Results");
 		shareButton.setPrefSize(162, 48);
 		shareButton.setFont(styleManager.getFont("franklin-normal", 600, 16));
-		if (darkModeToggle.isDarkMode()) {
-			shareButton.setStyle(styleManager.getResultsPaneShareButtonNormalMode());
-		} else {
-			shareButton.setStyle(styleManager.getResultsPaneShareButtonDarkMode());
-		}
+		shareButton.setStyle(styleManager.resultsPaneShareButtonStyle());
 		VBox.setMargin(shareButton, new Insets(21, 0, 20, 0));
 
 		shareButton.setTranslateY(4);
@@ -845,13 +743,7 @@ public class GameBoard extends Application {
 		resultsLayout.getChildren().addAll(titleLabel, connectionsLabel, gridPane, timerBox, shareButton);
 
 		StackPane resultsPane = new StackPane(resultsLayout);
-
-		if (darkModeToggle.isDarkMode()) {
-			resultsPane.setStyle(styleManager.getResultsPaneDarkMode());
-		} else {
-			resultsPane.setStyle(styleManager.getResultsPaneNormalMode());
-		}
-
+		resultsPane.setStyle(styleManager.resultsPaneStyle());
 		resultsPane.setPrefSize(667, 402 + (guessCount * 40) + ((guessCount - 1) * GAP));
 		resultsPane.setMaxWidth(667);
 		resultsPane.setMaxHeight(402 + (guessCount * 40) + ((guessCount - 1) * GAP));
@@ -1072,7 +964,7 @@ public class GameBoard extends Application {
 					gameDeselect();
 					PauseTransition removeCircleDelay = new PauseTransition(Duration.millis(500));
 					removeCircleDelay.setOnFinished(removeCircleEvent -> {
-						removeCircle(circlePane);
+						mistakesPane.removeCircle();
 						enableButtons();
 						enableRectangles();
 						if (gameLost) {
@@ -1235,11 +1127,7 @@ public class GameBoard extends Application {
 		shuffleButton.setDisable(true);
 		deselectButton.setDisable(true);
 		submitButton.setDisable(true);
-		if (darkModeToggle.isDarkMode()) {
-			submitButton.setStyle(styleManager.getButtonDarkMode());
-		} else {
-			submitButton.setStyle(styleManager.getButtonNormalMode());
-		}
+		submitButton.setStyle(styleManager.buttonStyle());
 	}
 
 	private void enableButtons() {

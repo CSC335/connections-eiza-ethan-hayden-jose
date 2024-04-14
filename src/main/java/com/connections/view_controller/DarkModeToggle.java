@@ -24,9 +24,9 @@ public class DarkModeToggle extends StackPane {
 		this.styleManager = gameBoard.getStyleManager();
 		label = new Label();
 		label.setPrefSize(92.5, 37);
-		label.setStyle(styleManager.getLabelNormalMode());
+		label.setStyle(styleManager.labelStyle());
 		circle = new Circle(16.65);
-		circle.setStyle(styleManager.getCircleLightMode());
+		circle.setStyle(styleManager.circleStyle());
 		circle.setTranslateX(-27.5);
 
 		moonIconSVG = new SVGPath();
@@ -65,9 +65,9 @@ public class DarkModeToggle extends StackPane {
 		gameBoard.getStyleManager().setDarkMode(isDarkMode);
 		TranslateTransition transition = new TranslateTransition(Duration.millis(300), circle);
 		TranslateTransition transitionSVG = new TranslateTransition(Duration.millis(300), svgPane);
+		label.setStyle(styleManager.labelStyle());
+		circle.setStyle(styleManager.circleStyle());
 		if (isDarkMode) {
-			label.setStyle(styleManager.getLabelDarkMode());
-			circle.setStyle(styleManager.getCircleDarkMode());
 			transition.setToX(27.5);
 			transitionSVG.setToX(27.5);
 			moonIconSVG.setVisible(true);
@@ -75,8 +75,6 @@ public class DarkModeToggle extends StackPane {
 			styleManager.setDarkMode(true);
 			gameBoard.applyDarkMode();
 		} else {
-			label.setStyle(styleManager.getLabelNormalMode());
-			circle.setStyle(styleManager.getCircleLightMode());
 			transition.setToX(-27.5);
 			transitionSVG.setToX(-27.5);
 			moonIconSVG.setVisible(false);

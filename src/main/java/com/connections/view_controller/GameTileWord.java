@@ -4,6 +4,7 @@ import com.connections.model.*;
 import javafx.animation.FadeTransition;
 import javafx.animation.FillTransition;
 import javafx.animation.ParallelTransition;
+import javafx.animation.ScaleTransition;
 import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
@@ -15,6 +16,7 @@ import javafx.util.Duration;
 
 public class GameTileWord extends StackPane {
 	protected static final int FILL_TRANSITION_MS = 100;
+	protected static final int FILL_PULSE_TRANSITION_MS = 750;
 	private boolean selected;
 	private boolean incorrect;
 	private boolean styleChangeable;
@@ -60,7 +62,7 @@ public class GameTileWord extends StackPane {
 			text.setText(word.getText().toUpperCase());
 		}
 	}
-	
+
 	public void setStyleChangeable(boolean styleChangeable) {
 		this.styleChangeable = styleChangeable;
 	}
@@ -122,9 +124,9 @@ public class GameTileWord extends StackPane {
 	private void setStyleIncorrect() {
 		styleTransition(styleManager.colorIncorrectRectangle(), styleManager.colorTextInverted());
 	}
-	
+
 	private void styleTransition(Color rectangleFill, Color textFill) {
-		if(styleChangeable) {
+		if (styleChangeable) {
 			FillTransition rectangleFillTransition = new FillTransition(Duration.millis(FILL_TRANSITION_MS), rectangle);
 			rectangleFillTransition.setToValue(rectangleFill);
 			FillTransition textFillTransition = new FillTransition(Duration.millis(FILL_TRANSITION_MS), text);
@@ -132,6 +134,38 @@ public class GameTileWord extends StackPane {
 			ParallelTransition parallelTransition = new ParallelTransition(rectangleFillTransition, textFillTransition);
 			parallelTransition.play();
 		}
+	}
+
+	public ParallelTransition getPulseAnswerColorAnimation() {
+		if (word == null || !styleChangeable) {
+			return new ParallelTransition();
+		}
+		Color answerColor = styleManager.colorDifficulty(word.getColor());
+		ScaleTransition pieceScaleTransition = new ScaleTransition(Duration.millis(FILL_PULSE_TRANSITION_MS), this);
+		pieceScaleTransition.setFromX(1);
+		pieceScaleTransition.setFromY(1);
+		pieceScaleTransition.setToX(1.3);
+		pieceScaleTransition.setToY(1.3);
+		pieceScaleTransition.setCycleCount(8);
+		pieceScaleTransition.setAutoReverse(true);
+		FadeTransition pieceFadeTransition = new FadeTransition(Duration.millis(FILL_PULSE_TRANSITION_MS), this);
+		pieceFadeTransition.setFromValue(1.0);
+		pieceFadeTransition.setToValue(0.75);
+		pieceFadeTransition.setCycleCount(8);
+		pieceFadeTransition.setAutoReverse(true);
+		FillTransition rectangleFillTransition = new FillTransition(Duration.millis(FILL_PULSE_TRANSITION_MS),
+				rectangle);
+		rectangleFillTransition.setToValue(answerColor);
+		rectangleFillTransition.setCycleCount(8);
+		rectangleFillTransition.setAutoReverse(true);
+		FillTransition textFillTransition = new FillTransition(Duration.millis(FILL_PULSE_TRANSITION_MS), text);
+		textFillTransition.setToValue(styleManager.colorTextNeutral());
+		textFillTransition.setCycleCount(8);
+		textFillTransition.setAutoReverse(true);
+		ParallelTransition parallelTransition = new ParallelTransition(pieceScaleTransition, pieceFadeTransition,
+				rectangleFillTransition, textFillTransition);
+		return parallelTransition;
+
 	}
 
 	public void disable() {
@@ -158,32 +192,12 @@ public class GameTileWord extends StackPane {
 			deselectButton.setDisable(gameBoard.getSelectedCount() == 0);
 			submitButton.setDisable(gameBoard.getSelectedCount() != GameBoard.MAX_SELECTED);
 
-			if (gameBoard.getSelectedCount() != 0) {
-				if (gameBoard.getDarkModeToggle().isDarkMode()) {
-					deselectButton.setStyle(styleManager.getButtonDarkMode());
-				} else {
-					deselectButton.setStyle(styleManager.getButtonNormalMode());
-				}
-			} else {
-				if (gameBoard.getDarkModeToggle().isDarkMode()) {
-					deselectButton.setStyle(styleManager.getButtonDarkMode());
-				} else {
-					deselectButton.setStyle(styleManager.getButtonNormalMode());
-				}
-			}
+			deselectButton.setStyle(styleManager.buttonStyle());
 
 			if (gameBoard.getSelectedCount() == GameBoard.MAX_SELECTED) {
-				if (gameBoard.getDarkModeToggle().isDarkMode()) {
-					submitButton.setStyle(styleManager.getSubmitButtonFillDarkMode());
-				} else {
-					submitButton.setStyle(styleManager.getSubmitButtonFillNormalMode());
-				}
+				submitButton.setStyle(styleManager.submitButtonFillStyle());
 			} else {
-				if (gameBoard.getDarkModeToggle().isDarkMode()) {
-					submitButton.setStyle(styleManager.getButtonDarkMode());
-				} else {
-					submitButton.setStyle(styleManager.getButtonNormalMode());
-				}
+				submitButton.setStyle(styleManager.buttonStyle());
 			}
 		});
 
@@ -207,13 +221,13 @@ public class GameTileWord extends StackPane {
 			setStyleDefault();
 		}
 	}
-	
-	public void fadeInWordText(ParallelTransition fadeInTransition) {
-	    text.setOpacity(0);
 
-	    FadeTransition fadeTransition = new FadeTransition(Duration.millis(500), text);
-	    fadeTransition.setFromValue(0);
-	    fadeTransition.setToValue(1);
-	    fadeInTransition.getChildren().add(fadeTransition);
+	public void fadeInWordText(ParallelTransition fadeInTransition) {
+		text.setOpacity(0);
+
+		FadeTransition fadeTransition = new FadeTransition(Duration.millis(500), text);
+		fadeTransition.setFromValue(0);
+		fadeTransition.setToValue(1);
+		fadeInTransition.getChildren().add(fadeTransition);
 	}
 }
