@@ -42,8 +42,8 @@ public class StyleManager {
 	protected static final String buttonDarkMode = "-fx-background-color: black; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 1px; -fx-border-radius: 50;";
 	protected static final String submitButtonFillDarkMode = "-fx-background-color: white; -fx-text-fill: black; -fx-background-radius: 50; -fx-border-radius: 50;";
 	protected static final String submitButtonFillNormalMode = "-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50;";
-	protected static final String resultsPaneShareButtonNormalMode = "-fx-background-color: white; -fx-text-fill: black; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;";
-	protected static final String resultsPaneShareButtonDarkMode = "-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;";
+	protected static final String resultsPaneShareButtonDarkMode = "-fx-background-color: white; -fx-text-fill: black; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;";
+	protected static final String resultsPaneShareButtonNormalMode = "-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;";
 	protected static final String overlayPaneNormalMode = "-fx-background-color: white; -fx-effect: dropshadow(gaussian, black, 20, 0, 0, 0);";
 	protected static final String overlayPaneDarkMode = "-fx-background-color: black; -fx-effect: dropshadow(gaussian, rgb(176, 247, 121), 20, 0, 0, 0);";
 	protected static final String wholeGameDarkMode = "-fx-background-color: black;";
