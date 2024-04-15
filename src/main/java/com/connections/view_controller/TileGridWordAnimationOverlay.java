@@ -21,27 +21,25 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
-public class AnimationPane extends Pane {
+public class TileGridWordAnimationOverlay extends Pane implements Modular {
 	private static final int SWAP_TRANS_MS = 350;
 	private static final int BUFFER_MS = 5;
 	private static final int PLACEHOLDER_MS = 5;
 
-	private GridPane gameBoardGridPane;
-	private GameBoard gameBoard;
-	
+	private TileGridWord tileGridWord;
+
 	private boolean allowChangeVisibility = true;
 	private boolean paneShouldBeVisible = false;
 
-	public AnimationPane(GameBoard gameBoard) {
-		this.gameBoard = gameBoard;
-		this.gameBoardGridPane = gameBoard.getWordGridPane();
+	public TileGridWordAnimationOverlay(TileGridWord tileGridWord) {
+		this.tileGridWord = tileGridWord;
 	}
-	
+
 	private class EaseOutInterpolator extends Interpolator {
-	    @Override
-	    protected double curve(double t) {
-	    	return 1-Math.pow(1-t, 3);
-	    }
+		@Override
+		protected double curve(double t) {
+			return 1 - Math.pow(1 - t, 3);
+		}
 	}
 
 	private void getWordSwap(Set<GameTileWord> ghostPieceSet, ParallelTransition parallel, int destRow, int destCol,
@@ -75,18 +73,18 @@ public class AnimationPane extends Pane {
 
 	private void getSwapRowColIndex(Set<GameTileWord> pieceSet, List<Integer> destRowList, List<Integer> destColList,
 			List<Integer> sourceRowList, List<Integer> sourceColList) {
-		for (int c = 0; c < GameBoard.COLS; c++) {
-			GameTileWord tileWord = (GameTileWord) getGridNode(gameBoard.getCurrentRow(), c);
+		for (int c = 0; c < TileGridWord.COLS; c++) {
+			GameTileWord tileWord = (GameTileWord) tileGridWord.gridGetNode(tileGridWord.getCurrentSolvingRow(), c);
 			if (!tileWord.getSelectedStatus()) {
-				sourceRowList.add(gameBoard.getCurrentRow());
+				sourceRowList.add(tileGridWord.getCurrentSolvingRow());
 				sourceColList.add(c);
 				pieceSet.add(tileWord);
 			}
 		}
 
-		for (int r = gameBoard.getCurrentRow() + 1; r < GameBoard.ROWS; r++) {
-			for (int c = 0; c < GameBoard.COLS; c++) {
-				GameTileWord tileWord = (GameTileWord) getGridNode(r, c);
+		for (int r = tileGridWord.getCurrentSolvingRow() + 1; r < TileGridWord.ROWS; r++) {
+			for (int c = 0; c < TileGridWord.COLS; c++) {
+				GameTileWord tileWord = (GameTileWord) tileGridWord.gridGetNode(r, c);
 				if (tileWord.getSelectedStatus()) {
 					destRowList.add(r);
 					destColList.add(c);
@@ -96,32 +94,19 @@ public class AnimationPane extends Pane {
 		}
 	}
 
-	private void getAllSelectedWordTiles(Set<GameTileWord> selectedPieceSet) {
-		for (int r = gameBoard.getCurrentRow(); r < GameBoard.ROWS; r++) {
-			for (int c = 0; c < GameBoard.COLS; c++) {
-				GameTileWord tileWord = (GameTileWord) getGridNode(r, c);
-
-				if (tileWord.getSelectedStatus()) {
-					selectedPieceSet.add(tileWord);
-				}
-			}
-		}
-	}
-
 	public SequentialTransition getSequenceCorrectAnswer() {
-		Set<GameTileWord> originalSelectedPieceSet = new HashSet<>();
 		Set<GameTileWord> originalPieceSet = new HashSet<>();
 		Set<GameTileWord> ghostPieceSet = new HashSet<>();
 		List<Integer> destRowList = new ArrayList<>();
 		List<Integer> destColList = new ArrayList<>();
 		List<Integer> sourceRowList = new ArrayList<>();
 		List<Integer> sourceColList = new ArrayList<>();
-		
+
 		SequentialTransition sequence = new SequentialTransition();
 
 		PauseTransition pausePrepareSwapping = new PauseTransition(Duration.millis(PLACEHOLDER_MS));
 		pausePrepareSwapping.setOnFinished(event -> {
-			if(allowChangeVisibility) {
+			if (allowChangeVisibility) {
 				this.setVisible(true);
 			}
 			paneShouldBeVisible = true;
@@ -135,7 +120,7 @@ public class AnimationPane extends Pane {
 
 		ParallelTransition parallelSwapPieces = new ParallelTransition();
 		getSwapRowColIndex(originalPieceSet, destRowList, destColList, sourceRowList, sourceColList);
-		getAllSelectedWordTiles(originalSelectedPieceSet);
+		Set<GameTileWord> originalSelectedPieceSet = tileGridWord.getSelectedTileWords();
 
 		for (int i = 0; i < destRowList.size(); i++) {
 			getWordSwap(ghostPieceSet, parallelSwapPieces, destRowList.get(i), destColList.get(i), sourceRowList.get(i),
@@ -146,18 +131,11 @@ public class AnimationPane extends Pane {
 		pauseDuringSwapping.setOnFinished(event -> {
 			this.getChildren().removeAll(ghostPieceSet);
 			for (int i = 0; i < destRowList.size(); i++) {
-				swapGridNode(destRowList.get(i), destColList.get(i), sourceRowList.get(i), sourceColList.get(i));
+				tileGridWord.gridSwapNode(destRowList.get(i), destColList.get(i), sourceRowList.get(i), sourceColList.get(i));
 			}
-			for (Node node : gameBoardGridPane.getChildren()) {
-				if (GridPane.getRowIndex(node) >= gameBoard.getCurrentRow()) {
-					node.setVisible(true);
-				}
-			}
-			if(allowChangeVisibility) {
-				this.setVisible(false);
-			}
-			paneShouldBeVisible = false;
-			gameBoard.advanceRow();
+			tileGridWord.gridSetNonSolvingNodeVisible(false);
+			setVisibleWeak(false);
+			tileGridWord.incrementCurrentSolvingRow();
 		});
 
 		sequence.getChildren().addAll(pausePrepareSwapping, parallelSwapPieces, pauseDuringSwapping);
@@ -169,7 +147,7 @@ public class AnimationPane extends Pane {
 
 		GameAnswerColor matchedAnswer = null;
 		for (DifficultyColor color : DifficultyColor.getAllColors()) {
-			GameAnswerColor colorAnswer = gameBoard.getCurrentGame().getAnswerForColor(color);
+			GameAnswerColor colorAnswer = tileGridWord.getGameSessionContext().getGameData().getAnswerForColor(color);
 			if (colorAnswer.wordMatchesSet(displayRowWordsLower)) {
 				matchedAnswer = colorAnswer;
 				break;
@@ -177,34 +155,27 @@ public class AnimationPane extends Pane {
 		}
 
 		if (matchedAnswer != null) {
-			GameTileAnswer tileAnswer = new GameTileAnswer(matchedAnswer, gameBoard);
+			GameTileAnswer tileAnswer = new GameTileAnswer(matchedAnswer, tileGridWord);
 			tileAnswer.setLayoutX(0);
-			tileAnswer.setLayoutY((GameBoard.GAP + GameBoard.RECTANGLE_HEIGHT) * gameBoard.getCurrentRow());
+			tileAnswer.setLayoutY((TileGridWord.GAP + GameTile.RECTANGLE_HEIGHT) * tileGridWord.getCurrentSolvingRow());
 
 			PauseTransition pauseBeforeDisplayAnswer = new PauseTransition(Duration.millis(PLACEHOLDER_MS));
 			pauseBeforeDisplayAnswer.setOnFinished(event -> {
 				this.getChildren().add(tileAnswer);
-				if(allowChangeVisibility) {
-					this.setVisible(true);
-				}
-				paneShouldBeVisible = true;
+				setVisibleWeak(true);
 				for (Node node : originalSelectedPieceSet) {
 					node.setVisible(false);
 				}
 			});
-			
+
 			ParallelTransition tileAppear = tileAnswer.getAppearAnimation();
-			
+
 			tileAppear.setOnFinished(event -> {
 				this.getChildren().remove(tileAnswer);
-				if(allowChangeVisibility) {
-					this.setVisible(false);
-				}
-				paneShouldBeVisible = false;
-				gameBoardGridPane.getChildren().removeAll(originalSelectedPieceSet);
-				gameBoardGridPane.add(tileAnswer, 0, gameBoard.getCurrentRow() - 1);
-				GridPane.setColumnSpan(tileAnswer, GameBoard.COLS);
-				gameBoard.gameDeselect();
+				setVisibleWeak(false);
+				tileGridWord.gridRemoveNodeSet(originalSelectedPieceSet);
+				tileGridWord.gridSetTileAnswer(tileAnswer);
+				tileGridWord.deselectTileWords();
 			});
 
 			sequence.getChildren().addAll(pauseBeforeDisplayAnswer, tileAppear);
@@ -216,7 +187,7 @@ public class AnimationPane extends Pane {
 	}
 
 	private GameTileWord createGhostPiece(int row, int col) {
-		GameTileWord original = (GameTileWord) getGridNode(row, col);
+		GameTileWord original = (GameTileWord) tileGridWord.gridGetNode(row, col);
 		GameTileWord copy = new GameTileWord(original);
 		copy.disable();
 
@@ -226,45 +197,31 @@ public class AnimationPane extends Pane {
 
 		return copy;
 	}
-
-	private void swapGridNode(int sourceRow, int sourceCol, int destRow, int destCol) {
-		Node node1 = getGridNode(sourceRow, sourceCol);
-		Node node2 = getGridNode(destRow, destCol);
-
-		gameBoardGridPane.getChildren().removeAll(node1, node2);
-
-		gameBoardGridPane.add(node1, destCol, destRow);
-		gameBoardGridPane.add(node2, sourceCol, sourceRow);
-	}
-
-	private Node getGridNode(int row, int column) {
-		for (Node node : gameBoardGridPane.getChildren()) {
-			if (GridPane.getRowIndex(node) == row && GridPane.getColumnIndex(node) == column) {
-				return node;
-			}
+	
+	private void setVisibleWeak(boolean status) {
+		if (allowChangeVisibility) {
+			this.setVisible(status);
 		}
-		return null;
-	}
-	
-	public void refreshStyle() {
-		for(Node node : getChildren()) {
-			if(node instanceof GameTileWord) {
-				((GameTileWord) node).refreshStyle();
-			} else if(node instanceof GameTileAnswer) {
-				((GameTileAnswer) node).refreshStyle();
-			}
-		}
-	}
-	
-	public boolean getAllowChangeVisibility() {
-		return allowChangeVisibility;
-	}
-	
-	public boolean getPaneShouldBeVisible() {
-		return paneShouldBeVisible;
+		paneShouldBeVisible = status;
 	}
 
-	public void setAllowChangeVisibility(boolean status) {
+	public void setVisibleDynamic(boolean status) {
 		allowChangeVisibility = status;
+		this.setVisible(paneShouldBeVisible);
+	}
+	
+	@Override
+	public void refreshStyle() {
+		for (Node node : getChildren()) {
+			if (node instanceof Modular) {
+				Modular stylableNode = (Modular) node;
+				stylableNode.refreshStyle();
+			}
+		}
+	}
+
+	@Override
+	public GameSessionContext getGameSessionContext() {
+		return tileGridWord.getGameSessionContext();
 	}
 }

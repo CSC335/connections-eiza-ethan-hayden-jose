@@ -1,6 +1,8 @@
 package com.connections.view_controller;
 
 import javafx.animation.TranslateTransition;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -9,24 +11,22 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.SVGPath;
 import javafx.util.Duration;
 
-public class DarkModeToggle extends StackPane {
+public class DarkModeToggle extends StackPane implements Modular {
 	private boolean isDarkMode;
 	private Label label;
 	private Circle circle;
-	private GameBoard gameBoard;
-	private StyleManager styleManager;
 	private Pane svgPane;
 	private SVGPath sunIconSVG;
 	private SVGPath moonIconSVG;
+	private GameSessionContext gameSessionContext;
+//	DO NOT DELETE THIS FOR NOW!!!
+//	private EventHandler<ActionEvent> onToggle;
 
-	public DarkModeToggle(GameBoard gameBoard) {
-		this.gameBoard = gameBoard;
-		this.styleManager = gameBoard.getStyleManager();
+	public DarkModeToggle(GameSessionContext gameSessionContext) {
+		this.gameSessionContext = gameSessionContext;
 		label = new Label();
 		label.setPrefSize(92.5, 37);
-		label.setStyle(styleManager.labelStyle());
 		circle = new Circle(16.65);
-		circle.setStyle(styleManager.circleStyle());
 		circle.setTranslateX(-27.5);
 
 		moonIconSVG = new SVGPath();
@@ -58,35 +58,55 @@ public class DarkModeToggle extends StackPane {
 
 		label.setOnMouseClicked(event -> toggle());
 		knobPane.setOnMouseClicked(event -> toggle());
+		
+		refreshStyle();
 	}
 
 	public void toggle() {
+		StyleManager styleManager = gameSessionContext.getStyleManager();
+
 		isDarkMode = !isDarkMode;
-		gameBoard.getStyleManager().setDarkMode(isDarkMode);
+		gameSessionContext.getStyleManager().setDarkMode(isDarkMode);
 		TranslateTransition transition = new TranslateTransition(Duration.millis(300), circle);
 		TranslateTransition transitionSVG = new TranslateTransition(Duration.millis(300), svgPane);
-		label.setStyle(styleManager.labelStyle());
-		circle.setStyle(styleManager.circleStyle());
 		if (isDarkMode) {
 			transition.setToX(27.5);
 			transitionSVG.setToX(27.5);
 			moonIconSVG.setVisible(true);
 			sunIconSVG.setVisible(false);
 			styleManager.setDarkMode(true);
-			gameBoard.applyDarkMode();
+//			DO NOT DELETE THIS FOR NOW!!!
+			// todo: notify game session through event handler
+//			onToggle.handle(new ActionEvent(this, null));
 		} else {
 			transition.setToX(-27.5);
 			transitionSVG.setToX(-27.5);
 			moonIconSVG.setVisible(false);
 			sunIconSVG.setVisible(true);
 			styleManager.setDarkMode(false);
-			gameBoard.applyLightMode();
+//			DO NOT DELETE THIS FOR NOW!!!			
+//			onToggle.handle(new ActionEvent(this, null));
 		}
 		transition.play();
 		transitionSVG.play();
 	}
+//	DO NOT DELETE THIS FOR NOW!!!
+//	public void setOnToggle(EventHandler<ActionEvent> handler) {
+//		onToggle = handler;
+//	}
 
 	public boolean isDarkMode() {
 		return isDarkMode;
+	}
+
+	@Override
+	public void refreshStyle() {
+		label.setStyle(gameSessionContext.getStyleManager().labelStyle());
+		circle.setStyle(gameSessionContext.getStyleManager().circleStyle());
+	}
+
+	@Override
+	public GameSessionContext getGameSessionContext() {
+		return gameSessionContext;
 	}
 }

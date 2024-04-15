@@ -14,9 +14,9 @@ import javafx.scene.shape.SVGPath;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
-public class HintButton extends SVGButton  {
-	public HintButton(GameBoard gameBoard) {
-		super(gameBoard);
+public class HintMenuButton extends SVGButton  {
+	public HintMenuButton(GameSessionContext gameSessionContext) {
+		super(gameSessionContext);
 		
 		SVGPath hintSVG = new SVGPath();
 		hintSVG.setContent(
@@ -32,6 +32,6 @@ public class HintButton extends SVGButton  {
 	
 	@Override
 	public void refreshStyle() {
-		svgPath.setFill(styleManager.colorText());
+		svgPath.setFill(gameSessionContext.getStyleManager().colorText());
 	}
 }

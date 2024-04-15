@@ -3,9 +3,9 @@ package com.connections.view_controller;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
 
-public class LeaderboardButton extends SVGButton {
-	public LeaderboardButton(GameBoard gameBoard) {
-		super(gameBoard);
+public class LeaderboardMenuButton extends SVGButton {
+	public LeaderboardMenuButton(GameSessionContext gameSessionContext) {
+		super(gameSessionContext);
 		
 		SVGPath leaderBoardIconSVG = new SVGPath();
 		leaderBoardIconSVG.setContent(
@@ -24,7 +24,7 @@ public class LeaderboardButton extends SVGButton {
 	
 	@Override
 	public void refreshStyle() {
-		svgPath.setFill(styleManager.colorWholeGameBackground());
-		svgPath.setStroke(styleManager.colorText());
+		svgPath.setFill(gameSessionContext.getStyleManager().colorWholeGameBackground());
+		svgPath.setStroke(gameSessionContext.getStyleManager().colorText());
 	}
 }

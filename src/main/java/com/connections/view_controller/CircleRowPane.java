@@ -9,19 +9,17 @@ import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
-public class CircleRowPane extends HBox {
-	private GameBoard gameBoard;
-	private StyleManager styleManager;
+public class CircleRowPane extends HBox implements Modular {
+	private GameSessionContext gameSessionContext;
 	private Pane circlePane;
 	private Text text;
 	private final static int START_SIZE = 4;
 	
-	public CircleRowPane(String label, GameBoard gameBoard) {
-		this.gameBoard = gameBoard;
-		this.styleManager = gameBoard.getStyleManager();
+	public CircleRowPane(String label, GameSessionContext gameSessionContext) {
+		this.gameSessionContext = gameSessionContext;
 		
 		text = new Text(label);
-		text.setFont(styleManager.getFont("franklin-normal", 500, 16));
+		text.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 500, 16));
 		
 		circlePane = new Pane();
 		circlePane.setPrefWidth(100);
@@ -31,6 +29,7 @@ public class CircleRowPane extends HBox {
 		setSpacing(10);
 		setAlignment(Pos.CENTER);
 		getChildren().addAll(text, circlePane);
+		refreshStyle();
 	}
 	
 	public boolean removeCircle() {
@@ -65,7 +64,13 @@ public class CircleRowPane extends HBox {
 		}
 	}
 	
+	@Override
 	public void refreshStyle() {
-		text.setFill(styleManager.colorText());
+		text.setFill(gameSessionContext.getStyleManager().colorText());
+	}
+	
+	@Override
+	public GameSessionContext getGameSessionContext() {
+		return gameSessionContext;
 	}
 }

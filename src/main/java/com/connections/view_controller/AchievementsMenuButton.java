@@ -3,9 +3,9 @@ package com.connections.view_controller;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
 
-public class AchievementsButton extends SVGButton {
-	public AchievementsButton(GameBoard gameBoard) {
-		super(gameBoard);
+public class AchievementsMenuButton extends SVGButton {
+	public AchievementsMenuButton(GameSessionContext gameSessionContext) {
+		super(gameSessionContext);
 		
 		SVGPath achievementsIconSVG = new SVGPath();
 		achievementsIconSVG.setContent(
@@ -24,7 +24,7 @@ public class AchievementsButton extends SVGButton {
 	
 	@Override
 	public void refreshStyle() {
-		svgPath.setFill(styleManager.colorWholeGameBackground());
-		svgPath.setStroke(styleManager.colorText());
+		svgPath.setFill(gameSessionContext.getStyleManager().colorWholeGameBackground());
+		svgPath.setStroke(gameSessionContext.getStyleManager().colorText());
 	}
 }

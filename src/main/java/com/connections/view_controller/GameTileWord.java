@@ -14,7 +14,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
-public class GameTileWord extends StackPane {
+public class GameTileWord extends StackPane implements Modular {
 	protected static final int FILL_TRANSITION_MS = 100;
 	protected static final int FILL_PULSE_TRANSITION_MS = 750;
 	private boolean selected;
@@ -24,15 +24,13 @@ public class GameTileWord extends StackPane {
 	private Text text;
 	private Font font;
 	private Word word;
-	private StyleManager styleManager;
-	private GameBoard gameBoard;
+	private TileGridWord tileGridWord;
 
 	public GameTileWord(GameTileWord other) {
 		selected = other.selected;
 		incorrect = other.incorrect;
 		styleChangeable = other.styleChangeable;
-		styleManager = other.styleManager;
-		gameBoard = other.gameBoard;
+		tileGridWord = other.tileGridWord;
 		word = other.word;
 		font = other.font;
 
@@ -41,18 +39,17 @@ public class GameTileWord extends StackPane {
 		refreshStyle();
 	}
 
-	public GameTileWord(Font font, GameBoard gameBoard) {
+	public GameTileWord(Font font, TileGridWord tileGridWord) {
 		this.word = null;
 		this.font = font;
-		this.gameBoard = gameBoard;
-		this.styleManager = gameBoard.getStyleManager();
+		this.tileGridWord = tileGridWord;
 		this.styleChangeable = true;
 		initAssets();
 		enable();
 	}
 
-	public GameTileWord(Word word, Font font, GameBoard gameBoard) {
-		this(font, gameBoard);
+	public GameTileWord(Word word, Font font, TileGridWord tileGridWord) {
+		this(font, tileGridWord);
 		setWord(word);
 	}
 
@@ -100,29 +97,29 @@ public class GameTileWord extends StackPane {
 	}
 
 	private void initAssets() {
-		rectangle = new Rectangle(GameBoard.RECTANGLE_WIDTH, GameBoard.RECTANGLE_HEIGHT);
-		rectangle.setArcWidth(GameBoard.CORNER_RADIUS);
-		rectangle.setArcHeight(GameBoard.CORNER_RADIUS);
-		rectangle.setFill(styleManager.colorDefaultRectangle());
+		rectangle = new Rectangle(GameTile.RECTANGLE_WIDTH, GameTile.RECTANGLE_HEIGHT);
+		rectangle.setArcWidth(GameTile.CORNER_RADIUS);
+		rectangle.setArcHeight(GameTile.CORNER_RADIUS);
+		rectangle.setFill(tileGridWord.getGameSessionContext().getStyleManager().colorDefaultRectangle());
 
 		text = new Text();
 		text.setFont(font);
-		text.setFill(styleManager.colorText());
+		text.setFill(tileGridWord.getGameSessionContext().getStyleManager().colorText());
 		setWord(word);
 
 		this.getChildren().addAll(rectangle, text);
 	}
 
 	private void setStyleDefault() {
-		styleTransition(styleManager.colorDefaultRectangle(), styleManager.colorText());
+		styleTransition(tileGridWord.getGameSessionContext().getStyleManager().colorSelectedRectangle(), tileGridWord.getGameSessionContext().getStyleManager().colorText());
 	}
 
 	private void setStyleSelected() {
-		styleTransition(styleManager.colorSelectedRectangle(), styleManager.colorTextInverted());
+		styleTransition(tileGridWord.getGameSessionContext().getStyleManager().colorSelectedRectangle(), tileGridWord.getGameSessionContext().getStyleManager().colorTextInverted());
 	}
 
 	private void setStyleIncorrect() {
-		styleTransition(styleManager.colorIncorrectRectangle(), styleManager.colorTextInverted());
+		styleTransition(tileGridWord.getGameSessionContext().getStyleManager().colorIncorrectRectangle(), tileGridWord.getGameSessionContext().getStyleManager().colorTextInverted());
 	}
 
 	private void styleTransition(Color rectangleFill, Color textFill) {
@@ -140,7 +137,7 @@ public class GameTileWord extends StackPane {
 		if (word == null || !styleChangeable) {
 			return new ParallelTransition();
 		}
-		Color answerColor = styleManager.colorDifficulty(word.getColor());
+		Color answerColor = tileGridWord.getGameSessionContext().getStyleManager().colorDifficulty(word.getColor());
 		ScaleTransition pieceScaleTransition = new ScaleTransition(Duration.millis(FILL_PULSE_TRANSITION_MS), this);
 		pieceScaleTransition.setFromX(1);
 		pieceScaleTransition.setFromY(1);
@@ -159,7 +156,7 @@ public class GameTileWord extends StackPane {
 		rectangleFillTransition.setCycleCount(8);
 		rectangleFillTransition.setAutoReverse(true);
 		FillTransition textFillTransition = new FillTransition(Duration.millis(FILL_PULSE_TRANSITION_MS), text);
-		textFillTransition.setToValue(styleManager.colorTextNeutral());
+		textFillTransition.setToValue(tileGridWord.getGameSessionContext().getStyleManager().colorTextNeutral());
 		textFillTransition.setCycleCount(8);
 		textFillTransition.setAutoReverse(true);
 		ParallelTransition parallelTransition = new ParallelTransition(pieceScaleTransition, pieceFadeTransition,
@@ -178,26 +175,12 @@ public class GameTileWord extends StackPane {
 	public void enable() {
 		this.setDisable(false);
 		this.setOnMouseClicked(event -> {
-			if (!selected && gameBoard.getSelectedCount() < GameBoard.MAX_SELECTED) {
+			if (!selected && tileGridWord.getSelectedTileWordCount() < TileGridWord.MAX_SELECTED) {
 				setSelectedStatus(true);
-				gameBoard.incrementSelectedCount();
+				tileGridWord.incrementSelectedTileWordCount();
 			} else if (selected) {
 				setSelectedStatus(false);
-				gameBoard.decrementSelectedCount();
-			}
-
-			Button deselectButton = gameBoard.getDeselectButton();
-			Button submitButton = gameBoard.getSubmitButton();
-
-			deselectButton.setDisable(gameBoard.getSelectedCount() == 0);
-			submitButton.setDisable(gameBoard.getSelectedCount() != GameBoard.MAX_SELECTED);
-
-			deselectButton.setStyle(styleManager.buttonStyle());
-
-			if (gameBoard.getSelectedCount() == GameBoard.MAX_SELECTED) {
-				submitButton.setStyle(styleManager.submitButtonFillStyle());
-			} else {
-				submitButton.setStyle(styleManager.buttonStyle());
+				tileGridWord.decrementSelectedTileWordCount();
 			}
 		});
 
@@ -210,6 +193,16 @@ public class GameTileWord extends StackPane {
 		});
 	}
 
+	public void fadeInWordText(ParallelTransition fadeInTransition) {
+		text.setOpacity(0);
+
+		FadeTransition fadeTransition = new FadeTransition(Duration.millis(500), text);
+		fadeTransition.setFromValue(0);
+		fadeTransition.setToValue(1);
+		fadeInTransition.getChildren().add(fadeTransition);
+	}
+
+	@Override
 	public void refreshStyle() {
 		if (selected && incorrect) {
 			setStyleDefault();
@@ -222,12 +215,8 @@ public class GameTileWord extends StackPane {
 		}
 	}
 
-	public void fadeInWordText(ParallelTransition fadeInTransition) {
-		text.setOpacity(0);
-
-		FadeTransition fadeTransition = new FadeTransition(Duration.millis(500), text);
-		fadeTransition.setFromValue(0);
-		fadeTransition.setToValue(1);
-		fadeInTransition.getChildren().add(fadeTransition);
+	@Override
+	public GameSessionContext getGameSessionContext() {
+		return tileGridWord.getGameSessionContext();
 	}
 }

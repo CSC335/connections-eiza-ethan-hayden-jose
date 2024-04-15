@@ -13,34 +13,31 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
-public class GameTileAnswer extends StackPane {
+public class GameTileAnswer extends StackPane implements Modular {
 	private static final int POP_UP_MS = 125;
 	private static final int FADE_IN_MS = 500;
-	private GameBoard gameBoard;
 	private GameAnswerColor answer;
-	private StyleManager styleManager;
 	private Text categoryNameText;
 	private Text wordListText;
 	private VBox textVBox;
 	private Rectangle rectBackground;
+	private TileGridWord tileGridWord;
 	
-	public GameTileAnswer(GameAnswerColor answer, GameBoard gameBoard) {
-		this.answer = answer;
-		this.styleManager = gameBoard.getStyleManager();
-		this.gameBoard = gameBoard;
+	public GameTileAnswer(GameAnswerColor answer, TileGridWord tileGridWord) {
+		this.tileGridWord = tileGridWord;
 		this.answer = answer;
 		
 		categoryNameText = new Text(answer.getDescription().toUpperCase());
-		categoryNameText.setFont(styleManager.getFont("franklin-normal",700, 20));
+		categoryNameText.setFont(tileGridWord.getGameSessionContext().getStyleManager().getFont("franklin-normal",700, 20));
 
 		wordListText = new Text(answer.getWordListString());
-		wordListText.setFont(styleManager.getFont("franklin-normal",500, 20));
+		wordListText.setFont(tileGridWord.getGameSessionContext().getStyleManager().getFont("franklin-normal",500, 20));
 		
 		textVBox = new VBox(categoryNameText, wordListText);
 		textVBox.setAlignment(Pos.CENTER);
-		rectBackground = new Rectangle(GameBoard.RECTANGLE_WIDTH * 4 + GameBoard.GAP * 3, GameBoard.RECTANGLE_HEIGHT);
-		rectBackground.setArcWidth(GameBoard.CORNER_RADIUS);
-		rectBackground.setArcHeight(GameBoard.CORNER_RADIUS);
+		rectBackground = new Rectangle(TileGridWord.PANE_WIDTH, GameTile.RECTANGLE_HEIGHT);
+		rectBackground.setArcWidth(GameTile.CORNER_RADIUS);
+		rectBackground.setArcHeight(GameTile.CORNER_RADIUS);
 		
 		refreshStyle();
 
@@ -51,10 +48,8 @@ public class GameTileAnswer extends StackPane {
 		return answer;
 	}
 	
-	public void refreshStyle() {
-		wordListText.setFill(styleManager.colorTextNeutral());
-		categoryNameText.setFill(styleManager.colorTextNeutral());
-		rectBackground.setFill(styleManager.colorDifficulty(answer.getColor()));
+	public StyleManager getStyleManager() {
+		return tileGridWord.getGameSessionContext().getStyleManager();
 	}
 	
 	public ParallelTransition getAppearAnimation() {
@@ -73,5 +68,19 @@ public class GameTileAnswer extends StackPane {
 		ParallelTransition parallelTransition = new ParallelTransition(textFadeTransition, tileScaleTransition); 
 		
 		return parallelTransition;
+	}
+	
+	@Override
+	public void refreshStyle() {
+		StyleManager styleManager = tileGridWord.getGameSessionContext().getStyleManager();
+		
+		wordListText.setFill(styleManager.colorTextNeutral());
+		categoryNameText.setFill(styleManager.colorTextNeutral());
+		rectBackground.setFill(styleManager.colorDifficulty(answer.getColor()));
+	}
+
+	@Override
+	public GameSessionContext getGameSessionContext() {
+		return tileGridWord.getGameSessionContext();
 	}
 }
