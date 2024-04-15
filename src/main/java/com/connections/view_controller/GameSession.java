@@ -46,6 +46,7 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -56,7 +57,7 @@ import javafx.util.Duration;
 import javafx.scene.shape.SVGPath;
 
 public class GameSession extends Pane implements Modular {
-	private static final int POPUP_DEFAULT_DURATION_MS = 1000;
+	private static final int POPUP_DEFAULT_DURATION_MS = 3000;
 
 	private GameSessionContext gameSessionContext;
 
@@ -68,8 +69,6 @@ public class GameSession extends Pane implements Modular {
 	private CircleRowPane mistakesPane;
 	private HBox gameButtonRowPane;
 	private HBox menuButtonRowPane;
-	
-	private Button viewResultsButton;
 
 	private boolean wonGame;
 	private boolean gameActive;
@@ -85,21 +84,24 @@ public class GameSession extends Pane implements Modular {
 	private CircularButton gameSubmitButton;
 	private CircularButton gameDeselectButton;
 	private CircularButton gameShuffleButton;
-	
+	private CircularButton gameViewResultsButton;
+
 	private boolean submissionAnimationActive;
 
 	public GameSession(GameSessionContext gameSessionContext) {
 		this.gameSessionContext = gameSessionContext;
 		initAssets();
+		initListeners();
 	}
 
 	private void initAssets() {
-//		setPrefSize(GameBoard.STAGE_WIDTH, GameBoard.STAGE_HEIGHT);
-//		setStyle("-fx-border-color: red;");
-		
+		setPrefSize(GameBoard.STAGE_WIDTH, GameBoard.STAGE_HEIGHT);
+//		setStyle("-fx-border-color: orange;");
+
 		darkModeToggleMenuButton = new DarkModeToggle(gameSessionContext);
 
 		tileGridWord = new TileGridWord(gameSessionContext);
+		tileGridWord.initTileWords();
 		tileGridWordAnimationPane = new TileGridWordAnimationOverlay(tileGridWord);
 		tileGridStackPane = new StackPane(tileGridWord, tileGridWordAnimationPane);
 
@@ -113,9 +115,10 @@ public class GameSession extends Pane implements Modular {
 		hintsPane = new CircleRowPane("Hints remaining:", gameSessionContext);
 		mistakesPane = new CircleRowPane("Mistakes remaining:", gameSessionContext);
 
-		gameSubmitButton = new CircularButton("Shuffle", 88, gameSessionContext);
-		gameDeselectButton = new CircularButton("Deselect all", 120, gameSessionContext);
-		gameShuffleButton = new CircularButton("Submit", 88, gameSessionContext);
+		gameShuffleButton = new CircularButton("Shuffle", 88, gameSessionContext, false);
+		gameDeselectButton = new CircularButton("Deselect all", 120, gameSessionContext, false);
+		gameSubmitButton = new CircularButton("Submit", 88, gameSessionContext, true);
+		gameViewResultsButton = new CircularButton("View Results", 160, gameSessionContext, false);
 
 		gameButtonRowPane = new HBox(8);
 		gameButtonRowPane.setAlignment(Pos.CENTER);
@@ -125,28 +128,66 @@ public class GameSession extends Pane implements Modular {
 				darkModeToggleMenuButton);
 		menuButtonRowPane.setStyle("-fx-alignment: center-right;");
 
-		gameContentPane = new VBox(24, mainHeaderText, tileGridStackPane, hintsPane, mistakesPane, gameButtonRowPane);
+		// exclude the hints pane for now 
+		gameContentPane = new VBox(24, mainHeaderText, tileGridStackPane, mistakesPane, gameButtonRowPane);
 		gameContentPane.setAlignment(Pos.CENTER);
 
 		organizationPane = new BorderPane();
 		organizationPane.setPadding(new Insets(10));
 		organizationPane.setTop(menuButtonRowPane);
 		organizationPane.setCenter(gameContentPane);
+		organizationPane.setPrefSize(GameBoard.STAGE_WIDTH, GameBoard.STAGE_HEIGHT);
+
+//		organizationPane.setStyle("-fx-border-color: red;");
+//		tileGridWord.setStyle("-fx-border-color: red;");
+//		tileGridWord.setStyle("-fx-border-color: red;");
+//		tileGridWordAnimationPane.setStyle("-fx-border-color: red;");
+//		BorderPane.setAlignment(gameContentPane, Pos.CENTER);
 
 		getChildren().add(organizationPane);
+
+		setControlsNormal();
+		refreshStyle();
 	}
 
 	private void initListeners() {
+		tileGridWord.setOnTileWordSelection(event -> {
+			helperUpdateGameButtonStatus();
+		});
+		gameShuffleButton.setOnAction(event -> {
+			tileGridWord.shuffleTileWords();
+		});
+		gameSubmitButton.setOnAction(event -> {
+			sessionSubmissionAttempt();
+		});
+		gameSessionContext.getStyleManager().setOnDarkModeChange(event -> {
+			refreshStyle();
+		});
+		gameViewResultsButton.setOnAction(event -> {
+			
+		});
+	}
 
+	// VIEW: when ready to play the game (has all main buttons: submit, shuffle,
+	// deselect)
+	private void setControlsNormal() {
+		gameButtonRowPane.getChildren().clear();
+		gameButtonRowPane.getChildren().addAll(gameShuffleButton, gameDeselectButton, gameSubmitButton);
+		gameContentPane.getChildren().clear();
+		gameContentPane.getChildren().addAll(mainHeaderText, tileGridStackPane, mistakesPane, gameButtonRowPane);
+	}
+
+	// VIEW: when reached the end, only view results
+	private void setControlsViewResultsOnly() {
+		gameButtonRowPane.getChildren().clear();
+		gameButtonRowPane.getChildren().add(gameViewResultsButton);
+		gameContentPane.getChildren().clear();
+		gameContentPane.getChildren().addAll(mainHeaderText, tileGridStackPane, gameButtonRowPane);
 	}
 
 	public void sessionBeginNewGame() {
 		gameActive = true;
 		wonGame = false;
-	}
-
-	public void sessionSkipToEnd() {
-
 	}
 
 	public void sessionSubmissionAttempt() {
@@ -168,7 +209,7 @@ public class GameSession extends Pane implements Modular {
 				// incorrect
 			} else {
 				boolean lostGame = (mistakesPane.getNumCircles() == 1);
-				
+
 				SequentialTransition animation = helperCreateAnimationSubmissionIncorrect(lostGame, isOneAway);
 				animation.play();
 			}
@@ -181,7 +222,7 @@ public class GameSession extends Pane implements Modular {
 		popupNotification.popup(tileGridStackPane, duration);
 //		PauseTransition pause = new PauseTransition(Duration.millis(duration));
 //		tileGridWord.setTileWordDisable(true);
-		
+
 //		pause.setOnFinished(event -> {
 //			if(tileGridStackPane.getChildren().contains(popupNotification)) {
 //				tileGridStackPane.getChildren().remove(popupNotification);
@@ -198,13 +239,13 @@ public class GameSession extends Pane implements Modular {
 		gameActive = false;
 		tileGridWord.setTileWordDisable(true);
 		gameContentPane.getChildren().removeAll(gameButtonRowPane, mistakesPane);
-		
-		if(hintsPane != null && gameContentPane.getChildren().contains(hintsPane)) {
+
+		if (hintsPane != null && gameContentPane.getChildren().contains(hintsPane)) {
 			gameContentPane.getChildren().remove(hintsPane);
 		}
-		
-		viewResultsButton = new CircularButton("View Results", 160, gameSessionContext);
-		
+
+		gameViewResultsButton = new CircularButton("View Results", 160, gameSessionContext, true);
+
 //		disableGameBoard();
 //		gameDeselect();
 //		showResultsPane((Stage) wholeGameStackPane.getScene().getWindow());
@@ -234,6 +275,7 @@ public class GameSession extends Pane implements Modular {
 			pauseBeforeResultsTransition.setOnFinished(event -> {
 //				showResultsPane((Stage) wholeGameStackPane.getScene().getWindow());
 				tileGridWord.setTileWordStyleChangeable(true);
+				sessionReachedEndGame();
 			});
 			pauseBeforeResultsTransition.play();
 		}
@@ -256,54 +298,55 @@ public class GameSession extends Pane implements Modular {
 
 	private SequentialTransition helperCreateAnimationSubmissionIncorrect(boolean lostGame, boolean isOneAway) {
 		SequentialTransition sequentialIncorrectTrans = new SequentialTransition();
-		
-		PauseTransition placeholderPause = new PauseTransition(Duration.millis(5)); 
+
+		PauseTransition placeholderPause = new PauseTransition(Duration.millis(5));
 		placeholderPause.setOnFinished(event -> {
 			submissionAnimationActive = true;
 			helperSetGameButtonsDisabled(true);
 			tileGridWord.setTileWordDisable(true);
 		});
-		
+
 		ParallelTransition jumpTransition = tileGridWord.getTransitionTileWordJump();
-		
+
 		PauseTransition pauseAfterJump = new PauseTransition(Duration.millis(500));
-		
-		ParallelTransition shakeTransition = tileGridWord.getTransitionTileWordShake();
+
+		SequentialTransition shakeTransition = tileGridWord.getTransitionTileWordShake();
 		shakeTransition.setOnFinished(event -> {
 			tileGridWord.unsetIncorrectTileWords();
 		});
-		
+
 		PauseTransition deselectDelay = new PauseTransition(Duration.millis(500));
 		deselectDelay.setOnFinished(event -> {
 			tileGridWord.deselectTileWords();
 		});
-		
+
 		PauseTransition removeCircleDelay = new PauseTransition(Duration.millis(500));
 		removeCircleDelay.setOnFinished(removeCircleEvent -> {
 			submissionAnimationActive = false;
 			mistakesPane.removeCircle();
 			helperSetGameButtonsDisabled(false);
 			tileGridWord.setTileWordDisable(false);
-			
+
 			if (lostGame) {
 				helperDisplayPopupNotifcation("Next Time", 88.13, POPUP_DEFAULT_DURATION_MS);
-				sessionReachedEndGame();
-				
+
 				PauseTransition autoSolveDelay = new PauseTransition(Duration.millis(500));
 				autoSolveDelay.setOnFinished(event -> {
 					helperAutoSolverBegin();
 				});
+				autoSolveDelay.play();
 			} else {
-				if(isOneAway) {
+				if (isOneAway) {
 					helperDisplayPopupNotifcation("One Away...", 96.09, POPUP_DEFAULT_DURATION_MS);
 				}
 				helperSetGameButtonsDisabled(false);
 				tileGridWord.setTileWordDisable(false);
 			}
 		});
-		
-		sequentialIncorrectTrans.getChildren().addAll(placeholderPause, jumpTransition, pauseAfterJump, shakeTransition, deselectDelay, removeCircleDelay);
-		return sequentialIncorrectTrans; 
+
+		sequentialIncorrectTrans.getChildren().addAll(placeholderPause, jumpTransition, pauseAfterJump, shakeTransition,
+				deselectDelay, removeCircleDelay);
+		return sequentialIncorrectTrans;
 	}
 
 	private SequentialTransition helperCreateAnimationSubmissionCorrect() {
@@ -312,11 +355,13 @@ public class GameSession extends Pane implements Modular {
 		placeholderPause.setOnFinished(event -> {
 			submissionAnimationActive = true;
 		});
-		
+
 		ParallelTransition jumpTransition = tileGridWord.getTransitionTileWordJump();
 		SequentialTransition swapAndAnswerTileSequence = tileGridWordAnimationPane.getSequenceCorrectAnswer();
 		PauseTransition pauseTransition = new PauseTransition(Duration.millis(500));
-		pauseTransition.setOnFinished(event -> {
+		PauseTransition endPauseTransition = new PauseTransition(Duration.millis(500));
+
+		endPauseTransition.setOnFinished(event -> {
 			submissionAnimationActive = false;
 			if (tileGridWord.checkAllCategoriesGuessed()) {
 				wonGame = true;
@@ -326,25 +371,26 @@ public class GameSession extends Pane implements Modular {
 				tileGridWord.setTileWordDisable(false);
 			}
 		});
-		
-		sequentialCorrectTrans.getChildren().addAll(placeholderPause, jumpTransition, pauseTransition, swapAndAnswerTileSequence, pauseTransition);
+
+		sequentialCorrectTrans.getChildren().addAll(placeholderPause, jumpTransition, pauseTransition,
+				swapAndAnswerTileSequence, endPauseTransition);
 		return sequentialCorrectTrans;
 	}
 
 	private void helperSetGameButtonsDisabled(boolean disabled) {
-		if(disabled) {
+		if (disabled) {
 			gameShuffleButton.setDisable(true);
 			gameDeselectButton.setDisable(true);
 			gameSubmitButton.setDisable(true);
 			gameSubmitButton.setStyle(gameSessionContext.getStyleManager().buttonStyle());
 		} else {
 			gameShuffleButton.setDisable(false);
-			if(tileGridWord.checkNumWordsMatchSelected() > 0) {
+			if (tileGridWord.checkNumWordsMatchSelected() > 0) {
 				gameSubmitButton.setDisable(false);
 			}
 		}
 	}
-	
+
 	private void helperUpdateGameButtonStatus() {
 		gameDeselectButton.setDisable(tileGridWord.getSelectedTileWordCount() == 0);
 		gameSubmitButton.setDisable(tileGridWord.getSelectedTileWordCount() != TileGridWord.MAX_SELECTED);
@@ -359,9 +405,24 @@ public class GameSession extends Pane implements Modular {
 		}
 	}
 
+	private void helperRefreshStyle(StyleManager styleManager, Region region) {
+		for (Node node : region.getChildrenUnmodifiable()) {
+			if (node instanceof Modular) {
+				((Modular) node).refreshStyle();
+			} else if (node instanceof Region) {
+				helperRefreshStyle(styleManager, (Region) node);
+			} else if (node instanceof Text) {
+				((Text) node).setFill(styleManager.colorText());
+			}
+		}
+	}
+
 	@Override
 	public void refreshStyle() {
+		StyleManager styleManager = gameSessionContext.getStyleManager();
 
+		setBackground(new Background(new BackgroundFill(styleManager.colorWholeGameBackground(), null, null)));
+		helperRefreshStyle(styleManager, organizationPane);
 	}
 
 	@Override

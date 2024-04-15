@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javafx.scene.text.Font;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.paint.Color;
 
 public class StyleManager {
@@ -63,6 +65,7 @@ public class StyleManager {
 	protected static final String CIRCLE_DARK_MODE = "-fx-fill: linear-gradient(from 0% 0% to 100% 100%, #777, #3a3a3a); -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0, 0, 5);";
 
 	private boolean darkMode;
+	private EventHandler<ActionEvent> onDarkModeChange;
 	private Map<String, Font> fontMap = new HashMap<>();
 
 	public Font getFont(String fontName, int weight, int size) {
@@ -101,10 +104,17 @@ public class StyleManager {
 
 	public void setDarkMode(boolean darkMode) {
 		this.darkMode = darkMode;
+		if(onDarkModeChange != null) {
+			onDarkModeChange.handle(new ActionEvent(this, null));
+		}
 	}
 	
 	public boolean isDarkMode() {
 		return darkMode;
+	}
+	
+	public void setOnDarkModeChange(EventHandler<ActionEvent> handler) {
+		onDarkModeChange = handler;
 	}
 
 	public Color colorYellow() {

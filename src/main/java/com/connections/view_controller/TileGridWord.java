@@ -14,6 +14,7 @@ import com.connections.model.GameData;
 import com.connections.model.Word;
 
 import javafx.animation.ParallelTransition;
+import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.TranslateTransition;
 import javafx.collections.ObservableList;
@@ -22,12 +23,13 @@ import javafx.event.EventHandler;
 import javafx.event.EventTarget;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 
-public class TileGridWord extends Pane implements Modular {
+public class TileGridWord extends BorderPane implements Modular {
 	protected static final int MAX_SELECTED = 4;
 	protected static final int ROWS = 4;
 	protected static final int COLS = 4;
@@ -48,7 +50,8 @@ public class TileGridWord extends Pane implements Modular {
 		gridPane.setVgap(GAP);
 		gridPane.setAlignment(Pos.CENTER);
 		gridPane.setMaxWidth(PANE_WIDTH);
-		getChildren().add(gridPane);
+		setMaxWidth(PANE_WIDTH);
+		setCenter(gridPane);
 		initEmptyTileWords();
 	}
 
@@ -236,26 +239,29 @@ public class TileGridWord extends Pane implements Modular {
 		}
 	}
 
-	public ParallelTransition getTransitionTileWordShake() {
+	public SequentialTransition getTransitionTileWordShake() {
 		ParallelTransition shakeTransition = new ParallelTransition();
-		for (Node node : gridPane.getChildren()) {
-			if (node instanceof GameTileWord) {
-				GameTileWord tileWord = (GameTileWord) node;
-
-				if (tileWord.getSelectedStatus()) {
-					tileWord.setSelectedStatus(false);
-					tileWord.setIncorrectStatus(true);
-					TranslateTransition individualShakeTransition = new TranslateTransition(Duration.millis(100),
-							tileWord);
-					individualShakeTransition.setByX(8);
-					individualShakeTransition.setAutoReverse(true);
-					individualShakeTransition.setCycleCount(4);
-					shakeTransition.getChildren().add(individualShakeTransition);
-				}
-			}
+		Set<GameTileWord> selectedTileWords = getSelectedTileWords();
+		
+		for (GameTileWord tileWord : selectedTileWords) {
+			TranslateTransition individualShakeTransition = new TranslateTransition(Duration.millis(100),
+					tileWord);
+			individualShakeTransition.setByX(8);
+			individualShakeTransition.setAutoReverse(true);
+			individualShakeTransition.setCycleCount(4);
+			shakeTransition.getChildren().add(individualShakeTransition);
 		}
+		
+		PauseTransition placeholderPause = new PauseTransition(Duration.millis(5));
+		placeholderPause.setOnFinished(event -> {
+			for (GameTileWord tileWord : selectedTileWords) {
+				tileWord.setSelectedStatus(false);
+				tileWord.setIncorrectStatus(true);
+			}
+		});
 
-		return shakeTransition;
+		SequentialTransition sequentialTransition  = new SequentialTransition(placeholderPause, shakeTransition);
+		return sequentialTransition;
 	}
 
 	public ParallelTransition getTransitionTileWordJump() {
@@ -271,7 +277,7 @@ public class TileGridWord extends Pane implements Modular {
 
 		for (GameTileWord[] rowTileWords : tileWordGrid) {
 			for (GameTileWord colTileWord : rowTileWords) {
-				if (colTileWord.getSelectedStatus()) {
+				if (colTileWord != null && colTileWord.getSelectedStatus()) {
 					TranslateTransition individualJumpTransition = new TranslateTransition(Duration.millis(200),
 							colTileWord);
 					individualJumpTransition.setByY(-8);

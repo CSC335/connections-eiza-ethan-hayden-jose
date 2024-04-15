@@ -7,8 +7,10 @@ public class CircularButton extends Button implements Modular {
 	private GameSessionContext gameSessionContext;
 	private boolean fillStyle;
 	
-	public CircularButton(String text, double width, GameSessionContext gameSessionContext) {
+	public CircularButton(String text, double width, GameSessionContext gameSessionContext, boolean fillStyle) {
+		this.fillStyle = fillStyle;
 		this.gameSessionContext = gameSessionContext;
+		setText(text);
 		setPrefHeight(48);
 		setPrefWidth(width);
 		setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 600, 16));

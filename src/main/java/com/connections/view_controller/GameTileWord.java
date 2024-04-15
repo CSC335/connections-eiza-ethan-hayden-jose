@@ -111,7 +111,7 @@ public class GameTileWord extends StackPane implements Modular {
 	}
 
 	private void setStyleDefault() {
-		styleTransition(tileGridWord.getGameSessionContext().getStyleManager().colorSelectedRectangle(), tileGridWord.getGameSessionContext().getStyleManager().colorText());
+		styleTransition(tileGridWord.getGameSessionContext().getStyleManager().colorDefaultRectangle(), tileGridWord.getGameSessionContext().getStyleManager().colorText());
 	}
 
 	private void setStyleSelected() {

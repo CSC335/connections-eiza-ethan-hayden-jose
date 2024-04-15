@@ -33,6 +33,8 @@ public class TileGridWordAnimationOverlay extends Pane implements Modular {
 
 	public TileGridWordAnimationOverlay(TileGridWord tileGridWord) {
 		this.tileGridWord = tileGridWord;
+		setMaxWidth(TileGridWord.PANE_WIDTH);
+		setVisible(false);
 	}
 
 	private class EaseOutInterpolator extends Interpolator {

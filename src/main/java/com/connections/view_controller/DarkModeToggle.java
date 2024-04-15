@@ -12,15 +12,12 @@ import javafx.scene.shape.SVGPath;
 import javafx.util.Duration;
 
 public class DarkModeToggle extends StackPane implements Modular {
-	private boolean isDarkMode;
 	private Label label;
 	private Circle circle;
 	private Pane svgPane;
 	private SVGPath sunIconSVG;
 	private SVGPath moonIconSVG;
 	private GameSessionContext gameSessionContext;
-//	DO NOT DELETE THIS FOR NOW!!!
-//	private EventHandler<ActionEvent> onToggle;
 
 	public DarkModeToggle(GameSessionContext gameSessionContext) {
 		this.gameSessionContext = gameSessionContext;
@@ -65,38 +62,28 @@ public class DarkModeToggle extends StackPane implements Modular {
 	public void toggle() {
 		StyleManager styleManager = gameSessionContext.getStyleManager();
 
-		isDarkMode = !isDarkMode;
-		gameSessionContext.getStyleManager().setDarkMode(isDarkMode);
+		boolean isDarkModeCurrently = styleManager.isDarkMode();
+		boolean isDarkModeNow = !isDarkModeCurrently;
+		styleManager.setDarkMode(isDarkModeNow);
+		
 		TranslateTransition transition = new TranslateTransition(Duration.millis(300), circle);
 		TranslateTransition transitionSVG = new TranslateTransition(Duration.millis(300), svgPane);
-		if (isDarkMode) {
+		if (isDarkModeNow) {
 			transition.setToX(27.5);
 			transitionSVG.setToX(27.5);
 			moonIconSVG.setVisible(true);
 			sunIconSVG.setVisible(false);
 			styleManager.setDarkMode(true);
-//			DO NOT DELETE THIS FOR NOW!!!
-			// todo: notify game session through event handler
-//			onToggle.handle(new ActionEvent(this, null));
 		} else {
 			transition.setToX(-27.5);
 			transitionSVG.setToX(-27.5);
 			moonIconSVG.setVisible(false);
 			sunIconSVG.setVisible(true);
 			styleManager.setDarkMode(false);
-//			DO NOT DELETE THIS FOR NOW!!!			
-//			onToggle.handle(new ActionEvent(this, null));
 		}
 		transition.play();
 		transitionSVG.play();
-	}
-//	DO NOT DELETE THIS FOR NOW!!!
-//	public void setOnToggle(EventHandler<ActionEvent> handler) {
-//		onToggle = handler;
-//	}
-
-	public boolean isDarkMode() {
-		return isDarkMode;
+		refreshStyle();
 	}
 
 	@Override
