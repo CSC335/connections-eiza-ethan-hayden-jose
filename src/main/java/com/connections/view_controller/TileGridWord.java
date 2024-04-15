@@ -292,6 +292,10 @@ public class TileGridWord extends BorderPane implements Modular {
 
 		return jumpTransition;
 	}
+	
+	public List<Set<Word>> getGuesses() {
+		return previousGuesses;
+	}
 
 	public void setTileWordDisable(boolean status) {
 		for (Node node : gridPane.getChildren()) {

@@ -47,27 +47,27 @@ public class ResultsPane extends StackPane implements Modular {
 	private Label nextPuzzleInLabel;
 	private Label timerLabel;
 	private Timeline timerTimeline;
-	private Button shareButton;
-
-	private SVGPath backToPuzzleCross;
-	private Text backToPuzzleText;
-	private HBox backToPuzzleLayout;
+	private CircularButton shareButton;
 	private NotificationPane copiedToClipboardNotification;
-
-	public ResultsPane(GameSessionContext gameSessionContext, boolean wonGame, int puzzleNumber, int guessCount,
+	
+	public ResultsPane(GameSessionContext gameSessionContext,  boolean wonGame, int puzzleNumber, int guessCount,
 			List<Set<Word>> guesses) {
 		this.gameSessionContext = gameSessionContext;
 		this.wonGame = wonGame;
 		this.puzzleNumber = puzzleNumber;
 		this.guesses = guesses;
 		this.guessCount = guessCount;
+		initAssets();
 	}
 
 	private void initAssets() {
-		setPrefSize(667, 402 + (guessCount * 40) + ((guessCount - 1) * TileGridWord.GAP));
-		setMaxWidth(667);
-		setMaxHeight(402 + (guessCount * 40) + ((guessCount - 1) * TileGridWord.GAP));
-
+//		int bestWidth = 667;
+//		int bestHeight = 402 + (guessCount * 40) + ((guessCount - 1) * TileGridWord.GAP);
+//		int bestHeight = 282 + (guessCount * 40) + ((guessCount - 1) * TileGridWord.GAP);
+//		int bestHeight = 492 + (guessCount * 40) + ((guessCount - 1) * TileGridWord.GAP);
+//		setMinSize(bestWidth, bestHeight);
+//		setMaxSize(bestWidth, bestHeight);
+		
 		entireLayout = new BorderPane();
 
 		resultsLayout = new VBox(0);
@@ -77,11 +77,16 @@ public class ResultsPane extends StackPane implements Modular {
 		initAttemptsGrid();
 		initNextPuzzleTimer();
 		initShareButton();
-		initBackToPuzzle();
-
-		resultsLayout.getChildren().addAll(titleLabel, puzzleNumberLabel, attemptsGridPane, timerLayout, shareButton);
-		entireLayout.setCenter(attemptsGridPane);
-		entireLayout.setTop(backToPuzzleLayout);
+		
+		resultsLayout.getChildren().addAll(titleLabel, puzzleNumberLabel, attemptsGridPane, timerLayout);
+		entireLayout.setCenter(resultsLayout);
+		entireLayout.setBottom(shareButton);
+		
+		BorderPane.setAlignment(shareButton, Pos.CENTER);
+		entireLayout.setPadding(new Insets(18));
+		
+		getChildren().add(entireLayout);
+		refreshStyle();
 	}
 
 	private void initHeader() {
@@ -151,10 +156,8 @@ public class ResultsPane extends StackPane implements Modular {
 	}
 
 	private void initShareButton() {
-		shareButton = new Button("Share Your Results");
-		shareButton.setPrefSize(162, 48);
+		shareButton = new CircularButton("Share Your Results", 162, gameSessionContext, true);
 		shareButton.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 600, 16));
-		shareButton.setStyle(gameSessionContext.getStyleManager().resultsPaneShareButtonStyle());
 		shareButton.setTranslateY(4);
 		VBox.setMargin(shareButton, new Insets(21, 0, 20, 0));
 
@@ -194,61 +197,17 @@ public class ResultsPane extends StackPane implements Modular {
 		clipboard.setContent(content);
 	}
 
-	private void initBackToPuzzle() {
-		backToPuzzleCross = new SVGPath();
-		backToPuzzleCross.setContent(
-				"M18.717 6.697l-1.414-1.414-5.303 5.303-5.303-5.303-1.414 1.414 5.303 5.303-5.303 5.303 1.414 1.414 5.303-5.303 5.303 5.303 1.414-1.414-5.303-5.303z");
-		backToPuzzleCross.setScaleX(0.8);
-		backToPuzzleCross.setScaleY(0.8);
-		backToPuzzleCross.setScaleX(1);
-		backToPuzzleCross.setScaleY(1);
-		backToPuzzleCross.setTranslateY(4);
-
-		backToPuzzleText = new Text("Back to puzzle");
-		backToPuzzleText.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 600, 16));
-
-		backToPuzzleLayout = new HBox(10, backToPuzzleText, backToPuzzleCross);
-		backToPuzzleLayout.setAlignment(Pos.CENTER);
-		backToPuzzleLayout.setStyle("-fx-alignment: top-right;");
-		StackPane.setMargin(backToPuzzleLayout, new Insets(19.2, 19.2, 0, 0));
-
-		backToPuzzleLayout.setOnMouseEntered(e -> {
-			backToPuzzleText.setUnderline(true);
-			backToPuzzleLayout.setCursor(Cursor.HAND);
-		});
-		backToPuzzleLayout.setOnMouseExited(e -> {
-			backToPuzzleText.setUnderline(false);
-			backToPuzzleLayout.setCursor(Cursor.DEFAULT);
-		});
-	}
-
-	public void popup() {
-		TranslateTransition resultsPaneMoveUp = new TranslateTransition(Duration.millis(150), this);
-		setTranslateX(0);
-		setTranslateY(45);
-		resultsPaneMoveUp.setToX(0);
-		resultsPaneMoveUp.setToY(0);
-
-		FadeTransition resultsPaneFadeIn = new FadeTransition(Duration.millis(150), this);
-		resultsPaneFadeIn.setFromValue(0);
-		resultsPaneFadeIn.setToValue(1);
-
-		ParallelTransition resultsAppearTransition = new ParallelTransition(resultsPaneMoveUp, resultsPaneFadeIn);
-		resultsAppearTransition.play();
-	}
-
 	@Override
 	public void refreshStyle() {
 		StyleManager styleManager = gameSessionContext.getStyleManager();
 
-		setStyle(styleManager.resultsPaneStyle());
-		shareButton.setStyle(styleManager.resultsPaneShareButtonStyle());
-		backToPuzzleCross.setFill(styleManager.colorText());
+//		setStyle(styleManager.resultsPaneStyle() + " -fx-border-color: red;");
+//		setStyle(styleManager.resultsPaneStyle());
+		shareButton.refreshStyle();
 		titleLabel.setTextFill(styleManager.colorText());
 		puzzleNumberLabel.setTextFill(styleManager.colorText());
 		nextPuzzleInLabel.setTextFill(styleManager.colorText());
 		timerLabel.setTextFill(styleManager.colorText());
-		backToPuzzleText.setFill(styleManager.colorText());
 		if(copiedToClipboardNotification != null) {
 			copiedToClipboardNotification.refreshStyle();
 		}

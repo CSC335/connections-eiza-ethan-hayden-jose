@@ -10,6 +10,8 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 public class NotificationPane extends StackPane implements Modular {
+	protected static final int HEIGHT = 42;
+	
 	private static final int FADE_DURATION_MS = 100;
 	private Rectangle rectangle;
 	private Text text;
@@ -18,7 +20,7 @@ public class NotificationPane extends StackPane implements Modular {
 	public NotificationPane(String message, double width, GameSessionContext gameSessionContext) {
 		this.gameSessionContext = gameSessionContext;
 		
-		rectangle = new Rectangle(width, 42);
+		rectangle = new Rectangle(width, HEIGHT);
 		rectangle.setArcWidth(10);
 		rectangle.setArcHeight(10);
 		

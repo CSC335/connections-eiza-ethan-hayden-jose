@@ -162,7 +162,6 @@ public class GameTileWord extends StackPane implements Modular {
 		ParallelTransition parallelTransition = new ParallelTransition(pieceScaleTransition, pieceFadeTransition,
 				rectangleFillTransition, textFillTransition);
 		return parallelTransition;
-
 	}
 
 	public void disable() {

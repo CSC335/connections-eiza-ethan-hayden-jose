@@ -11,8 +11,8 @@ public class CircularButton extends Button implements Modular {
 		this.fillStyle = fillStyle;
 		this.gameSessionContext = gameSessionContext;
 		setText(text);
-		setPrefHeight(48);
-		setPrefWidth(width);
+		setMinHeight(48);
+		setMinWidth(width);
 		setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 600, 16));
 
 		setOnMouseEntered(event -> {
@@ -35,7 +35,7 @@ public class CircularButton extends Button implements Modular {
 	public void refreshStyle() {
 		StyleManager styleManager = gameSessionContext.getStyleManager();
 		
-		if(fillStyle) {
+		if(fillStyle && !isDisabled()) {
 			setStyle(gameSessionContext.getStyleManager().submitButtonFillStyle());
 		} else {
 			setStyle(gameSessionContext.getStyleManager().buttonStyle());

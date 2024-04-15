@@ -12,6 +12,7 @@ import javafx.scene.shape.SVGPath;
 import javafx.util.Duration;
 
 public class DarkModeToggle extends StackPane implements Modular {
+	protected static final int HEIGHT = 37;
 	private Label label;
 	private Circle circle;
 	private Pane svgPane;
@@ -22,7 +23,7 @@ public class DarkModeToggle extends StackPane implements Modular {
 	public DarkModeToggle(GameSessionContext gameSessionContext) {
 		this.gameSessionContext = gameSessionContext;
 		label = new Label();
-		label.setPrefSize(92.5, 37);
+		label.setPrefSize(92.5, HEIGHT);
 		circle = new Circle(16.65);
 		circle.setTranslateX(-27.5);
 
