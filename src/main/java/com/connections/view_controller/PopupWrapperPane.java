@@ -129,7 +129,7 @@ public class PopupWrapperPane extends BorderPane implements Modular {
 	@Override
 	public void refreshStyle() {
 		StyleManager styleManager = gameSessionContext.getStyleManager();
-		setStyle(styleManager.resultsPaneStyle());
+		setStyle(styleManager.styleOverlayPane());
 		goBackCross.setFill(styleManager.colorText());
 		goBackText.setFill(styleManager.colorText());
 	}

@@ -52,8 +52,8 @@ public class StyleManager {
 	protected static final String RESULTS_PANE_SHARE_BUTTON_LIGHT_MODE = "-fx-background-color: white; -fx-text-fill: black; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;";
 	protected static final String RESULTS_PANE_SHARE_BUTTON_DARK_MODE = "-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;";
 	
-	protected static final String RESULTS_PANE_LIGHT_MODE = "-fx-background-color: white; -fx-effect: dropshadow(gaussian, black, 20, 0, 0, 0);";
-	protected static final String RESULTS_PANE_DARK_MODE = "-fx-background-color: black; -fx-effect: dropshadow(gaussian, rgb(176, 247, 121), 20, 0, 0, 0);";
+	protected static final String OVERLAY_PANE_LIGHT_MODE = "-fx-background-color: white; -fx-effect: dropshadow(gaussian, black, 20, 0, 0, 0);";
+	protected static final String OVERLAY_PANE_DARK_MODE = "-fx-background-color: black; -fx-effect: dropshadow(gaussian, rgb(176, 247, 121), 20, 0, 0, 0);";
 	
 	protected static final String WHOLE_GAME_LIGHT_MODE = "-fx-background-color: white;";
 	protected static final String WHOLE_GAME_DARK_MODE = "-fx-background-color: black;";
@@ -188,31 +188,35 @@ public class StyleManager {
 		return darkMode ? WHOLE_GAME_BACKGROUND_DARK :WHOLE_GAME_BACKGROUND_LIGHT;
 	}
 
-	public String buttonStyle() {
+	public Color colorSVGFill() {
+		return darkMode ? Color.BLACK : Color.WHITE;
+	}
+
+	public String styleButton() {
 		return darkMode ? BUTTON_DARK_MODE : BUTTON_LIGHT_MODE;
 	}
-
-	public String submitButtonFillStyle() {
-		return darkMode ? SUBMIT_BUTTON_FILL_DARK_MODE : SUBMIT_BUTTON_FILL_LIGHT_MODE;
+	
+	public String styleSubmitButtonFill() {
+	    return darkMode ? SUBMIT_BUTTON_FILL_DARK_MODE : SUBMIT_BUTTON_FILL_LIGHT_MODE;
 	}
 
-	public String resultsPaneShareButtonStyle() {
-		return darkMode ? RESULTS_PANE_SHARE_BUTTON_DARK_MODE : RESULTS_PANE_SHARE_BUTTON_LIGHT_MODE;
+	public String styleResultsPaneShareButton() {
+	    return darkMode ? RESULTS_PANE_SHARE_BUTTON_DARK_MODE : RESULTS_PANE_SHARE_BUTTON_LIGHT_MODE;
 	}
 
-	public String resultsPaneStyle() {
-		return darkMode ? RESULTS_PANE_DARK_MODE : RESULTS_PANE_LIGHT_MODE;
+	public String styleOverlayPane() {
+	    return darkMode ? OVERLAY_PANE_DARK_MODE : OVERLAY_PANE_LIGHT_MODE;
 	}
 
-	public String wholeGameStyle() {
-		return darkMode ? WHOLE_GAME_DARK_MODE : WHOLE_GAME_LIGHT_MODE;
+	public String styleWholeGame() {
+	    return darkMode ? WHOLE_GAME_DARK_MODE : WHOLE_GAME_LIGHT_MODE;
 	}
 
-	public String labelStyle() {
-		return darkMode ? LABEL_DARK_MODE : LABEL_LIGHT_MODE;
+	public String styleLabel() {
+	    return darkMode ? LABEL_DARK_MODE : LABEL_LIGHT_MODE;
 	}
 
-	public String circleStyle() {
-		return darkMode ? CIRCLE_DARK_MODE : CIRCLE_LIGHT_MODE;
+	public String styleCircle() {
+	    return darkMode ? CIRCLE_DARK_MODE : CIRCLE_LIGHT_MODE;
 	}
 }

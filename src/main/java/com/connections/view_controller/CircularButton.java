@@ -36,9 +36,9 @@ public class CircularButton extends Button implements Modular {
 		StyleManager styleManager = gameSessionContext.getStyleManager();
 		
 		if(fillStyle && !isDisabled()) {
-			setStyle(gameSessionContext.getStyleManager().submitButtonFillStyle());
+			setStyle(gameSessionContext.getStyleManager().styleSubmitButtonFill());
 		} else {
-			setStyle(gameSessionContext.getStyleManager().buttonStyle());
+			setStyle(gameSessionContext.getStyleManager().styleButton());
 		}
 	}
 

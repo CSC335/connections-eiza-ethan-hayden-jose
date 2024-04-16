@@ -26,7 +26,7 @@ public class GameTileAnswer extends StackPane implements Modular {
 	public GameTileAnswer(GameAnswerColor answer, TileGridWord tileGridWord) {
 		this.tileGridWord = tileGridWord;
 		this.answer = answer;
-		
+
 		categoryNameText = new Text(answer.getDescription().toUpperCase());
 		categoryNameText.setFont(tileGridWord.getGameSessionContext().getStyleManager().getFont("franklin-normal",700, 20));
 
@@ -38,20 +38,16 @@ public class GameTileAnswer extends StackPane implements Modular {
 		rectBackground = new Rectangle(TileGridWord.PANE_WIDTH, GameTile.RECTANGLE_HEIGHT);
 		rectBackground.setArcWidth(GameTile.CORNER_RADIUS);
 		rectBackground.setArcHeight(GameTile.CORNER_RADIUS);
-		
+
 		refreshStyle();
 
 		this.getChildren().addAll(rectBackground, textVBox);
 	}
-	
+
 	public GameAnswerColor getGameAnswerColor() {
 		return answer;
 	}
-	
-	public StyleManager getStyleManager() {
-		return tileGridWord.getGameSessionContext().getStyleManager();
-	}
-	
+
 	public ParallelTransition getAppearAnimation() {
 		ScaleTransition tileScaleTransition = new ScaleTransition(Duration.millis(POP_UP_MS), this);
 		tileScaleTransition.setFromX(1);
@@ -60,13 +56,13 @@ public class GameTileAnswer extends StackPane implements Modular {
 		tileScaleTransition.setToY(1.4);
 		tileScaleTransition.setAutoReverse(true);
 		tileScaleTransition.setCycleCount(2);
-		
+
 		FadeTransition textFadeTransition = new FadeTransition(Duration.millis(FADE_IN_MS), textVBox);
 		textFadeTransition.setFromValue(0.0);
 		textFadeTransition.setToValue(1.0);
-		
-		ParallelTransition parallelTransition = new ParallelTransition(textFadeTransition, tileScaleTransition); 
-		
+
+		ParallelTransition parallelTransition = new ParallelTransition(textFadeTransition, tileScaleTransition);
+
 		return parallelTransition;
 	}
 	

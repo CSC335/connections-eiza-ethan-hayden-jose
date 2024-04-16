@@ -89,8 +89,8 @@ public class DarkModeToggle extends StackPane implements Modular {
 
 	@Override
 	public void refreshStyle() {
-		label.setStyle(gameSessionContext.getStyleManager().labelStyle());
-		circle.setStyle(gameSessionContext.getStyleManager().circleStyle());
+		label.setStyle(gameSessionContext.getStyleManager().styleLabel());
+		circle.setStyle(gameSessionContext.getStyleManager().styleCircle());
 	}
 
 	@Override
