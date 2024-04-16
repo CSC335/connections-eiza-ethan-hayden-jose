@@ -16,7 +16,6 @@ public abstract class SVGButton extends Pane implements Modular {
 		setOnMouseEntered(event -> {
 			setCursor(Cursor.HAND);
 		});
-
 		setOnMouseExited(event -> {
 			setCursor(Cursor.DEFAULT);
 		});

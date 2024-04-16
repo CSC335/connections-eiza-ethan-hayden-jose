@@ -84,20 +84,18 @@ public class GameSession extends StackPane implements Modular {
 	private HintMenuButton hintMenuButton;
 	private AchievementsMenuButton achievementsMenuButton;
 	private LeaderboardMenuButton leaderboardMenuButton;
+	private ProfileMenuButton profileMenuButton;
 
 	private CircularButton gameSubmitButton;
 	private CircularButton gameDeselectButton;
 	private CircularButton gameShuffleButton;
 	private CircularButton gameViewResultsButton;
+	
+	// Keep reference to results pane to avoid re-loading it each time
+	private ResultsPane resultsPane;
+	private PopupWrapperPane popupPane;
 
 	private boolean submissionAnimationActive;
-	
-	private enum CurrentMenu {
-		RESULTS,
-		ACHIEVEMENTS,
-		LEADERBOARD,
-		PROFILE
-	}
 
 	public GameSession(GameSessionContext gameSessionContext) {
 		this.gameSessionContext = gameSessionContext;
@@ -119,6 +117,7 @@ public class GameSession extends StackPane implements Modular {
 		hintMenuButton = new HintMenuButton(gameSessionContext);
 		achievementsMenuButton = new AchievementsMenuButton(gameSessionContext);
 		leaderboardMenuButton = new LeaderboardMenuButton(gameSessionContext);
+		profileMenuButton = new ProfileMenuButton(gameSessionContext);
 
 		mainHeaderText = new Text("Create four groups of four!");
 		mainHeaderText.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 500, 18));
@@ -135,7 +134,7 @@ public class GameSession extends StackPane implements Modular {
 		gameButtonRowPane.setAlignment(Pos.CENTER);
 		gameButtonRowPane.getChildren().addAll(gameShuffleButton, gameDeselectButton, gameSubmitButton);
 
-		menuButtonRowPane = new HBox(10, hintMenuButton, leaderboardMenuButton, achievementsMenuButton,
+		menuButtonRowPane = new HBox(10, hintMenuButton, profileMenuButton, leaderboardMenuButton, achievementsMenuButton,
 				darkModeToggleMenuButton);
 		menuButtonRowPane.setAlignment(Pos.CENTER);
 		menuButtonRowPane.setMaxHeight(DarkModeToggle.HEIGHT);
@@ -161,7 +160,7 @@ public class GameSession extends StackPane implements Modular {
 //		BorderPane.setAlignment(gameContentPane, Pos.CENTER);
 
 		getChildren().add(organizationPane);
-
+		
 		helperSetGameButtonsDisabled(false);
 		setControlsNormal();
 		refreshStyle();
@@ -172,8 +171,7 @@ public class GameSession extends StackPane implements Modular {
 			helperUpdateGameButtonStatus();
 		});
 		gameShuffleButton.setOnAction(event -> {
-//			tileGridWord.shuffleTileWords();
-			debugSimulateResultsPane();
+			tileGridWord.shuffleTileWords();
 		});
 		gameSubmitButton.setOnAction(event -> {
 			sessionSubmissionAttempt();
@@ -182,7 +180,19 @@ public class GameSession extends StackPane implements Modular {
 			refreshStyle();
 		});
 		gameViewResultsButton.setOnAction(event -> {
-
+			screenDisplayResults();
+		});
+		hintMenuButton.setOnMouseClicked(event -> {
+			
+		});
+		achievementsMenuButton.setOnMouseClicked(event -> {
+			screenDisplayAchievements();
+		});
+		leaderboardMenuButton.setOnMouseClicked(event -> {
+			screenDisplayLeaderboard();
+		});
+		profileMenuButton.setOnMouseClicked(event -> {
+			screenDisplayProfile();
 		});
 	}
 
@@ -238,15 +248,6 @@ public class GameSession extends StackPane implements Modular {
 		NotificationPane popupNotification = new NotificationPane(message, width, gameSessionContext);
 		menuPane.getChildren().add(0, popupNotification);
 		popupNotification.popup(menuPane, duration);
-//		PauseTransition pause = new PauseTransition(Duration.millis(duration));
-//		tileGridWord.setTileWordDisable(true);
-
-//		pause.setOnFinished(event -> {
-//			if(tileGridStackPane.getChildren().contains(popupNotification)) {
-//				tileGridStackPane.getChildren().remove(popupNotification);
-//			}
-//		});
-//		pause.play();
 	}
 
 	public void sessionHintUsed() {
@@ -262,15 +263,56 @@ public class GameSession extends StackPane implements Modular {
 //		if (hintsPane != null && gameContentPane.getChildren().contains(hintsPane)) {
 //			gameContentPane.getChildren().remove(hintsPane);
 //		}
-
-		List<Set<Word>> guesses = tileGridWord.getGuesses();
-		helperSetPopupWrapper(new ResultsPane(gameSessionContext, wonGame, 123, guesses.size(), guesses));
-
+		
+		screenDisplayResults();
 		setControlsViewResultsOnly();
+	}
+	
+	private void screenDisplayResults() {
+		if(!gameActive) {
+			if(resultsPane == null) {
+				List<Set<Word>> guesses = tileGridWord.getGuesses();
+				resultsPane = new ResultsPane(gameSessionContext, wonGame, 123, guesses.size(), guesses);
+			}
+			
+			helperPopupScreen(resultsPane);
+		}
+	}
+	
+	private void screenDisplayAchievements() {
+		
+		BorderPane pane = new BorderPane();
+		pane.setCenter(new Text("ACHIEVEMENTS"));
+		helperPopupScreen(pane);
+	}
+	
+	private void screenDisplayLeaderboard() {
+		BorderPane pane = new BorderPane();
+		pane.setCenter(new Text("LEADERS"));
+		helperPopupScreen(pane);
+	}
 
-//		disableGameBoard();
-//		gameDeselect();
-//		showResultsPane((Stage) wholeGameStackPane.getScene().getWindow());
+	private void screenDisplayProfile() {
+		BorderPane pane = new BorderPane();
+		pane.setCenter(new Text("PROFILE"));
+		helperPopupScreen(pane);
+	}
+	
+	private void helperPopupScreen(Pane pane) {
+		if(popupPane == null) {
+			popupPane = new PopupWrapperPane(gameSessionContext, pane);
+			popupPane.setOnGoBackPressed(event -> {
+				getChildren().remove(popupPane);
+			});
+		} else {
+			popupPane.setChild(pane);
+		}
+		
+		if(!getChildren().contains(popupPane)) {
+			getChildren().add(popupPane);
+		}
+
+		popupPane.popup();
 	}
 
 	private void debugSimulateResultsPane() {
@@ -296,7 +338,8 @@ public class GameSession extends StackPane implements Modular {
 			}
 			guesses.add(set);
 		}
-		helperSetPopupWrapper(new ResultsPane(gameSessionContext, false, 123, guesses.size(), guesses));
+		resultsPane = new ResultsPane(gameSessionContext, false, 123, guesses.size(), guesses);
+		screenDisplayResults();
 	}
 
 	private void helperAutoSolverNextCategory(List<GameAnswerColor> remainingAnswerCategories) {
@@ -423,15 +466,6 @@ public class GameSession extends StackPane implements Modular {
 		sequentialCorrectTrans.getChildren().addAll(placeholderPause, jumpTransition, pauseTransition,
 				swapAndAnswerTileSequence, endPauseTransition);
 		return sequentialCorrectTrans;
-	}
-
-	private void helperSetPopupWrapper(Pane pane) {
-		PopupWrapperPane popup = new PopupWrapperPane(gameSessionContext, pane);
-		popup.setOnGoBackPressed(event -> {
-			getChildren().remove(popup);
-		});
-		getChildren().add(popup);
-		popup.popup();
 	}
 
 	private void helperSetGameButtonsDisabled(boolean disabled) {

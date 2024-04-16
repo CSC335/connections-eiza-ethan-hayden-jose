@@ -67,6 +67,12 @@ public class PopupWrapperPane extends BorderPane implements Modular {
 		}
 	}
 	
+	public void setChild(Pane pane) {
+		this.childPane = pane;
+		containerPane.getChildren().clear();
+		containerPane.getChildren().add(pane);
+	}
+	
 	public void popup() {
 		TranslateTransition slideUp = new TranslateTransition(Duration.millis(FADE_MS), this);
 		setTranslateX(0);

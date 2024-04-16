@@ -14,7 +14,7 @@ import javafx.scene.shape.SVGPath;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
-public class HintMenuButton extends SVGButton  {
+public class HintMenuButton extends SVGButton implements Modular  {
 	public HintMenuButton(GameSessionContext gameSessionContext) {
 		super(gameSessionContext);
 		
