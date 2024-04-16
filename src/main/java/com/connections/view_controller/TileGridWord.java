@@ -302,6 +302,8 @@ public class TileGridWord extends BorderPane implements Modular {
 		}
 	}
 
+	// Method likely no longer needed
+	// Disabling/enabling style changeable during auto solve caused darkmode issues
 	public void setTileWordStyleChangeable(boolean status) {
 		for (Node node : gridPane.getChildren()) {
 			if (node instanceof GameTileWord) {
