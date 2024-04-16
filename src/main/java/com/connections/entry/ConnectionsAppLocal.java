@@ -27,7 +27,7 @@ public class ConnectionsAppLocal extends Application {
     public void start(Stage primaryStage) {
 		initGameData();
 		styleManager = new StyleManager();
-		GameSessionContext gameSessionContext = new GameSessionContext(styleManager, currentGame); 
+		GameSessionContext gameSessionContext = new GameSessionContext(styleManager, currentGame, null); 
 		GameSession gameSession = new GameSession(gameSessionContext); 
 		
 		Scene scene = new Scene(gameSession, STAGE_WIDTH, STAGE_HEIGHT);
