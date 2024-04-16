@@ -19,7 +19,7 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 public class PopupWrapperPane extends BorderPane implements Modular {
-	protected static final double POPUP_EDGE_CUTOFF = 175;
+	protected static final double POPUP_EDGE_CUTOFF = 125;
 	protected static final double INSETS_MARGIN = 10;
 	protected static final double MENU_HEIGHT = 30;
 	protected static final double POPUP_WIDTH = GameBoard.STAGE_WIDTH - POPUP_EDGE_CUTOFF;
@@ -32,29 +32,34 @@ public class PopupWrapperPane extends BorderPane implements Modular {
 	private GameSessionContext gameSessionContext;
 	private Pane childPane;
 	private StackPane containerPane;
-	private BorderPane menuPane;
+	private StackPane menuPane;
 	
+	private Text titleText;
 	private HBox goBackLayout;
 	private SVGPath goBackCross;
+	
+	private String title;
 	private Text goBackText;
 	
 	private boolean fixedSize;
 	
-	public PopupWrapperPane(GameSessionContext gameSessionContext, Pane childPane) {
+	public PopupWrapperPane(GameSessionContext gameSessionContext, Pane childPane, String title) {
+		this.title = title;
 		this.childPane = childPane;
 		this.gameSessionContext = gameSessionContext;
-		setMaxSize(POPUP_WIDTH, POPUP_HEIGHT);
-		setPadding(new Insets(INSETS_MARGIN));
-		containerPane = new StackPane(childPane);
+		
+		initAssets();
+		initMenuPane();
 		
 		setSizeFixed(false);
-		setCenter(containerPane);
-		initMenuPane();
 		refreshStyle();
 	}
 	
 	public void setSizeFixed(boolean fixedSize) {
 		this.fixedSize = fixedSize;
+		
+		setMaxSize(POPUP_WIDTH, POPUP_HEIGHT);
+		containerPane.setMaxSize(CONTAINER_WIDTH, CONTAINER_HEIGHT);
 		
 		if(fixedSize) {
 			setMinSize(POPUP_WIDTH, POPUP_HEIGHT);
@@ -73,6 +78,11 @@ public class PopupWrapperPane extends BorderPane implements Modular {
 		containerPane.getChildren().add(pane);
 	}
 	
+	public void setTitle(String title) {
+		this.title = title;
+		titleText.setText(title);
+	}
+	
 	public void popup() {
 		TranslateTransition slideUp = new TranslateTransition(Duration.millis(FADE_MS), this);
 		setTranslateX(0);
@@ -86,6 +96,12 @@ public class PopupWrapperPane extends BorderPane implements Modular {
 		
 		ParallelTransition combined = new ParallelTransition(slideUp, fadeIn);
 		combined.play();
+	}
+	
+	private void initAssets() {		
+		containerPane = new StackPane(childPane);
+		setCenter(containerPane);
+		setPadding(new Insets(INSETS_MARGIN));
 	}
 	
 	private void initMenuPane() {
@@ -104,7 +120,6 @@ public class PopupWrapperPane extends BorderPane implements Modular {
 		goBackLayout = new HBox(10, goBackText, goBackCross);
 		goBackLayout.setAlignment(Pos.CENTER);
 		goBackLayout.setStyle("-fx-alignment: top-right;");
-		StackPane.setMargin(goBackLayout, new Insets(19.2, 19.2, 0, 0));
 
 		goBackLayout.setOnMouseEntered(e -> {
 			goBackText.setUnderline(true);
@@ -115,9 +130,12 @@ public class PopupWrapperPane extends BorderPane implements Modular {
 			goBackLayout.setCursor(Cursor.DEFAULT);
 		});
 		
-		menuPane = new BorderPane();
-		menuPane.setRight(goBackLayout);
+		titleText = new Text(title);
+		titleText.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 500, 18));
+		
+		menuPane = new StackPane(titleText, goBackLayout);
 		menuPane.setPrefHeight(MENU_HEIGHT);
+		menuPane.setPadding(new Insets(19.2));
 		
 		setTop(menuPane);
 	}

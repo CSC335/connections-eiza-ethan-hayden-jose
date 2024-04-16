@@ -35,6 +35,7 @@ public class TileGridWord extends BorderPane implements Modular {
 	protected static final int COLS = 4;
 	protected static final int GAP = 8;
 	protected static final int PANE_WIDTH = GameTile.RECTANGLE_WIDTH * 4 + GAP * 3;
+	protected static final int PANE_HEIGHT = GameTile.RECTANGLE_HEIGHT * 4 + GAP * 3;
 
 	private GridPane gridPane;
 	private int currentSolvingRow;

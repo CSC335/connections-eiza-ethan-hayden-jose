@@ -73,6 +73,8 @@ public class GameSession extends StackPane implements Modular {
 	private CircleRowPane mistakesPane;
 	private HBox gameButtonRowPane;
 	private HBox menuButtonRowPane;
+	
+	private TileGridAchievement tileGridAchievement;
 
 	private boolean wonGame;
 	private boolean gameActive;
@@ -90,7 +92,7 @@ public class GameSession extends StackPane implements Modular {
 	private CircularButton gameDeselectButton;
 	private CircularButton gameShuffleButton;
 	private CircularButton gameViewResultsButton;
-	
+
 	// Keep reference to results pane to avoid re-loading it each time
 	private ResultsPane resultsPane;
 	private PopupWrapperPane popupPane;
@@ -103,9 +105,12 @@ public class GameSession extends StackPane implements Modular {
 		initListeners();
 	}
 
+	// === === === === === === === === === === === ===
+	// === === === === INIT METHODS
+	// === === === === === === === === === === === ===
+
 	private void initAssets() {
 		setPrefSize(GameBoard.STAGE_WIDTH, GameBoard.STAGE_HEIGHT);
-//		setStyle("-fx-border-color: orange;");
 
 		darkModeToggleMenuButton = new DarkModeToggle(gameSessionContext);
 
@@ -114,6 +119,8 @@ public class GameSession extends StackPane implements Modular {
 		tileGridWordAnimationPane = new TileGridWordAnimationOverlay(tileGridWord);
 		tileGridStackPane = new StackPane(tileGridWord, tileGridWordAnimationPane);
 
+		tileGridAchievement = new TileGridAchievement(gameSessionContext);
+		
 		hintMenuButton = new HintMenuButton(gameSessionContext);
 		achievementsMenuButton = new AchievementsMenuButton(gameSessionContext);
 		leaderboardMenuButton = new LeaderboardMenuButton(gameSessionContext);
@@ -134,8 +141,8 @@ public class GameSession extends StackPane implements Modular {
 		gameButtonRowPane.setAlignment(Pos.CENTER);
 		gameButtonRowPane.getChildren().addAll(gameShuffleButton, gameDeselectButton, gameSubmitButton);
 
-		menuButtonRowPane = new HBox(10, hintMenuButton, profileMenuButton, leaderboardMenuButton, achievementsMenuButton,
-				darkModeToggleMenuButton);
+		menuButtonRowPane = new HBox(10, hintMenuButton, profileMenuButton, leaderboardMenuButton,
+				achievementsMenuButton, darkModeToggleMenuButton);
 		menuButtonRowPane.setAlignment(Pos.CENTER);
 		menuButtonRowPane.setMaxHeight(DarkModeToggle.HEIGHT);
 		menuButtonRowPane.setStyle("-fx-alignment: center-right;");
@@ -153,16 +160,10 @@ public class GameSession extends StackPane implements Modular {
 		organizationPane.setPrefSize(GameBoard.STAGE_WIDTH, GameBoard.STAGE_HEIGHT);
 		organizationPane.setPadding(new Insets(10));
 
-//		organizationPane.setStyle("-fx-border-color: red;");
-//		tileGridWord.setStyle("-fx-border-color: red;");
-//		tileGridWord.setStyle("-fx-border-color: red;");
-//		tileGridWordAnimationPane.setStyle("-fx-border-color: red;");
-//		BorderPane.setAlignment(gameContentPane, Pos.CENTER);
-
 		getChildren().add(organizationPane);
-		
+
 		helperSetGameButtonsDisabled(false);
-		setControlsNormal();
+		controlsSetNormal();
 		refreshStyle();
 	}
 
@@ -183,7 +184,7 @@ public class GameSession extends StackPane implements Modular {
 			screenDisplayResults();
 		});
 		hintMenuButton.setOnMouseClicked(event -> {
-			
+			debugSimulateResultsPane();
 		});
 		achievementsMenuButton.setOnMouseClicked(event -> {
 			screenDisplayAchievements();
@@ -196,26 +197,91 @@ public class GameSession extends StackPane implements Modular {
 		});
 	}
 
-	// VIEW: when ready to play the game (has all main buttons: submit, shuffle,
-	// deselect)
-	private void setControlsNormal() {
+	// === === === === === === === === === === === ===
+	// === === === === SET CONTROLS
+	// === === === === === === === === === === === ===
+
+	private void controlsSetNormal() {
 		gameButtonRowPane.getChildren().clear();
 		gameButtonRowPane.getChildren().addAll(gameShuffleButton, gameDeselectButton, gameSubmitButton);
 		gameContentPane.getChildren().clear();
 		gameContentPane.getChildren().addAll(mainHeaderText, tileGridStackPane, mistakesPane, gameButtonRowPane);
 	}
 
-	// VIEW: when reached the end, only view results
-	private void setControlsViewResultsOnly() {
+	private void controlsSetViewResultsOnly() {
 		gameButtonRowPane.getChildren().clear();
 		gameButtonRowPane.getChildren().add(gameViewResultsButton);
 		gameContentPane.getChildren().clear();
 		gameContentPane.getChildren().addAll(mainHeaderText, tileGridStackPane, gameButtonRowPane);
 	}
 
+	// === === === === === === === === === === === ===
+	// === === === === SCREEN METHODS
+	// === === === === === === === === === === === ===
+
+	private void screenDisplayResults() {
+		if (!gameActive) {
+			if (resultsPane == null) {
+				List<Set<Word>> guesses = tileGridWord.getGuesses();
+				resultsPane = new ResultsPane(gameSessionContext, wonGame, 123, guesses.size(), guesses);
+			}
+
+			helperPopupScreen(resultsPane, "");
+		}
+	}
+
+	private void screenDisplayAchievements() {
+		tileGridAchievement.animateCompletion();
+		helperPopupScreen(tileGridAchievement, "Achievements:");
+	}
+
+	private void screenDisplayLeaderboard() {
+		BorderPane pane = new BorderPane();
+		pane.setCenter(new Text("LEADERS"));
+		helperPopupScreen(pane, "Leaderboard:");
+	}
+
+	private void screenDisplayProfile() {
+		BorderPane pane = new BorderPane();
+		pane.setCenter(new Text("PROFILE"));
+		helperPopupScreen(pane, "Profile:");
+	}
+
+	private void helperPopupScreen(Pane pane, String title) {
+		if (popupPane == null) {
+			popupPane = new PopupWrapperPane(gameSessionContext, pane, title);
+			popupPane.setOnGoBackPressed(event -> {
+				getChildren().remove(popupPane);
+			});
+		} else {
+			popupPane.setChild(pane);
+			popupPane.setTitle(title);
+		}
+
+		if (!getChildren().contains(popupPane)) {
+			getChildren().add(popupPane);
+		}
+
+		popupPane.popup();
+	}
+
+	// === === === === === === === === === === === ===
+	// === === === === MAIN "SESSION" METHODS
+	// === === === === === === === === === === === ===
+
 	public void sessionBeginNewGame() {
 		gameActive = true;
 		wonGame = false;
+	}
+
+	public void sessionReachedEndGame() {
+		gameActive = false;
+
+		helperSetGameButtonsDisabled(true);
+		tileGridWord.setTileWordDisable(true);
+
+		screenDisplayResults();
+		controlsSetViewResultsOnly();
 	}
 
 	public void sessionSubmissionAttempt() {
@@ -230,11 +296,9 @@ public class GameSession extends StackPane implements Modular {
 			boolean isCorrect = (matchCount == TileGridWord.MAX_SELECTED);
 			boolean isOneAway = (matchCount == TileGridWord.MAX_SELECTED - 1);
 
-			// correct
 			if (isCorrect) {
 				SequentialTransition animation = helperCreateAnimationSubmissionCorrect();
 				animation.play();
-				// incorrect
 			} else {
 				boolean lostGame = (mistakesPane.getNumCircles() == 1);
 
@@ -244,103 +308,56 @@ public class GameSession extends StackPane implements Modular {
 		}
 	}
 
+	public void sessionHintUsed() {
+
+	}
+
+	// === === === === === === === === === === === ===
+	// === === === === HELPER METHODS
+	// === === === === === === === === === === === ===
+
 	private void helperDisplayPopupNotifcation(String message, double width, int duration) {
 		NotificationPane popupNotification = new NotificationPane(message, width, gameSessionContext);
 		menuPane.getChildren().add(0, popupNotification);
 		popupNotification.popup(menuPane, duration);
 	}
 
-	public void sessionHintUsed() {
-
-	}
-
-	public void sessionReachedEndGame() {
-		gameActive = false;
-
-		helperSetGameButtonsDisabled(true);
-		tileGridWord.setTileWordDisable(true);
-
-//		if (hintsPane != null && gameContentPane.getChildren().contains(hintsPane)) {
-//			gameContentPane.getChildren().remove(hintsPane);
-//		}
-		
-		screenDisplayResults();
-		setControlsViewResultsOnly();
-	}
-	
-	private void screenDisplayResults() {
-		if(!gameActive) {
-			if(resultsPane == null) {
-				List<Set<Word>> guesses = tileGridWord.getGuesses();
-				resultsPane = new ResultsPane(gameSessionContext, wonGame, 123, guesses.size(), guesses);
-			}
-			
-			helperPopupScreen(resultsPane);
-		}
-	}
-	
-	private void screenDisplayAchievements() {
-		
-		BorderPane pane = new BorderPane();
-		pane.setCenter(new Text("ACHIEVEMENTS"));
-		helperPopupScreen(pane);
-	}
-	
-	private void screenDisplayLeaderboard() {
-		BorderPane pane = new BorderPane();
-		pane.setCenter(new Text("LEADERS"));
-		helperPopupScreen(pane);
-	}
-
-	private void screenDisplayProfile() {
-		BorderPane pane = new BorderPane();
-		pane.setCenter(new Text("PROFILE"));
-		helperPopupScreen(pane);
-	}
-	
-	private void helperPopupScreen(Pane pane) {
-		if(popupPane == null) {
-			popupPane = new PopupWrapperPane(gameSessionContext, pane);
-			popupPane.setOnGoBackPressed(event -> {
-				getChildren().remove(popupPane);
-			});
+	private void helperSetGameButtonsDisabled(boolean disabled) {
+		if (disabled) {
+			gameShuffleButton.setDisable(true);
+			gameDeselectButton.setDisable(true);
+			gameSubmitButton.setDisable(true);
 		} else {
-			popupPane.setChild(pane);
+			gameShuffleButton.setDisable(false);
+			gameDeselectButton.setDisable(tileGridWord.checkNumWordsMatchSelected() == 0);
+			gameSubmitButton.setDisable(tileGridWord.checkNumWordsMatchSelected() < TileGridWord.MAX_SELECTED);
+			gameSubmitButton.refreshStyle();
 		}
-		
-		if(!getChildren().contains(popupPane)) {
-			getChildren().add(popupPane);
-		}
-
-		popupPane.popup();
 	}
 
-	private void debugSimulateResultsPane() {
-//		long seed = 123456789L;
-//		Random randGen = new Random(seed);
-		Random randGen = new Random();
-		GameData gameData = gameSessionContext.getGameData(); 
-//		int numGuesses = 3 + randGen.nextInt(6);
-		int numGuesses = 7;
-		List<Set<Word>> guesses = new ArrayList<>();
-		for(int i = 0; i < numGuesses; i++) {
-			Set<Word> set = new HashSet<>();
-			
-			DifficultyColor[] possibleColors = {DifficultyColor.YELLOW, DifficultyColor.GREEN, DifficultyColor.BLUE, DifficultyColor.PURPLE};
-			while(set.size() < 4) {
-				DifficultyColor randomColor = possibleColors[randGen.nextInt(4)];
-				GameAnswerColor randAnswer = gameData.getAnswerForColor(randomColor);
-				String[] words = randAnswer.getWords();
-				Word randomWord = new Word(words[randGen.nextInt(words.length)], randomColor);
-				if(!set.contains(randomWord)) {
-					set.add(randomWord);
-				}
+	private void helperUpdateGameButtonStatus() {
+		gameDeselectButton.setDisable(tileGridWord.getSelectedTileWordCount() == 0);
+		gameSubmitButton.setDisable(tileGridWord.getSelectedTileWordCount() < TileGridWord.MAX_SELECTED);
+
+		gameDeselectButton.refreshStyle();
+		gameSubmitButton.refreshStyle();
+	}
+
+	private void helperRefreshStyle(StyleManager styleManager, Region region) {
+		for (Node node : region.getChildrenUnmodifiable()) {
+			if (node instanceof Modular) {
+				((Modular) node).refreshStyle();
+			} else if (node instanceof Region) {
+				helperRefreshStyle(styleManager, (Region) node);
+			} else if (node instanceof Text) {
+				((Text) node).setFill(styleManager.colorText());
 			}
-			guesses.add(set);
 		}
-		resultsPane = new ResultsPane(gameSessionContext, false, 123, guesses.size(), guesses);
-		screenDisplayResults();
 	}
+
+	// === === === === === === === === === === === === === === === === === === ===
+	// === === === === HELPER METHODS FOR ANIMATIONS (INCLUDING AUTO SOLVER)
+	// === === === === === === === === === === === === === === === === === === ===
 
 	private void helperAutoSolverNextCategory(List<GameAnswerColor> remainingAnswerCategories) {
 		if (tileGridWord.getCurrentSolvingRow() < TileGridWord.ROWS) {
@@ -468,38 +485,39 @@ public class GameSession extends StackPane implements Modular {
 		return sequentialCorrectTrans;
 	}
 
-	private void helperSetGameButtonsDisabled(boolean disabled) {
-		if (disabled) {
-			gameShuffleButton.setDisable(true);
-			gameDeselectButton.setDisable(true);
-			gameSubmitButton.setDisable(true);
-		} else {
-			gameShuffleButton.setDisable(false);
-			gameDeselectButton.setDisable(tileGridWord.checkNumWordsMatchSelected() == 0);
-			gameSubmitButton.setDisable(tileGridWord.checkNumWordsMatchSelected() < TileGridWord.MAX_SELECTED);
-			gameSubmitButton.refreshStyle();
-		}
-	}
+	// === === === === === === === === === === === ===
+	// === === === === DEBUG METHODS
+	// === === === === === === === === === === === ===
 
-	private void helperUpdateGameButtonStatus() {
-		gameDeselectButton.setDisable(tileGridWord.getSelectedTileWordCount() == 0);
-		gameSubmitButton.setDisable(tileGridWord.getSelectedTileWordCount() < TileGridWord.MAX_SELECTED);
+	private void debugSimulateResultsPane() {
+		long seed = 123456789L;
+		Random randGen = new Random(seed);
+		GameData gameData = gameSessionContext.getGameData();
+		int numGuesses = 3 + randGen.nextInt(6);
+		List<Set<Word>> guesses = new ArrayList<>();
+		for (int i = 0; i < numGuesses; i++) {
+			Set<Word> set = new HashSet<>();
 
-		gameDeselectButton.refreshStyle();
-		gameSubmitButton.refreshStyle();
-	}
-
-	private void helperRefreshStyle(StyleManager styleManager, Region region) {
-		for (Node node : region.getChildrenUnmodifiable()) {
-			if (node instanceof Modular) {
-				((Modular) node).refreshStyle();
-			} else if (node instanceof Region) {
-				helperRefreshStyle(styleManager, (Region) node);
-			} else if (node instanceof Text) {
-				((Text) node).setFill(styleManager.colorText());
+			DifficultyColor[] possibleColors = { DifficultyColor.YELLOW, DifficultyColor.GREEN, DifficultyColor.BLUE,
+					DifficultyColor.PURPLE };
+			while (set.size() < 4) {
+				DifficultyColor randomColor = possibleColors[randGen.nextInt(4)];
+				GameAnswerColor randAnswer = gameData.getAnswerForColor(randomColor);
+				String[] words = randAnswer.getWords();
+				Word randomWord = new Word(words[randGen.nextInt(words.length)], randomColor);
+				if (!set.contains(randomWord)) {
+					set.add(randomWord);
+				}
 			}
+			guesses.add(set);
 		}
+		resultsPane = new ResultsPane(gameSessionContext, false, 123, guesses.size(), guesses);
+		screenDisplayResults();
 	}
+
+	// === === === === === === === === === === === ===
+	// === === === === OTHER METHODS
+	// === === === === === === === === === === === ===
 
 	@Override
 	public void refreshStyle() {
