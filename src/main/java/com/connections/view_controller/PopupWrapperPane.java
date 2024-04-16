@@ -73,9 +73,15 @@ public class PopupWrapperPane extends BorderPane implements Modular {
 	}
 	
 	public void setChild(Pane pane) {
-		this.childPane = pane;
-		containerPane.getChildren().clear();
-		containerPane.getChildren().add(pane);
+	    this.childPane = pane;
+	    containerPane.getChildren().clear();
+	    containerPane.getChildren().add(pane);
+	    refreshChildStyle();
+	}
+	public void refreshChildStyle() {
+	    if (childPane instanceof Modular) {
+	        ((Modular) childPane).refreshStyle();
+	    }
 	}
 	
 	public void setTitle(String title) {
@@ -148,8 +154,10 @@ public class PopupWrapperPane extends BorderPane implements Modular {
 	public void refreshStyle() {
 		StyleManager styleManager = gameSessionContext.getStyleManager();
 		setStyle(styleManager.styleOverlayPane());
+		titleText.setFill(styleManager.colorText());
 		goBackCross.setFill(styleManager.colorText());
 		goBackText.setFill(styleManager.colorText());
+		refreshChildStyle();
 	}
 
 	@Override
