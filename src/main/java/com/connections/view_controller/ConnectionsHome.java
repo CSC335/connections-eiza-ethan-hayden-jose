@@ -1,12 +1,15 @@
 package com.connections.view_controller;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -14,11 +17,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 
 public class ConnectionsHome extends Application {
     private BorderPane window;
@@ -51,7 +49,7 @@ public class ConnectionsHome extends Application {
         loginButton.setPrefHeight(58);
         loginButton.setPrefWidth(150);
         loginButton.setFont(franklin600_16);
-        //button.setText make 
+        //button.setText make
 
         loginButton.setOnAction(event -> {
             try {
@@ -65,8 +63,8 @@ public class ConnectionsHome extends Application {
                 e.printStackTrace();
             }
         });
-        
-        
+
+
 
         Button playButton = new Button("Play");
         playButton.setStyle(
@@ -77,7 +75,7 @@ public class ConnectionsHome extends Application {
         playButton.setTextFill(Color.WHITE);
         playButton.setOnAction(event -> {
             try {
-                
+
                 Stage newStage = new Stage();
 //                ConnectionsLogin login = new ConnectionsLogin();
 //                login.start(newStage);
@@ -90,7 +88,7 @@ public class ConnectionsHome extends Application {
                 e.printStackTrace();
             }
         });
-        
+
 
         //ImageView logoImageView = createLogoImageView();
 
@@ -110,14 +108,5 @@ public class ConnectionsHome extends Application {
     private void layoutConfigs() {
         Background background = new Background(new BackgroundFill(LOGIN_BACKGROUND_COLOR, null, null));
         window.setBackground(background);
-    }
-
-    private ImageView createLogoImageView() {
-        Image logoImage = new Image("./img/conn_logo.png");
-        ///empty-repo-haydenjoseeizaethan/img
-        ImageView logoImageView = new ImageView(logoImage);
-        logoImageView.setFitWidth(100);
-        logoImageView.setPreserveRatio(true);
-        return logoImageView;
     }
 }

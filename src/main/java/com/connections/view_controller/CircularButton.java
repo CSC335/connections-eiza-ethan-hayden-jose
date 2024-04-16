@@ -6,7 +6,7 @@ import javafx.scene.control.Button;
 public class CircularButton extends Button implements Modular {
 	private GameSessionContext gameSessionContext;
 	private boolean fillStyle;
-	
+
 	public CircularButton(String text, double width, GameSessionContext gameSessionContext, boolean fillStyle) {
 		this.fillStyle = fillStyle;
 		this.gameSessionContext = gameSessionContext;
@@ -22,10 +22,10 @@ public class CircularButton extends Button implements Modular {
 		setOnMouseExited(event -> {
 			setCursor(Cursor.DEFAULT);
 		});
-		
+
 		refreshStyle();
 	}
-	
+
 	public void setFillStyle(boolean fillStyle) {
 		this.fillStyle = fillStyle;
 		refreshStyle();
@@ -33,8 +33,8 @@ public class CircularButton extends Button implements Modular {
 
 	@Override
 	public void refreshStyle() {
-		StyleManager styleManager = gameSessionContext.getStyleManager();
-		
+		gameSessionContext.getStyleManager();
+
 		if(fillStyle && !isDisabled()) {
 			setStyle(gameSessionContext.getStyleManager().styleSubmitButtonFill());
 		} else {

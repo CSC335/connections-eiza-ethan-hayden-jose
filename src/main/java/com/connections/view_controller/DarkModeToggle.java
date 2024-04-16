@@ -1,8 +1,6 @@
 package com.connections.view_controller;
 
 import javafx.animation.TranslateTransition;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -56,7 +54,7 @@ public class DarkModeToggle extends StackPane implements Modular {
 
 		label.setOnMouseClicked(event -> toggle());
 		knobPane.setOnMouseClicked(event -> toggle());
-		
+
 		refreshStyle();
 	}
 
@@ -66,7 +64,7 @@ public class DarkModeToggle extends StackPane implements Modular {
 		boolean isDarkModeCurrently = styleManager.isDarkMode();
 		boolean isDarkModeNow = !isDarkModeCurrently;
 		styleManager.setDarkMode(isDarkModeNow);
-		
+
 		TranslateTransition transition = new TranslateTransition(Duration.millis(300), circle);
 		TranslateTransition transitionSVG = new TranslateTransition(Duration.millis(300), svgPane);
 		if (isDarkModeNow) {

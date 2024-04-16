@@ -1,13 +1,13 @@
 package com.connections.model;
-import java.util.Scanner;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.util.Scanner;
 
 public class GameDataCollection {
 	private final static String FILE_GAME_MARKER = "game";
@@ -20,7 +20,7 @@ public class GameDataCollection {
 	/**
 	 * Initializes the GameDataCollection with a String file path to read the games
 	 * from.
-	 * 
+	 *
 	 * @param filePath String path to read games from
 	 */
 	public GameDataCollection(String filePath) {
@@ -39,7 +39,7 @@ public class GameDataCollection {
 		/**
 		 * Initializes FileReader with a String file path to read from, which is passed
 		 * into a Scanner.
-		 * 
+		 *
 		 * @param filePath String path to read from
 		 * @throws FileNotFoundException if the file could not be found
 		 */
@@ -50,7 +50,7 @@ public class GameDataCollection {
 
 		/**
 		 * Returns true if another line is available to read and false if otherwise.
-		 * 
+		 *
 		 * @return true if another line can be read
 		 */
 		public boolean hasNextLine() {
@@ -60,7 +60,7 @@ public class GameDataCollection {
 		/**
 		 * Returns the String of the next line if it is available, otherwise throws a
 		 * NoSuchElementException.
-		 * 
+		 *
 		 * @return the String of the next line
 		 * @throws NoSuchElementException if the next line is not available
 		 */
@@ -74,7 +74,7 @@ public class GameDataCollection {
 		/**
 		 * Returns the number of line the FileReader is currently on (or has last read
 		 * from).
-		 * 
+		 *
 		 * @return the int current line number
 		 */
 		public int getLineNumber() {
@@ -83,7 +83,7 @@ public class GameDataCollection {
 
 		/**
 		 * Returns the file path that the FileReader was initialized with.
-		 * 
+		 *
 		 * @return the String file path
 		 */
 		public String getPath() {
@@ -98,7 +98,7 @@ public class GameDataCollection {
 	 * parameters. Each game is began with the keyword "game" followed by a sequence
 	 * of the four colors (yellow, green, blue, purple), each with the following
 	 * parameters in this order: description, hint list, and word list.
-	 * 
+	 *
 	 * @param filePath the String path to read from
 	 * @return true if the file was successfully read and false if otherwise
 	 */
@@ -179,7 +179,7 @@ public class GameDataCollection {
 
 	/**
 	 * Returns the List of games as GameData objects.
-	 * 
+	 *
 	 * @return the List of games
 	 */
 	public List<GameData> getGameList() {
@@ -188,7 +188,7 @@ public class GameDataCollection {
 
 	/**
 	 * Helper method for printing an error reading a file with the given FileReader.
-	 * 
+	 *
 	 * @param fileReader the FileReader that read the file in question
 	 * @param content    the message of the error
 	 */
@@ -199,7 +199,7 @@ public class GameDataCollection {
 
 	/**
 	 * Helper method for printing an error reading a file with the given path.
-	 * 
+	 *
 	 * @param filePath the String path of the file in question
 	 * @param content  the message of the error
 	 */
@@ -209,7 +209,7 @@ public class GameDataCollection {
 
 	/**
 	 * Helper method that removes whitespace from a given String.
-	 * 
+	 *
 	 * @param string the String to remove whitespace from
 	 * @return the cleaned String without whitespace
 	 */

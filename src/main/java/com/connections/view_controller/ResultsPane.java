@@ -6,36 +6,29 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Set;
 
-import com.connections.model.*;
+import com.connections.model.DifficultyColor;
+import com.connections.model.Word;
 
-import javafx.animation.FadeTransition;
+import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
-import javafx.animation.ParallelTransition;
 import javafx.animation.Timeline;
-import javafx.animation.TranslateTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Cursor;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.SVGPath;
-import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 public class ResultsPane extends StackPane implements Modular {
 	private GameSessionContext gameSessionContext;
 	private boolean wonGame;
 	private int puzzleNumber;
-	private int guessCount;
 	private List<Set<Word>> guesses;
 
 	private BorderPane entireLayout;
@@ -49,14 +42,13 @@ public class ResultsPane extends StackPane implements Modular {
 	private Timeline timerTimeline;
 	private CircularButton shareButton;
 	private NotificationPane copiedToClipboardNotification;
-	
+
 	public ResultsPane(GameSessionContext gameSessionContext,  boolean wonGame, int puzzleNumber, int guessCount,
 			List<Set<Word>> guesses) {
 		this.gameSessionContext = gameSessionContext;
 		this.wonGame = wonGame;
 		this.puzzleNumber = puzzleNumber;
 		this.guesses = guesses;
-		this.guessCount = guessCount;
 		initAssets();
 	}
 
@@ -67,7 +59,7 @@ public class ResultsPane extends StackPane implements Modular {
 //		int bestHeight = 492 + (guessCount * 40) + ((guessCount - 1) * TileGridWord.GAP);
 //		setMinSize(bestWidth, bestHeight);
 //		setMaxSize(bestWidth, bestHeight);
-		
+
 		entireLayout = new BorderPane();
 
 		resultsLayout = new VBox(0);
@@ -77,14 +69,14 @@ public class ResultsPane extends StackPane implements Modular {
 		initAttemptsGrid();
 		initNextPuzzleTimer();
 		initShareButton();
-		
+
 		resultsLayout.getChildren().addAll(titleLabel, puzzleNumberLabel, attemptsGridPane, timerLayout);
 		entireLayout.setCenter(resultsLayout);
 		entireLayout.setBottom(shareButton);
-		
+
 		BorderPane.setAlignment(shareButton, Pos.CENTER);
 		entireLayout.setPadding(new Insets(18));
-		
+
 		getChildren().add(entireLayout);
 		refreshStyle();
 	}
@@ -151,7 +143,7 @@ public class ResultsPane extends StackPane implements Modular {
 			timerLabel.setText(timerText);
 		}));
 
-		timerTimeline.setCycleCount(Timeline.INDEFINITE);
+		timerTimeline.setCycleCount(Animation.INDEFINITE);
 		timerTimeline.play();
 	}
 

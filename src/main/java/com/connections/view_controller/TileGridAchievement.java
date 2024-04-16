@@ -4,51 +4,48 @@ import com.connections.model.DifficultyColor;
 
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.shape.Rectangle;
 
 public class TileGridAchievement extends Pane implements Modular {
 	private GameSessionContext gameSessionContext;
 	private GridPane gridPane;
-	
+
 	public TileGridAchievement(GameSessionContext gameSessionContext) {
 		this.gameSessionContext = gameSessionContext;
 		initAssets();
 		initSampleAchievements();
 		refreshStyle();
 	}
-	
+
 	private void initAssets() {
 		gridPane = new GridPane();
 		gridPane.setHgap(TileGridWord.GAP);
 		gridPane.setVgap(TileGridWord.GAP);
 		gridPane.setAlignment(Pos.CENTER);
-		
+
 		gridPane.setMaxSize(TileGridWord.PANE_WIDTH, TileGridWord.PANE_HEIGHT);
 		setMaxSize(TileGridWord.PANE_WIDTH, TileGridWord.PANE_HEIGHT);
-		
+
 		getChildren().add(gridPane);
 	}
-	
+
 	private void initSampleAchievements() {
 		String[] achievementLabels = {
-			    "1 Standard Game Completed", "10 Standard Games Completed",
-			    "50 Standard Games Completed", "100 Standard Games Completed", "1 Time Trial Game Completed",
-			    "10 Time Trial Games Completed", "50 Time Trial Games Completed", "100 Time Trial Games Completed",
-			    "Solved 1 Puzzle with No Mistakes", "Solved 10 Puzzles with No Mistakes",
-			    "Solved 50 Puzzles with No Mistakes", "Solved 100 Puzzles with No Mistakes",
-			    "Solved 1 Time Trial Puzzle in Under 30 Seconds", "Solved 10 Time Trial Puzzles in Under 30 Seconds",
-			    "Solved 50 Time Trial Puzzles in Under 30 Seconds",
-			    "Solved 100 Time Trial Puzzles in Under 30 Seconds"
+				"1 standard game completed", "10 standard games completed",
+				"50 standard games completed", "100 standard games completed", "1 time trial game completed",
+				"10 time trial games completed", "50 time trial games completed", "100 time trial games completed","1 puzzle completed with no mistakes", "10 puzzles completed with no mistakes",
+				"50 puzzles completed with no mistakes", "100 puzzles completed with no mistakes",
+				"1 time trial puzzle completed in under 30 seconds",
+				"10 time trial puzzles completed in under 30 seconds",
+				"50 time trial puzzles completed in under 30 seconds",
+				"100 time trial puzzles completed in under 30 seconds"
 			};
-		
+
 		DifficultyColor[] colorIntensity = {DifficultyColor.YELLOW, DifficultyColor.GREEN, DifficultyColor.BLUE, DifficultyColor.PURPLE};
-		
+
 		gridPane.getChildren().clear();
 		for (int row = 0; row < TileGridWord.ROWS; row++) {
 			for (int col = 0; col < TileGridWord.COLS; col++) {
@@ -57,7 +54,7 @@ public class TileGridAchievement extends Pane implements Modular {
 			}
 		}
 	}
-	
+
 	public void animateCompletion() {
 		for (Node node : gridPane.getChildren()) {
 			if(node instanceof GameTileAchievement) {
@@ -66,7 +63,7 @@ public class TileGridAchievement extends Pane implements Modular {
 			}
 		}
 	}
-	
+
 	@Override
 	public void refreshStyle() {
 		setBackground(new Background(new BackgroundFill(gameSessionContext.getStyleManager().colorWholeAchievementsPane(), null, null)));

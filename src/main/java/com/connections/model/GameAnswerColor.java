@@ -8,35 +8,35 @@ public class GameAnswerColor {
 	private String description;
 	private String[] hints;
 	private String[] words;
-	
+
 	public GameAnswerColor(DifficultyColor color, String description, String[] hints, String[] words) {
 		this.color = color;
 		this.hints = hints;
 		this.description = description;
 		this.words = words;
 	}
-	
+
 	public DifficultyColor getColor() {
 		return color;
 	}
-	
+
 	public String getDescription() {
 		return description;
 	}
-	
+
 	public String[] getHints() {
 		return hints;
 	}
-	
+
 	public String[] getWords() {
 		return words;
 	}
-	
+
 	public boolean wordMatchesSet(Set<String> otherWordsSet) {
 		Set<String> wordsSet = new HashSet<>(Arrays.asList(words));
 		return otherWordsSet.equals(wordsSet);
 	}
-	
+
 	public String getWordListString() {
 		return String.join(", ", words).toUpperCase();
 	}
