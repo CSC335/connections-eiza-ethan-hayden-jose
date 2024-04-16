@@ -1,5 +1,6 @@
 package com.connections.view_controller;
 
+import com.connections.entry.ConnectionsAppLocal;
 import com.connections.model.*;
 
 import java.time.LocalDateTime;
@@ -110,7 +111,7 @@ public class GameSession extends StackPane implements Modular {
 	// === === === === === === === === === === === ===
 
 	private void initAssets() {
-		setPrefSize(GameBoard.STAGE_WIDTH, GameBoard.STAGE_HEIGHT);
+		setPrefSize(ConnectionsAppLocal.STAGE_WIDTH, ConnectionsAppLocal.STAGE_HEIGHT);
 
 		darkModeToggleMenuButton = new DarkModeToggle(gameSessionContext);
 
@@ -157,7 +158,7 @@ public class GameSession extends StackPane implements Modular {
 		organizationPane = new BorderPane();
 		organizationPane.setTop(menuPane);
 		organizationPane.setCenter(gameContentPane);
-		organizationPane.setPrefSize(GameBoard.STAGE_WIDTH, GameBoard.STAGE_HEIGHT);
+		organizationPane.setPrefSize(ConnectionsAppLocal.STAGE_WIDTH, ConnectionsAppLocal.STAGE_HEIGHT);
 		organizationPane.setPadding(new Insets(10));
 
 		getChildren().add(organizationPane);

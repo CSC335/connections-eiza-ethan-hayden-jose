@@ -81,8 +81,8 @@ public class ConnectionsHome extends Application {
                 Stage newStage = new Stage();
 //                ConnectionsLogin login = new ConnectionsLogin();
 //                login.start(newStage);
-                GameBoard game = new GameBoard();
-                game.start(newStage);
+//                GameBoard game = new GameBoard();
+//                game.start(newStage);
 
                 // kill current stage
                 stage.close();

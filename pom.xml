@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ConnectionsGame</groupId>
 	<artifactId>ConnectionsGame</artifactId>
@@ -75,12 +77,11 @@
 			<version>${jpro.version}</version>
 			<scope>compile</scope>
 		</dependency>
-		<!-- <dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-api</artifactId>
-			<version>5.8.0</version>
-			<scope>test</scope>
-		</dependency> -->
+		<dependency>
+			<groupId>org.mongodb</groupId>
+			<artifactId>mongodb-driver-sync</artifactId>
+			<version>4.11.1</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<resources>
@@ -105,7 +106,7 @@
 				<version>${jpro.version}</version>
 				<configuration>
 					<openURLOnStartup>false</openURLOnStartup>
-					<mainClassName>com.connections.view_controller.GameBoard</mainClassName>
+					<mainClassName>com.connections.entry.ConnectionsAppWeb</mainClassName>
 				</configuration>
 			</plugin>
 			<plugin>

@@ -113,8 +113,8 @@ public class ConnectionsLogin extends Application {
                 if (pass.length() > 7 && matches) {
                     // login
                     Stage newStage = new Stage();
-                    GameBoard gameBoard = new GameBoard();
-                    gameBoard.start(newStage);
+//                    GameBoard gameBoard = new GameBoard();
+//                    gameBoard.start(newStage);
                     // kill current
                     stage.close();
                 } else {
