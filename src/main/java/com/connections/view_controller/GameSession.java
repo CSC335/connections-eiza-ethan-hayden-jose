@@ -330,6 +330,7 @@ public class GameSession extends StackPane implements Modular {
 			gameShuffleButton.setDisable(true);
 			gameDeselectButton.setDisable(true);
 			gameSubmitButton.setDisable(true);
+			gameSubmitButton.refreshStyle();
 		} else {
 			gameShuffleButton.setDisable(false);
 			gameDeselectButton.setDisable(tileGridWord.checkNumWordsMatchSelected() == 0);
@@ -465,6 +466,8 @@ public class GameSession extends StackPane implements Modular {
 		PauseTransition placeholderPause = new PauseTransition(Duration.millis(5));
 		placeholderPause.setOnFinished(event -> {
 			submissionAnimationActive = true;
+			helperSetGameButtonsDisabled(true);
+			tileGridWord.setTileWordDisable(true);
 		});
 
 		ParallelTransition jumpTransition = tileGridWord.getTransitionTileWordJump();
