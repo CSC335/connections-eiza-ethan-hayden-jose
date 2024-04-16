@@ -76,12 +76,7 @@ public class PopupWrapperPane extends BorderPane implements Modular {
 	    this.childPane = pane;
 	    containerPane.getChildren().clear();
 	    containerPane.getChildren().add(pane);
-	    refreshChildStyle();
-	}
-	public void refreshChildStyle() {
-	    if (childPane instanceof Modular) {
-	        ((Modular) childPane).refreshStyle();
-	    }
+	    refreshStyle();
 	}
 	
 	public void setTitle(String title) {
@@ -157,7 +152,10 @@ public class PopupWrapperPane extends BorderPane implements Modular {
 		titleText.setFill(styleManager.colorText());
 		goBackCross.setFill(styleManager.colorText());
 		goBackText.setFill(styleManager.colorText());
-		refreshChildStyle();
+		
+		if(childPane != null && childPane instanceof Modular) {
+			((Modular) childPane).refreshStyle();
+		}
 	}
 
 	@Override

@@ -60,6 +60,8 @@ public class GameTileWord extends StackPane implements Modular {
 		}
 	}
 
+	// Method likely no longer needed
+	// Disabling/enabling style changeable during auto solve caused darkmode issues
 	public void setStyleChangeable(boolean styleChangeable) {
 		this.styleChangeable = styleChangeable;
 	}

@@ -25,12 +25,14 @@ import javafx.animation.Timeline;
 import javafx.animation.Transition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
+import javafx.beans.binding.Bindings;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.Clipboard;
@@ -73,7 +75,7 @@ public class GameSession extends StackPane implements Modular {
 	private CircleRowPane mistakesPane;
 	private HBox gameButtonRowPane;
 	private HBox menuButtonRowPane;
-	
+
 	private TileGridAchievement tileGridAchievement;
 
 	private boolean wonGame;
@@ -116,25 +118,34 @@ public class GameSession extends StackPane implements Modular {
 
 		tileGridWord = new TileGridWord(gameSessionContext);
 		tileGridWord.initTileWords();
+
 		tileGridWordAnimationPane = new TileGridWordAnimationOverlay(tileGridWord);
+
 		tileGridStackPane = new StackPane(tileGridWord, tileGridWordAnimationPane);
 
 		tileGridAchievement = new TileGridAchievement(gameSessionContext);
-		
+
 		hintMenuButton = new HintMenuButton(gameSessionContext);
+
 		achievementsMenuButton = new AchievementsMenuButton(gameSessionContext);
+
 		leaderboardMenuButton = new LeaderboardMenuButton(gameSessionContext);
+
 		profileMenuButton = new ProfileMenuButton(gameSessionContext);
 
 		mainHeaderText = new Text("Create four groups of four!");
 		mainHeaderText.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 500, 18));
 
 		hintsPane = new CircleRowPane("Hints remaining:", gameSessionContext);
+
 		mistakesPane = new CircleRowPane("Mistakes remaining:", gameSessionContext);
 
 		gameShuffleButton = new CircularButton("Shuffle", 88, gameSessionContext, false);
+
 		gameDeselectButton = new CircularButton("Deselect all", 120, gameSessionContext, false);
+
 		gameSubmitButton = new CircularButton("Submit", 88, gameSessionContext, true);
+
 		gameViewResultsButton = new CircularButton("View Results", 160, gameSessionContext, false);
 
 		gameButtonRowPane = new HBox(8);
@@ -347,18 +358,6 @@ public class GameSession extends StackPane implements Modular {
 		gameSubmitButton.refreshStyle();
 	}
 
-	private void helperRefreshStyle(StyleManager styleManager, Region region) {
-		for (Node node : region.getChildrenUnmodifiable()) {
-			if (node instanceof Modular) {
-				((Modular) node).refreshStyle();
-			} else if (node instanceof Region) {
-				helperRefreshStyle(styleManager, (Region) node);
-			} else if (node instanceof Text) {
-				((Text) node).setFill(styleManager.colorText());
-			}
-		}
-	}
-
 	// === === === === === === === === === === === === === === === === === === ===
 	// === === === === HELPER METHODS FOR ANIMATIONS (INCLUDING AUTO SOLVER)
 	// === === === === === === === === === === === === === === === === === === ===
@@ -385,7 +384,6 @@ public class GameSession extends StackPane implements Modular {
 		} else {
 			PauseTransition pauseBeforeResultsTransition = new PauseTransition(Duration.millis(1000));
 			pauseBeforeResultsTransition.setOnFinished(event -> {
-				tileGridWord.setTileWordStyleChangeable(true);
 				sessionReachedEndGame();
 			});
 			pauseBeforeResultsTransition.play();
@@ -402,7 +400,6 @@ public class GameSession extends StackPane implements Modular {
 				remainingAnswerCategories.add(colorAnswer);
 			}
 
-			tileGridWord.setTileWordStyleChangeable(false);
 			helperAutoSolverNextCategory(remainingAnswerCategories);
 		}
 	}
@@ -524,13 +521,47 @@ public class GameSession extends StackPane implements Modular {
 	// === === === === === === === === === === === ===
 	// === === === === OTHER METHODS
 	// === === === === === === === === === === === ===
+	private void helperRefreshStyle(StyleManager styleManager, Node node) {
+		if (node == null) {
+			return;
+		}
+
+		if (node instanceof Modular) {
+			((Modular) node).refreshStyle();
+		} else if (node instanceof Parent) {
+			for (Node child : ((Parent) node).getChildrenUnmodifiable()) {
+				helperRefreshStyle(styleManager, child);
+			}
+		} else if (node instanceof Text) {
+			((Text) node).setFill(styleManager.colorText());
+		}
+	}
 
 	@Override
 	public void refreshStyle() {
 		StyleManager styleManager = gameSessionContext.getStyleManager();
 
 		setBackground(new Background(new BackgroundFill(styleManager.colorWholeGameBackground(), null, null)));
-		helperRefreshStyle(styleManager, this);
+
+		/*
+		 * NOTE: If there is anything that is not properly being updated with the dark
+		 * mode setting, add it into this array.
+		 */
+		/*
+		 * NOTE: Anything that is a Pane will have its children be updated recursively
+		 * (so most likely even if a Node is not already in this list, it will still be
+		 * updated, but it may not be properly updated if it is not a child or currently
+		 * added to another Pane).
+		 */
+		Node[] completeComponentList = { mainHeaderText, organizationPane, menuPane, gameContentPane, tileGridStackPane,
+				hintsPane, mistakesPane, gameButtonRowPane, menuButtonRowPane, tileGridAchievement, tileGridWord,
+				tileGridWordAnimationPane, darkModeToggleMenuButton, hintMenuButton, achievementsMenuButton,
+				leaderboardMenuButton, profileMenuButton, gameSubmitButton, gameDeselectButton, gameShuffleButton,
+				gameViewResultsButton, resultsPane, popupPane };
+
+		for (Node node : completeComponentList) {
+			helperRefreshStyle(styleManager, node);
+		}
 	}
 
 	@Override
