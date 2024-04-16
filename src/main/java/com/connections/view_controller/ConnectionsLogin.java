@@ -1,9 +1,7 @@
 package com.connections.view_controller;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
-import javafx.animation.PauseTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.geometry.Pos;
@@ -25,8 +23,6 @@ import javafx.util.Duration;
 public class ConnectionsLogin extends Application {
     private PasswordField tPassword;
     private StyleManager styleManager = new StyleManager();
-    private SVGPath exclSVG;
-
     public static void main(String[] args) {
         launch(args);
     }
@@ -71,7 +67,7 @@ public class ConnectionsLogin extends Application {
         cont.setPrefSize(450, 44);
         cont.setFont(franklin700_16);
         cont.setTextFill(Color.WHITE);
-        
+
         GridPane.setMargin(cont, new javafx.geometry.Insets(16, 0, 0, 0));
 
         cont.setOnAction(event -> {
@@ -104,8 +100,8 @@ public class ConnectionsLogin extends Application {
             HBox errorBox = new HBox(5);
             errorBox.setAlignment(Pos.CENTER_LEFT);
             errorBox.getChildren().addAll(emailExclSVG, errorLabel);
-            
-            
+
+
             if (tPassword.isVisible()) {
                 String pass = tPassword.getText();
                 String sEmail = tEmail.getText();
@@ -118,10 +114,10 @@ public class ConnectionsLogin extends Application {
                     // kill current
                     stage.close();
                 } else {
-                   
+
 
                     if (pass.length() < 8) {
-                     
+
                         // Add the password error HBox to the grid
                         grid.add(passwordErrorBox, 0, 5);
                         GridPane.setMargin(passwordErrorBox, new javafx.geometry.Insets(5, 0, 0, 0));
@@ -139,7 +135,7 @@ public class ConnectionsLogin extends Application {
                         // Add the email error HBox to the grid
                         grid.add(errorBox, 0, 2);
                         GridPane.setMargin(errorBox, new javafx.geometry.Insets(5, 0, 0, 0));
-                        
+
                         tEmail.setStyle("-fx-border-color: red; -fx-border-width: 1;");
 
 
@@ -172,7 +168,7 @@ public class ConnectionsLogin extends Application {
                   // Add the email error HBox to the grid
                   grid.add(errorBox, 0, 2);
                   GridPane.setRowIndex(cont, 3);
-                  
+
                   tEmail.setStyle("-fx-border-color: red; -fx-border-width: 1;");
 
                   // Add a listener to the email text field

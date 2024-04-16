@@ -1,6 +1,7 @@
 package com.connections.view_controller;
 
-import com.connections.model.*;
+import com.connections.model.GameAnswerColor;
+
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
@@ -8,8 +9,6 @@ import javafx.geometry.Pos;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
@@ -22,7 +21,7 @@ public class GameTileAnswer extends StackPane implements Modular {
 	private VBox textVBox;
 	private Rectangle rectBackground;
 	private TileGridWord tileGridWord;
-	
+
 	public GameTileAnswer(GameAnswerColor answer, TileGridWord tileGridWord) {
 		this.tileGridWord = tileGridWord;
 		this.answer = answer;
@@ -32,7 +31,7 @@ public class GameTileAnswer extends StackPane implements Modular {
 
 		wordListText = new Text(answer.getWordListString());
 		wordListText.setFont(tileGridWord.getGameSessionContext().getStyleManager().getFont("franklin-normal",500, 20));
-		
+
 		textVBox = new VBox(categoryNameText, wordListText);
 		textVBox.setAlignment(Pos.CENTER);
 		rectBackground = new Rectangle(TileGridWord.PANE_WIDTH, GameTile.RECTANGLE_HEIGHT);
@@ -65,11 +64,11 @@ public class GameTileAnswer extends StackPane implements Modular {
 
 		return parallelTransition;
 	}
-	
+
 	@Override
 	public void refreshStyle() {
 		StyleManager styleManager = tileGridWord.getGameSessionContext().getStyleManager();
-		
+
 		wordListText.setFill(styleManager.colorTextNeutral());
 		categoryNameText.setFill(styleManager.colorTextNeutral());
 		rectBackground.setFill(styleManager.colorDifficulty(answer.getColor()));

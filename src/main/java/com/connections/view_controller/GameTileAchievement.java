@@ -1,24 +1,18 @@
 package com.connections.view_controller;
 
-import com.connections.model.*;
+import com.connections.model.DifficultyColor;
 
 import javafx.animation.FadeTransition;
-import javafx.animation.FillTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.PauseTransition;
 import javafx.animation.ScaleTransition;
 import javafx.animation.SequentialTransition;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Cursor;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.OverrunStyle;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
@@ -31,11 +25,8 @@ public class GameTileAchievement extends StackPane implements Modular {
     private boolean completedStatus;
     private BorderPane textBorderPane;
     private Label achievementLabel;
-    private Font achievementFont;
-    private Font statusFont;
     private Rectangle backgroundRectangle;
     private TileGridAchievement tileGridAchievement;
-    private String achievementDescription;
     private DifficultyColor difficultyColor;
 
     public GameTileAchievement(DifficultyColor difficultyColor, String achievementDescription, boolean completedStatus,
@@ -43,15 +34,11 @@ public class GameTileAchievement extends StackPane implements Modular {
         this.difficultyColor = difficultyColor;
         this.tileGridAchievement = tileGridAchievement;
         this.completedStatus = completedStatus;
-        this.achievementDescription = achievementDescription;
-
         StyleManager styleManager = tileGridAchievement.getGameSessionContext().getStyleManager();
 
         backgroundRectangle = new Rectangle(GameTile.RECTANGLE_WIDTH, GameTile.RECTANGLE_HEIGHT);
         backgroundRectangle.setArcWidth(GameTile.CORNER_RADIUS);
         backgroundRectangle.setArcHeight(GameTile.CORNER_RADIUS);
-
-        achievementFont = styleManager.getFont("franklin-normal", 500, 12);
 
         String[] parts = achievementDescription.split("completed", 2);
         Text part1 = new Text(parts[0]);

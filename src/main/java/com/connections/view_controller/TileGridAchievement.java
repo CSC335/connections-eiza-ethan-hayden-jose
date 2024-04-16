@@ -4,37 +4,34 @@ import com.connections.model.DifficultyColor;
 
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.shape.Rectangle;
 
 public class TileGridAchievement extends Pane implements Modular {
 	private GameSessionContext gameSessionContext;
 	private GridPane gridPane;
-	
+
 	public TileGridAchievement(GameSessionContext gameSessionContext) {
 		this.gameSessionContext = gameSessionContext;
 		initAssets();
 		initSampleAchievements();
 		refreshStyle();
 	}
-	
+
 	private void initAssets() {
 		gridPane = new GridPane();
 		gridPane.setHgap(TileGridWord.GAP);
 		gridPane.setVgap(TileGridWord.GAP);
 		gridPane.setAlignment(Pos.CENTER);
-		
+
 		gridPane.setMaxSize(TileGridWord.PANE_WIDTH, TileGridWord.PANE_HEIGHT);
 		setMaxSize(TileGridWord.PANE_WIDTH, TileGridWord.PANE_HEIGHT);
-		
+
 		getChildren().add(gridPane);
 	}
-	
+
 	private void initSampleAchievements() {
 		String[] achievementLabels = {
 				"1 standard game completed", "10 standard games completed",
@@ -46,9 +43,9 @@ public class TileGridAchievement extends Pane implements Modular {
 				"50 time trial puzzles completed in under 30 seconds",
 				"100 time trial puzzles completed in under 30 seconds"
 			};
-		
+
 		DifficultyColor[] colorIntensity = {DifficultyColor.YELLOW, DifficultyColor.GREEN, DifficultyColor.BLUE, DifficultyColor.PURPLE};
-		
+
 		gridPane.getChildren().clear();
 		for (int row = 0; row < TileGridWord.ROWS; row++) {
 			for (int col = 0; col < TileGridWord.COLS; col++) {
@@ -57,7 +54,7 @@ public class TileGridAchievement extends Pane implements Modular {
 			}
 		}
 	}
-	
+
 	public void animateCompletion() {
 		for (Node node : gridPane.getChildren()) {
 			if(node instanceof GameTileAchievement) {
@@ -66,7 +63,7 @@ public class TileGridAchievement extends Pane implements Modular {
 			}
 		}
 	}
-	
+
 	@Override
 	public void refreshStyle() {
 		setBackground(new Background(new BackgroundFill(gameSessionContext.getStyleManager().colorWholeAchievementsPane(), null, null)));
