@@ -177,6 +177,9 @@ public class GameSession extends StackPane implements Modular {
 		gameSubmitButton.setOnAction(event -> {
 			sessionSubmissionAttempt();
 		});
+		gameDeselectButton.setOnAction(event -> {
+			tileGridWord.deselectTileWords();
+		});
 		gameSessionContext.getStyleManager().setOnDarkModeChange(event -> {
 			refreshStyle();
 		});
