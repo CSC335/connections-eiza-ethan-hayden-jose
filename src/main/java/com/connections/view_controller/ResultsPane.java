@@ -70,14 +70,14 @@ public class ResultsPane extends StackPane implements Modular {
 		initNextPuzzleTimer();
 		initShareButton();
 
-		resultsLayout.getChildren().addAll(titleLabel, puzzleNumberLabel, attemptsGridPane, timerLayout);
-		entireLayout.setCenter(resultsLayout);
-		entireLayout.setBottom(shareButton);
+		resultsLayout.getChildren().addAll(titleLabel, puzzleNumberLabel, attemptsGridPane, timerLayout, shareButton);
+//		entireLayout.setCenter(resultsLayout);
+//		entireLayout.setBottom(shareButton);
 
 		BorderPane.setAlignment(shareButton, Pos.CENTER);
-		entireLayout.setPadding(new Insets(18));
+//		entireLayout.setPadding(new Insets(18));
 
-		getChildren().add(entireLayout);
+		getChildren().add(resultsLayout);
 		refreshStyle();
 	}
 
@@ -150,7 +150,6 @@ public class ResultsPane extends StackPane implements Modular {
 	private void initShareButton() {
 		shareButton = new CircularButton("Share Your Results", 162, gameSessionContext, true);
 		shareButton.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 600, 16));
-		shareButton.setTranslateY(4);
 		VBox.setMargin(shareButton, new Insets(21, 0, 20, 0));
 
 		shareButton.setOnAction(event -> {
