@@ -8,6 +8,8 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
@@ -90,12 +92,12 @@ public class ConnectionsHome extends Application {
         });
 
 
-        //ImageView logoImageView = createLogoImageView();
+        ImageView logoImageView = createLogoImageView();
 
         VBox centerBox = new VBox(20);
         centerBox.setAlignment(Pos.CENTER);
-        //centerBox.getChildren().addAll(logoImageView, title, how_to, playButton, loginButton);
-        centerBox.getChildren().addAll(title, how_to, playButton, loginButton);
+        centerBox.getChildren().addAll(logoImageView, title, how_to, playButton, loginButton);
+        //centerBox.getChildren().addAll(title, how_to, playButton, loginButton);
 
         StackPane centerStackPane = new StackPane(centerBox);
         window.setCenter(centerStackPane);
@@ -108,5 +110,13 @@ public class ConnectionsHome extends Application {
     private void layoutConfigs() {
         Background background = new Background(new BackgroundFill(LOGIN_BACKGROUND_COLOR, null, null));
         window.setBackground(background);
+    }
+    
+    private ImageView createLogoImageView() {
+        Image logoImage = new Image("file:img/conn_logo.png");
+        ImageView logoImageView = new ImageView(logoImage);
+        logoImageView.setFitWidth(100);
+        logoImageView.setPreserveRatio(true);
+        return logoImageView;
     }
 }
