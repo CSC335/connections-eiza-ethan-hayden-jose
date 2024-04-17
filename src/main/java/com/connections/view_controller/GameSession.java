@@ -455,10 +455,9 @@ public class GameSession extends StackPane implements Modular {
 	// === === === === === === === === === === === ===
 
 	private void debugSimulateResultsPane() {
-		long seed = 123456789L;
-		Random randGen = new Random(seed);
+		Random randGen = new Random();
 		GameData gameData = gameSessionContext.getGameData();
-		int numGuesses = 3 + randGen.nextInt(5);
+		int numGuesses = 3 + randGen.nextInt(1, 5);
 		List<Set<Word>> guesses = new ArrayList<>();
 		for (int i = 0; i < numGuesses; i++) {
 			Set<Word> set = new HashSet<>();

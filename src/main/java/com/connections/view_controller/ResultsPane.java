@@ -41,6 +41,7 @@ public class ResultsPane extends StackPane implements Modular {
 	private Label timerLabel;
 	private Timeline timerTimeline;
 	private CircularButton shareButton;
+	private int guessCount;
 	private NotificationPane copiedToClipboardNotification;
 
 	public ResultsPane(GameSessionContext gameSessionContext,  boolean wonGame, int puzzleNumber, int guessCount,
@@ -49,6 +50,7 @@ public class ResultsPane extends StackPane implements Modular {
 		this.wonGame = wonGame;
 		this.puzzleNumber = puzzleNumber;
 		this.guesses = guesses;
+		this.guessCount = guessCount;
 		initAssets();
 	}
 
@@ -82,7 +84,16 @@ public class ResultsPane extends StackPane implements Modular {
 	}
 
 	private void initHeader() {
-		titleLabel = wonGame ? new Label("Perfect!") : new Label("Next Time!");
+		titleLabel = new Label();
+		if (wonGame && guessCount > 4) {
+			titleLabel.setText("Solid!");
+		}
+		else if (wonGame && guessCount == 4) {
+			titleLabel.setText("Perfect!");
+		}
+		else {
+			titleLabel.setText("Next Time!");
+		}
 		titleLabel.setFont(gameSessionContext.getStyleManager().getFont("karnakpro-condensedblack", 36));
 		VBox.setMargin(titleLabel, new Insets(80, 0, 0, 0));
 
