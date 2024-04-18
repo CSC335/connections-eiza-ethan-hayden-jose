@@ -71,7 +71,7 @@ public class WebTempLoginScreen extends BorderPane {
 			
 			getChildren().add(title);
 			
-			ObservableMap<String, String> map = WebUtils.cookiesGetMap(webContext);
+			ObservableMap<String, String> map = WebBridge.cookiesGetMap(webContext);
 			
 			for(String key : map.keySet()) {
 				Text entry = new Text(String.format("[%s = %s]", key, map.get(key)));
@@ -132,7 +132,7 @@ public class WebTempLoginScreen extends BorderPane {
 	private class DatabaseView extends VBox {
 		public DatabaseView() {
 			getChildren().add(new CollectionCookiesView());
-			for(String collectionName : WebUtils.COLLECTIONS) {
+			for(String collectionName : WebBridge.COLLECTIONS) {
 				getChildren().add(new CollectionView(collectionName));
 			}
 			setPadding(new Insets(10));
@@ -177,14 +177,14 @@ public class WebTempLoginScreen extends BorderPane {
 	}
 	
 	public void start() {
-		if(WebUtils.cookiesEmpty(webContext) || WebUtils.cookiesGetSessionID(webContext) == null) {
+		if(WebBridge.cookiesEmpty(webContext) || WebBridge.cookiesGetSessionID(webContext) == null) {
 			setStateEnteredSingedOut();
 		} else {
-			String sessionID = WebUtils.cookiesGetSessionID(webContext);
-			String sessionIDType = WebUtils.checkSessionIDUserType(webContext, sessionID);
-			if(sessionIDType.equals(WebUtils.IS_SESSION_ID_FOR_ACCOUNT)) {
+			String sessionID = WebBridge.cookiesGetSessionID(webContext);
+			String sessionIDType = WebBridge.checkSessionIDUserType(webContext, sessionID);
+			if(sessionIDType.equals(WebBridge.IS_SESSION_ID_FOR_ACCOUNT)) {
 				setStateEnteredAsAccount();
-			} else if(sessionIDType.equals(WebUtils.IS_SESSION_ID_FOR_GUEST)) {
+			} else if(sessionIDType.equals(WebBridge.IS_SESSION_ID_FOR_GUEST)) {
 				setStateEnteredAsGuest();
 			} else {
 				setStateEnteredSingedOut();
@@ -228,13 +228,13 @@ public class WebTempLoginScreen extends BorderPane {
 		});
 		Button clearData = new Button("CLEAR ENTIRE DATBASE");
 		clearData.setOnAction(event -> {
-			WebUtils.dropAllAndReInitialize(webContext);
+			WebBridge.dropAllAndReInitialize(webContext);
 			clearData.setText("CLEAR ENTIRE DATBASE (cleared)");
 			databaseView.reload();
 		});
 		Button clearCookies = new Button("CLEAR COOKIES");
 		clearCookies.setOnAction(event -> {
-			WebUtils.cookiesClear(webContext);
+			WebBridge.cookiesClear(webContext);
 			clearCookies.setText("CLEAR COOKIES (cleared)");
 			databaseView.reload();
 		});
@@ -258,7 +258,7 @@ public class WebTempLoginScreen extends BorderPane {
 		});
 		Button a2 = new Button("Log Out (Clears Cookies)");
 		a2.setOnAction(event -> {
-			WebUtils.sessionSignOut(webContext, true, true);
+			WebBridge.sessionSignOut(webContext, true, true);
 			setStateEnteredSingedOut();
 		});
 
@@ -278,7 +278,7 @@ public class WebTempLoginScreen extends BorderPane {
 		});
 		Button a2 = new Button("Log Out (Clears Cookies)");
 		a2.setOnAction(event -> {
-			WebUtils.sessionSignOut(webContext, true, true);
+			WebBridge.sessionSignOut(webContext, true, true);
 			setStateEnteredSingedOut();
 		});
 
@@ -292,9 +292,9 @@ public class WebTempLoginScreen extends BorderPane {
 		mainLayout.getChildren().clear();
 		menuTitleText.setText("LEAVING: STARTING GAME AS NEW GUEST");
 
-		String guestID = WebUtils.generateUnusedGuestID(webContext);
-		WebUtils.storeGuest(webContext, guestID);
-		WebUtils.sessionGuestBegin(webContext, guestID, true, true);
+		String guestID = WebBridge.generateUnusedGuestID(webContext);
+		WebBridge.storeGuest(webContext, guestID);
+		WebBridge.sessionGuestBegin(webContext, guestID, true, true);
 		databaseView.reload();
 		
 		Button go = new Button("Continue");
@@ -354,21 +354,21 @@ public class WebTempLoginScreen extends BorderPane {
 		Button enter = new Button("Create");
 		Text status = new Text("");
 		enter.setOnAction(event -> {
-			if(WebUtils.notEmpty(WebUtils.findUserByName(webContext, username.getInput()))) {
+			if(WebBridge.notEmpty(WebBridge.findUserByName(webContext, username.getInput()))) {
 				status.setText("An account of that user name already exists!");
 				return;
 			}
-			if(WebUtils.notEmpty(WebUtils.findUserByEmail(webContext, email.getInput()))) {
+			if(WebBridge.notEmpty(WebBridge.findUserByEmail(webContext, email.getInput()))) {
 				status.setText("An account of that email already exists!");
 				return;
 			}
-			WebUtils.storeAccount(webContext, username.getInput(), email.getInput(), password.getInput());
+			WebBridge.storeAccount(webContext, username.getInput(), email.getInput(), password.getInput());
 			status.setText("Created account!");
 			databaseView.reload();
 
 			Button go = new Button("Make New Session, Enter Game");
 			go.setOnAction(event2 -> {
-				WebUtils.sessionAccountBegin(webContext, username.getInput(), true, true);
+				WebBridge.sessionAccountBegin(webContext, username.getInput(), true, true);
 				databaseView.reload();
 				go.setText("Hold On...");
 				pauseBeforeEnteringGame();
@@ -400,7 +400,7 @@ public class WebTempLoginScreen extends BorderPane {
 		Button enter = new Button("Log In");
 		Text status = new Text("");
 		enter.setOnAction(event -> {
-			if(!WebUtils.checkAccountCredentialsMatch(webContext, username.getInput(), password.getInput())) {
+			if(!WebBridge.checkAccountCredentialsMatch(webContext, username.getInput(), password.getInput())) {
 				status.setText("Could not find matching username and password!");
 				return;
 			}
@@ -409,7 +409,7 @@ public class WebTempLoginScreen extends BorderPane {
 			
 			Button go = new Button("Make New Session, Enter Game");
 			go.setOnAction(event2 -> {
-				WebUtils.sessionAccountBegin(webContext, username.getInput(), true, true);
+				WebBridge.sessionAccountBegin(webContext, username.getInput(), true, true);
 				databaseView.reload();
 				go.setText("Hold On...");
 				pauseBeforeEnteringGame();

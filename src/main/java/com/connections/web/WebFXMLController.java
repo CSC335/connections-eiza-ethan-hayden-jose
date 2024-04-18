@@ -54,7 +54,7 @@ public class WebFXMLController implements Initializable {
 		
 		try {
 			MongoClient mongoClient = MongoClients.create(mongoURL);
-			return mongoClient.getDatabase(WebUtils.DATABASE_NAME);
+			return mongoClient.getDatabase(WebBridge.DATABASE_NAME);
 		} catch(Exception e) {
 			System.out.println("Connections (WARNING): WebFXMLController could not connect to the database at " + mongoURL);
 		}
@@ -66,7 +66,7 @@ public class WebFXMLController implements Initializable {
 		
 		MongoDatabase mongoDatabase = connectDatabase();
 		
-		MongoCollection<Document> collectionSessionID = mongoDatabase.getCollection(WebUtils.COLLECTION_SESSION_ID_NAME);
+		MongoCollection<Document> collectionSessionID = mongoDatabase.getCollection(WebBridge.COLLECTION_SESSION_ID_NAME);
 		
 //		String savedSessionID = cookies.get(WebUtils.COOKIE_SESSION_ID_NAME);
 		

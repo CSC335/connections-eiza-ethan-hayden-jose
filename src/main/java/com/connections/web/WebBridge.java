@@ -5,10 +5,11 @@ import java.util.UUID;
 import org.bson.Document;
 
 import com.mongodb.client.*;
+import com.mongodb.client.model.UpdateOptions;
 
 import javafx.collections.ObservableMap;
 
-public class WebUtils {
+public class WebBridge {
 	public static final String DATABASE_NAME = "connectionsdb";
 
 	public static final String COLLECTION_SESSION_ID_NAME = "sessionid";
@@ -55,6 +56,23 @@ public class WebUtils {
 
 	public static void dropCollection(WebContext context, String collectionName) {
 		context.getMongoDatabase().getCollection(collectionName).drop();
+	}
+	
+	public static void storeUniqueEntry(WebContext context, String collectionName, String key, String value, Document newDoc) {
+		MongoCollection<Document> collection = context.getMongoDatabase().getCollection(collectionName);
+		Document findCriteria = new Document(key, value);
+		Document updateCriteria = new Document("$set", newDoc);
+		
+		UpdateOptions options = new UpdateOptions();
+		options.upsert(true);
+		
+		collection.updateOne(findCriteria, updateCriteria, options);
+	}
+	
+	public static Document loadUniqueEntry(WebContext context, String collectionName, String key, String value) {
+		MongoCollection<Document> collection = context.getMongoDatabase().getCollection(collectionName);
+		Document findCriteria = new Document(key, value);
+		return collection.find(findCriteria).first();
 	}
 
 	public static FindIterable<Document> findGuestByID(WebContext context, String guestID) {
