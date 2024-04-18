@@ -1,17 +1,28 @@
 package com.connections.model;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-public class GameAnswerColor {
+import org.bson.Document;
+
+import com.connections.web.DatabaseFormattable;
+
+public class GameAnswerColor implements DatabaseFormattable {
+	public static final String KEY_COLOR = "color";
+	public static final String KEY_DESCRIPTION = "label";
+	public static final String KEY_WORDS = "words";
+	
 	private DifficultyColor color;
 	private String description;
-	private String[] hints;
 	private String[] words;
 	
-	public GameAnswerColor(DifficultyColor color, String description, String[] hints, String[] words) {
+	public GameAnswerColor(Document doc) {
+		loadFromDatabaseFormat(doc);
+	}
+	
+	public GameAnswerColor(DifficultyColor color, String description, String[] words) {
 		this.color = color;
-		this.hints = hints;
 		this.description = description;
 		this.words = words;
 	}
@@ -22,10 +33,6 @@ public class GameAnswerColor {
 	
 	public String getDescription() {
 		return description;
-	}
-	
-	public String[] getHints() {
-		return hints;
 	}
 	
 	public String[] getWords() {
@@ -39,6 +46,23 @@ public class GameAnswerColor {
 	
 	public String getWordListString() {
 		return String.join(", ", words).toUpperCase();
+	}
+
+	@Override
+	public Document getAsDatabaseFormat() {
+		Document doc = new Document();
+		doc.append(KEY_COLOR, color.toString().toLowerCase());
+		doc.append(KEY_DESCRIPTION, description);
+		doc.append(KEY_WORDS, Arrays.asList(words));
+		return doc;
+	}
+
+	@Override
+	public void loadFromDatabaseFormat(Document doc) {
+		color = DifficultyColor.valueOf(doc.getString(KEY_COLOR).toUpperCase());
+		description = doc.getString(KEY_DESCRIPTION);
+		List<String> wordList= doc.getList(KEY_WORDS, String.class);
+		words= wordList.toArray(new String[0]);
 	}
 
 }

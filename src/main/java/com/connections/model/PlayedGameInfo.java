@@ -8,7 +8,6 @@ import java.util.Set;
 import org.bson.Document;
 
 import com.connections.web.DatabaseFormattable;
-import com.connections.web.DatabaseUnique;
 
 public class PlayedGameInfo implements DatabaseFormattable {
 	public static final String KEY_PUZZLE_NUMBER = "puzzle_number";
@@ -116,14 +115,4 @@ public class PlayedGameInfo implements DatabaseFormattable {
         	loadGuessesFromDatabaseFormat((List<List<Document>>) guessesRetrieved);
         }
 	}
-
-//	@Override
-//	public String getUniqueID() {
-//		return Integer.toString(puzzleNumber);
-//	}
-//
-//	@Override
-//	public void setUniqueID(String id) {
-//		puzzleNumber = Integer.parseInt(id);
-//	}
 }

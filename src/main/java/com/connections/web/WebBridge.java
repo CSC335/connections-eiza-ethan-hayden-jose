@@ -10,107 +10,115 @@ import com.mongodb.client.model.UpdateOptions;
 import javafx.collections.ObservableMap;
 
 public class WebBridge {
-	public static final String DATABASE_NAME = "connectionsdb";
+	public static final String DATABASE_NAME = "connections_db";
 
-	public static final String COLLECTION_SESSION_ID_NAME = "sessionid";
+	public static final String COLLECTION_SERVER_STATUS = "server_status";
+	public static final String COLLECTION_SESSION_ID_NAME = "session_id";
 	public static final String COLLECTION_ACCOUNT = "account";
 	public static final String COLLECTION_GUEST = "guest";
+	
+	public static final String KEY_IS_SERVER_INIT = "is_server_init";
+	public static final String KEY_CURRENT_PUZZLE_NUMBER = "today_puzzle_number";
 
 	public static final String[] COLLECTIONS = { COLLECTION_SESSION_ID_NAME, COLLECTION_ACCOUNT, COLLECTION_GUEST };
-
-	public static final String KEY_GUEST_ID = "guestid";
-	public static final String KEY_SESSION_ID = "sessionid";
-	public static final String KEY_USERNAME = "username";
-	public static final String KEY_PASSWORD = "password";
-	public static final String KEY_EMAIL = "email";
-
-	public static final String IS_SESSION_ID_FOR_GUEST = "guest";
-	public static final String IS_SESSION_ID_FOR_ACCOUNT = "account";
-	public static final String IS_SESSION_ID_FOR_NONE = "none";
 
 	// NOTE FOR COLLECTION_SESSION_ID_NAME:
 	// > For accounts, the session ID is paired with the user name of the account
 	// > For guests, the session ID is paired with the guest ID of the guest
 
-	public static boolean collectionContains(MongoCollection<Document> collection, String queryKey, String queryValue) {
-		return notEmpty(collection.find(new Document(queryKey, queryValue)));
+	public static boolean helperCollectionContains(MongoCollection<Document> collection, String queryKey, Object queryValue) {
+		return helperResultsNotEmpty(collection.find(new Document(queryKey, queryValue)));
 	}
 
-	public static boolean collectionContains(MongoCollection<Document> collection, Document query) {
-		return notEmpty(collection.find(query));
+	public static boolean helperCollectionContains(MongoCollection<Document> collection, Document query) {
+		return helperResultsNotEmpty(collection.find(query));
+	}
+	
+	public static boolean helperCollectionContains(WebContext webContext, String collectionName, String queryKey, Object queryValue) {
+		return helperCollectionContains(webContext.getMongoDatabase().getCollection(collectionName), queryKey, queryValue);
+	}
+	
+	public static boolean helperCollectionContains(WebContext webContext, String collectionName, Document query) {
+		return helperCollectionContains(webContext.getMongoDatabase().getCollection(collectionName), query);
+	}
+	
+	public static void collectionPut(WebContext webContext, String collectionName, Document doc) {
+		webContext.getMongoDatabase().getCollection(collectionName).insertOne(doc);
+	}
+	
+	public static void collectionPut(WebContext webContext, String collectionName, String key, Object value) {
+		collectionPut(webContext, collectionName, new Document(key, value));
 	}
 
-	public static boolean notEmpty(FindIterable<Document> iter) {
+	public static boolean helperResultsNotEmpty(FindIterable<Document> iter) {
 		for (Document document : iter) {
 			return true;
 		}
 		return false;
 	}
 
+	public static boolean checkDatabaseInit(WebContext webContext) {
+		return helperCollectionContains(webContext, COLLECTION_SERVER_STATUS, KEY_IS_SERVER_INIT, true);
+	}
+	
 	// RECOMMENDED to use this method over calling drop directly because it will
 	// re-initialize constant values like the archived game data and its words,
 	// answers, etc.
-	public static void dropAllAndReInitialize(WebContext context) {
-		context.getMongoDatabase().drop();
+	public static void initDatabase(WebContext webContext) {
+		webContext.getMongoDatabase().drop();
+		
+		collectionPut(webContext, COLLECTION_SERVER_STATUS, KEY_IS_SERVER_INIT, true);
 	}
 
-	public static void dropCollection(WebContext context, String collectionName) {
-		context.getMongoDatabase().getCollection(collectionName).drop();
+	public static void helperCollectionDrop(WebContext webContext, String collectionName) {
+		webContext.getMongoDatabase().getCollection(collectionName).drop();
 	}
-	
-	public static void storeUniqueEntry(WebContext context, String collectionName, String key, String value, Document newDoc) {
-		MongoCollection<Document> collection = context.getMongoDatabase().getCollection(collectionName);
+
+	public static void updateUniqueEntry(WebContext webContext, String collectionName, String key, String value,
+			Document newDoc) {
+		MongoCollection<Document> collection = webContext.getMongoDatabase().getCollection(collectionName);
 		Document findCriteria = new Document(key, value);
 		Document updateCriteria = new Document("$set", newDoc);
-		
+
 		UpdateOptions options = new UpdateOptions();
 		options.upsert(true);
-		
+
 		collection.updateOne(findCriteria, updateCriteria, options);
 	}
-	
-	public static Document loadUniqueEntry(WebContext context, String collectionName, String key, String value) {
-		MongoCollection<Document> collection = context.getMongoDatabase().getCollection(collectionName);
+
+	public static Document getUniqueEntry(WebContext webContext, String collectionName, String key, String value) {
+		MongoCollection<Document> collection = webContext.getMongoDatabase().getCollection(collectionName);
 		Document findCriteria = new Document(key, value);
 		return collection.find(findCriteria).first();
 	}
 
-	public static FindIterable<Document> findGuestByID(WebContext context, String guestID) {
-		MongoCollection<Document> collection = context.getMongoDatabase().getCollection(COLLECTION_GUEST);
-		return collection.find(new Document(KEY_GUEST_ID, guestID));
+	public static boolean checkSessionIDExists(WebContext webContext, String id) {
+		return helperCollectionContains(webContext, COLLECTION_SESSION_ID_NAME, WebBridgeSession.KEY_SESSION_ID, id);
 	}
 
-	public static FindIterable<Document> findUserByName(WebContext context, String userName) {
-		MongoCollection<Document> collection = context.getMongoDatabase().getCollection(COLLECTION_ACCOUNT);
-		return collection.find(new Document(KEY_USERNAME, userName));
-	}
+	public static WebBridgeSession.UserType checkUserTypeByUserID(WebContext webContext, String userID) {
+		if (helperCollectionContains(webContext, COLLECTION_ACCOUNT, WebBridgeUserAccount.KEY_USER_ID, userID)) {
+			return WebBridgeSession.UserType.ACCOUNT;
+		}
 
-	public static FindIterable<Document> findUserByEmail(WebContext context, String email) {
-		MongoCollection<Document> collection = context.getMongoDatabase().getCollection(COLLECTION_ACCOUNT);
-		return collection.find(new Document(KEY_EMAIL, email));
-	}
+		if (helperCollectionContains(webContext, COLLECTION_GUEST, WebBridgeUserAccount.KEY_USER_ID, userID)) {
+			return WebBridgeSession.UserType.GUEST;
+		}
 
-	public static boolean checkSessionIDExists(WebContext context, String id) {
-		MongoCollection<Document> collection = context.getMongoDatabase().getCollection(COLLECTION_SESSION_ID_NAME);
-		return collectionContains(collection, KEY_SESSION_ID, id);
-	}
-
-	public static boolean checkGuestIDExists(WebContext context, String guestID) {
-		MongoCollection<Document> collection = context.getMongoDatabase().getCollection(COLLECTION_GUEST);
-		return collectionContains(collection, KEY_GUEST_ID, guestID);
-	}
+		return WebBridgeSession.UserType.NONE;
+	} 
 
 	public static String generateGeneralPurposeID() {
 		UUID randomUUID = UUID.randomUUID();
 		return randomUUID.toString();
 	}
 
-	public static String generateUnusedSessionID(WebContext context) {
+	public static String generateUnusedSessionID(WebContext webContext) {
 		boolean unique = false;
 
 		while (!unique) {
 			String newID = generateGeneralPurposeID();
-			if (!checkSessionIDExists(context, newID)) {
+			if (!checkSessionIDExists(webContext, newID)) {
 				unique = true;
 				return newID;
 			}
@@ -119,12 +127,12 @@ public class WebBridge {
 		return null;
 	}
 
-	public static String generateUnusedGuestID(WebContext context) {
+	public static String generateUnusedUserID(WebContext webContext) {
 		boolean unique = false;
 
 		while (!unique) {
 			String newID = generateGeneralPurposeID();
-			if (!checkGuestIDExists(context, newID)) {
+			if (checkUserTypeByUserID(webContext, newID) == WebBridgeSession.UserType.NONE) {
 				unique = true;
 				return newID;
 			}
@@ -133,201 +141,132 @@ public class WebBridge {
 		return null;
 	}
 
-	// returns session ID
-	public static String sessionAccountBegin(WebContext context, String userName, boolean replaceExistingSession,
-			boolean setCookie) {
-		MongoCollection<Document> collection = context.getMongoDatabase().getCollection(COLLECTION_SESSION_ID_NAME);
-		Document userSearch = new Document(KEY_USERNAME, userName);
-		FindIterable<Document> results = collection.find(userSearch);
-
-		if (notEmpty(results)) {
-			if (replaceExistingSession) {
-				// delete all existing sessions
-				collection.deleteMany(userSearch);
-			} else {
-//				throw new WebDatabaseException(String.format("User %s already has an existing session ID and told not to replace it", userName));
-				return null;
-			}
+	public static String sessionBegin(WebContext webContext, String userID) {
+		if(checkUserTypeByUserID(webContext, userID) == WebBridgeSession.UserType.NONE) {
+			return null;
 		}
-
-		String newSessionID = generateUnusedSessionID(context);
+		
+		MongoCollection<Document> collection = webContext.getMongoDatabase().getCollection(COLLECTION_SESSION_ID_NAME);
+		String newSessionID = generateUnusedSessionID(webContext);
 
 		Document newSession = new Document();
-		newSession.append(KEY_SESSION_ID, newSessionID);
-		newSession.append(KEY_USERNAME, userName);
-
-		if (setCookie) {
-			cookiesSetSessionID(context, newSessionID);
-		}
-
+		newSession.append(WebBridgeSession.KEY_SESSION_ID, newSessionID);
+		newSession.append(WebBridgeUser.KEY_USER_ID, userID);
 		collection.insertOne(newSession);
+
+		cookieSetSessionID(webContext, newSessionID);
+
 		return newSessionID;
 	}
 
-	// returns session ID
-	public static String sessionGuestBegin(WebContext context, String guestID, boolean replaceExistingSession,
-			boolean setCookie) {
-		MongoCollection<Document> collection = context.getMongoDatabase().getCollection(COLLECTION_SESSION_ID_NAME);
-		Document guestSearch = new Document(KEY_GUEST_ID, guestID);
-		FindIterable<Document> results = collection.find(guestSearch);
+	public static boolean sessionSignOut(WebContext webContext, boolean deleteGuestUser) {
+		String sessionID = cookieGetSessionID(webContext);
 
-		if (notEmpty(results)) {
-			if (replaceExistingSession) {
-				// delete all existing sessions
-				collection.deleteMany(guestSearch);
-			} else {
-//				throw new WebDatabaseException(String.format("Guest %s already has an existing session ID and told not to replace it", guestID));
-				return null;
-			}
-		}
-
-		String newSessionID = generateUnusedSessionID(context);
-
-		Document newSession = new Document();
-		newSession.append(KEY_SESSION_ID, newSessionID);
-		newSession.append(KEY_GUEST_ID, guestID);
-
-		if (setCookie) {
-			cookiesSetSessionID(context, newSessionID);
-		}
-
-		collection.insertOne(newSession);
-		return newSessionID;
-	}
-
-	public static boolean sessionSignOut(WebContext context, boolean deleteCookie, boolean deleteGuestUser) {
-		String sessionID = cookiesGetSessionID(context);
-
-		MongoCollection<Document> collection = context.getMongoDatabase().getCollection(COLLECTION_SESSION_ID_NAME);
-		Document search = new Document(KEY_SESSION_ID, sessionID);
+		MongoCollection<Document> collection = webContext.getMongoDatabase().getCollection(COLLECTION_SESSION_ID_NAME);
+		Document search = new Document(WebBridgeSession.KEY_SESSION_ID, sessionID);
 		FindIterable<Document> results = collection.find(search);
 
-		if (notEmpty(results)) {
+		if (helperResultsNotEmpty(results)) {
 			Document session = results.first();
 
-			// remove guest
-			if (deleteGuestUser && session.containsKey(KEY_GUEST_ID)) {
-				String guestID = session.getString(KEY_GUEST_ID);
-				MongoCollection<Document> guestCollection = context.getMongoDatabase().getCollection(COLLECTION_GUEST);
-				guestCollection.deleteOne(new Document(KEY_GUEST_ID, guestID));
+			if (deleteGuestUser) {
+				MongoCollection<Document> collectionGuest = webContext.getMongoDatabase().getCollection(COLLECTION_GUEST);
+				String userID = session.getString(WebBridgeUser.KEY_USER_ID);
+				collectionGuest.deleteOne(new Document(WebBridgeUser.KEY_USER_ID, userID));
 			}
-
 			collection.deleteOne(session);
-
-			if (deleteCookie) {
-				cookieRemoveSessionID(context);
-			}
-
+			cookieRemoveSessionID(webContext);
 			return true;
 		}
-
 		return false;
 	}
-	
-//	public static String currentGetSessionIDType(WebContext context) {
-//		return checkSessionIDUserType(context, cookiesGetSessionID(context));
-//	}
-//
-//	public static Document currentGetAccountData(WebContext context) {
-//		String sessionID = cookiesGetSessionID(context);
-//		String userName = currentGetAccountUserName(context);
-//		if(userName == null) {
-//			return null;
-//		}
-//		MongoCollection<Document> collection = context.getMongoDatabase().getCollection(COLLECTION_ACCOUNT);
-//		FindIterable<Document> results = collection.find(new Document(KEY_USERNAME, userName));
-//		return results.first();
-//	}
-//
-//	public static String currentGetAccountUserName(WebContext context) {
-//		String sessionID = cookiesGetSessionID(context);
-//		if (checkSessionIDUserType(context, sessionID).equals(IS_SESSION_ID_FOR_ACCOUNT)) {
-//			MongoCollection<Document> collectionSession = context.getMongoDatabase().getCollection(COLLECTION_SESSION_ID_NAME);
-//			FindIterable<Document> resultsSession = collectionSession.find(new Document(KEY_SESSION_ID, sessionID));
-//			return resultsSession.first().getString(KEY_USERNAME);
-//		}
-//		return null;
-//	}
-//
-//	public static String currentGetAccountEmail(WebContext context) {
-//		Document doc = currentGetAccountData(context);
-//		if(doc == null) {
-//			return null;
-//		}
-//		return doc.getString(KEY_EMAIL);
-//	}
-//
-//	public static String currentGetAccountPassword(WebContext context) {
-//		Document doc = currentGetAccountData(context);
-//		if(doc == null) {
-//			return null;
-//		}
-//		return doc.getString(KEY_PASSWORD);
-//	}
 
-	public static Document storeGuest(WebContext context, String guestID) {
-		Document guest = new Document();
-		guest.append(KEY_GUEST_ID, guestID);
-		context.getMongoDatabase().getCollection(COLLECTION_GUEST).insertOne(guest);
-		return guest;
+	public static boolean checkAccountExistsByEmail(WebContext webContext, String email) {
+		return helperCollectionContains(webContext, COLLECTION_ACCOUNT, WebBridgeUserAccount.KEY_EMAIL, email);
 	}
 
-	public static Document storeAccount(WebContext context, String userName, String email, String passWord) {
-		Document user = new Document();
-		user.append(KEY_USERNAME, userName);
-		user.append(KEY_EMAIL, email);
-		user.append(KEY_PASSWORD, passWord);
-		context.getMongoDatabase().getCollection(COLLECTION_ACCOUNT).insertOne(user);
-		return user;
+	public static boolean checkAccountExistsByUserName(WebContext webContext, String userName) {
+		return helperCollectionContains(webContext, COLLECTION_ACCOUNT, WebBridgeUserAccount.KEY_USER_NAME, userName);
 	}
 
-	public static boolean checkAccountCredentialsMatch(WebContext context, String userName, String passWord) {
+	public static boolean checkAccountCredentialsMatch(WebContext webContext, String userName, String passWord) {
 		Document userDoc = new Document();
-		userDoc.append(KEY_USERNAME, userName);
-		userDoc.append(KEY_PASSWORD, passWord);
-		return collectionContains(context.getMongoDatabase().getCollection(COLLECTION_ACCOUNT), userDoc);
+		userDoc.append(WebBridgeUserAccount.KEY_USER_NAME, userName);
+		userDoc.append(WebBridgeUserAccount.KEY_PASS_WORD, passWord);
+		return helperCollectionContains(webContext, COLLECTION_ACCOUNT, userDoc);
+	}
+	
+	public static Document storeGuest(WebContext, webContext, String userID) {
+		
 	}
 
-	public static String checkSessionIDUserType(WebContext context, String sessionID) {
-		MongoCollection<Document> collection = context.getMongoDatabase().getCollection(COLLECTION_SESSION_ID_NAME);
-		Document sessionSearch = new Document(KEY_SESSION_ID, sessionID);
-		FindIterable<Document> results = collection.find(sessionSearch);
-		if (notEmpty(results)) {
-			Document match = results.first();
-			if (match.containsKey(KEY_GUEST_ID)) {
-				return IS_SESSION_ID_FOR_GUEST;
-			}
-			if (match.containsKey(KEY_USERNAME)) {
-				return IS_SESSION_ID_FOR_ACCOUNT;
+//	public static Document storeGuest(WebContext webContext, String userID) {
+//		Document guest = new Document();
+//		guest.append(WebBridgeUser.KEY_USER_ID, userID);
+//		webContext.getMongoDatabase().getCollection(COLLECTION_GUEST).insertOne(guest);
+//		return guest;
+//	}
+//
+//	public static Document storeAccount(WebContext webContext, String userName, String email, String passWord) {
+//		Document user = new Document();
+//		user.append(WebBridgeUserAccount.KEY_USER_NAME, userName);
+//		user.append(WebBridgeUserAccount.KEY_EMAIL, email);
+//		user.append(WebBridgeUserAccount.KEY_PASS_WORD, passWord);
+//		webContext.getMongoDatabase().getCollection(COLLECTION_ACCOUNT).insertOne(user);
+//		return user;
+//	}
+
+	public static WebBridgeSession.UserType checkuserTypeBySessionID(WebContext webContext, String sessionID) {
+		MongoCollection<Document> collectionSession = webContext.getMongoDatabase().getCollection(COLLECTION_SESSION_ID_NAME);
+		Document sessionSearch = new Document(WebBridgeSession.KEY_SESSION_ID, sessionID);
+		FindIterable<Document> sessionResults = collectionSession.find(sessionSearch);
+		if (helperResultsNotEmpty(sessionResults)) {
+			Document matchedSession = sessionResults.first();
+			String userID = matchedSession.getString(WebBridgeUser.KEY_USER_ID);
+			
+			if(userID != null) {
+				return checkUserTypeByUserID(webContext, userID);
 			}
 		}
-		return IS_SESSION_ID_FOR_NONE;
+		return WebBridgeSession.UserType.NONE;
 	}
 
-	public static boolean cookiesEmpty(WebContext context) {
-		return context.getWebAPI().getCookies().size() == 0;
+	public static boolean cookieIsEmpty(WebContext webContext) {
+		return webContext.getWebAPI().getCookies().size() == 0;
 	}
 
-	public static void cookiesClear(WebContext context) {
-		ObservableMap<String, String> map = context.getWebAPI().getCookies();
+	public static void cookieClear(WebContext webContext) {
+		ObservableMap<String, String> map = webContext.getWebAPI().getCookies();
 		for (String key : map.keySet()) {
-			context.getWebAPI().deleteCookie(key);
+			webContext.getWebAPI().deleteCookie(key);
 		}
 	}
 
-	public static String cookiesGetSessionID(WebContext context) {
-		return context.getWebAPI().getCookies().get(KEY_SESSION_ID);
+	public static String cookieGet(WebContext webContext, String key) {
+		return webContext.getWebAPI().getCookies().get(key);
+	}
+	
+	public static void cookieSet(WebContext webContext, String key, String value) {
+		webContext.getWebAPI().setCookie(key, value);
 	}
 
-	public static void cookiesSetSessionID(WebContext context, String sessionID) {
-		context.getWebAPI().setCookie(KEY_SESSION_ID, sessionID);
+	public static void cookieRemove(WebContext webContext, String key) {
+		webContext.getWebAPI().deleteCookie(key);
+	}
+	
+	public static String cookieGetSessionID(WebContext webContext) {
+		return cookieGet(webContext, WebBridgeSession.KEY_SESSION_ID);
 	}
 
-	public static void cookieRemoveSessionID(WebContext context) {
-		context.getWebAPI().deleteCookie(KEY_SESSION_ID);
+	public static void cookieSetSessionID(WebContext webContext, String sessionID) {
+		cookieSet(webContext, WebBridgeSession.KEY_SESSION_ID, sessionID);
 	}
 
-	public static ObservableMap<String, String> cookiesGetMap(WebContext context) {
-		return context.getWebAPI().getCookies();
+	public static void cookieRemoveSessionID(WebContext webContext) {
+		cookieRemove(webContext, WebBridgeSession.KEY_SESSION_ID);
+	}
+
+	public static ObservableMap<String, String> cookieGetMap(WebContext webContext) {
+		return webContext.getWebAPI().getCookies();
 	}
 }

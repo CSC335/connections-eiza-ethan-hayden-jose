@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Set;
 import org.bson.Document;
 import com.connections.web.DatabaseFormattable;
-import com.connections.web.DatabaseUnique;
 
 public class PlayedGameInfoTimed extends PlayedGameInfo implements DatabaseFormattable {
 	public static final String KEY_TIME_LIMIT = "time_limit";
