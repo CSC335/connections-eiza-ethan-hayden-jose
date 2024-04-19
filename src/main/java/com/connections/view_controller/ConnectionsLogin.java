@@ -3,7 +3,14 @@ package com.connections.view_controller;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
+import org.bson.Document;
+
 import com.connections.web.WebContextAccessible;
+import com.connections.web.WebDebugDatabaseView;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
+import com.connections.web.WebBridge;
+import com.connections.web.WebBridgeUser;
 import com.connections.web.WebBridgeUserAccount;
 import com.connections.web.WebContext;
 
@@ -13,6 +20,8 @@ import javafx.animation.PauseTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
+import javafx.collections.ObservableMap;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -23,10 +32,12 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -53,7 +64,7 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 	private Font cheltenham;
 
 	private boolean isCreatingNewAccount;
-
+	
 	public ConnectionsLogin(WebContext webContext) {
 		setWebContext(webContext);
 		initPane();
@@ -100,6 +111,10 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 		public void setListener(ChangeListener<String> listener) {
 			field.textProperty().addListener(listener);
 		}
+		
+		public void setInputDisabled(boolean disabled) {
+			field.setDisable(disabled);
+		}
 	}
 
 	private class PasswordBox extends EntryBox {
@@ -135,6 +150,10 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 			setSpacing(5);
 			getChildren().addAll(warningSVGPath, messageLabel);
 		}
+		
+		public void setMessage(String message) {
+			messageLabel.setText(message);
+		}
 	}
 
 	private class BigButton extends Button {
@@ -150,26 +169,25 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 		}
 	}
 
-	// === === === === === === === === === === === ===
-	// BEGIN MAJOR EIZA MODIFICATIONS HERE:
-	// === === === === === === === === === === === ===
-
 	private boolean emailExistsInDatabase(String email) {
-		return true;
-//    	return WebBridgeUserAccount.checkAccountExistsByEmail(webContext, email);
+    	return WebBridgeUserAccount.checkAccountExistsByEmail(webContext, email);
 	}
 	
+	private boolean userExistsInDatabase(String username) {
+		return WebBridgeUserAccount.checkAccountExistsByUserName(webContext, username);
+	}
+
 	private void showNextSectionAnimation() {
 		FadeTransition fadeIn = new FadeTransition(Duration.millis(1250), nextSectionLayout);
 		fadeIn.setFromValue(0.0);
 		fadeIn.setToValue(1.0);
-		
+
 		TranslateTransition moveButton = new TranslateTransition(Duration.millis(500), continueButton);
 		continueButton.setTranslateX(0);
 		continueButton.setTranslateY(0);
 		moveButton.setToX(continueButtonPlaceholder.getLayoutX() - continueButton.getLayoutX());
 		moveButton.setToY(continueButtonPlaceholder.getLayoutY() - continueButton.getLayoutY());
-		
+
 		moveButton.setOnFinished(event -> {
 			int fromRow = GridPane.getRowIndex(continueButton);
 			int toRow = GridPane.getRowIndex(continueButtonPlaceholder);
@@ -179,7 +197,7 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 			continueButton.setTranslateX(0);
 			continueButton.setTranslateY(0);
 		});
-		
+
 		ParallelTransition parallel = new ParallelTransition(fadeIn, moveButton);
 		parallel.play();
 	}
@@ -188,184 +206,164 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 		usernameBox.setVisible(true);
 		passwordBox.setVisible(true);
 		continueButton.setText("Create Account");
+		continueButton.setOnAction(event -> {
+			boolean valid = true;
+
+			// NOTE: the or-statement is important: it will first check if the input is valid syntax-wise, THEN in terms of the database
+			if (!isValidUsername(usernameBox.getInput()) || !isDatabaseValidUsername(usernameBox.getInput())) {
+				usernameBox.setIncorrect(true);
+				invalidUsernameMessage.setVisible(true);
+				valid = false;
+			}
+			
+			if (!isValidPassword(passwordBox.getInput())) {
+				passwordBox.setIncorrect(true);
+				invalidPassMessage.setVisible(true);
+				valid = false;
+			}
+			
+			if (valid) {
+				WebBridgeUserAccount newAccount = new WebBridgeUserAccount(webContext, usernameBox.getInput(), emailBox.getInput(), passwordBox.getInput(), "");
+				newAccount.writeToDatabase();
+				continueButton.setText("(debug) success, refresh page now");
+			}
+		});
 		showNextSectionAnimation();
 	}
 
 	private void menuForLoggingIn() {
 		passwordBox.setVisible(true);
 		continueButton.setText("Login");
+		continueButton.setOnAction(event -> {
+			boolean valid = true;
+			
+			// NOTE: the or-statement is important: it will first check if the input is valid syntax-wise, THEN in terms of the database
+			if (!isValidPassword(passwordBox.getInput()) || !isDatabaseValidPassword(passwordBox.getInput())) {
+				passwordBox.setIncorrect(true);
+				invalidPassMessage.setVisible(true);
+				valid = false;
+			}
+			
+			if (valid) {
+				continueButton.setText("(debug) success, refresh page now");
+			}
+		});
 		showNextSectionAnimation();
 	}
 
 	private void initPane() {
-    	franklin700_14 = styleManager.getFont("franklin-normal", 700, 14);
-        franklin700_16 = styleManager.getFont("franklin-normal", 700, 16);
-        cheltenham = styleManager.getFont("cheltenham-normal", 400, 30);
-    	
-    	BorderPane window = new BorderPane();
-    	
-        gridLayout = new GridPane();
-        gridLayout.setHgap(10);
-        gridLayout.setVgap(8);
-        
-        loginHeadingLabel = new Label("Log in or create an account");
-        loginHeadingLabel.setFont(cheltenham);
-        loginHeadingLabel.setTextFill(Color.BLACK);
-        
-        usernameBox = new EntryBox("Username");
-        usernameBox.setListener((observable, oldValue, newValue) -> {
-        	if(usernameBox.isIncorrect() && isValidUsername(usernameBox.getInput())) {
-        		usernameBox.setIncorrect(false);
-        		invalidUsernameMessage.setVisible(false);
-        	}
-        });
-        emailBox = new EntryBox("Email");
-        emailBox.setListener((observable, oldValue, newValue) -> {
-        	if(emailBox.isIncorrect() && isValidEmail(emailBox.getInput())) {
-        		emailBox.setIncorrect(false);
-        		invalidEmailMessage.setVisible(false);
-        	}
-        });
-        passwordBox = new PasswordBox("Password");
-        passwordBox.setListener((observable, oldValue, newValue) -> {
-        	if(passwordBox.isIncorrect() && isValidPassword(passwordBox.getInput())) {
-        		passwordBox.setIncorrect(false);
-        		invalidPassMessage.setVisible(false);
-        	}
-        });
-        
-        invalidUsernameMessage = new WarningMessage("Username must be between 1 and 20 characters long.");
-        invalidPassMessage = new WarningMessage("Password must be at least 8 characters long."); 
-        invalidEmailMessage = new WarningMessage("Please enter a valid email address.");
-        
-        continueButton = new BigButton("Continue");
-        continueButtonPlaceholder = new BigButton("PLACEHOLDER");
-        continueButtonPlaceholder.setVisible(false);
-        gridLayout.add(continueButtonPlaceholder, 0, 4);
-        gridLayout.setAlignment(Pos.CENTER);
-        
-        nextSectionLayout = new VBox(usernameBox, invalidUsernameMessage, passwordBox, invalidPassMessage);
-        for(Node node : nextSectionLayout.getChildren()) {
-        	node.setVisible(false);
-        }
-        
-        gridLayout.add(emailBox, 0, 0);
-        gridLayout.add(invalidEmailMessage, 0, 1);
-        gridLayout.add(continueButton, 0, 2);
-        gridLayout.add(nextSectionLayout, 0, 3);
-        
-//        GridPane.setMargin(continueButton, new javafx.geometry.Insets(16, 0, 0, 0));
+		franklin700_14 = styleManager.getFont("franklin-normal", 700, 14);
+		franklin700_16 = styleManager.getFont("franklin-normal", 700, 16);
+		cheltenham = styleManager.getFont("cheltenham-normal", 400, 30);
 
-        continueButton.setOnAction(event -> {
-        	if(isValidEmail(emailBox.getInput())) {
-        		isCreatingNewAccount = !emailExistsInDatabase(emailBox.getInput());
-            	
-            	if(isCreatingNewAccount) {
-            		menuForCreatingAccount();
-            	} else {
-            		menuForLoggingIn();
-            	}
-        	} else {
-        		emailBox.setIncorrect(true);
-        		invalidEmailMessage.setVisible(true);
-        	}
-        });
-        	
-//            if (tPassword.isVisible()) {
-//                String pass = tPassword.getText();
-//                String sEmail = tEmail.getText();
-//                Boolean matches = isValidEmail(sEmail);
-//                if (pass.length() > 7 && matches) {
-//                    // loginHeadingLabel
-////                    Stage newStage = new Stage();
-////                    GameBoard gameBoard = new GameBoard();
-////                    gameBoard.start(newStage);
-//                    // kill current
-////                    stage.close();
-//                } else {
-//                    if (pass.length() < 8) {
-//                     
-//                        // Add the password error HBox to the gridLayout
-//                        gridLayout.add(passwordErrorBox, 0, 5);
-//                        GridPane.setMargin(passwordErrorBox, new javafx.geometry.Insets(5, 0, 0, 0));
-//                        tPassword.setStyle("-fx-border-color: red; -fx-border-width: 1;");
-//
-//                        tPassword.textProperty().addListener((observable, oldValue, newValue) -> {
-//                            if (newValue.length() > 7) {
-//                                gridLayout.getChildren().remove(passwordErrorBox);
-//                                tPassword.setStyle("-fx-border-color: black; -fx-border-width: 1;");
-//                            }
-//                        });
-//                    }
-//                    if (!matches) {
-//
-//                        // Add the email error HBox to the gridLayout
-//                        gridLayout.add(errorBox, 0, 2);
-//                        GridPane.setMargin(errorBox, new javafx.geometry.Insets(5, 0, 0, 0));
-//                        
-//                        tEmail.setStyle("-fx-border-color: red; -fx-border-width: 1;");
-//
-//
-//                        tEmail.textProperty().addListener((observable, oldValue, newValue) -> {
-//                            if (isValidEmail(newValue)) {
-//                                gridLayout.getChildren().remove(errorBox);
-//                                GridPane.setRowIndex(continueButton, 5);
-//                                tEmail.setStyle("-fx-border-color: black; -fx-border-width: 1;");
-//
-//                            }
-//                        });
-//                    }
-//                }
-//
-//            } else {
-//                String sEmail = tEmail.getText();
-//                Boolean matches = isValidEmail(sEmail);
-//                if (matches) {
-//                	
-//                	
-//                    TranslateTransition transition = new TranslateTransition(Duration.millis(500), continueButton);
-//                    transition.setByY(40);
-//                    transition.setOnFinished(e -> {
-//                        password.setVisible(true);
-//                        tPassword.setVisible(true);
-//                        GridPane.setRowIndex(continueButton, 5);
-//                        GridPane.setMargin(password, new javafx.geometry.Insets(10, 0, 0, 0));
-//                    });
-//                    transition.play();
-//                } else {
-//
-//                  // Add the email error HBox to the gridLayout
-//                  gridLayout.add(errorBox, 0, 2);
-//                  GridPane.setRowIndex(continueButton, 3);
-//                  
-//                  tEmail.setStyle("-fx-border-color: red; -fx-border-width: 1;");
-//
-//                  // Add a listener to the email text field
-//                  tEmail.textProperty().addListener((observable, oldValue, newValue) -> {
-//                      if (isValidEmail(newValue)) {
-//                          gridLayout.getChildren().remove(errorBox);
-//                          GridPane.setRowIndex(continueButton, 2);
-//                          tEmail.setStyle("-fx-border-color: black; -fx-border-width: 1;");
-//                      }
-//                  });
-//                }
-//            }
-//        });
-        
-        verticalLayout = new VBox(20);
-        verticalLayout.setAlignment(Pos.CENTER);
-        verticalLayout.getChildren().addAll(loginHeadingLabel, gridLayout);
+		BorderPane window = new BorderPane();
+		
+		gridLayout = new GridPane();
+		gridLayout.setHgap(10);
+		gridLayout.setVgap(8);
 
-        window.setCenter(verticalLayout);
-        setCenter(window);
-    }
+		loginHeadingLabel = new Label("Log in or create an account");
+		loginHeadingLabel.setFont(cheltenham);
+		loginHeadingLabel.setTextFill(Color.BLACK);
+
+		usernameBox = new EntryBox("Username");
+		usernameBox.setListener((observable, oldValue, newValue) -> {
+			if (usernameBox.isIncorrect() && isValidUsername(usernameBox.getInput())) {
+				usernameBox.setIncorrect(false);
+				invalidUsernameMessage.setVisible(false);
+			}
+		});
+		emailBox = new EntryBox("Email");
+		emailBox.setListener((observable, oldValue, newValue) -> {
+			if (emailBox.isIncorrect() && isValidEmail(emailBox.getInput())) {
+				emailBox.setIncorrect(false);
+				invalidEmailMessage.setVisible(false);
+			}
+		});
+		passwordBox = new PasswordBox("Password");
+		passwordBox.setListener((observable, oldValue, newValue) -> {
+			if (passwordBox.isIncorrect() && isValidPassword(passwordBox.getInput())) {
+				passwordBox.setIncorrect(false);
+				invalidPassMessage.setVisible(false);
+			}
+		});
+
+		invalidUsernameMessage = new WarningMessage("...");
+		invalidPassMessage = new WarningMessage("...");
+		invalidEmailMessage = new WarningMessage("Please enter a valid email address.");
+
+		continueButton = new BigButton("Continue");
+		continueButtonPlaceholder = new BigButton("PLACEHOLDER");
+		continueButtonPlaceholder.setVisible(false);
+		gridLayout.add(continueButtonPlaceholder, 0, 4);
+		gridLayout.setAlignment(Pos.CENTER);
+
+		nextSectionLayout = new VBox(usernameBox, invalidUsernameMessage, passwordBox, invalidPassMessage);
+		for (Node node : nextSectionLayout.getChildren()) {
+			node.setVisible(false);
+		}
+
+		gridLayout.add(emailBox, 0, 0);
+		gridLayout.add(invalidEmailMessage, 0, 1);
+		gridLayout.add(continueButton, 0, 2);
+		gridLayout.add(nextSectionLayout, 0, 3);
+
+		continueButton.setOnAction(event -> {
+			if (isValidEmail(emailBox.getInput())) {
+				emailBox.setInputDisabled(true);
+				isCreatingNewAccount = !emailExistsInDatabase(emailBox.getInput());
+
+				if (isCreatingNewAccount) {
+					menuForCreatingAccount();
+				} else {
+					menuForLoggingIn();
+				}
+			} else {
+				emailBox.setIncorrect(true);
+				invalidEmailMessage.setVisible(true);
+			}
+		});
+
+		verticalLayout = new VBox(20);
+		verticalLayout.setAlignment(Pos.CENTER);
+		verticalLayout.getChildren().addAll(loginHeadingLabel, gridLayout);
+
+		window.setCenter(verticalLayout);
+		setCenter(window);
+		WebDebugDatabaseView dbView = new WebDebugDatabaseView(webContext);
+		setBottom(dbView);
+	}
 
 	private boolean isValidUsername(String username) {
-		return username.length() >= 1 && username.length() <= 20;
+		if(username.length() < 1 || username.length() > 20) {
+			invalidUsernameMessage.setMessage("Username must be between 1 and 20 characters long.");
+			return false;
+		}
+		return true;
+	}
+	
+	private boolean isDatabaseValidUsername(String username) {
+		if(userExistsInDatabase(username)) {
+			invalidUsernameMessage.setMessage("Username has been taken!");
+			return false;
+		}
+		return true;
 	}
 
 	private boolean isValidPassword(String password) {
-		return password.length() >= 8;
+		if(password.length() < 8) {
+			invalidPassMessage.setMessage("Password must be at least 8 characters long.");
+			return false;
+		}
+		return true;
+	}
+	
+	private boolean isDatabaseValidPassword(String password) {
+		if(!isCreatingNewAccount && !WebBridgeUserAccount.checkAccountCredentialsMatch(webContext, emailBox.getInput(), passwordBox.getInput())) {
+			invalidPassMessage.setMessage("Password is incorrect.");
+			return false;
+		}
+		return true;
 	}
 
 	private boolean isValidEmail(String email) {

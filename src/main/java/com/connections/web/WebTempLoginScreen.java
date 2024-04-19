@@ -71,7 +71,7 @@ public class WebTempLoginScreen extends BorderPane {
 			
 			getChildren().add(title);
 			
-			ObservableMap<String, String> map = WebBridge.cookiesGetMap(webContext);
+			ObservableMap<String, String> map = WebBridge.cookieGetMap(webContext);
 			
 			for(String key : map.keySet()) {
 				Text entry = new Text(String.format("[%s = %s]", key, map.get(key)));
@@ -177,19 +177,19 @@ public class WebTempLoginScreen extends BorderPane {
 	}
 	
 	public void start() {
-		if(WebBridge.cookiesEmpty(webContext) || WebBridge.cookiesGetSessionID(webContext) == null) {
-			setStateEnteredSingedOut();
-		} else {
-			String sessionID = WebBridge.cookiesGetSessionID(webContext);
-			String sessionIDType = WebBridge.checkSessionIDUserType(webContext, sessionID);
-			if(sessionIDType.equals(WebBridge.IS_SESSION_ID_FOR_ACCOUNT)) {
-				setStateEnteredAsAccount();
-			} else if(sessionIDType.equals(WebBridge.IS_SESSION_ID_FOR_GUEST)) {
-				setStateEnteredAsGuest();
-			} else {
-				setStateEnteredSingedOut();
-			}
-		}
+//		if(WebBridge.cookiesEmpty(webContext) || WebBridge.cookiesGetSessionID(webContext) == null) {
+//			setStateEnteredSingedOut();
+//		} else {
+//			String sessionID = WebBridge.cookiesGetSessionID(webContext);
+//			String sessionIDType = WebBridge.checkSessionIDUserType(webContext, sessionID);
+//			if(sessionIDType.equals(WebBridge.IS_SESSION_ID_FOR_ACCOUNT)) {
+//				setStateEnteredAsAccount();
+//			} else if(sessionIDType.equals(WebBridge.IS_SESSION_ID_FOR_GUEST)) {
+//				setStateEnteredAsGuest();
+//			} else {
+//				setStateEnteredSingedOut();
+//			}
+//		}
 	}
 	
 	public void pauseBeforeEnteringGame() {
@@ -213,98 +213,98 @@ public class WebTempLoginScreen extends BorderPane {
 	}
 
 	public void setStateEnteredSingedOut() {
-		databaseView.reload();
-		backButton.setDisable(true);
-		mainLayout.getChildren().clear();
-		menuTitleText.setText("MAIN MENU / SIGNED OUT MENU");
-
-		Button accountButton = new Button("Continue to Accounts...");
-		accountButton.setOnAction(event -> {
-			setStateAccountsScreen();
-		});
-		Button guestButton = new Button("Start New Guest Session");
-		guestButton.setOnAction(event -> {
-			setStateNewGuest();
-		});
-		Button clearData = new Button("CLEAR ENTIRE DATBASE");
-		clearData.setOnAction(event -> {
-			WebBridge.dropAllAndReInitialize(webContext);
-			clearData.setText("CLEAR ENTIRE DATBASE (cleared)");
-			databaseView.reload();
-		});
-		Button clearCookies = new Button("CLEAR COOKIES");
-		clearCookies.setOnAction(event -> {
-			WebBridge.cookiesClear(webContext);
-			clearCookies.setText("CLEAR COOKIES (cleared)");
-			databaseView.reload();
-		});
-
-
-		mainLayout.add(accountButton, 0, 1);
-		mainLayout.add(guestButton, 0, 2);
-		mainLayout.add(clearData, 0, 3);
-		mainLayout.add(clearCookies, 0, 4);
+//		databaseView.reload();
+//		backButton.setDisable(true);
+//		mainLayout.getChildren().clear();
+//		menuTitleText.setText("MAIN MENU / SIGNED OUT MENU");
+//
+//		Button accountButton = new Button("Continue to Accounts...");
+//		accountButton.setOnAction(event -> {
+//			setStateAccountsScreen();
+//		});
+//		Button guestButton = new Button("Start New Guest Session");
+//		guestButton.setOnAction(event -> {
+//			setStateNewGuest();
+//		});
+//		Button clearData = new Button("CLEAR ENTIRE DATBASE");
+//		clearData.setOnAction(event -> {
+//			WebBridge.dropAllAndReInitialize(webContext);
+//			clearData.setText("CLEAR ENTIRE DATBASE (cleared)");
+//			databaseView.reload();
+//		});
+//		Button clearCookies = new Button("CLEAR COOKIES");
+//		clearCookies.setOnAction(event -> {
+//			WebBridge.cookiesClear(webContext);
+//			clearCookies.setText("CLEAR COOKIES (cleared)");
+//			databaseView.reload();
+//		});
+//
+//
+//		mainLayout.add(accountButton, 0, 1);
+//		mainLayout.add(guestButton, 0, 2);
+//		mainLayout.add(clearData, 0, 3);
+//		mainLayout.add(clearCookies, 0, 4);
 	}
 
 	public void setStateEnteredAsGuest() {
-		databaseView.reload();
-		backButton.setDisable(true);
-		mainLayout.getChildren().clear();
-		menuTitleText.setText("ENTERED AS GUEST");
-
-		Button a1 = new Button("Continue to Game");
-		a1.setOnAction(event -> {
-			enteringGame();
-		});
-		Button a2 = new Button("Log Out (Clears Cookies)");
-		a2.setOnAction(event -> {
-			WebBridge.sessionSignOut(webContext, true, true);
-			setStateEnteredSingedOut();
-		});
-
-		mainLayout.add(a1, 0, 1);
-		mainLayout.add(a2, 0, 2);
+//		databaseView.reload();
+//		backButton.setDisable(true);
+//		mainLayout.getChildren().clear();
+//		menuTitleText.setText("ENTERED AS GUEST");
+//
+//		Button a1 = new Button("Continue to Game");
+//		a1.setOnAction(event -> {
+//			enteringGame();
+//		});
+//		Button a2 = new Button("Log Out (Clears Cookies)");
+//		a2.setOnAction(event -> {
+//			WebBridge.sessionSignOut(webContext, true, true);
+//			setStateEnteredSingedOut();
+//		});
+//
+//		mainLayout.add(a1, 0, 1);
+//		mainLayout.add(a2, 0, 2);
 	}
 
 	public void setStateEnteredAsAccount() {
-		databaseView.reload();
-		backButton.setDisable(true);
-		mainLayout.getChildren().clear();
-		menuTitleText.setText("ENTERED AS ACCOUNT (SIGNED IN)");
-
-		Button a1 = new Button("Continue to Game");
-		a1.setOnAction(event -> {
-			enteringGame();
-		});
-		Button a2 = new Button("Log Out (Clears Cookies)");
-		a2.setOnAction(event -> {
-			WebBridge.sessionSignOut(webContext, true, true);
-			setStateEnteredSingedOut();
-		});
-
-		mainLayout.add(a1, 0, 1);
-		mainLayout.add(a2, 0, 2);
+//		databaseView.reload();
+//		backButton.setDisable(true);
+//		mainLayout.getChildren().clear();
+//		menuTitleText.setText("ENTERED AS ACCOUNT (SIGNED IN)");
+//
+//		Button a1 = new Button("Continue to Game");
+//		a1.setOnAction(event -> {
+//			enteringGame();
+//		});
+//		Button a2 = new Button("Log Out (Clears Cookies)");
+//		a2.setOnAction(event -> {
+//			WebBridge.sessionSignOut(webContext, true, true);
+//			setStateEnteredSingedOut();
+//		});
+//
+//		mainLayout.add(a1, 0, 1);
+//		mainLayout.add(a2, 0, 2);
 	}
 
 	public void setStateNewGuest() {
-		databaseView.reload();
-		backButton.setDisable(true);
-		mainLayout.getChildren().clear();
-		menuTitleText.setText("LEAVING: STARTING GAME AS NEW GUEST");
-
-		String guestID = WebBridge.generateUnusedGuestID(webContext);
-		WebBridge.storeGuest(webContext, guestID);
-		WebBridge.sessionGuestBegin(webContext, guestID, true, true);
-		databaseView.reload();
-		
-		Button go = new Button("Continue");
-		go.setOnAction(event -> {
-			enteringGame();
-		});
-		Text status = new Text("Your guest ID is " + guestID);
-
-		mainLayout.add(status, 0, 1);
-		mainLayout.add(go, 0, 2);
+//		databaseView.reload();
+//		backButton.setDisable(true);
+//		mainLayout.getChildren().clear();
+//		menuTitleText.setText("LEAVING: STARTING GAME AS NEW GUEST");
+//
+//		String guestID = WebBridge.generateUnusedGuestID(webContext);
+//		WebBridge.storeGuest(webContext, guestID);
+//		WebBridge.sessionGuestBegin(webContext, guestID, true, true);
+//		databaseView.reload();
+//		
+//		Button go = new Button("Continue");
+//		go.setOnAction(event -> {
+//			enteringGame();
+//		});
+//		Text status = new Text("Your guest ID is " + guestID);
+//
+//		mainLayout.add(status, 0, 1);
+//		mainLayout.add(go, 0, 2);
 	}
 
 	public void setStateAccountsScreen() {
@@ -333,91 +333,91 @@ public class WebTempLoginScreen extends BorderPane {
 	}
 
 	public void setStateNewAccount() {
-		databaseView.reload();
-		backButton.setOnAction(event -> {
-			setStateAccountsScreen();
-		});
-		backButton.setDisable(false);
-
-		mainLayout.getChildren().clear();
-
-		menuTitleText.setText("MAKE NEW ACCOUNT");
-
-		DataEntry email = new DataEntry("email");
-		DataEntry username = new DataEntry("username");
-		DataEntry password = new DataEntry("password");
-
-		mainLayout.add(email, 0, 1);
-		mainLayout.add(username, 0, 2);
-		mainLayout.add(password, 0, 3);
-		
-		Button enter = new Button("Create");
-		Text status = new Text("");
-		enter.setOnAction(event -> {
-			if(WebBridge.notEmpty(WebBridge.findUserByName(webContext, username.getInput()))) {
-				status.setText("An account of that user name already exists!");
-				return;
-			}
-			if(WebBridge.notEmpty(WebBridge.findUserByEmail(webContext, email.getInput()))) {
-				status.setText("An account of that email already exists!");
-				return;
-			}
-			WebBridge.storeAccount(webContext, username.getInput(), email.getInput(), password.getInput());
-			status.setText("Created account!");
-			databaseView.reload();
-
-			Button go = new Button("Make New Session, Enter Game");
-			go.setOnAction(event2 -> {
-				WebBridge.sessionAccountBegin(webContext, username.getInput(), true, true);
-				databaseView.reload();
-				go.setText("Hold On...");
-				pauseBeforeEnteringGame();
-			});
-			mainLayout.add(go, 0, 7);
-		});
-
-		mainLayout.add(enter, 0, 5);
-		mainLayout.add(status, 0, 6);
+//		databaseView.reload();
+//		backButton.setOnAction(event -> {
+//			setStateAccountsScreen();
+//		});
+//		backButton.setDisable(false);
+//
+//		mainLayout.getChildren().clear();
+//
+//		menuTitleText.setText("MAKE NEW ACCOUNT");
+//
+//		DataEntry email = new DataEntry("email");
+//		DataEntry username = new DataEntry("username");
+//		DataEntry password = new DataEntry("password");
+//
+//		mainLayout.add(email, 0, 1);
+//		mainLayout.add(username, 0, 2);
+//		mainLayout.add(password, 0, 3);
+//		
+//		Button enter = new Button("Create");
+//		Text status = new Text("");
+//		enter.setOnAction(event -> {
+//			if(WebBridge.notEmpty(WebBridge.findUserByName(webContext, username.getInput()))) {
+//				status.setText("An account of that user name already exists!");
+//				return;
+//			}
+//			if(WebBridge.notEmpty(WebBridge.findUserByEmail(webContext, email.getInput()))) {
+//				status.setText("An account of that email already exists!");
+//				return;
+//			}
+//			WebBridge.storeAccount(webContext, username.getInput(), email.getInput(), password.getInput());
+//			status.setText("Created account!");
+//			databaseView.reload();
+//
+//			Button go = new Button("Make New Session, Enter Game");
+//			go.setOnAction(event2 -> {
+//				WebBridge.sessionAccountBegin(webContext, username.getInput(), true, true);
+//				databaseView.reload();
+//				go.setText("Hold On...");
+//				pauseBeforeEnteringGame();
+//			});
+//			mainLayout.add(go, 0, 7);
+//		});
+//
+//		mainLayout.add(enter, 0, 5);
+//		mainLayout.add(status, 0, 6);
 	}
 
 	public void setStateLogIntoAccount() {
-		databaseView.reload();
-		backButton.setOnAction(event -> {
-			setStateAccountsScreen();
-		});
-		backButton.setDisable(false);
-
-		mainLayout.getChildren().clear();
-
-		menuTitleText.setText("LOG INTO ACCOUNT");
-
-		DataEntry username = new DataEntry("username");
-		DataEntry password = new DataEntry("password");
-
-		mainLayout.add(username, 0, 2);
-		mainLayout.add(password, 0, 3);
-		
-		Button enter = new Button("Log In");
-		Text status = new Text("");
-		enter.setOnAction(event -> {
-			if(!WebBridge.checkAccountCredentialsMatch(webContext, username.getInput(), password.getInput())) {
-				status.setText("Could not find matching username and password!");
-				return;
-			}
-			status.setText("Found account!");
-			databaseView.reload();
-			
-			Button go = new Button("Make New Session, Enter Game");
-			go.setOnAction(event2 -> {
-				WebBridge.sessionAccountBegin(webContext, username.getInput(), true, true);
-				databaseView.reload();
-				go.setText("Hold On...");
-				pauseBeforeEnteringGame();
-			});
-			mainLayout.add(go, 0, 7);
-		});
-
-		mainLayout.add(enter, 0, 5);
-		mainLayout.add(status, 0, 6);
+//		databaseView.reload();
+//		backButton.setOnAction(event -> {
+//			setStateAccountsScreen();
+//		});
+//		backButton.setDisable(false);
+//
+//		mainLayout.getChildren().clear();
+//
+//		menuTitleText.setText("LOG INTO ACCOUNT");
+//
+//		DataEntry username = new DataEntry("username");
+//		DataEntry password = new DataEntry("password");
+//
+//		mainLayout.add(username, 0, 2);
+//		mainLayout.add(password, 0, 3);
+//		
+//		Button enter = new Button("Log In");
+//		Text status = new Text("");
+//		enter.setOnAction(event -> {
+//			if(!WebBridge.checkAccountCredentialsMatch(webContext, username.getInput(), password.getInput())) {
+//				status.setText("Could not find matching username and password!");
+//				return;
+//			}
+//			status.setText("Found account!");
+//			databaseView.reload();
+//			
+//			Button go = new Button("Make New Session, Enter Game");
+//			go.setOnAction(event2 -> {
+//				WebBridge.sessionAccountBegin(webContext, username.getInput(), true, true);
+//				databaseView.reload();
+//				go.setText("Hold On...");
+//				pauseBeforeEnteringGame();
+//			});
+//			mainLayout.add(go, 0, 7);
+//		});
+//
+//		mainLayout.add(enter, 0, 5);
+//		mainLayout.add(status, 0, 6);
 	}
 }

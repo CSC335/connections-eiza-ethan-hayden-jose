@@ -8,6 +8,14 @@ import com.mongodb.client.*;
 import com.mongodb.client.model.UpdateOptions;
 
 import javafx.collections.ObservableMap;
+import javafx.geometry.Insets;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 
 public class WebBridge {
 	public static final String DATABASE_NAME = "connections_db";
@@ -22,6 +30,7 @@ public class WebBridge {
 
 	public static final String[] COLLECTIONS = { COLLECTION_SESSION_ID_NAME, COLLECTION_ACCOUNT, COLLECTION_GUEST };
 
+	
 	// NOTE FOR COLLECTION_SESSION_ID_NAME:
 	// > For accounts, the session ID is paired with the user name of the account
 	// > For guests, the session ID is paired with the guest ID of the guest
@@ -86,12 +95,14 @@ public class WebBridge {
 			Document newDoc) {
 		MongoCollection<Document> collection = webContext.getMongoDatabase().getCollection(collectionName);
 		Document findCriteria = new Document(key, value);
-		Document updateCriteria = new Document("$set", newDoc);
+		
+			System.out.printf("updateUniqueEntry matched criteria\n");
+			Document updateCriteria = new Document("$set", newDoc);
 
-		UpdateOptions options = new UpdateOptions();
-		options.upsert(true);
+			UpdateOptions options = new UpdateOptions();
+			options.upsert(true);
 
-		collection.updateOne(findCriteria, updateCriteria, options);
+			collection.updateOne(findCriteria, updateCriteria, options);
 	}
 
 	public static Document getUniqueEntry(WebContext webContext, String collectionName, String key, String value) {

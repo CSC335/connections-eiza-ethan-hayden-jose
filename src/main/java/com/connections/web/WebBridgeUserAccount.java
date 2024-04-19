@@ -73,9 +73,9 @@ public class WebBridgeUserAccount extends WebBridgeUser implements WebContextAcc
 		return UserType.ACCOUNT;
 	}
 	
-	public static boolean checkAccountCredentialsMatch(WebContext webContext, String userName, String passWord) {
+	public static boolean checkAccountCredentialsMatch(WebContext webContext, String email, String passWord) {
 		Document userDoc = new Document();
-		userDoc.append(KEY_USER_NAME, userName);
+		userDoc.append(KEY_EMAIL, email);
 		userDoc.append(KEY_PASS_WORD, passWord);
 		return WebBridge.helperCollectionContains(webContext, WebBridge.COLLECTION_ACCOUNT, userDoc);
 	}
