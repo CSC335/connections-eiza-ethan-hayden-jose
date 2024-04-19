@@ -7,7 +7,7 @@ import org.bson.Document;
 
 import com.connections.model.PlayedGameInfo;
 
-public abstract class WebBridgeUser implements ModularWeb, DatabaseFormattable {
+public abstract class WebBridgeUser implements WebContextAccessible, DatabaseFormattable, DatabaseInteractable {
 	public enum UserType {
 		NONE, ACCOUNT, GUEST,
 	}
@@ -55,8 +55,34 @@ public abstract class WebBridgeUser implements ModularWeb, DatabaseFormattable {
 	
 	public abstract UserType getType();
 
+	public static String generateUnusedUserID(WebContext webContext) {
+		boolean unique = false;
+
+		while (!unique) {
+			String newID = WebBridge.generateGeneralPurposeID();
+			if (checkUserTypeByUserID(webContext, newID) == WebBridgeUser.UserType.NONE) {
+				unique = true;
+				return newID;
+			}
+		}
+
+		return null;
+	}
+	
+	public static WebBridgeUser.UserType checkUserTypeByUserID(WebContext webContext, String userID) {
+		if (WebBridge.helperCollectionContains(webContext, WebBridge.COLLECTION_ACCOUNT, WebBridgeUserAccount.KEY_USER_ID, userID)) {
+			return WebBridgeUser.UserType.ACCOUNT;
+		}
+
+		if (WebBridge.helperCollectionContains(webContext, WebBridge.COLLECTION_GUEST, WebBridgeUserAccount.KEY_USER_ID, userID)) {
+			return WebBridgeUser.UserType.GUEST;
+		}
+
+		return WebBridgeUser.UserType.NONE;
+	} 
+	
 	public static WebBridgeUser getUserByID(WebContext webContext, String userID) {
-		UserType userType = WebBridge.checkUserTypeByUserID(webContext, userID);
+		UserType userType = checkUserTypeByUserID(webContext, userID);
 
 		switch (userType) {
 		case ACCOUNT:

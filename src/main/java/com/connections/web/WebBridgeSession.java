@@ -2,9 +2,10 @@ package com.connections.web;
 
 import org.bson.Document;
 
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 
-public class WebBridgeSession implements ModularWeb, DatabaseFormattable {
+public class WebBridgeSession implements WebContextAccessible, DatabaseFormattable, DatabaseInteractable {
 	public static final String KEY_SESSION_ID = "session_id";
 
 	private String sessionID;
@@ -18,7 +19,7 @@ public class WebBridgeSession implements ModularWeb, DatabaseFormattable {
 	
 	public WebBridgeSession(WebContext webContext, WebBridgeUser user) {
 		setWebContext(webContext);
-		this.sessionID = WebBridge.generateUnusedSessionID(webContext);
+		this.sessionID = generateUnusedSessionID(webContext);
 		this.user = user;
 	}
 	
@@ -27,12 +28,45 @@ public class WebBridgeSession implements ModularWeb, DatabaseFormattable {
 			return false;
 		}
 		
-		sessionID = WebBridge.generateUnusedSessionID(webContext);
+		sessionID = generateUnusedSessionID(webContext);
 		WebBridge.cookieSet(webContext, KEY_SESSION_ID, sessionID);
 		writeToDatabase();
 		sessionActive = true;
 		return true;
 	}
+	
+	public static String generateUnusedSessionID(WebContext webContext) {
+		boolean unique = false;
+
+		while (!unique) {
+			String newID = WebBridge.generateGeneralPurposeID();
+			if (!checkSessionIDExists(webContext, newID)) {
+				unique = true;
+				return newID;
+			}
+		}
+
+		return null;
+	}
+	
+	public static boolean checkSessionIDExists(WebContext webContext, String sessionID) {
+		return WebBridge.helperCollectionContains(webContext, WebBridge.COLLECTION_SESSION_ID_NAME, KEY_SESSION_ID, sessionID);
+	}
+	
+//	public static WebBridgeUser.UserType checkuserTypeBySessionID(WebContext webContext, String sessionID) {
+//		MongoCollection<Document> collectionSession = webContext.getMongoDatabase().getCollection(COLLECTION_SESSION_ID_NAME);
+//		Document sessionSearch = new Document(WebBridgeSession.KEY_SESSION_ID, sessionID);
+//		FindIterable<Document> sessionResults = collectionSession.find(sessionSearch);
+//		if (helperResultsNotEmpty(sessionResults)) {
+//			Document matchedSession = sessionResults.first();
+//			String userID = matchedSession.getString(WebBridgeUser.KEY_USER_ID);
+//			
+//			if(userID != null) {
+//				return checkUserTypeByUserID(webContext, userID);
+//			}
+//		}
+//		return WebBridgeUser.UserType.NONE;
+//	}
 
 	public boolean logout(boolean deleteGuestUser) {
 		if (!sessionActive || !existsInDatabase()) {

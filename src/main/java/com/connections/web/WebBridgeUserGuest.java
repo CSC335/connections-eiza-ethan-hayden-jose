@@ -2,11 +2,11 @@ package com.connections.web;
 
 import org.bson.Document;
 
-public class WebBridgeUserGuest extends WebBridgeUser implements ModularWeb, DatabaseFormattable {
+public class WebBridgeUserGuest extends WebBridgeUser implements WebContextAccessible, DatabaseFormattable, DatabaseInteractable {
 	// it will NOT automatically write to the database
 	public WebBridgeUserGuest(WebContext webContext) {
 		super(webContext);
-		setUserID(WebBridge.generateUnusedUserID(webContext));
+		setUserID(generateUnusedUserID(webContext));
 	}
 
 	public WebBridgeUserGuest(WebContext webContext, Document doc) {

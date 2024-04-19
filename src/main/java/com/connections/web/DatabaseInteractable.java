@@ -1,8 +1,6 @@
 package com.connections.web;
 
-public interface ModularWeb {
-	void setWebContext(WebContext webContext);
-	WebContext getWebContext();
+public interface DatabaseInteractable {
 	void readFromDatabase();
 	void writeToDatabase();
 	boolean existsInDatabase();

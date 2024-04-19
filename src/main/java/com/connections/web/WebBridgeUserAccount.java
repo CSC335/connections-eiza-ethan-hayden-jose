@@ -8,7 +8,7 @@ import org.bson.Document;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 
-public class WebBridgeUserAccount extends WebBridgeUser implements ModularWeb, DatabaseFormattable {
+public class WebBridgeUserAccount extends WebBridgeUser implements WebContextAccessible, DatabaseFormattable, DatabaseInteractable {
 	public static final String KEY_USER_NAME = "username";
 	public static final String KEY_EMAIL = "email";
 	public static final String KEY_PASS_WORD = "password";
@@ -26,7 +26,7 @@ public class WebBridgeUserAccount extends WebBridgeUser implements ModularWeb, D
 		this.email = email;
 		this.passWord = passWord;
 		this.bio = bio;
-		setUserID(WebBridge.generateUnusedUserID(webContext));
+		setUserID(generateUnusedUserID(webContext));
 	}
 	
 	public WebBridgeUserAccount(WebContext webContext, Document doc) {
@@ -71,6 +71,21 @@ public class WebBridgeUserAccount extends WebBridgeUser implements ModularWeb, D
 	
 	public UserType getType() {
 		return UserType.ACCOUNT;
+	}
+	
+	public static boolean checkAccountCredentialsMatch(WebContext webContext, String userName, String passWord) {
+		Document userDoc = new Document();
+		userDoc.append(KEY_USER_NAME, userName);
+		userDoc.append(KEY_PASS_WORD, passWord);
+		return WebBridge.helperCollectionContains(webContext, WebBridge.COLLECTION_ACCOUNT, userDoc);
+	}
+	
+	public static boolean checkAccountExistsByEmail(WebContext webContext, String email) {
+		return WebBridge.helperCollectionContains(webContext, WebBridge.COLLECTION_ACCOUNT, KEY_EMAIL, email);
+	}
+
+	public static boolean checkAccountExistsByUserName(WebContext webContext, String userName) {
+		return WebBridge.helperCollectionContains(webContext, WebBridge.COLLECTION_ACCOUNT, KEY_USER_NAME, userName);
 	}
 
 	public static List<WebBridgeUserAccount> getAllAccounts(WebContext webContext) {

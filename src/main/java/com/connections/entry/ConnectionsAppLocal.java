@@ -2,6 +2,7 @@ package com.connections.entry;
 
 import com.connections.model.GameData;
 import com.connections.model.GameDataCollection;
+import com.connections.view_controller.ConnectionsLogin;
 import com.connections.view_controller.GameSession;
 import com.connections.view_controller.GameSessionContext;
 import com.connections.view_controller.StyleManager;
@@ -25,10 +26,12 @@ public class ConnectionsAppLocal extends Application {
 	
 	@Override
     public void start(Stage primaryStage) {
-		initGameData();
-		styleManager = new StyleManager();
-		GameSessionContext gameSessionContext = new GameSessionContext(styleManager, currentGame, null); 
-		GameSession gameSession = new GameSession(gameSessionContext); 
+//		initGameData();
+//		styleManager = new StyleManager();
+//		GameSessionContext gameSessionContext = new GameSessionContext(styleManager, currentGame, null); 
+//		GameSession gameSession = new GameSession(gameSessionContext);
+		
+		ConnectionsLogin gameSession = new ConnectionsLogin(null); 
 		
 		Scene scene = new Scene(gameSession, STAGE_WIDTH, STAGE_HEIGHT);
         primaryStage.setScene(scene);

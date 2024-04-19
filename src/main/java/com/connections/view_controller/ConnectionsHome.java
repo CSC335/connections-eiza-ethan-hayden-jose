@@ -8,6 +8,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -20,17 +21,20 @@ import javafx.scene.layout.BackgroundFill;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
-public class ConnectionsHome extends Application {
+public class ConnectionsHome extends BorderPane{
     private BorderPane window;
     private static final Color LOGIN_BACKGROUND_COLOR = Color.rgb(179, 166, 254);
 
-    public static void main(String[] args) {
-        launch(args);
+    public ConnectionsHome() {
+        try {
+			initPane();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
     }
-
-    @Override
-    public void start(Stage stage) throws FileNotFoundException {
-        window = new BorderPane();
+    
+    private void initPane() throws FileNotFoundException {
+    	window = new BorderPane();
         layoutConfigs();
 
         Font karnak_condensed = Font.loadFont(new FileInputStream("./Fonts/karnakpro-condensedblack.ttf"), 65);
@@ -55,12 +59,12 @@ public class ConnectionsHome extends Application {
 
         loginButton.setOnAction(event -> {
             try {
-                Stage newStage = new Stage();
-                ConnectionsLogin gameBoard = new ConnectionsLogin();
-                gameBoard.start(newStage);
+//                Stage newStage = new Stage();
+//                ConnectionsLogin gameBoard = new ConnectionsLogin();
+//                gameBoard.start(newStage);
 
                 // kill current
-                stage.close();
+//                stage.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -78,14 +82,14 @@ public class ConnectionsHome extends Application {
         playButton.setOnAction(event -> {
             try {
                 
-                Stage newStage = new Stage();
+//                Stage newStage = new Stage();
 //                ConnectionsLogin login = new ConnectionsLogin();
 //                login.start(newStage);
 //                GameBoard game = new GameBoard();
 //                game.start(newStage);
 
                 // kill current stage
-                stage.close();
+//                stage.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -101,10 +105,7 @@ public class ConnectionsHome extends Application {
 
         StackPane centerStackPane = new StackPane(centerBox);
         window.setCenter(centerStackPane);
-
-        Scene scene = new Scene(window, 800, 750);
-        stage.setScene(scene);
-        stage.show();
+        setCenter(window);
     }
 
     private void layoutConfigs() {
