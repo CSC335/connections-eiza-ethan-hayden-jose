@@ -42,12 +42,20 @@ public class WebBridge {
 		return helperCollectionContains(webContext.getMongoDatabase().getCollection(collectionName), query);
 	}
 	
-	public static void collectionPut(WebContext webContext, String collectionName, Document doc) {
+	public static void helperCollectionPut(WebContext webContext, String collectionName, Document doc) {
 		webContext.getMongoDatabase().getCollection(collectionName).insertOne(doc);
 	}
 	
-	public static void collectionPut(WebContext webContext, String collectionName, String key, Object value) {
-		collectionPut(webContext, collectionName, new Document(key, value));
+	public static void helperCollectionPut(WebContext webContext, String collectionName, String key, Object value) {
+		helperCollectionPut(webContext, collectionName, new Document(key, value));
+	}
+
+	public static void helperCollectionDelete(WebContext webContext, String collectionName, Document doc) {
+		webContext.getMongoDatabase().getCollection(collectionName).deleteOne(doc);
+	}
+
+	public static void helperCollectionDelete(WebContext webContext, String collectionName, String key, Object value) {
+		webContext.getMongoDatabase().getCollection(collectionName).deleteOne(new Document(key, value));
 	}
 
 	public static boolean helperResultsNotEmpty(FindIterable<Document> iter) {
@@ -67,7 +75,7 @@ public class WebBridge {
 	public static void initDatabase(WebContext webContext) {
 		webContext.getMongoDatabase().drop();
 		
-		collectionPut(webContext, COLLECTION_SERVER_STATUS, KEY_IS_SERVER_INIT, true);
+		helperCollectionPut(webContext, COLLECTION_SERVER_STATUS, KEY_IS_SERVER_INIT, true);
 	}
 
 	public static void helperCollectionDrop(WebContext webContext, String collectionName) {
@@ -92,20 +100,20 @@ public class WebBridge {
 		return collection.find(findCriteria).first();
 	}
 
-	public static boolean checkSessionIDExists(WebContext webContext, String id) {
-		return helperCollectionContains(webContext, COLLECTION_SESSION_ID_NAME, WebBridgeSession.KEY_SESSION_ID, id);
-	}
+//	public static boolean checkSessionIDExists(WebContext webContext, String id) {
+//		return helperCollectionContains(webContext, COLLECTION_SESSION_ID_NAME, WebBridgeSession.KEY_SESSION_ID, id);
+//	}
 
-	public static WebBridgeSession.UserType checkUserTypeByUserID(WebContext webContext, String userID) {
+	public static WebBridgeUser.UserType checkUserTypeByUserID(WebContext webContext, String userID) {
 		if (helperCollectionContains(webContext, COLLECTION_ACCOUNT, WebBridgeUserAccount.KEY_USER_ID, userID)) {
-			return WebBridgeSession.UserType.ACCOUNT;
+			return WebBridgeUser.UserType.ACCOUNT;
 		}
 
 		if (helperCollectionContains(webContext, COLLECTION_GUEST, WebBridgeUserAccount.KEY_USER_ID, userID)) {
-			return WebBridgeSession.UserType.GUEST;
+			return WebBridgeUser.UserType.GUEST;
 		}
 
-		return WebBridgeSession.UserType.NONE;
+		return WebBridgeUser.UserType.NONE;
 	} 
 
 	public static String generateGeneralPurposeID() {
@@ -132,7 +140,7 @@ public class WebBridge {
 
 		while (!unique) {
 			String newID = generateGeneralPurposeID();
-			if (checkUserTypeByUserID(webContext, newID) == WebBridgeSession.UserType.NONE) {
+			if (checkUserTypeByUserID(webContext, newID) == WebBridgeUser.UserType.NONE) {
 				unique = true;
 				return newID;
 			}
@@ -142,7 +150,7 @@ public class WebBridge {
 	}
 
 	public static String sessionBegin(WebContext webContext, String userID) {
-		if(checkUserTypeByUserID(webContext, userID) == WebBridgeSession.UserType.NONE) {
+		if(checkUserTypeByUserID(webContext, userID) == WebBridgeUser.UserType.NONE) {
 			return null;
 		}
 		
@@ -196,9 +204,9 @@ public class WebBridge {
 		return helperCollectionContains(webContext, COLLECTION_ACCOUNT, userDoc);
 	}
 	
-	public static Document storeGuest(WebContext, webContext, String userID) {
-		
-	}
+//	public static Document storeGuest(WebContext, webContext, String userID) {
+//		
+//	}
 
 //	public static Document storeGuest(WebContext webContext, String userID) {
 //		Document guest = new Document();
@@ -216,7 +224,7 @@ public class WebBridge {
 //		return user;
 //	}
 
-	public static WebBridgeSession.UserType checkuserTypeBySessionID(WebContext webContext, String sessionID) {
+	public static WebBridgeUser.UserType checkuserTypeBySessionID(WebContext webContext, String sessionID) {
 		MongoCollection<Document> collectionSession = webContext.getMongoDatabase().getCollection(COLLECTION_SESSION_ID_NAME);
 		Document sessionSearch = new Document(WebBridgeSession.KEY_SESSION_ID, sessionID);
 		FindIterable<Document> sessionResults = collectionSession.find(sessionSearch);
@@ -228,7 +236,7 @@ public class WebBridge {
 				return checkUserTypeByUserID(webContext, userID);
 			}
 		}
-		return WebBridgeSession.UserType.NONE;
+		return WebBridgeUser.UserType.NONE;
 	}
 
 	public static boolean cookieIsEmpty(WebContext webContext) {
@@ -241,6 +249,10 @@ public class WebBridge {
 			webContext.getWebAPI().deleteCookie(key);
 		}
 	}
+	
+	public static boolean cookieContains(WebContext webContext, String key) {
+		return webContext.getWebAPI().getCookies().containsKey(key);
+	}
 
 	public static String cookieGet(WebContext webContext, String key) {
 		return webContext.getWebAPI().getCookies().get(key);
@@ -251,19 +263,9 @@ public class WebBridge {
 	}
 
 	public static void cookieRemove(WebContext webContext, String key) {
-		webContext.getWebAPI().deleteCookie(key);
-	}
-	
-	public static String cookieGetSessionID(WebContext webContext) {
-		return cookieGet(webContext, WebBridgeSession.KEY_SESSION_ID);
-	}
-
-	public static void cookieSetSessionID(WebContext webContext, String sessionID) {
-		cookieSet(webContext, WebBridgeSession.KEY_SESSION_ID, sessionID);
-	}
-
-	public static void cookieRemoveSessionID(WebContext webContext) {
-		cookieRemove(webContext, WebBridgeSession.KEY_SESSION_ID);
+		if(cookieContains(webContext, key)) {
+			webContext.getWebAPI().deleteCookie(key);
+		}
 	}
 
 	public static ObservableMap<String, String> cookieGetMap(WebContext webContext) {

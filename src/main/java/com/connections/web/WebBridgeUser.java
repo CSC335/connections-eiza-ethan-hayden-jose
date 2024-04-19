@@ -8,6 +8,10 @@ import org.bson.Document;
 import com.connections.model.PlayedGameInfo;
 
 public abstract class WebBridgeUser implements ModularWeb, DatabaseFormattable {
+	public enum UserType {
+		NONE, ACCOUNT, GUEST,
+	}
+
 	public static final String KEY_USER_ID = "user_id";
 	public static final String KEY_PLAYED_GAMES = "played_games";
 
@@ -49,10 +53,10 @@ public abstract class WebBridgeUser implements ModularWeb, DatabaseFormattable {
 		this.userID = userID;
 	}
 	
-	public abstract WebBridgeSession.UserType getType();
+	public abstract UserType getType();
 
 	public static WebBridgeUser getUserByID(WebContext webContext, String userID) {
-		WebBridgeSession.UserType userType = WebBridge.checkUserTypeByUserID(webContext, userID);
+		UserType userType = WebBridge.checkUserTypeByUserID(webContext, userID);
 
 		switch (userType) {
 		case ACCOUNT:

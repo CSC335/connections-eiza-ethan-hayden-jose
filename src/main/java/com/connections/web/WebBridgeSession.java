@@ -11,55 +11,41 @@ public class WebBridgeSession implements ModularWeb, DatabaseFormattable {
 	private WebBridgeUser user;
 	private boolean sessionActive;
 	private WebContext webContext;
-
-	public enum UserType {
-		NONE, ACCOUNT, GUEST,
+	
+	public WebBridgeSession(WebContext webContext, Document doc) {
+		loadFromDatabaseFormat(doc);
 	}
-
-	public WebBridgeSession(WebContext webContext) {
+	
+	public WebBridgeSession(WebContext webContext, WebBridgeUser user) {
 		setWebContext(webContext);
-		this.sessionID = null;
-		this.user = null;
-		this.sessionActive = false;
+		this.sessionID = WebBridge.generateUnusedSessionID(webContext);
+		this.user = user;
 	}
-
-	public boolean loginUser(String userID) {
-		// you MUST log out first to properly end the session
-		if (sessionActive) {
+	
+	public boolean login() {
+		if (sessionActive || existsInDatabase()) {
 			return false;
 		}
-
-		String newSessionID = WebBridge.sessionBegin(webContext, userID);
-
-		// some error occurred
-		if (newSessionID == null) {
-			// failed to login
-			return false;
-		}
-
-		WebBridgeUser newUser = WebBridgeUser.getUserByID(webContext, userID);
-
-		if (newUser == null) {
-			return false;
-		}
-
-		sessionID = newSessionID;
-		user = newUser;
+		
+		sessionID = WebBridge.generateUnusedSessionID(webContext);
+		WebBridge.cookieSet(webContext, KEY_SESSION_ID, sessionID);
+		writeToDatabase();
 		sessionActive = true;
 		return true;
 	}
 
-	// NOTE: this affects the CURRENTLY CONNECTED USER
-	// this cannot "log out" any other user
 	public boolean logout(boolean deleteGuestUser) {
-		if (!sessionActive) {
+		if (!sessionActive || !existsInDatabase()) {
 			return false;
 		}
-
-		sessionID = null;
-		user = null;
+		
+		if(user.getType() == WebBridgeUser.UserType.GUEST && user.existsInDatabase()) {
+			user.removeFromDatabase();
+		}
+		
+		WebBridge.cookieRemove(webContext, sessionID);
 		sessionActive = false;
-		return WebBridge.sessionSignOut(webContext, deleteGuestUser);
+		return true;
 	}
 
 	@Override
@@ -98,8 +84,16 @@ public class WebBridgeSession implements ModularWeb, DatabaseFormattable {
 		String userID = doc.getString(WebBridgeUser.KEY_USER_ID);
 		sessionID = doc.getString(KEY_SESSION_ID);
 		user = WebBridgeUser.getUserByID(webContext, userID);
+		sessionActive = false;
+	}
 
-		// assuming that the session is active
-		sessionActive = true;
+	@Override
+	public boolean existsInDatabase() {
+		return WebBridge.helperCollectionContains(webContext, WebBridge.COLLECTION_SESSION_ID_NAME, WebBridgeSession.KEY_SESSION_ID, sessionID);
+	}
+	
+	@Override
+	public void removeFromDatabase() {
+		WebBridge.helperCollectionDelete(webContext, WebBridge.COLLECTION_SESSION_ID_NAME, WebBridgeSession.KEY_SESSION_ID, sessionID);
 	}
 }

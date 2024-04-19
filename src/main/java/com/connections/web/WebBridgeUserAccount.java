@@ -69,8 +69,8 @@ public class WebBridgeUserAccount extends WebBridgeUser implements ModularWeb, D
 		this.bio = bio;
 	}
 	
-	public WebBridgeSession.UserType getType() {
-		return WebBridgeSession.UserType.ACCOUNT;
+	public UserType getType() {
+		return UserType.ACCOUNT;
 	}
 
 	public static List<WebBridgeUserAccount> getAllAccounts(WebContext webContext) {
@@ -115,5 +115,15 @@ public class WebBridgeUserAccount extends WebBridgeUser implements ModularWeb, D
 		if(doc != null) {
 			loadFromDatabaseFormat(doc);
 		}
+	}
+
+	@Override
+	public boolean existsInDatabase() {
+		return WebBridge.helperCollectionContains(webContext, WebBridge.COLLECTION_ACCOUNT, KEY_USER_ID, getUserID());
+	}
+	
+	@Override
+	public void removeFromDatabase() {
+		WebBridge.helperCollectionDelete(webContext, WebBridge.COLLECTION_ACCOUNT, KEY_USER_ID, getUserID()); 
 	}
 }

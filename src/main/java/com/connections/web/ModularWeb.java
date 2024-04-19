@@ -5,4 +5,6 @@ public interface ModularWeb {
 	WebContext getWebContext();
 	void readFromDatabase();
 	void writeToDatabase();
+	boolean existsInDatabase();
+	void removeFromDatabase();
 }

@@ -17,8 +17,8 @@ public class WebBridgeUserGuest extends WebBridgeUser implements ModularWeb, Dat
 		super(webContext, userID);
 	}
 
-	public WebBridgeSession.UserType getType() {
-		return WebBridgeSession.UserType.GUEST;
+	public UserType getType() {
+		return UserType.GUEST;
 	}
 
 	@Override
@@ -32,5 +32,15 @@ public class WebBridgeUserGuest extends WebBridgeUser implements ModularWeb, Dat
 		if (doc != null) {
 			loadFromDatabaseFormat(doc);
 		}
+	}
+
+	@Override
+	public boolean existsInDatabase() {
+		return WebBridge.helperCollectionContains(webContext, WebBridge.COLLECTION_GUEST, KEY_USER_ID, getUserID());
+	}
+	
+	@Override
+	public void removeFromDatabase() {
+		WebBridge.helperCollectionDelete(webContext, WebBridge.COLLECTION_GUEST, KEY_USER_ID, getUserID()); 
 	}
 }
