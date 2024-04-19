@@ -1,18 +1,6 @@
 package com.connections.view_controller;
 
-import javafx.animation.TranslateTransition;
-import javafx.scene.control.Label;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.SVGPath;
-import javafx.scene.text.Text;
-import javafx.util.Duration;
 
 public class HintMenuButton extends SVGButton implements Modular  {
 	public HintMenuButton(GameSessionContext gameSessionContext) {

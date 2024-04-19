@@ -28,6 +28,12 @@ public class WebTempLoginScreen extends BorderPane {
 	private WebContext webContext;
 	private DatabaseView databaseView;
 
+	/*
+	 * THE TEMP LOGIN SCREEN DOES NOT WORK CURENTLY!
+	 * IT WAS NOT UPDATED TO REFLECT MAJOR CHANGES IN THE DATABASE
+	 * PLEASE FIX THE COMMENTED OUT CODE TO BE COMPATIBLE
+	 */
+	
 	// If logged out and coming back for first time, can either (1) use account,
 	// (2) use guest.
 	// If guest, can either (1) use an account, (2) start new guest session, (3)
@@ -71,7 +77,7 @@ public class WebTempLoginScreen extends BorderPane {
 			
 			getChildren().add(title);
 			
-			ObservableMap<String, String> map = WebBridge.cookieGetMap(webContext);
+			ObservableMap<String, String> map = WebUtils.cookieGetMap(webContext);
 			
 			for(String key : map.keySet()) {
 				Text entry = new Text(String.format("[%s = %s]", key, map.get(key)));
@@ -132,7 +138,7 @@ public class WebTempLoginScreen extends BorderPane {
 	private class DatabaseView extends VBox {
 		public DatabaseView() {
 			getChildren().add(new CollectionCookiesView());
-			for(String collectionName : WebBridge.COLLECTIONS) {
+			for(String collectionName : WebUtils.COLLECTIONS) {
 				getChildren().add(new CollectionView(collectionName));
 			}
 			setPadding(new Insets(10));

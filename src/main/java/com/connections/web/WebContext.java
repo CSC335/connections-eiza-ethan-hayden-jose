@@ -3,8 +3,6 @@ package com.connections.web;
 import com.jpro.webapi.WebAPI;
 import com.mongodb.client.MongoDatabase;
 
-import javafx.collections.ObservableMap;
-
 public class WebContext {
 	private MongoDatabase mongoDatabase;
 	private WebAPI webAPI;

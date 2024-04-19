@@ -7,7 +7,7 @@ import org.bson.Document;
 
 import com.connections.model.PlayedGameInfo;
 
-public abstract class WebBridgeUser implements WebContextAccessible, DatabaseFormattable, DatabaseInteractable {
+public abstract class WebUser implements WebContextAccessible, DatabaseFormattable, DatabaseInteractable {
 	public enum UserType {
 		NONE, ACCOUNT, GUEST,
 	}
@@ -19,18 +19,18 @@ public abstract class WebBridgeUser implements WebContextAccessible, DatabaseFor
 	protected String userID;
 	protected WebContext webContext;
 
-	public WebBridgeUser(WebContext webContext) {
+	public WebUser(WebContext webContext) {
 		setWebContext(webContext);
 		this.userID = null;
 		this.playedGameList = new ArrayList<>();
 	}
 
-	public WebBridgeUser(WebContext webContext, Document doc) {
+	public WebUser(WebContext webContext, Document doc) {
 		setWebContext(webContext);
 		loadFromDatabaseFormat(doc);
 	}
 
-	public WebBridgeUser(WebContext webContext, String userID) {
+	public WebUser(WebContext webContext, String userID) {
 		setWebContext(webContext);
 		this.userID = userID;
 		this.playedGameList = new ArrayList<>();
@@ -52,15 +52,15 @@ public abstract class WebBridgeUser implements WebContextAccessible, DatabaseFor
 	public void setUserID(String userID) {
 		this.userID = userID;
 	}
-	
+
 	public abstract UserType getType();
 
 	public static String generateUnusedUserID(WebContext webContext) {
 		boolean unique = false;
 
 		while (!unique) {
-			String newID = WebBridge.generateGeneralPurposeID();
-			if (checkUserTypeByUserID(webContext, newID) == WebBridgeUser.UserType.NONE) {
+			String newID = WebUtils.generateGeneralPurposeID();
+			if (checkUserTypeByUserID(webContext, newID) == WebUser.UserType.NONE) {
 				unique = true;
 				return newID;
 			}
@@ -68,27 +68,29 @@ public abstract class WebBridgeUser implements WebContextAccessible, DatabaseFor
 
 		return null;
 	}
-	
-	public static WebBridgeUser.UserType checkUserTypeByUserID(WebContext webContext, String userID) {
-		if (WebBridge.helperCollectionContains(webContext, WebBridge.COLLECTION_ACCOUNT, WebBridgeUserAccount.KEY_USER_ID, userID)) {
-			return WebBridgeUser.UserType.ACCOUNT;
+
+	public static WebUser.UserType checkUserTypeByUserID(WebContext webContext, String userID) {
+		if (WebUtils.helperCollectionContains(webContext, WebUtils.COLLECTION_ACCOUNT, WebUserAccount.KEY_USER_ID,
+				userID)) {
+			return WebUser.UserType.ACCOUNT;
 		}
 
-		if (WebBridge.helperCollectionContains(webContext, WebBridge.COLLECTION_GUEST, WebBridgeUserAccount.KEY_USER_ID, userID)) {
-			return WebBridgeUser.UserType.GUEST;
+		if (WebUtils.helperCollectionContains(webContext, WebUtils.COLLECTION_GUEST, WebUserAccount.KEY_USER_ID,
+				userID)) {
+			return WebUser.UserType.GUEST;
 		}
 
-		return WebBridgeUser.UserType.NONE;
-	} 
-	
-	public static WebBridgeUser getUserByID(WebContext webContext, String userID) {
+		return WebUser.UserType.NONE;
+	}
+
+	public static WebUser getUserByID(WebContext webContext, String userID) {
 		UserType userType = checkUserTypeByUserID(webContext, userID);
 
 		switch (userType) {
 		case ACCOUNT:
-			return new WebBridgeUserAccount(webContext, userID);
+			return new WebUserAccount(webContext, userID);
 		case GUEST:
-			return new WebBridgeUserGuest(webContext, userID);
+			return new WebUserGuest(webContext, userID);
 		default:
 			return null;
 		}
@@ -117,12 +119,12 @@ public abstract class WebBridgeUser implements WebContextAccessible, DatabaseFor
 	}
 
 	@Override
-	public void setWebContext(WebContext webContext) {
-		this.webContext = webContext;
+	public WebContext getWebContext() {
+		return webContext;
 	}
 
 	@Override
-	public WebContext getWebContext() {
-		return webContext;
+	public void setWebContext(WebContext webContext) {
+		this.webContext = webContext;
 	}
 }

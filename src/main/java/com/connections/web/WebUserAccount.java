@@ -8,7 +8,7 @@ import org.bson.Document;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 
-public class WebBridgeUserAccount extends WebBridgeUser implements WebContextAccessible, DatabaseFormattable, DatabaseInteractable {
+public class WebUserAccount extends WebUser implements WebContextAccessible, DatabaseFormattable, DatabaseInteractable {
 	public static final String KEY_USER_NAME = "username";
 	public static final String KEY_EMAIL = "email";
 	public static final String KEY_PASS_WORD = "password";
@@ -20,7 +20,7 @@ public class WebBridgeUserAccount extends WebBridgeUser implements WebContextAcc
 	protected String bio;
 	
 	// it will NOT automatically write to the database
-	public WebBridgeUserAccount(WebContext webContext, String userName, String email, String passWord, String bio) {
+	public WebUserAccount(WebContext webContext, String userName, String email, String passWord, String bio) {
 		super(webContext);
 		this.userName = userName;
 		this.email = email;
@@ -29,11 +29,11 @@ public class WebBridgeUserAccount extends WebBridgeUser implements WebContextAcc
 		setUserID(generateUnusedUserID(webContext));
 	}
 	
-	public WebBridgeUserAccount(WebContext webContext, Document doc) {
+	public WebUserAccount(WebContext webContext, Document doc) {
 		super(webContext, doc);
 	}
 
-	public WebBridgeUserAccount(WebContext webContext, String userID) {
+	public WebUserAccount(WebContext webContext, String userID) {
 		super(webContext, userID);
 	}
 
@@ -74,28 +74,46 @@ public class WebBridgeUserAccount extends WebBridgeUser implements WebContextAcc
 	}
 	
 	public static boolean checkAccountCredentialsMatch(WebContext webContext, String email, String passWord) {
-		Document userDoc = new Document();
-		userDoc.append(KEY_EMAIL, email);
-		userDoc.append(KEY_PASS_WORD, passWord);
-		return WebBridge.helperCollectionContains(webContext, WebBridge.COLLECTION_ACCOUNT, userDoc);
+		Document findByDoc = new Document();
+		findByDoc.append(KEY_EMAIL, email);
+		findByDoc.append(KEY_PASS_WORD, passWord);
+		return WebUtils.helperCollectionContains(webContext, WebUtils.COLLECTION_ACCOUNT, findByDoc);
+	}
+	
+	public static WebUserAccount getUserAccountByCredentials(WebContext webContext, String email, String passWord) {
+		Document findByDoc = new Document();
+		findByDoc.append(KEY_EMAIL, email);
+		findByDoc.append(KEY_PASS_WORD, passWord);
+		
+		Document userInfoDoc = WebUtils.helperCollectionGet(webContext, WebUtils.COLLECTION_ACCOUNT, findByDoc);
+		if(userInfoDoc == null) {
+			return null;
+		}
+		
+		String userID = userInfoDoc.getString(KEY_USER_ID);
+		if(userID == null) {
+			return null;
+		}
+		
+		return new WebUserAccount(webContext, userID);
 	}
 	
 	public static boolean checkAccountExistsByEmail(WebContext webContext, String email) {
-		return WebBridge.helperCollectionContains(webContext, WebBridge.COLLECTION_ACCOUNT, KEY_EMAIL, email);
+		return WebUtils.helperCollectionContains(webContext, WebUtils.COLLECTION_ACCOUNT, KEY_EMAIL, email);
 	}
 
 	public static boolean checkAccountExistsByUserName(WebContext webContext, String userName) {
-		return WebBridge.helperCollectionContains(webContext, WebBridge.COLLECTION_ACCOUNT, KEY_USER_NAME, userName);
+		return WebUtils.helperCollectionContains(webContext, WebUtils.COLLECTION_ACCOUNT, KEY_USER_NAME, userName);
 	}
 
-	public static List<WebBridgeUserAccount> getAllAccounts(WebContext webContext) {
+	public static List<WebUserAccount> getAllAccounts(WebContext webContext) {
 		MongoCollection<Document> collection = webContext.getMongoDatabase()
-				.getCollection(WebBridge.COLLECTION_ACCOUNT);
+				.getCollection(WebUtils.COLLECTION_ACCOUNT);
 		FindIterable<Document> results = collection.find();
 
-		List<WebBridgeUserAccount> list = new ArrayList<>();
+		List<WebUserAccount> list = new ArrayList<>();
 		for (Document doc : results) {
-			list.add(new WebBridgeUserAccount(webContext, doc));
+			list.add(new WebUserAccount(webContext, doc));
 		}
 		return list;
 	}
@@ -120,25 +138,25 @@ public class WebBridgeUserAccount extends WebBridgeUser implements WebContextAcc
 	}
 
 	@Override
-	public void writeToDatabase() {
-		WebBridge.updateUniqueEntry(webContext, WebBridge.COLLECTION_ACCOUNT, KEY_USER_ID, userID, getAsDatabaseFormat());
-	}
-
-	@Override
 	public void readFromDatabase() {
-		Document doc = WebBridge.getUniqueEntry(webContext, WebBridge.COLLECTION_ACCOUNT, KEY_USER_ID, userID);
+		Document doc = WebUtils.helperCollectionGet(webContext, WebUtils.COLLECTION_ACCOUNT, KEY_USER_ID, userID);
 		if(doc != null) {
 			loadFromDatabaseFormat(doc);
 		}
 	}
+	
+	@Override
+	public void writeToDatabase() {
+		WebUtils.helperCollectionUpdate(webContext, WebUtils.COLLECTION_ACCOUNT, KEY_USER_ID, userID, getAsDatabaseFormat());
+	}
 
 	@Override
 	public boolean existsInDatabase() {
-		return WebBridge.helperCollectionContains(webContext, WebBridge.COLLECTION_ACCOUNT, KEY_USER_ID, getUserID());
+		return WebUtils.helperCollectionContains(webContext, WebUtils.COLLECTION_ACCOUNT, KEY_USER_ID, getUserID());
 	}
 	
 	@Override
 	public void removeFromDatabase() {
-		WebBridge.helperCollectionDelete(webContext, WebBridge.COLLECTION_ACCOUNT, KEY_USER_ID, getUserID()); 
+		WebUtils.helperCollectionDelete(webContext, WebUtils.COLLECTION_ACCOUNT, KEY_USER_ID, getUserID()); 
 	}
 }

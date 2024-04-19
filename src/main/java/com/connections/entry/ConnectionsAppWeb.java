@@ -1,14 +1,15 @@
 package com.connections.entry;
 
+import java.io.File;
+import java.io.IOException;
+
 import com.connections.web.WebFXMLController;
 import com.jpro.webapi.JProApplication;
+
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-
-import java.io.File;
-import java.io.IOException;
 
 public class ConnectionsAppWeb extends JProApplication {
 	@Override

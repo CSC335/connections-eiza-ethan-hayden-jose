@@ -1,30 +1,20 @@
 package com.connections.view_controller;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-
-import org.bson.Document;
-
-import com.connections.web.WebContextAccessible;
-import com.connections.web.WebDebugDatabaseView;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoCollection;
-import com.connections.web.WebBridge;
-import com.connections.web.WebBridgeUser;
-import com.connections.web.WebBridgeUserAccount;
 import com.connections.web.WebContext;
+import com.connections.web.WebContextAccessible;
+import com.connections.web.WebSession;
+import com.connections.web.WebSessionAccessible;
+import com.connections.web.WebSessionContext;
+import com.connections.web.WebUserAccount;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
-import javafx.animation.PauseTransition;
 import javafx.animation.TranslateTransition;
-import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
-import javafx.collections.ObservableMap;
-import javafx.geometry.Insets;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -32,18 +22,16 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 
-public class ConnectionsLogin extends BorderPane implements WebContextAccessible {
+public class ConnectionsLogin extends BorderPane implements WebContextAccessible, WebSessionAccessible {
 	private StyleManager styleManager;
 	private WebContext webContext;
+	private WebSessionContext webSessionContext;
 
 	private GridPane gridLayout;
 	private VBox nextSectionLayout;
@@ -54,6 +42,7 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 	private WarningMessage invalidUsernameMessage;
 	private WarningMessage invalidPassMessage;
 	private WarningMessage invalidEmailMessage;
+	private WarningMessage accountErrorMessage;
 	private Label loginHeadingLabel;
 	private BigButton continueButton;
 	private BigButton continueButtonPlaceholder;
@@ -63,11 +52,13 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 	private Font franklin700_16;
 	private Font cheltenham;
 	private BorderPane window;
+	private EventHandler<ActionEvent> onLoginSuccessfully;
 
 	private boolean isCreatingNewAccount;
 	
-	public ConnectionsLogin(WebContext webContext) {
+	public ConnectionsLogin(WebContext webContext, WebSessionContext webSessionContext) {
 		setWebContext(webContext);
+		setWebSessionContext(webSessionContext);
 		initPane();
 	}
 
@@ -169,13 +160,17 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 			setTextFill(Color.WHITE);
 		}
 	}
+	
+	public void setOnLoginSuccessfully(EventHandler<ActionEvent> onLoginSuccessfully) {
+		this.onLoginSuccessfully = onLoginSuccessfully;
+	}
 
 	private boolean emailExistsInDatabase(String email) {
-    	return WebBridgeUserAccount.checkAccountExistsByEmail(webContext, email);
+    	return WebUserAccount.checkAccountExistsByEmail(webContext, email);
 	}
 	
 	private boolean userExistsInDatabase(String username) {
-		return WebBridgeUserAccount.checkAccountExistsByUserName(webContext, username);
+		return WebUserAccount.checkAccountExistsByUserName(webContext, username);
 	}
 
 	private void showNextSectionAnimation() {
@@ -208,6 +203,7 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 		passwordBox.setVisible(true);
 		continueButton.setText("Create Account");
 		continueButton.setOnAction(event -> {
+			accountErrorMessage.setVisible(false);
 			boolean valid = true;
 
 			// NOTE: the or-statement is important: it will first check if the input is valid syntax-wise, THEN in terms of the database
@@ -224,9 +220,19 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 			}
 			
 			if (valid) {
-				WebBridgeUserAccount newAccount = new WebBridgeUserAccount(webContext, usernameBox.getInput(), emailBox.getInput(), passwordBox.getInput(), "");
-				newAccount.writeToDatabase();
-				continueButton.setText("(debug) success, refresh page now");
+				WebUserAccount newAccount = new WebUserAccount(webContext, usernameBox.getInput(), emailBox.getInput(), passwordBox.getInput(), "");
+				WebSession session = webSessionContext.getSession();
+				session.setUser(newAccount);
+				boolean success = session.login();
+				
+				if(success) {
+					newAccount.writeToDatabase();
+					if(onLoginSuccessfully != null) {
+						onLoginSuccessfully.handle(new ActionEvent(this, null));
+					}
+				} else {
+					accountErrorMessage.setVisible(true);
+				}
 			}
 		});
 		showNextSectionAnimation();
@@ -236,6 +242,7 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 		passwordBox.setVisible(true);
 		continueButton.setText("Login");
 		continueButton.setOnAction(event -> {
+			accountErrorMessage.setVisible(false);
 			boolean valid = true;
 			
 			// NOTE: the or-statement is important: it will first check if the input is valid syntax-wise, THEN in terms of the database
@@ -246,13 +253,35 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 			}
 			
 			if (valid) {
-				continueButton.setText("(debug) success, refresh page now");
+				boolean success = true;
+				
+				WebUserAccount existingAccount = WebUserAccount.getUserAccountByCredentials(webContext, emailBox.getInput(), passwordBox.getInput());
+				if(existingAccount == null) {
+					success = false;
+				} else {
+					WebSession session = webSessionContext.getSession();
+					session.setUser(existingAccount);
+					
+					if(!session.login()) {
+						success = false;
+					}
+				}
+				
+				if(success) {
+					if(onLoginSuccessfully != null) {
+						onLoginSuccessfully.handle(new ActionEvent(this, null));
+					}
+				} else {
+					accountErrorMessage.setVisible(true);
+				}
 			}
 		});
 		showNextSectionAnimation();
 	}
 
 	private void initPane() {
+		setStyle("-fx-background-color: white;");
+		
 		styleManager = new StyleManager();
 		franklin700_14 = styleManager.getFont("franklin-normal", 700, 14);
 		franklin700_16 = styleManager.getFont("franklin-normal", 700, 16);
@@ -263,6 +292,7 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 		gridLayout = new GridPane();
 		gridLayout.setHgap(10);
 		gridLayout.setVgap(8);
+		gridLayout.setAlignment(Pos.CENTER);
 
 		loginHeadingLabel = new Label("Log in or create an account");
 		loginHeadingLabel.setFont(cheltenham);
@@ -289,16 +319,17 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 				invalidPassMessage.setVisible(false);
 			}
 		});
+		
+		// By default the error messages are set to invisible
 
-		invalidUsernameMessage = new WarningMessage("...");
-		invalidPassMessage = new WarningMessage("...");
+		invalidUsernameMessage = new WarningMessage("..."); // set by another method
+		invalidPassMessage = new WarningMessage("..."); // set by another method
 		invalidEmailMessage = new WarningMessage("Please enter a valid email address.");
+		accountErrorMessage = new WarningMessage("An unexpected error occurred. Please try again later.");
 
 		continueButton = new BigButton("Continue");
 		continueButtonPlaceholder = new BigButton("PLACEHOLDER");
 		continueButtonPlaceholder.setVisible(false);
-		gridLayout.add(continueButtonPlaceholder, 0, 4);
-		gridLayout.setAlignment(Pos.CENTER);
 
 		nextSectionLayout = new VBox(usernameBox, invalidUsernameMessage, passwordBox, invalidPassMessage);
 		for (Node node : nextSectionLayout.getChildren()) {
@@ -309,6 +340,8 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 		gridLayout.add(invalidEmailMessage, 0, 1);
 		gridLayout.add(continueButton, 0, 2);
 		gridLayout.add(nextSectionLayout, 0, 3);
+		gridLayout.add(continueButtonPlaceholder, 0, 4);
+		gridLayout.add(accountErrorMessage, 0, 5);
 
 		continueButton.setOnAction(event -> {
 			if (isValidEmail(emailBox.getInput())) {
@@ -361,7 +394,7 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 	}
 	
 	private boolean isDatabaseValidPassword(String password) {
-		if(!isCreatingNewAccount && !WebBridgeUserAccount.checkAccountCredentialsMatch(webContext, emailBox.getInput(), passwordBox.getInput())) {
+		if(!isCreatingNewAccount && !WebUserAccount.checkAccountCredentialsMatch(webContext, emailBox.getInput(), passwordBox.getInput())) {
 			invalidPassMessage.setMessage("Password is incorrect.");
 			return false;
 		}
@@ -381,5 +414,15 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 	@Override
 	public WebContext getWebContext() {
 		return webContext;
+	}
+
+	@Override
+	public void setWebSessionContext(WebSessionContext webSessionContext) {
+		this.webSessionContext = webSessionContext;
+	}
+
+	@Override
+	public WebSessionContext getWebSessionContext() {
+		return webSessionContext;
 	}
 }

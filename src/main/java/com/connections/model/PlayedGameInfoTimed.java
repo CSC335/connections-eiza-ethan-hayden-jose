@@ -2,7 +2,9 @@ package com.connections.model;
 
 import java.util.List;
 import java.util.Set;
+
 import org.bson.Document;
+
 import com.connections.web.DatabaseFormattable;
 
 public class PlayedGameInfoTimed extends PlayedGameInfo implements DatabaseFormattable {

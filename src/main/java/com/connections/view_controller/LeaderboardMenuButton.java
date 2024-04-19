@@ -1,6 +1,5 @@
 package com.connections.view_controller;
 
-import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
 
 public class LeaderboardMenuButton extends SVGButton {

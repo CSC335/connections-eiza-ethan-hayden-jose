@@ -10,7 +10,7 @@ import com.connections.web.DatabaseFormattable;
 
 public class GameData implements DatabaseFormattable {
 	public static final String KEY_COLOR_LIST = "colors";
-	public static final String KEY_PUZZLE_NUMBER = "puzzle_number";
+	public static final String KEY_PUZZLE_NUMBER = "number";
 	
 	private Map<DifficultyColor, GameAnswerColor> answerMap;
 	private int puzzleNumber;

@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 
 import com.connections.model.DifficultyColor;
 import com.connections.model.GameAnswerColor;
-import com.connections.model.GameData;
 import com.connections.model.Word;
 
 import javafx.animation.ParallelTransition;
@@ -20,13 +19,10 @@ import javafx.animation.TranslateTransition;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.event.EventTarget;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 
 public class TileGridWord extends BorderPane implements Modular {

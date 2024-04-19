@@ -1,16 +1,16 @@
 package com.connections.view_controller;
 
-import com.connections.model.*;
-
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javafx.scene.text.Font;
+import com.connections.model.DifficultyColor;
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 
 public class StyleManager {
 	protected static final Color YELLOW_LIGHT = Color.rgb(249, 223, 109);

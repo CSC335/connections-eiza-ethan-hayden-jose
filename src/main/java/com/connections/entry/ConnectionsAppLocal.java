@@ -2,13 +2,11 @@ package com.connections.entry;
 
 import com.connections.model.GameData;
 import com.connections.model.GameDataCollection;
-import com.connections.view_controller.ConnectionsLogin;
-import com.connections.view_controller.GameSession;
-import com.connections.view_controller.GameSessionContext;
 import com.connections.view_controller.StyleManager;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 public class ConnectionsAppLocal extends Application {	
@@ -31,9 +29,10 @@ public class ConnectionsAppLocal extends Application {
 //		GameSessionContext gameSessionContext = new GameSessionContext(styleManager, currentGame, null); 
 //		GameSession gameSession = new GameSession(gameSessionContext);
 		
-		ConnectionsLogin gameSession = new ConnectionsLogin(null); 
+//		ConnectionsLogin gameSession = new ConnectionsLogin(null, null); 
 		
-		Scene scene = new Scene(gameSession, STAGE_WIDTH, STAGE_HEIGHT);
+		Pane newPane = new Pane();
+		Scene scene = new Scene(newPane, STAGE_WIDTH, STAGE_HEIGHT);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Connections");
         primaryStage.setResizable(false);

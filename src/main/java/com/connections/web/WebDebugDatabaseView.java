@@ -9,6 +9,8 @@ import javafx.collections.ObservableMap;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -16,112 +18,170 @@ import javafx.scene.text.Text;
 
 public class WebDebugDatabaseView extends VBox {
 	private WebContext webContext;
+	private GridPane gridPane;
 
 	public WebDebugDatabaseView(WebContext webContext) {
-			getChildren().add(new CollectionCookiesView(webContext));
-			for(String collectionName : WebBridge.COLLECTIONS) {
-				getChildren().add(new CollectionView(webContext, collectionName));
+		this.webContext = webContext;
+		
+		Text title = new Text("WebDebugDatabaseView");
+		
+		Button initDatabase = new Button("Initialize Database (With Games and Other Items)");
+		initDatabase.setOnAction(event -> {
+			WebUtils.initDatabase(webContext);
+			refreshView();
+		});
+
+		Button clearDatabase = new Button("CLEAR THE DATABASE WITHOUT INITIALIZATION");
+		clearDatabase.setOnAction(event -> {
+			WebUtils.clearDatabase(webContext);
+			refreshView();
+		});
+		
+		Button refreshAll = new Button("Refresh All");
+		refreshAll.setOnAction(event -> {
+			refreshView();
+		});
+		
+		int maxCols = 3;
+		int currentRow = 0;
+		int currentCol = 1;
+		
+		double maxWidth = 1280;
+		
+		gridPane = new GridPane();
+		gridPane.setHgap(3);
+		gridPane.setVgap(3);
+		
+		gridPane.add(new CookieView(webContext, 500, 100), 0, 0);
+		
+		for (String collectionName : WebUtils.COLLECTIONS) {
+			gridPane.add(new CollectionView(webContext, collectionName, maxWidth / maxCols, 100), currentCol, currentRow);
+			
+			currentCol++;
+			if(currentCol >= maxCols) {
+				currentCol = 0;
+				currentRow++;
 			}
-			setPadding(new Insets(10));
-			setSpacing(10);
+		}
+		
+		getChildren().addAll(title, initDatabase, clearDatabase, refreshAll, gridPane);
+		
+		setPadding(new Insets(5));
+		setSpacing(5);
+		setStyle("-fx-border-color: blue;");
+	}
+
+	public void refreshView() {
+		for (Node node : gridPane.getChildren()) {
+			if (node instanceof GroupView) {
+				((GroupView) node).refreshView();
+			}
+		}
+	}
+
+	private abstract class GroupView extends VBox {
+		protected WebContext webContext;
+		protected Text title;
+		protected Button reloadButton;
+		protected Button clearButton;
+		protected HBox controlBox;
+		protected VBox contentBox;
+		protected ScrollPane scrollPane;
+
+		public GroupView(WebContext webContext, String text, double width, double height) {
+			title = new Text(text);
+			title.setFont(Font.font("Arial", 16));
+			
+			reloadButton = new Button("Refresh View");
+			reloadButton.setOnAction(event -> {
+				refreshView();
+			});
+			clearButton = new Button("Delete All");
+			clearButton.setOnAction(event -> {
+				clearAll();
+			});
+			
+			controlBox = new HBox(reloadButton, clearButton);
+			controlBox.setSpacing(5);
+			
+			contentBox = new VBox();
+			contentBox.setPadding(new Insets(5));
+			contentBox.setSpacing(2);
+			scrollPane = new ScrollPane(contentBox);
+			scrollPane.setPrefHeight(height);
+			scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+			scrollPane.setHmax(1);
+			
+			getChildren().addAll(title, controlBox, scrollPane);
+			
+			setPrefWidth(width);
+			
+			this.webContext = webContext;
+			setSpacing(5);
+			setPadding(new Insets(5));
 			setStyle("-fx-border-color: blue;");
 		}
-
-	public void reload() {
-		for (Node node : getChildren()) {
-			if (node instanceof CollectionView) {
-				((CollectionView) node).reload();
-			}
-			if (node instanceof CollectionCookiesView) {
-				((CollectionCookiesView) node).reload();
-			}
+		
+		public static Text makeText(String textString) {
+			Text text = new Text(textString);
+			text.setFont(Font.font("Arial", 10));
+			return text;
 		}
+		
+		public abstract void refreshView();
+		
+		public abstract void clearAll();
 	}
-
-	private class CollectionCookiesView extends VBox {
-		private WebContext webContext;
-
-		public CollectionCookiesView(WebContext webContext) {
-			this.webContext = webContext;
-			setSpacing(10);
-			setPadding(new Insets(10));
-			setStyle("-fx-border-color: pink;");
-			reload();
+	
+	private class CookieView extends GroupView {
+		public CookieView(WebContext webContext, double width, double height) {
+			super(webContext, "Cookies", width, height);
+			refreshView();
 		}
-
-		public void reload() {
-			getChildren().clear();
-
-			Text title = new Text("Cookies");
-			title.setFont(Font.font("Arial", 18));
-
-			getChildren().add(title);
-
-			ObservableMap<String, String> map = WebBridge.cookieGetMap(webContext);
-
+		
+		public void refreshView() {
+			contentBox.getChildren().clear();
+			ObservableMap<String, String> map = WebUtils.cookieGetMap(webContext);
 			for (String key : map.keySet()) {
-				Text entry = new Text(String.format("[%s = %s]", key, map.get(key)));
-				getChildren().add(entry);
+				Text entry = makeText(String.format("[%s = %s]", key, map.get(key)));
+				contentBox.getChildren().add(entry);
 			}
-
-			Button reload = new Button("Reload");
-			reload.setOnAction(event -> {
-				reload();
-			});
-
-			getChildren().add(reload);
+		}
+		
+		public void clearAll() {
+			WebUtils.cookieClear(webContext);
+			refreshView();
 		}
 	}
-
-	private class CollectionView extends VBox {
-		private String name;
-		private MongoCollection<Document> collection;
-
-		private WebContext webContext;
-
-		public CollectionView(WebContext webContext, String name) {
-			this.webContext = webContext;
-			this.name = name;
-			collection = webContext.getMongoDatabase().getCollection(name);
-			setSpacing(10);
-			setPadding(new Insets(10));
-			setStyle("-fx-border-color: orange;");
-			reload();
+	
+	private class CollectionView extends GroupView {
+		private String collectionName;
+		
+		public CollectionView(WebContext webContext, String collectionName, double width, double height) {
+			super(webContext, "Mongo Collection: " + collectionName, width, height);
+			this.collectionName = collectionName;
+			refreshView();
 		}
-
-		public void reload() {
+		
+		public void refreshView() {
+			contentBox.getChildren().clear();
+			MongoCollection<Document> collection = webContext.getMongoDatabase().getCollection(collectionName);
 			FindIterable<Document> results = collection.find();
-			getChildren().clear();
-
-			Text title = new Text("Listing for Collection " + name);
-			title.setFont(Font.font("Arial", 18));
-
-			getChildren().add(title);
-
 			for (Document doc : results) {
 				String content = "";
 
 				for (String key : doc.keySet()) {
 					content += String.format("[%s = %s]", key, doc.get(key).toString());
 				}
-
-				Text entry = new Text(content);
-				getChildren().add(entry);
+				
+				Text entry = makeText(content);
+				contentBox.getChildren().add(entry);
 			}
-
-			Button reload = new Button("Reload");
-			reload.setOnAction(event -> {
-				reload();
-			});
-			
-			Button clear = new Button("Clear");
-			clear.setOnAction(event -> {
-				WebBridge.helperCollectionDrop(webContext, name);
-				reload();
-			});
-
-			getChildren().add(reload);
-			getChildren().add(clear);
+		}
+		
+		public void clearAll() {
+			WebUtils.helperCollectionDrop(webContext, collectionName);
+			refreshView();
 		}
 	}
 }

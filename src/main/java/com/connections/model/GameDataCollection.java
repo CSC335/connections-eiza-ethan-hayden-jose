@@ -1,18 +1,10 @@
 package com.connections.model;
-import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.bson.Document;
 
 import com.connections.web.DatabaseFormattable;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 
 public class GameDataCollection implements DatabaseFormattable {
 	public final static String KEY_GAMES_LIST = "games";

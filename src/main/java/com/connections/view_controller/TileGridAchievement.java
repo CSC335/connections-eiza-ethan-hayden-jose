@@ -4,13 +4,10 @@ import com.connections.model.DifficultyColor;
 
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.shape.Rectangle;
 
 public class TileGridAchievement extends Pane implements Modular {
 	private GameSessionContext gameSessionContext;
