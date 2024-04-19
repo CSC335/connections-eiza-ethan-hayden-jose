@@ -42,7 +42,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 public class ConnectionsLogin extends BorderPane implements WebContextAccessible {
-	private StyleManager styleManager = new StyleManager();
+	private StyleManager styleManager;
 	private WebContext webContext;
 
 	private GridPane gridLayout;
@@ -62,6 +62,7 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 	private Font franklin700_14;
 	private Font franklin700_16;
 	private Font cheltenham;
+	private BorderPane window;
 
 	private boolean isCreatingNewAccount;
 	
@@ -252,11 +253,12 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 	}
 
 	private void initPane() {
+		styleManager = new StyleManager();
 		franklin700_14 = styleManager.getFont("franklin-normal", 700, 14);
 		franklin700_16 = styleManager.getFont("franklin-normal", 700, 16);
 		cheltenham = styleManager.getFont("cheltenham-normal", 400, 30);
 
-		BorderPane window = new BorderPane();
+		window = new BorderPane();
 		
 		gridLayout = new GridPane();
 		gridLayout.setHgap(10);
@@ -330,8 +332,8 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 
 		window.setCenter(verticalLayout);
 		setCenter(window);
-		WebDebugDatabaseView dbView = new WebDebugDatabaseView(webContext);
-		setBottom(dbView);
+//		WebDebugDatabaseView dbView = new WebDebugDatabaseView(webContext);
+//		setBottom(dbView);
 	}
 
 	private boolean isValidUsername(String username) {

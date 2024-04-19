@@ -68,13 +68,14 @@ public class StyleManager {
 	private EventHandler<ActionEvent> onDarkModeChange;
 	private Map<String, Font> fontMap = new HashMap<>();
 
-	public Font getFont(String fontName, int weight, int size) {
+	public Font getFont(String fontName, String fileExtension, int weight, int size) {
 		try {
-			String key = String.format("%s-%d-%d", fontName, size, weight);
+			String key = String.format("%s-%s-%d-%d", fontName, fileExtension, size, weight);
 			Font font = fontMap.get(key);
 
 			if (font == null) {
-				font = Font.loadFont(new FileInputStream(String.format("Fonts/%s-%d.ttf", fontName, weight)), size);
+				font = Font.loadFont(new FileInputStream(String.format("Fonts/%s-%d.%s", fontName, weight, fileExtension)), size);
+				fontMap.put(key, font);
 			}
 
 			return font;
@@ -85,13 +86,14 @@ public class StyleManager {
 		return Font.font("System", size);
 	}
 
-	public Font getFont(String fontName, int size) {
+	public Font getFont(String fontName, String fileExtension, int size) {
 		try {
-			String key = String.format("%s-%d", fontName, size);
+			String key = String.format("%s-%s-%d", fontName, fileExtension, size);
 			Font font = fontMap.get(key);
 
 			if (font == null) {
-				font = Font.loadFont(new FileInputStream(String.format("Fonts/%s.ttf", fontName)), size);
+				font = Font.loadFont(new FileInputStream(String.format("Fonts/%s.%s", fontName, fileExtension)), size);
+				fontMap.put(key, font);
 			}
 
 			return font;
@@ -100,6 +102,14 @@ public class StyleManager {
 		}
 
 		return Font.font("System", size);
+	}
+	
+	public Font getFont(String fontName, int weight, int size) {
+		return getFont(fontName, "ttf", weight, size);
+	}
+
+	public Font getFont(String fontName, int size) {
+		return getFont(fontName, "ttf", size);
 	}
 
 	public void setDarkMode(boolean darkMode) {

@@ -2,6 +2,7 @@ package com.connections.web;
 
 import com.connections.model.GameData;
 import com.connections.model.GameDataCollection;
+import com.connections.view_controller.ConnectionsHome;
 import com.connections.view_controller.ConnectionsLogin;
 import com.connections.view_controller.GameSession;
 import com.connections.view_controller.GameSessionContext;
@@ -72,7 +73,8 @@ public class WebFXMLController implements Initializable {
 //		String savedSessionID = cookies.get(WebUtils.COOKIE_SESSION_ID_NAME);
 		
 		WebContext webContext = new WebContext(mongoDatabase, jproApplication.getWebAPI());
-		ConnectionsLogin login = new ConnectionsLogin(webContext);
+//		ConnectionsLogin login = new ConnectionsLogin(webContext);
+		ConnectionsHome home = new ConnectionsHome(webContext); 
 //		WebBridge.initDatabase(webContext);
 //		WebTempLoginScreen tempLoginScreen = new WebTempLoginScreen(webContext);
 //		
@@ -90,7 +92,7 @@ public class WebFXMLController implements Initializable {
 //			}
 //		}
 		
-		BorderPane borderPane = new BorderPane(login);
+		BorderPane borderPane = new BorderPane(home);
 		
 //		tempLoginScreen.start();
 		

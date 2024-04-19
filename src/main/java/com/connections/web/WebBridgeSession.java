@@ -17,11 +17,21 @@ public class WebBridgeSession implements WebContextAccessible, DatabaseFormattab
 		loadFromDatabaseFormat(doc);
 	}
 	
+//	public WebBridgeSession(WebContext webContext) {
+//		setWebContext(webContext);
+//	}
+	
 	public WebBridgeSession(WebContext webContext, WebBridgeUser user) {
 		setWebContext(webContext);
 		this.sessionID = generateUnusedSessionID(webContext);
 		this.user = user;
 	}
+	
+//	private void loadFromCookie() {
+//		if(!WebBridge.cookieContains(webContext, KEY_SESSION_ID)) {
+//			
+//		}
+//	}
 	
 	public boolean login() {
 		if (sessionActive || existsInDatabase()) {
@@ -52,6 +62,12 @@ public class WebBridgeSession implements WebContextAccessible, DatabaseFormattab
 	public static boolean checkSessionIDExists(WebContext webContext, String sessionID) {
 		return WebBridge.helperCollectionContains(webContext, WebBridge.COLLECTION_SESSION_ID_NAME, KEY_SESSION_ID, sessionID);
 	}
+	
+//	public static WebBridgeUser.UserType checkCookieSessionUserType(WebContext webContext) {
+//		if(!WebBridge.cookieContains(webContext, KEY_SESSION_ID)) {
+//			return WebBridgeUser.UserType.NONE;
+//		}
+//	}
 	
 //	public static WebBridgeUser.UserType checkuserTypeBySessionID(WebContext webContext, String sessionID) {
 //		MongoCollection<Document> collectionSession = webContext.getMongoDatabase().getCollection(COLLECTION_SESSION_ID_NAME);
