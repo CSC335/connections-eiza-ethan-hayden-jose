@@ -3,6 +3,7 @@ package com.connections.web;
 import org.bson.Document;
 
 public class WebUserGuest extends WebUser implements WebContextAccessible, DatabaseFormattable, DatabaseInteractable {
+	
 	// it will NOT automatically write to the database
 	public WebUserGuest(WebContext webContext) {
 		super(webContext);

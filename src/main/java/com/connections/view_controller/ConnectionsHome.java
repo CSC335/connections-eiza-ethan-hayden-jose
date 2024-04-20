@@ -71,16 +71,7 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 
 	private boolean currentlySignedInAccount() {
 		WebSession session = webSessionContext.getSession();
-
-		if (!session.isSessionActive()) {
-			return false;
-		}
-
-		if (session.getUser() == null || session.getUser().getType() != WebUser.UserType.ACCOUNT) {
-			return false;
-		}
-
-		return true;
+		return session.isSignedIntoAccount();
 	}
 
 	private void showScreen(Pane screen) {
@@ -102,7 +93,7 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 		screen.setTranslateY(0);
 		scroll.setToX(0);
 		scroll.setToY(getHeight());
-		
+
 		scroll.setOnFinished(event -> {
 			screen.setVisible(false);
 			centerStackPane.getChildren().remove(screen);
@@ -111,14 +102,23 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 		scroll.play();
 	}
 
+	private void checkSession() {
+		WebSession session = webSessionContext.getSession();
+		
+		// has NO user (neither guest nor account)
+		if(session.isEmpty()) {
+			session.login();
+		}
+	}
+
 	private void initPane() {
 		System.out.println(webSessionContext.getSession().getSessionID());
 		System.out.println(webSessionContext.getSession().getAsDatabaseFormat());
-		if(webSessionContext.getSession().getUser() != null) {
+		if (webSessionContext.getSession().getUser() != null) {
 			System.out.println(webSessionContext.getSession().getUser().getAsDatabaseFormat());
 		}
 		debugDatabaseViewer = new WebDebugDatabaseView(webContext);
-		
+
 		styleManager = new StyleManager();
 		window = new BorderPane();
 		layoutConfigs();
@@ -147,7 +147,7 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 		showDebugInfoButton = new MenuButton("Debug Info", false);
 		showDebugInfoButton.setOnAction(event -> {
 			debugInfoShown = !debugInfoShown;
-			if(debugInfoShown) {
+			if (debugInfoShown) {
 				setTop(debugDatabaseViewer);
 			} else {
 				getChildren().remove(debugDatabaseViewer);
@@ -168,9 +168,11 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 
 		playButton.setOnAction(event -> {
 			try {
+				checkSession();
 //				List<GameData> list = WebUtils.gameGetAll(webContext);
 				GameData gameDataLoadWith = WebUtils.gameGetByPuzzleNumber(webContext, 288);
-				GameSessionContext gameSessionContext = new GameSessionContext(styleManager, gameDataLoadWith, webContext, webSessionContext);
+				GameSessionContext gameSessionContext = new GameSessionContext(styleManager, gameDataLoadWith,
+						webContext, webSessionContext);
 				gameSession = new GameSession(gameSessionContext);
 				showScreen(gameSession);
 			} catch (Exception e) {

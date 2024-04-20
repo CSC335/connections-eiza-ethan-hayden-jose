@@ -55,7 +55,7 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 	private EventHandler<ActionEvent> onLoginSuccessfully;
 
 	private boolean isCreatingNewAccount;
-	
+
 	public ConnectionsLogin(WebContext webContext, WebSessionContext webSessionContext) {
 		setWebContext(webContext);
 		setWebSessionContext(webSessionContext);
@@ -103,7 +103,7 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 		public void setListener(ChangeListener<String> listener) {
 			field.textProperty().addListener(listener);
 		}
-		
+
 		public void setInputDisabled(boolean disabled) {
 			field.setDisable(disabled);
 		}
@@ -142,7 +142,7 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 			setSpacing(5);
 			getChildren().addAll(warningSVGPath, messageLabel);
 		}
-		
+
 		public void setMessage(String message) {
 			messageLabel.setText(message);
 		}
@@ -160,15 +160,15 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 			setTextFill(Color.WHITE);
 		}
 	}
-	
+
 	public void setOnLoginSuccessfully(EventHandler<ActionEvent> onLoginSuccessfully) {
 		this.onLoginSuccessfully = onLoginSuccessfully;
 	}
 
 	private boolean emailExistsInDatabase(String email) {
-    	return WebUserAccount.checkAccountExistsByEmail(webContext, email);
+		return WebUserAccount.checkAccountExistsByEmail(webContext, email);
 	}
-	
+
 	private boolean userExistsInDatabase(String username) {
 		return WebUserAccount.checkAccountExistsByUserName(webContext, username);
 	}
@@ -206,28 +206,35 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 			accountErrorMessage.setVisible(false);
 			boolean valid = true;
 
-			// NOTE: the or-statement is important: it will first check if the input is valid syntax-wise, THEN in terms of the database
+			// NOTE: the or-statement is important: it will first check if the input is
+			// valid syntax-wise, THEN in terms of the database
 			if (!isValidUsername(usernameBox.getInput()) || !isDatabaseValidUsername(usernameBox.getInput())) {
 				usernameBox.setIncorrect(true);
 				invalidUsernameMessage.setVisible(true);
 				valid = false;
 			}
-			
+
 			if (!isValidPassword(passwordBox.getInput())) {
 				passwordBox.setIncorrect(true);
 				invalidPassMessage.setVisible(true);
 				valid = false;
 			}
-			
+
 			if (valid) {
-				WebUserAccount newAccount = new WebUserAccount(webContext, usernameBox.getInput(), emailBox.getInput(), passwordBox.getInput(), "");
+				WebUserAccount newAccount = new WebUserAccount(webContext, usernameBox.getInput(), emailBox.getInput(),
+						passwordBox.getInput(), "");
 				WebSession session = webSessionContext.getSession();
+
+				if (session.isSignedIn()) {
+					session.logout(true);
+				}
+
 				session.setUser(newAccount);
 				boolean success = session.login();
-				
-				if(success) {
+
+				if (success) {
 					newAccount.writeToDatabase();
-					if(onLoginSuccessfully != null) {
+					if (onLoginSuccessfully != null) {
 						onLoginSuccessfully.handle(new ActionEvent(this, null));
 					}
 				} else {
@@ -244,31 +251,38 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 		continueButton.setOnAction(event -> {
 			accountErrorMessage.setVisible(false);
 			boolean valid = true;
-			
-			// NOTE: the or-statement is important: it will first check if the input is valid syntax-wise, THEN in terms of the database
+
+			// NOTE: the or-statement is important: it will first check if the input is
+			// valid syntax-wise, THEN in terms of the database
 			if (!isValidPassword(passwordBox.getInput()) || !isDatabaseValidPassword(passwordBox.getInput())) {
 				passwordBox.setIncorrect(true);
 				invalidPassMessage.setVisible(true);
 				valid = false;
 			}
-			
+
 			if (valid) {
 				boolean success = true;
-				
-				WebUserAccount existingAccount = WebUserAccount.getUserAccountByCredentials(webContext, emailBox.getInput(), passwordBox.getInput());
-				if(existingAccount == null) {
+
+				WebUserAccount existingAccount = WebUserAccount.getUserAccountByCredentials(webContext,
+						emailBox.getInput(), passwordBox.getInput());
+				if (existingAccount == null) {
 					success = false;
 				} else {
 					WebSession session = webSessionContext.getSession();
+
+					if (session.isSignedIn()) {
+						session.logout(true);
+					}
+
 					session.setUser(existingAccount);
-					
-					if(!session.login()) {
+
+					if (!session.login()) {
 						success = false;
 					}
 				}
-				
-				if(success) {
-					if(onLoginSuccessfully != null) {
+
+				if (success) {
+					if (onLoginSuccessfully != null) {
 						onLoginSuccessfully.handle(new ActionEvent(this, null));
 					}
 				} else {
@@ -281,14 +295,14 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 
 	private void initPane() {
 		setStyle("-fx-background-color: white;");
-		
+
 		styleManager = new StyleManager();
 		franklin700_14 = styleManager.getFont("franklin-normal", 700, 14);
 		franklin700_16 = styleManager.getFont("franklin-normal", 700, 16);
 		cheltenham = styleManager.getFont("cheltenham-normal", 400, 30);
 
 		window = new BorderPane();
-		
+
 		gridLayout = new GridPane();
 		gridLayout.setHgap(10);
 		gridLayout.setVgap(8);
@@ -319,7 +333,7 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 				invalidPassMessage.setVisible(false);
 			}
 		});
-		
+
 		// By default the error messages are set to invisible
 
 		invalidUsernameMessage = new WarningMessage("..."); // set by another method
@@ -370,15 +384,15 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 	}
 
 	private boolean isValidUsername(String username) {
-		if(username.length() < 1 || username.length() > 20) {
+		if (username.length() < 1 || username.length() > 20) {
 			invalidUsernameMessage.setMessage("Username must be between 1 and 20 characters long.");
 			return false;
 		}
 		return true;
 	}
-	
+
 	private boolean isDatabaseValidUsername(String username) {
-		if(userExistsInDatabase(username)) {
+		if (userExistsInDatabase(username)) {
 			invalidUsernameMessage.setMessage("Username has been taken!");
 			return false;
 		}
@@ -386,15 +400,16 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 	}
 
 	private boolean isValidPassword(String password) {
-		if(password.length() < 8) {
+		if (password.length() < 8) {
 			invalidPassMessage.setMessage("Password must be at least 8 characters long.");
 			return false;
 		}
 		return true;
 	}
-	
+
 	private boolean isDatabaseValidPassword(String password) {
-		if(!isCreatingNewAccount && !WebUserAccount.checkAccountCredentialsMatch(webContext, emailBox.getInput(), passwordBox.getInput())) {
+		if (!isCreatingNewAccount && !WebUserAccount.checkAccountCredentialsMatch(webContext, emailBox.getInput(),
+				passwordBox.getInput())) {
 			invalidPassMessage.setMessage("Password is incorrect.");
 			return false;
 		}

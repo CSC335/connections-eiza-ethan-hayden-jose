@@ -15,22 +15,17 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 		loadFromDatabaseFormat(doc);
 	}
 
-	// option B: load session data from cookie (do this first when starting app)
+	// option B:
+	// (1) attempt to load from cookie
+	// (2) if the cookie fails, then when you login later with the login() method,
+	// it will create a guest user
 	public WebSession(WebContext webContext) {
 		setWebContext(webContext);
 
 		if (!loadFromCookie()) {
-			this.sessionID = generateUnusedSessionID(webContext);
+			this.sessionID = null;
 			this.user = null;
 		}
-	}
-
-	// option C: create new session with user (do this when creating account/logging
-	// in)
-	public WebSession(WebContext webContext, WebUser user) {
-		setWebContext(webContext);
-		this.sessionID = generateUnusedSessionID(webContext);
-		this.user = user;
 	}
 
 	private boolean loadFromCookie() {
@@ -42,7 +37,7 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 		String readSessionID = WebUtils.cookieGet(webContext, KEY_SESSION_ID);
 
 		// session ID does not actually exist (not valid)
-		if (!checkSessionIDExists(webContext, readSessionID)) {
+		if (readSessionID == null || !checkSessionIDExists(webContext, readSessionID)) {
 			return false;
 		}
 
@@ -66,6 +61,14 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 		if (sessionActive || existsInDatabase()) {
 			return false;
 		}
+		
+		if(user == null || user.getType() == WebUser.UserType.NONE) {
+			user = new WebUserGuest(webContext);
+		}
+		
+		if(user.getType() == WebUser.UserType.GUEST) {
+			user.writeToDatabase();
+		}
 
 		sessionID = generateUnusedSessionID(webContext);
 		WebUtils.cookieSet(webContext, KEY_SESSION_ID, sessionID);
@@ -84,12 +87,18 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 		}
 
 		WebUtils.cookieRemove(webContext, sessionID);
+		removeFromDatabase();
+		sessionID = null;
 		sessionActive = false;
 		return true;
 	}
 
-	public void setUser(WebUser user) {
+	public boolean setUser(WebUser user) {
+		if(sessionActive) {
+			return false;
+		}
 		this.user = user;
+		return true;
 	}
 
 	public String getSessionID() {
@@ -100,8 +109,24 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 		return user;
 	}
 
-	public boolean isSessionActive() {
+	public boolean isSignedIn() {
 		return sessionActive;
+	}
+	
+	public boolean isEmpty() {
+		return user == null;
+	}
+	
+	public boolean isSignedIntoAccount() {
+		if (!isSignedIn()) {
+			return false;
+		}
+
+		if (user == null || user.getType() != WebUser.UserType.ACCOUNT) {
+			return false;
+		}
+		
+		return true;
 	}
 
 	public static String generateUnusedSessionID(WebContext webContext) {
