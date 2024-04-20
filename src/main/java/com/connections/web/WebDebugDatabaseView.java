@@ -1,10 +1,13 @@
 package com.connections.web;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.bson.Document;
 
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 
+import javafx.animation.PauseTransition;
 import javafx.collections.ObservableMap;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -15,11 +18,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-
+import javafx.util.Duration;
 public class WebDebugDatabaseView extends VBox {
 	private WebContext webContext;
 	private GridPane gridPane;
-
+	private Text currentPuzzleNum;
+	
 	public WebDebugDatabaseView(WebContext webContext) {
 		this.webContext = webContext;
 		
@@ -41,6 +45,40 @@ public class WebDebugDatabaseView extends VBox {
 		refreshAll.setOnAction(event -> {
 			refreshView();
 		});
+		
+		Button dailyPuzzleIncrement = new Button("Increment Puzzle Num");
+		dailyPuzzleIncrement.setOnAction(event -> {
+			WebUtils.dailyPuzzleNumberIncrement(webContext);
+			refreshView();
+		});
+		
+		Button dailyPuzzleIncrementMuch = new Button("+500");
+		dailyPuzzleIncrementMuch.setOnAction(event -> {
+			AtomicInteger counter = new AtomicInteger(0); 
+			PauseTransition pause = new PauseTransition(Duration.millis(250));
+			pause.setOnFinished(pauseEvent -> {
+				WebUtils.dailyPuzzleNumberIncrement(webContext);
+				if(counter.incrementAndGet() < 500) {
+					pause.play();
+				}
+				refreshView();
+			});
+			pause.play();
+		});
+		
+		Button dailyPuzzleDateSub = new Button("Rewind Date by 5 Hours");
+		dailyPuzzleDateSub.setOnAction(event -> {
+			WebUtils.dailyPuzzleNumberRewindClockHours(webContext, 5);
+			refreshView();
+		});
+
+		Button dailyPuzzleDateCheck = new Button("Check Date");
+		dailyPuzzleDateCheck.setOnAction(event -> {
+			WebUtils.dailyPuzzleNumberCheckIncrementNeeded(webContext);
+			refreshView();
+		});
+		
+		currentPuzzleNum = new Text("...");
 		
 		int maxCols = 3;
 		int currentRow = 0;
@@ -64,14 +102,29 @@ public class WebDebugDatabaseView extends VBox {
 			}
 		}
 		
-		getChildren().addAll(title, initDatabase, clearDatabase, refreshAll, gridPane);
+		HBox mainControlBox = new HBox(5, initDatabase, clearDatabase, refreshAll);
+		HBox dateControlBox = new HBox(5, dailyPuzzleIncrement, dailyPuzzleIncrementMuch, currentPuzzleNum, dailyPuzzleDateSub, dailyPuzzleDateCheck);
+		
+		VBox tallControlBox = new VBox(10, mainControlBox, dateControlBox);
+		for(Node node : tallControlBox.getChildren()) {
+			if(node instanceof HBox) {
+				HBox hbox = (HBox) node;
+				hbox.setStyle("-fx-border-color: red;");
+				hbox.setPadding(new Insets(3));
+			}
+		}
+		
+		getChildren().addAll(title, tallControlBox, gridPane);
 		
 		setPadding(new Insets(5));
 		setSpacing(5);
 		setStyle("-fx-border-color: blue;");
+		refreshView();
 	}
-
+	
 	public void refreshView() {
+		currentPuzzleNum.setText("Current Puzzle Num: " + WebUtils.dailyPuzzleNumberGet(webContext));
+		
 		for (Node node : gridPane.getChildren()) {
 			if (node instanceof GroupView) {
 				((GroupView) node).refreshView();
