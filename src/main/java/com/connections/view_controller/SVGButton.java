@@ -7,7 +7,7 @@ import javafx.scene.shape.SVGPath;
 public abstract class SVGButton extends Pane implements Modular {
 	protected GameSessionContext gameSessionContext;
 	protected SVGPath svgPath;
-	
+
 	public SVGButton(GameSessionContext gameSessionContext) {
 		this.gameSessionContext = gameSessionContext;
 		this.svgPath = null;
@@ -20,12 +20,12 @@ public abstract class SVGButton extends Pane implements Modular {
 			setCursor(Cursor.DEFAULT);
 		});
 	}
-	
+
 	protected void setSVG(SVGPath svgPath) {
 		this.svgPath = svgPath;
 		getChildren().add(svgPath);
 	}
-	
+
 	@Override
 	public GameSessionContext getGameSessionContext() {
 		return gameSessionContext;

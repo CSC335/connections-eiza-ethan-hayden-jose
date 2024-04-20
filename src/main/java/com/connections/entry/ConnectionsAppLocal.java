@@ -6,7 +6,9 @@ import com.connections.view_controller.StyleManager;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class ConnectionsAppLocal extends Application {	
@@ -31,8 +33,12 @@ public class ConnectionsAppLocal extends Application {
 		
 //		ConnectionsLogin gameSession = new ConnectionsLogin(null, null); 
 		
-		Pane newPane = new Pane();
-		Scene scene = new Scene(newPane, STAGE_WIDTH, STAGE_HEIGHT);
+
+		Text text = new Text("This is ConnectionsAppLocal, keep this for emergency local testing.");
+		BorderPane pane = new BorderPane();
+		pane.setCenter(text);
+		
+		Scene scene = new Scene(pane, STAGE_WIDTH, STAGE_HEIGHT);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Connections");
         primaryStage.setResizable(false);

@@ -30,7 +30,7 @@ public class StyleManager {
 	protected static final Color RECTANGLE_DEFAULT_COLOR_DARK = Color.rgb(50, 50, 50);
 	protected static final Color RECTANGLE_SELECTED_COLOR_DARK = Color.rgb(150, 150, 150);
 	protected static final Color RECTANGLE_INCORRECT_COLOR_DARK = Color.rgb(90, 90, 90);
-	
+
 	protected static final Color WHOLE_GAME_BACKGROUND_LIGHT = Color.WHITE;
 	protected static final Color WHOLE_GAME_BACKGROUND_DARK = Color.BLACK;
 
@@ -45,22 +45,22 @@ public class StyleManager {
 
 	protected static final String BUTTON_LIGHT_MODE = "-fx-background-color: white; -fx-text-fill: black; -fx-border-color: black; -fx-border-width: 1px; -fx-border-radius: 50;";
 	protected static final String BUTTON_DARK_MODE = "-fx-background-color: black; -fx-text-fill: white; -fx-border-color: white; -fx-border-width: 1px; -fx-border-radius: 50;";
-	
+
 	protected static final String SUBMIT_BUTTON_FILL_LIGHT_MODE = "-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50;";
 	protected static final String SUBMIT_BUTTON_FILL_DARK_MODE = "-fx-background-color: white; -fx-text-fill: black; -fx-background-radius: 50; -fx-border-radius: 50;";
-	
+
 	protected static final String RESULTS_PANE_SHARE_BUTTON_LIGHT_MODE = "-fx-background-color: white; -fx-text-fill: black; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;";
 	protected static final String RESULTS_PANE_SHARE_BUTTON_DARK_MODE = "-fx-background-color: black; -fx-text-fill: white; -fx-background-radius: 50; -fx-border-radius: 50; -fx-min-height: 48px; -fx-max-height: 48px;";
-	
+
 	protected static final String OVERLAY_PANE_LIGHT_MODE = "-fx-background-color: white; -fx-effect: dropshadow(gaussian, black, 20, 0, 0, 0);";
 	protected static final String OVERLAY_PANE_DARK_MODE = "-fx-background-color: black; -fx-effect: dropshadow(gaussian, rgb(176, 247, 121), 20, 0, 0, 0);";
-	
+
 	protected static final String WHOLE_GAME_LIGHT_MODE = "-fx-background-color: white;";
 	protected static final String WHOLE_GAME_DARK_MODE = "-fx-background-color: black;";
-	
+
 	protected static final String LABEL_LIGHT_MODE = "-fx-background-color: #ebebeb; -fx-background-radius: 200px; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 10, 0, 0, 5), dropshadow(gaussian, rgba(255, 255, 255, 0.4), 5, 0, 0, -5);";
 	protected static final String LABEL_DARK_MODE = "-fx-background-color: #242424; -fx-background-radius: 200px; -fx-effect: dropshadow(gaussian, rgba(176, 247, 21, 0.4), 10, 0, 0, 5), dropshadow(gaussian, rgba(0, 0, 0, 0.4), 10, 0, 0, 5);";
-	
+
 	protected static final String CIRCLE_LIGHT_MODE = "-fx-fill: linear-gradient(from 0% 0% to 100% 100%, #ffcc89, #d8860b); -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0, 0, 5);";
 	protected static final String CIRCLE_DARK_MODE = "-fx-fill: linear-gradient(from 0% 0% to 100% 100%, #777, #3a3a3a); -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0, 0, 5);";
 
@@ -118,11 +118,11 @@ public class StyleManager {
 			onDarkModeChange.handle(new ActionEvent(this, null));
 		}
 	}
-	
+
 	public boolean isDarkMode() {
 		return darkMode;
 	}
-	
+
 	public void setOnDarkModeChange(EventHandler<ActionEvent> handler) {
 		onDarkModeChange = handler;
 	}
@@ -189,11 +189,11 @@ public class StyleManager {
 	public Color colorPopupText() {
 		return darkMode ? Color.BLACK : Color.WHITE;
 	}
-	
+
 	public Color colorWholeAchievementsPane() {
 		return darkMode ? Color.BLACK : Color.WHITE;
 	}
-	
+
 	public Color colorWholeGameBackground() {
 		return darkMode ? WHOLE_GAME_BACKGROUND_DARK :WHOLE_GAME_BACKGROUND_LIGHT;
 	}
@@ -205,7 +205,7 @@ public class StyleManager {
 	public String styleButton() {
 		return darkMode ? BUTTON_DARK_MODE : BUTTON_LIGHT_MODE;
 	}
-	
+
 	public String styleSubmitButtonFill() {
 	    return darkMode ? SUBMIT_BUTTON_FILL_DARK_MODE : SUBMIT_BUTTON_FILL_LIGHT_MODE;
 	}

@@ -9,6 +9,7 @@ import java.util.Set;
 import com.connections.model.DifficultyColor;
 import com.connections.model.Word;
 
+import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.geometry.Insets;
@@ -28,7 +29,6 @@ public class ResultsPane extends StackPane implements Modular {
 	private GameSessionContext gameSessionContext;
 	private boolean wonGame;
 	private int puzzleNumber;
-	private int guessCount;
 	private List<Set<Word>> guesses;
 
 	private BorderPane entireLayout;
@@ -41,8 +41,9 @@ public class ResultsPane extends StackPane implements Modular {
 	private Label timerLabel;
 	private Timeline timerTimeline;
 	private CircularButton shareButton;
+	private int guessCount;
 	private NotificationPane copiedToClipboardNotification;
-	
+
 	public ResultsPane(GameSessionContext gameSessionContext,  boolean wonGame, int puzzleNumber, int guessCount,
 			List<Set<Word>> guesses) {
 		this.gameSessionContext = gameSessionContext;
@@ -60,7 +61,7 @@ public class ResultsPane extends StackPane implements Modular {
 //		int bestHeight = 492 + (guessCount * 40) + ((guessCount - 1) * TileGridWord.GAP);
 //		setMinSize(bestWidth, bestHeight);
 //		setMaxSize(bestWidth, bestHeight);
-		
+
 		entireLayout = new BorderPane();
 
 		resultsLayout = new VBox(0);
@@ -70,20 +71,29 @@ public class ResultsPane extends StackPane implements Modular {
 		initAttemptsGrid();
 		initNextPuzzleTimer();
 		initShareButton();
-		
-		resultsLayout.getChildren().addAll(titleLabel, puzzleNumberLabel, attemptsGridPane, timerLayout);
-		entireLayout.setCenter(resultsLayout);
-		entireLayout.setBottom(shareButton);
-		
+
+		resultsLayout.getChildren().addAll(titleLabel, puzzleNumberLabel, attemptsGridPane, timerLayout, shareButton);
+//		entireLayout.setCenter(resultsLayout);
+//		entireLayout.setBottom(shareButton);
+
 		BorderPane.setAlignment(shareButton, Pos.CENTER);
-		entireLayout.setPadding(new Insets(18));
-		
-		getChildren().add(entireLayout);
+//		entireLayout.setPadding(new Insets(18));
+
+		getChildren().add(resultsLayout);
 		refreshStyle();
 	}
 
 	private void initHeader() {
-		titleLabel = wonGame ? new Label("Perfect!") : new Label("Next Time!");
+		titleLabel = new Label();
+		if (wonGame && guessCount > 4) {
+			titleLabel.setText("Solid!");
+		}
+		else if (wonGame && guessCount == 4) {
+			titleLabel.setText("Perfect!");
+		}
+		else {
+			titleLabel.setText("Next Time!");
+		}
 		titleLabel.setFont(gameSessionContext.getStyleManager().getFont("karnakpro-condensedblack", 36));
 		VBox.setMargin(titleLabel, new Insets(80, 0, 0, 0));
 
@@ -144,14 +154,13 @@ public class ResultsPane extends StackPane implements Modular {
 			timerLabel.setText(timerText);
 		}));
 
-		timerTimeline.setCycleCount(Timeline.INDEFINITE);
+		timerTimeline.setCycleCount(Animation.INDEFINITE);
 		timerTimeline.play();
 	}
 
 	private void initShareButton() {
 		shareButton = new CircularButton("Share Your Results", 162, gameSessionContext, true);
 		shareButton.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 600, 16));
-		shareButton.setTranslateY(4);
 		VBox.setMargin(shareButton, new Insets(21, 0, 20, 0));
 
 		shareButton.setOnAction(event -> {

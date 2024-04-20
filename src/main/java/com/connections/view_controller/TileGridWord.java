@@ -123,7 +123,7 @@ public class TileGridWord extends BorderPane implements Modular {
 	public int getSelectedTileWordCount() {
 		return selectedTileWordCount;
 	}
-	
+
 	public int checkNumWordsMatchSelected() {
 		int maxMatchCount = 0;
 		for (DifficultyColor color : DifficultyColor.getAllColors()) {
@@ -169,12 +169,12 @@ public class TileGridWord extends BorderPane implements Modular {
 		}
 		return selectedPieceSet;
 	}
-	
+
 	public boolean checkSelectedAlreadyGuessed() {
 		Set<Word> selected = getSelectedWords();
 		return previousGuesses.contains(selected);
 	}
-	
+
 	public void saveSelectedAsGuess() {
 		Set<Word> selected = getSelectedWords();
 		if(!previousGuesses.contains(selected)) {
@@ -195,7 +195,7 @@ public class TileGridWord extends BorderPane implements Modular {
 		}
 		return selectedWords;
 	}
-	
+
 	public List<DifficultyColor> getSortedUnansweredDifficultyColor() {
 		List<DifficultyColor> unansweredColor = new ArrayList<>(DifficultyColor.getAllColors());
 
@@ -205,13 +205,13 @@ public class TileGridWord extends BorderPane implements Modular {
 				unansweredColor.remove(tileAnswer.getGameAnswerColor().getColor());
 			}
 		}
-		
+
 		// Sort in order of difficulty (YELLOW, GREEN, BLUE, PURPLE);
 		Collections.sort(unansweredColor);
-		
+
 		return unansweredColor;
 	}
-	
+
 	public void unsetIncorrectTileWords() {
 		for (Node node : gridPane.getChildren()) {
 			if (node instanceof GameTileWord) {
@@ -222,7 +222,7 @@ public class TileGridWord extends BorderPane implements Modular {
 			}
 		}
 	}
-	
+
 	public void selectMatchingAnswerWords(GameAnswerColor answer) {
 		Set<String> wordStringSet = new HashSet<>(Arrays.asList(answer.getWords()));
 		for (Node node : gridPane.getChildren()) {
@@ -239,7 +239,7 @@ public class TileGridWord extends BorderPane implements Modular {
 	public SequentialTransition getTransitionTileWordShake() {
 		ParallelTransition shakeTransition = new ParallelTransition();
 		Set<GameTileWord> selectedTileWords = getSelectedTileWords();
-		
+
 		for (GameTileWord tileWord : selectedTileWords) {
 			TranslateTransition individualShakeTransition = new TranslateTransition(Duration.millis(100),
 					tileWord);
@@ -248,7 +248,7 @@ public class TileGridWord extends BorderPane implements Modular {
 			individualShakeTransition.setCycleCount(4);
 			shakeTransition.getChildren().add(individualShakeTransition);
 		}
-		
+
 		PauseTransition placeholderPause = new PauseTransition(Duration.millis(5));
 		placeholderPause.setOnFinished(event -> {
 			for (GameTileWord tileWord : selectedTileWords) {
@@ -289,7 +289,7 @@ public class TileGridWord extends BorderPane implements Modular {
 
 		return jumpTransition;
 	}
-	
+
 	public List<Set<Word>> getGuesses() {
 		return previousGuesses;
 	}
@@ -302,6 +302,8 @@ public class TileGridWord extends BorderPane implements Modular {
 		}
 	}
 
+	// Method likely no longer needed
+	// Disabling/enabling style changeable during auto solve caused darkmode issues
 	public void setTileWordStyleChangeable(boolean status) {
 		for (Node node : gridPane.getChildren()) {
 			if (node instanceof GameTileWord) {
@@ -309,8 +311,8 @@ public class TileGridWord extends BorderPane implements Modular {
 				tileWord.setStyleChangeable(status);
 			}
 		}
-	} 
-	
+	}
+
 	@Override
 	public void refreshStyle() {
 		for (Node node : gridPane.getChildren()) {
@@ -320,11 +322,11 @@ public class TileGridWord extends BorderPane implements Modular {
 			}
 		}
 	}
-	
+
 	@Override
 	public GameSessionContext getGameSessionContext() {
 		return gameSessionContext;
-	}	
+	}
 
 	public int getCurrentSolvingRow() {
 		return currentSolvingRow;
@@ -333,7 +335,7 @@ public class TileGridWord extends BorderPane implements Modular {
 	public void incrementCurrentSolvingRow() {
 		currentSolvingRow++;
 	}
-	
+
 	public void setOnTileWordSelection(EventHandler<ActionEvent> event) {
 		onTileWordSelection = event;
 	}
@@ -351,7 +353,7 @@ public class TileGridWord extends BorderPane implements Modular {
 			onTileWordSelection.handle(new ActionEvent(this, null));
 		}
 	}
-	
+
 	public Node gridGetNode(int row, int col) {
 		for (Node node : gridPane.getChildren()) {
 			if (GridPane.getRowIndex(node) == row && GridPane.getColumnIndex(node) == col) {
@@ -360,16 +362,16 @@ public class TileGridWord extends BorderPane implements Modular {
 		}
 		return null;
 	}
-	
+
 	public void gridRemoveNodeSet(Set<? extends Node> nodeSet) {
 		gridPane.getChildren().removeAll(nodeSet);
 	}
-	
+
 	public void gridSetTileAnswer(GameTileAnswer tileAnswer) {
 		gridPane.add(tileAnswer, 0, currentSolvingRow - 1);
 		GridPane.setColumnSpan(tileAnswer, COLS);
 	}
-	
+
 	public void gridSwapNode(int sourceRow, int sourceCol, int destRow, int destCol) {
 		Node node1 = gridGetNode(sourceRow, sourceCol);
 		Node node2 = gridGetNode(destRow, destCol);
@@ -379,7 +381,7 @@ public class TileGridWord extends BorderPane implements Modular {
 		gridPane.add(node1, destCol, destRow);
 		gridPane.add(node2, sourceCol, sourceRow);
 	}
-	
+
 	public void gridSetNonSolvingNodeVisible(boolean status) {
 		for (Node node : gridPane.getChildren()) {
 			if (GridPane.getRowIndex(node) >= currentSolvingRow) {

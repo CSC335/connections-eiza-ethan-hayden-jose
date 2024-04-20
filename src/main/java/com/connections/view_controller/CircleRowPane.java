@@ -14,24 +14,24 @@ public class CircleRowPane extends HBox implements Modular {
 	private Pane circlePane;
 	private Text text;
 	private final static int START_SIZE = 4;
-	
+
 	public CircleRowPane(String label, GameSessionContext gameSessionContext) {
 		this.gameSessionContext = gameSessionContext;
-		
+
 		text = new Text(label);
 		text.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 500, 16));
-		
+
 		circlePane = new Pane();
 		circlePane.setPrefWidth(100);
-		
+
 		resetCircles();
-		
+
 		setSpacing(10);
 		setAlignment(Pos.CENTER);
 		getChildren().addAll(text, circlePane);
 		refreshStyle();
 	}
-	
+
 	public boolean removeCircle() {
 		if(circlePane.getChildren().size() > 0) {
 			Circle circle = (Circle) circlePane.getChildren().get(circlePane.getChildren().size() - 1);
@@ -43,16 +43,16 @@ public class CircleRowPane extends HBox implements Modular {
 			scaleTransition.setOnFinished(event -> circlePane.getChildren().remove(circle));
 
 			scaleTransition.play();
-			
+
 			return true;
 		}
 		return false;
 	}
-	
+
 	public int getNumCircles() {
 		return circlePane.getChildren().size();
 	}
-	
+
 	public void resetCircles() {
 		circlePane.getChildren().clear();
 		for (int i = 0; i < START_SIZE; i++) {
@@ -63,12 +63,12 @@ public class CircleRowPane extends HBox implements Modular {
 			circlePane.getChildren().add(circle);
 		}
 	}
-	
+
 	@Override
 	public void refreshStyle() {
 		text.setFill(gameSessionContext.getStyleManager().colorText());
 	}
-	
+
 	@Override
 	public GameSessionContext getGameSessionContext() {
 		return gameSessionContext;

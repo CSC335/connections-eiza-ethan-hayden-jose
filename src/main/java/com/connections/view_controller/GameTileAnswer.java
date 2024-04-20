@@ -21,7 +21,7 @@ public class GameTileAnswer extends StackPane implements Modular {
 	private VBox textVBox;
 	private Rectangle rectBackground;
 	private TileGridWord tileGridWord;
-	
+
 	public GameTileAnswer(GameAnswerColor answer, TileGridWord tileGridWord) {
 		this.tileGridWord = tileGridWord;
 		this.answer = answer;
@@ -31,7 +31,7 @@ public class GameTileAnswer extends StackPane implements Modular {
 
 		wordListText = new Text(answer.getWordListString());
 		wordListText.setFont(tileGridWord.getGameSessionContext().getStyleManager().getFont("franklin-normal",500, 20));
-		
+
 		textVBox = new VBox(categoryNameText, wordListText);
 		textVBox.setAlignment(Pos.CENTER);
 		rectBackground = new Rectangle(TileGridWord.PANE_WIDTH, GameTile.RECTANGLE_HEIGHT);
@@ -64,11 +64,11 @@ public class GameTileAnswer extends StackPane implements Modular {
 
 		return parallelTransition;
 	}
-	
+
 	@Override
 	public void refreshStyle() {
 		StyleManager styleManager = tileGridWord.getGameSessionContext().getStyleManager();
-		
+
 		wordListText.setFill(styleManager.colorTextNeutral());
 		categoryNameText.setFill(styleManager.colorTextNeutral());
 		rectBackground.setFill(styleManager.colorDifficulty(answer.getColor()));

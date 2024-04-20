@@ -35,7 +35,6 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 
 	private GridPane gridLayout;
 	private VBox nextSectionLayout;
-
 	private EntryBox usernameBox;
 	private EntryBox emailBox;
 	private PasswordBox passwordBox;
@@ -136,7 +135,7 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 			warningSVGPath.setScaleY(0.8);
 			warningSVGPath.setFill(Color.RED);
 			warningSVGPath.setFillRule(javafx.scene.shape.FillRule.EVEN_ODD);
-
+			
 			setVisible(false);
 			setAlignment(Pos.CENTER_LEFT);
 			setSpacing(5);

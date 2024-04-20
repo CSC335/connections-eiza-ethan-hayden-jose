@@ -15,7 +15,7 @@ public class GameDataCollection implements DatabaseFormattable {
 	public GameDataCollection(String filePath) {
 		gameList = new ArrayList<>();
 	}
-	
+
 	public List<GameData> getGameList() {
 		return gameList;
 	}

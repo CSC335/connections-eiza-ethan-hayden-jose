@@ -18,11 +18,11 @@ public class GameData implements DatabaseFormattable {
 	public GameData(Document doc) {
 		loadFromDatabaseFormat(doc);
 	}
-	
+
 	public GameAnswerColor getAnswerForColor(DifficultyColor color) {
 		return answerMap.get(color);
 	}
-	
+
 	public Map<DifficultyColor, GameAnswerColor> getAnswerMap() {
 		return answerMap;
 	}

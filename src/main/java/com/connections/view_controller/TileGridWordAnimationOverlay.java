@@ -195,7 +195,7 @@ public class TileGridWordAnimationOverlay extends Pane implements Modular {
 
 		return copy;
 	}
-	
+
 	private void setVisibleWeak(boolean status) {
 		if (allowChangeVisibility) {
 			this.setVisible(status);
@@ -207,7 +207,7 @@ public class TileGridWordAnimationOverlay extends Pane implements Modular {
 		allowChangeVisibility = status;
 		this.setVisible(paneShouldBeVisible);
 	}
-	
+
 	@Override
 	public void refreshStyle() {
 		for (Node node : getChildren()) {
