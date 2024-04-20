@@ -78,6 +78,12 @@ public class WebDebugDatabaseView extends VBox {
 			refreshView();
 		});
 		
+		Button markTodayGamePlayed = new Button("Mark Today's Game as Played");
+		markTodayGamePlayed.setOnAction(event -> {
+			WebUtils.debugMarkTodayGamePlayed(webContext);
+			refreshView();
+		});
+		
 		currentPuzzleNum = new Text("...");
 		
 		int maxCols = 3;
@@ -104,8 +110,9 @@ public class WebDebugDatabaseView extends VBox {
 		
 		HBox mainControlBox = new HBox(5, initDatabase, clearDatabase, refreshAll);
 		HBox dateControlBox = new HBox(5, dailyPuzzleIncrement, dailyPuzzleIncrementMuch, currentPuzzleNum, dailyPuzzleDateSub, dailyPuzzleDateCheck);
+		HBox gameControlBox = new HBox(5, markTodayGamePlayed);
 		
-		VBox tallControlBox = new VBox(10, mainControlBox, dateControlBox);
+		VBox tallControlBox = new VBox(10, mainControlBox, dateControlBox, gameControlBox);
 		for(Node node : tallControlBox.getChildren()) {
 			if(node instanceof HBox) {
 				HBox hbox = (HBox) node;

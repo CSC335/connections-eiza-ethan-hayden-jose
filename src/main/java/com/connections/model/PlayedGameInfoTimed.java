@@ -18,8 +18,8 @@ public class PlayedGameInfoTimed extends PlayedGameInfo implements DatabaseForma
 	}
 	
 	public PlayedGameInfoTimed(int puzzleNumber, int guessCount, int mistakeCount, int connectionCount, int timeCompleted,
-            List<Set<Word>> guesses, int timeLimitMin, boolean completedBeforeTimeLimit) {
-		super(puzzleNumber, guessCount, mistakeCount, connectionCount, timeCompleted, guesses);
+            List<Set<Word>> guesses, boolean won, int timeLimitMin, boolean completedBeforeTimeLimit) {
+		super(puzzleNumber, guessCount, mistakeCount, connectionCount, timeCompleted, guesses, won);
 		this.timeLimitMin = timeLimitMin;
 		this.completedBeforeTimeLimit = completedBeforeTimeLimit;
 	}

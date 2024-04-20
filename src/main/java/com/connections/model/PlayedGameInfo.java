@@ -16,30 +16,32 @@ public class PlayedGameInfo implements DatabaseFormattable {
     public static final String KEY_CONNECTION_COUNT = "connection_count";
     public static final String KEY_TIME_COMPLETED = "time_completed";
     public static final String KEY_GUESSES = "guesses";
-//    public static final String KEY_WORD_LIST = "word_list";
-//    public static final String KEY_WORD = "word";
+    public static final String KEY_WON = "won";
     
     // NOTE:
     // puzzle number is used as unique ID
+    // and, time completed is in milliseconds (ms), so 1 sec = 1000 ms
     protected int puzzleNumber;
     protected int guessCount;
     protected int mistakeCount;
     protected int connectionCount;
     protected int timeCompleted;
 	protected List<Set<Word>> guesses;
+	protected boolean won;
 
 	public PlayedGameInfo(Document doc) {
 		loadFromDatabaseFormat(doc);
 	}
 	
     public PlayedGameInfo(int puzzleNumber, int guessCount, int mistakeCount, int connectionCount, int timeCompleted,
-                          List<Set<Word>> guesses) {
+                          List<Set<Word>> guesses, boolean won) {
         this.puzzleNumber = puzzleNumber;
     	this.guessCount = guessCount;
         this.mistakeCount = mistakeCount;
         this.connectionCount = connectionCount;
         this.timeCompleted = timeCompleted;
         this.guesses = guesses;
+        this.won = won;
     }
 
     public int getPuzzleNumber() {
@@ -64,6 +66,10 @@ public class PlayedGameInfo implements DatabaseFormattable {
 
     public List<Set<Word>> getGuesses() {
         return guesses;
+    }
+    
+    public boolean wasWon() {
+    	return won;
     }
 
     public List<List<Document>> getGuessesAsDatabaseFormat() {
@@ -97,6 +103,7 @@ public class PlayedGameInfo implements DatabaseFormattable {
         doc.append(KEY_MISTAKE_COUNT, mistakeCount);
         doc.append(KEY_CONNECTION_COUNT, connectionCount);
         doc.append(KEY_TIME_COMPLETED, timeCompleted);
+        doc.append(KEY_WON, won);
         return doc;
     }
     
@@ -108,6 +115,7 @@ public class PlayedGameInfo implements DatabaseFormattable {
         mistakeCount = doc.getInteger(KEY_MISTAKE_COUNT, -1);
         connectionCount = doc.getInteger(KEY_CONNECTION_COUNT, -1);
         timeCompleted = doc.getInteger(KEY_TIME_COMPLETED, -1);
+        won = doc.getBoolean(KEY_WON, false);
         
         guesses = new ArrayList<>();
         Object guessesRetrieved = doc.get(KEY_GUESSES);

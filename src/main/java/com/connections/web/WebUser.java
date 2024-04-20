@@ -54,6 +54,15 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 	}
 
 	public abstract UserType getType();
+	
+	public boolean hasPlayedGameByPuzzleNum(int puzzleNumber) {
+		for(PlayedGameInfo playedGame : playedGameList) {
+			if(playedGame.getPuzzleNumber() == puzzleNumber) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public static String generateUnusedUserID(WebContext webContext) {
 		boolean unique = false;
@@ -94,6 +103,23 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 		default:
 			return null;
 		}
+	}
+
+	public static String getUserIDByCookie(WebContext webContext) {
+		String sessionID = WebUtils.cookieGet(webContext, WebSession.KEY_SESSION_ID);
+		if(sessionID == null) {
+			return null;
+		}
+		return getUserIDBySessionID(webContext, sessionID);
+	}
+
+	public static String getUserIDBySessionID(WebContext webContext, String sessionID) {
+		Document sessionDoc = WebUtils.helperCollectionGet(webContext, WebUtils.COLLECTION_SESSION_ID_NAME,
+				WebSession.KEY_SESSION_ID, sessionID);
+		if(sessionDoc == null) {
+			return null;
+		}
+		return sessionDoc.getString(KEY_USER_ID);
 	}
 
 	@Override

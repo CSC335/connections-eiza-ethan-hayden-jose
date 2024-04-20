@@ -7,12 +7,19 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
+import java.util.Random;
+import java.util.Set;
 
 import org.bson.Document;
 
+import com.connections.model.DifficultyColor;
+import com.connections.model.GameAnswerColor;
 import com.connections.model.GameData;
+import com.connections.model.PlayedGameInfo;
+import com.connections.model.Word;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.UpdateOptions;
@@ -214,6 +221,22 @@ public class WebUtils {
 		return randomUUID.toString();
 	}
 
+	public static int dailyPuzzleNumberGetMin(WebContext webContext) {
+		Document result = helperCollectionGetByKey(webContext, COLLECTION_SERVER_STATUS, KEY_MIN_PUZZLE_NUMBER);
+		if (result != null && result.containsKey(KEY_MIN_PUZZLE_NUMBER)) {
+			return result.getInteger(KEY_MIN_PUZZLE_NUMBER, -1);
+		}
+		return -1;
+	}
+
+	public static int dailyPuzzleNumberGetMax(WebContext webContext) {
+		Document result = helperCollectionGetByKey(webContext, COLLECTION_SERVER_STATUS, KEY_MAX_PUZZLE_NUMBER);
+		if (result != null && result.containsKey(KEY_MAX_PUZZLE_NUMBER)) {
+			return result.getInteger(KEY_MAX_PUZZLE_NUMBER, -1);
+		}
+		return -1;
+	}
+
 	public static int dailyPuzzleNumberGet(WebContext webContext) {
 		Document result = helperCollectionGetByKey(webContext, COLLECTION_SERVER_STATUS, KEY_CURRENT_PUZZLE_NUMBER);
 		if (result != null && result.containsKey(KEY_CURRENT_PUZZLE_NUMBER)) {
@@ -231,22 +254,23 @@ public class WebUtils {
 					helperDateToString(newPrevDate));
 		}
 	}
-	
+
 	public static void dailyPuzzleNumberIncrementIfNeeded(WebContext webContext) {
 		Document prevDateDoc = helperCollectionGetByKey(webContext, COLLECTION_SERVER_STATUS, KEY_LAST_PUZZLE_DATE);
 		if (prevDateDoc != null) {
 			ZonedDateTime prevDate = helperStringToDate(prevDateDoc.getString(KEY_LAST_PUZZLE_DATE));
 			ZonedDateTime prevDateRoundedToDay = prevDate.toLocalDate().atStartOfDay(prevDate.getZone());
-			
+
 			ZonedDateTime currentDate = ZonedDateTime.now();
 			ZonedDateTime currentDateRoundedToDay = currentDate.toLocalDate().atStartOfDay(currentDate.getZone());
-			
+
 			long daysBetween = ChronoUnit.DAYS.between(prevDateRoundedToDay, currentDateRoundedToDay);
 			while (daysBetween > 0) {
 				dailyPuzzleNumberIncrement(webContext);
 				daysBetween--;
 			}
-			helperCollectionUpdateByKey(webContext, COLLECTION_SERVER_STATUS, KEY_LAST_PUZZLE_DATE, helperDateToString(currentDate));
+			helperCollectionUpdateByKey(webContext, COLLECTION_SERVER_STATUS, KEY_LAST_PUZZLE_DATE,
+					helperDateToString(currentDate));
 		}
 	}
 
@@ -278,6 +302,63 @@ public class WebUtils {
 			helperCollectionUpdate(webContext, COLLECTION_SERVER_STATUS, KEY_CURRENT_PUZZLE_NUMBER, currentPuzzleNumber,
 					updateDoc);
 		}
+	}
+
+	public static void debugMarkTodayGamePlayed(WebContext webContext) {
+		WebUser currentUser = WebUser.getUserByID(webContext, WebUser.getUserIDByCookie(webContext));
+		if (currentUser == null) {
+			return;
+		}
+
+		int currentPuzzleNum = dailyPuzzleNumberGet(webContext);
+
+		List<PlayedGameInfo> playedGameList = currentUser.getPlayedGameList();
+		for (PlayedGameInfo playedGame : playedGameList) {
+			if (playedGame.getPuzzleNumber() == currentPuzzleNum) {
+				return;
+			}
+		}
+
+		GameData gameData = gameGetByPuzzleNumber(webContext, currentPuzzleNum);
+		Random randomGen = new Random();
+
+//		int minNum = dailyPuzzleNumberGetMin(webContext);
+//		int maxNum = dailyPuzzleNumberGetMax(webContext);
+
+		/*
+		 * WARNING: these values might NOT make sense (e.g. won despite getting 4 mistakes)
+		 */
+		
+//		int puzzleNumber = minNum + randomGen.nextInt(maxNum - minNum);
+		int puzzleNumber = currentPuzzleNum;
+		int guessCount = randomGen.nextInt(7);
+		int mistakeCount = randomGen.nextInt(4);
+		int connectionCount = randomGen.nextInt(4);
+		int timeCompleted = randomGen.nextInt(10000);
+		boolean won = randomGen.nextBoolean();
+
+		List<Set<Word>> guesses = new ArrayList<>();
+		for (int i = 0; i < guessCount; i++) {
+			Set<Word> set = new HashSet<>();
+
+			DifficultyColor[] possibleColors = { DifficultyColor.YELLOW, DifficultyColor.GREEN, DifficultyColor.BLUE,
+					DifficultyColor.PURPLE };
+			while (set.size() < 4) {
+				DifficultyColor randomColor = possibleColors[randomGen.nextInt(4)];
+				GameAnswerColor randAnswer = gameData.getAnswerForColor(randomColor);
+				String[] words = randAnswer.getWords();
+				Word randomWord = new Word(words[randomGen.nextInt(words.length)], randomColor);
+				if (!set.contains(randomWord)) {
+					set.add(randomWord);
+				}
+			}
+			guesses.add(set);
+		}
+
+		PlayedGameInfo sampleGame = new PlayedGameInfo(puzzleNumber, guessCount, mistakeCount, connectionCount,
+				timeCompleted, guesses, won);
+		currentUser.addPlayedGame(sampleGame);
+		currentUser.writeToDatabase();
 	}
 
 	public static boolean cookieIsEmpty(WebContext webContext) {

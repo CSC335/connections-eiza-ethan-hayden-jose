@@ -61,12 +61,12 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 		if (sessionActive || existsInDatabase()) {
 			return false;
 		}
-		
-		if(user == null || user.getType() == WebUser.UserType.NONE) {
+
+		if (user == null || user.getType() == WebUser.UserType.NONE) {
 			user = new WebUserGuest(webContext);
 		}
-		
-		if(user.getType() == WebUser.UserType.GUEST) {
+
+		if (user.getType() == WebUser.UserType.GUEST) {
 			user.writeToDatabase();
 		}
 
@@ -94,7 +94,7 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 	}
 
 	public boolean setUser(WebUser user) {
-		if(sessionActive) {
+		if (sessionActive) {
 			return false;
 		}
 		this.user = user;
@@ -112,11 +112,11 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 	public boolean isSignedIn() {
 		return sessionActive;
 	}
-	
+
 	public boolean isEmpty() {
 		return user == null;
 	}
-	
+
 	public boolean isSignedIntoAccount() {
 		if (!isSignedIn()) {
 			return false;
@@ -125,7 +125,7 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 		if (user == null || user.getType() != WebUser.UserType.ACCOUNT) {
 			return false;
 		}
-		
+
 		return true;
 	}
 

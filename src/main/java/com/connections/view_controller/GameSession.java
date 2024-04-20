@@ -11,6 +11,7 @@ import com.connections.model.DifficultyColor;
 import com.connections.model.GameAnswerColor;
 import com.connections.model.GameData;
 import com.connections.model.Word;
+import com.connections.web.WebUser;
 
 import javafx.animation.ParallelTransition;
 import javafx.animation.PauseTransition;
@@ -19,6 +20,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
@@ -36,6 +38,7 @@ public class GameSession extends StackPane implements Modular {
 
 	private GameSessionContext gameSessionContext;
 
+	private OptionSelectOverlayPane gameTypeOptionSelector;
 	private Text mainHeaderText;
 	private BorderPane organizationPane;
 	private StackPane menuPane;
@@ -68,6 +71,13 @@ public class GameSession extends StackPane implements Modular {
 	// Keep reference to results pane to avoid re-loading it each time
 	private ResultsPane resultsPane;
 	private PopupWrapperPane popupPane;
+
+	private boolean gameAlreadyFinished;
+	private GameType gameType;
+
+	public enum GameType {
+		CLASSIC, TIME_TRIAL,
+	}
 
 	public GameSession(GameSessionContext gameSessionContext) {
 		this.gameSessionContext = gameSessionContext;
@@ -141,6 +151,37 @@ public class GameSession extends StackPane implements Modular {
 
 		getChildren().add(organizationPane);
 
+		// === NEW STUFF FOR WEB === (will make neater later)
+		int currentPuzzleNumber = gameSessionContext.getGameData().getPuzzleNumber();
+		System.out.println(currentPuzzleNumber);
+		
+		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
+		currentUser.readFromDatabase();
+		gameAlreadyFinished = currentUser.hasPlayedGameByPuzzleNum(currentPuzzleNumber);
+		
+		gameTypeOptionSelector = new OptionSelectOverlayPane(gameSessionContext);
+		gameTypeOptionSelector.addButton("Classic", 68);
+		gameTypeOptionSelector.addButton("Time Trial", 68);
+		gameTypeOptionSelector.setOnDisappear(event -> {
+			switch (gameTypeOptionSelector.getOptionSelected()) {
+			case "Classic":
+				gameType = GameType.CLASSIC;
+				break;
+			case "Time Trial":
+				gameType = GameType.TIME_TRIAL;
+				break;
+			}
+			organizationPane.setEffect(null);
+		});
+		
+		if (!gameAlreadyFinished) {
+			GaussianBlur blurEffect = new GaussianBlur();
+			organizationPane.setEffect(blurEffect);
+			getChildren().add(gameTypeOptionSelector);
+			gameTypeOptionSelector.appear();
+		}
+		// === NEW STUFF FOR WEB ===
+		
 		helperSetGameButtonsDisabled(false);
 		controlsSetNormal();
 		refreshStyle();
