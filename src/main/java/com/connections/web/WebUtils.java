@@ -232,7 +232,7 @@ public class WebUtils {
 		}
 	}
 	
-	public static void dailyPuzzleNumberCheckIncrementNeeded(WebContext webContext) {
+	public static void dailyPuzzleNumberIncrementIfNeeded(WebContext webContext) {
 		Document prevDateDoc = helperCollectionGetByKey(webContext, COLLECTION_SERVER_STATUS, KEY_LAST_PUZZLE_DATE);
 		if (prevDateDoc != null) {
 			ZonedDateTime prevDate = helperStringToDate(prevDateDoc.getString(KEY_LAST_PUZZLE_DATE));

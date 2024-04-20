@@ -169,8 +169,7 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 		playButton.setOnAction(event -> {
 			try {
 				checkSession();
-//				List<GameData> list = WebUtils.gameGetAll(webContext);
-				GameData gameDataLoadWith = WebUtils.gameGetByPuzzleNumber(webContext, 288);
+				GameData gameDataLoadWith = WebUtils.gameGetByPuzzleNumber(webContext, WebUtils.dailyPuzzleNumberGet(webContext));
 				GameSessionContext gameSessionContext = new GameSessionContext(styleManager, gameDataLoadWith,
 						webContext, webSessionContext);
 				gameSession = new GameSession(gameSessionContext);

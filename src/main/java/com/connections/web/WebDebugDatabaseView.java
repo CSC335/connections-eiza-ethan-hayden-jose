@@ -74,7 +74,7 @@ public class WebDebugDatabaseView extends VBox {
 
 		Button dailyPuzzleDateCheck = new Button("Check Date");
 		dailyPuzzleDateCheck.setOnAction(event -> {
-			WebUtils.dailyPuzzleNumberCheckIncrementNeeded(webContext);
+			WebUtils.dailyPuzzleNumberIncrementIfNeeded(webContext);
 			refreshView();
 		});
 		

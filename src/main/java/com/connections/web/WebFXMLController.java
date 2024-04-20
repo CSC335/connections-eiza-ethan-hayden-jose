@@ -51,8 +51,11 @@ public class WebFXMLController implements Initializable {
 			WebUtils.initDatabase(webContext);
 		}
 		
+		WebUtils.dailyPuzzleNumberIncrementIfNeeded(webContext);
+		
 		WebSession session = new WebSession(webContext);
 		WebSessionContext webSessionContext = new WebSessionContext(session);
+		
 		ConnectionsHome home = new ConnectionsHome(webContext, webSessionContext);
 		Scene scene = new Scene(home, STAGE_WIDTH, STAGE_HEIGHT);
 		stage.setScene(scene);
