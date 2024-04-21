@@ -97,6 +97,15 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 		}
 		return false;
 	}
+	
+	public PlayedGameInfo getPlayedGameByPuzzleNum(int puzzleNumber) {
+		for(PlayedGameInfo playedGame : playedGameList) {
+			if(playedGame.getPuzzleNumber() == puzzleNumber) {
+				return playedGame;
+			}
+		}
+		return null;
+	}
 
 	public static String generateUnusedUserID(WebContext webContext) {
 		boolean unique = false;

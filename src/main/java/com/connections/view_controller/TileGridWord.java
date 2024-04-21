@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import com.connections.model.DifficultyColor;
 import com.connections.model.GameAnswerColor;
 import com.connections.model.GameSaveState;
+import com.connections.model.PlayedGameInfo;
 import com.connections.model.Word;
 
 import javafx.animation.ParallelTransition;
@@ -56,13 +57,6 @@ public class TileGridWord extends BorderPane implements Modular {
 		initAssets();
 		gridPane.getChildren().clear();
 
-		System.out.println("prev guesses " + previousGuesses);
-		System.out.println("prev guesses size " + previousGuesses.size());
-
-		System.out.println("list colors " + gameSaveState.getListColorsSolved());
-
-		System.out.println("grid " + gameSaveState.getGrid());
-
 		List<DifficultyColor> colorsSolvedList = gameSaveState.getListColorsSolved();
 
 		/*
@@ -99,41 +93,37 @@ public class TileGridWord extends BorderPane implements Modular {
 			}
 		}
 
+		initGuessedWordsFromExternalVar(gameSaveState.getGuesses());
+	}
 
-		List<Set<Word>> previousGuessesFromSave = gameSaveState.getGuesses();
-		previousGuesses = new ArrayList<>();
+	/*
+	 * This method assumes that the game has been completely finished and there are
+	 * NO regular word tiles (there are only answer tiles). Works by (1) finding all
+	 * of the successful connections made by the user and (2) filling in any
+	 * non-found answers in the order of their difficulty (yellow, green, blue,
+	 * purple).
+	 */
+	public void loadFromPlayedGameInfo(PlayedGameInfo playedGameInfo) {
+		initAssets();
+		initGuessedWordsFromExternalVar(playedGameInfo.getGuesses());
 		
-		for(Set<Word> guessSetFromSave : previousGuessesFromSave) {
-			Set<Word> guessSetFromTileWord = new HashSet<>();
-			
-			for(Word wordFromSave : guessSetFromSave) {
-				// by default set it to the save copy
-				Word wordFromTileWord = wordFromSave;
-				
-				for(int row = currentSolvingRow; row < ROWS; row++) {
-					for(int col = 0; col < COLS; col++) {
-						Node node = gridGetNode(row, col);
-						if(node instanceof GameTileWord) {
-							GameTileWord tileWord = (GameTileWord) node;
-							if(wordFromSave.equals(tileWord.getWord())) {
-								wordFromTileWord = tileWord.getWord();
-								
-								row = ROWS;
-								col = COLS;
-								break;
-							}
-						}
-					}
-				}
-				
-				guessSetFromTileWord.add(wordFromTileWord);
+		for(Set<Word> guessedWordSet : previousGuesses) {
+			GameAnswerColor answerColor = checkMatchingAnswerColor(guessedWordSet);
+			if(answerColor != null) {
+				GameTileAnswer tileAnswer = new GameTileAnswer(answerColor, this);
+				currentSolvingRow++;
+				gridSetTileAnswer(tileAnswer);
 			}
-			
-			previousGuesses.add(guessSetFromTileWord);
 		}
 		
-		System.out.println("OLD PREVIOUS GUESSES: " + previousGuessesFromSave);
-		System.out.println("NEW UPDATED GUESSES: " + previousGuesses);
+		List<DifficultyColor> remainingColors = getSortedUnansweredDifficultyColor();
+		for(DifficultyColor color : remainingColors) {
+			GameAnswerColor answerColor = gameSessionContext.getGameData().getAnswerForColor(color);
+			GameTileAnswer tileAnswer = new GameTileAnswer(answerColor, this);
+			currentSolvingRow++;
+			gridSetTileAnswer(tileAnswer);
+			
+		}
 	}
 
 	private void initAssets() {
@@ -151,6 +141,45 @@ public class TileGridWord extends BorderPane implements Modular {
 		setMaxWidth(PANE_WIDTH);
 		setCenter(gridPane);
 		initEmptyTileWords();
+	}
+
+	/*
+	 * This block of code is needed to ensure that all of the Word objects in the
+	 * List<Set<Word>> guesses are copied from the word tiles (otherwise the
+	 * previous-guess-checking system will not work properly and think that previous
+	 * guesses were not actually made (when loading from save state).
+	 */
+	private void initGuessedWordsFromExternalVar(List<Set<Word>> previousGuessesExternal) {
+		previousGuesses = new ArrayList<>();
+
+		for (Set<Word> guessSetFromSave : previousGuessesExternal) {
+			Set<Word> guessSetFromTileWord = new HashSet<>();
+
+			for (Word wordFromSave : guessSetFromSave) {
+				// by default set it to the save copy
+				Word wordFromTileWord = wordFromSave;
+
+				for (int row = currentSolvingRow; row < ROWS; row++) {
+					for (int col = 0; col < COLS; col++) {
+						Node node = gridGetNode(row, col);
+						if (node instanceof GameTileWord) {
+							GameTileWord tileWord = (GameTileWord) node;
+							if (wordFromSave.equals(tileWord.getWord())) {
+								wordFromTileWord = tileWord.getWord();
+
+								row = ROWS;
+								col = COLS;
+								break;
+							}
+						}
+					}
+				}
+
+				guessSetFromTileWord.add(wordFromTileWord);
+			}
+
+			previousGuesses.add(guessSetFromTileWord);
+		}
 	}
 
 	private void initEmptyTileWords() {
@@ -246,6 +275,20 @@ public class TileGridWord extends BorderPane implements Modular {
 			maxMatchCount = Math.max(maxMatchCount, matchCount);
 		}
 		return maxMatchCount;
+	}
+
+	public GameAnswerColor checkMatchingAnswerColor(Set<Word> words) {
+		int maxMatchCount = 0;
+		for (DifficultyColor color : DifficultyColor.getAllColors()) {
+			GameAnswerColor answer = gameSessionContext.getGameData().getAnswerForColor(color);
+			List<String> colorWords = Arrays.asList(answer.getWords());
+			int matchCount = (int) words.stream().filter(word -> colorWords.contains(word.getText())).count();
+			maxMatchCount = Math.max(maxMatchCount, matchCount);
+			if(maxMatchCount == 4) {
+				return answer;
+			}
+		}
+		return null;
 	}
 
 	public boolean checkAllCategoriesGuessed() {

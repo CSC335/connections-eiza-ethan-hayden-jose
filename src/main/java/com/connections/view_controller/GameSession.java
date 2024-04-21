@@ -409,11 +409,24 @@ public class GameSession extends StackPane implements Modular {
 			currentUser.readFromDatabase();
 
 			gameAlreadyFinished = currentUser.hasPlayedGameByPuzzleNum(currentPuzzleNumber);
-
+			
 			helperSetGameButtonsDisabled(true);
 			tileGridWord.setTileWordDisable(true);
 			
+			gameActive = false;
+			
 			if (gameAlreadyFinished) {
+				playedGameInfo = currentUser.getPlayedGameByPuzzleNum(currentPuzzleNumber);
+				gameType = playedGameInfo.getGameType();
+				wonGame = playedGameInfo.wasWon();
+				
+				tileGridWord.loadFromPlayedGameInfo(playedGameInfo);
+				
+				if(gameType == GameSession.GameType.TIME_TRIAL) {
+					PlayedGameInfoTimed playedGameInfoTimed = (PlayedGameInfoTimed) playedGameInfo;
+					ranOutOfTime = !playedGameInfoTimed.isCompletedBeforeTimeLimit();
+				}
+				
 				screenDisplayResults();
 				controlsSetViewResultsOnly();
 			} else {
@@ -473,6 +486,12 @@ public class GameSession extends StackPane implements Modular {
 			break;
 		default:
 		}
+		
+		// save the game to the user's list of played games
+		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
+		currentUser.readFromDatabase();
+		currentUser.addPlayedGame(playedGameInfo);
+		currentUser.writeToDatabase();
 
 		gameActive = false;
 

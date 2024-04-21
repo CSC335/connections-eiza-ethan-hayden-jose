@@ -50,11 +50,11 @@ public class ResultsPane extends StackPane implements Modular {
 
 	public ResultsPane(GameSessionContext gameSessionContext, PlayedGameInfo playedGameInfo) {
 		this.gameSessionContext = gameSessionContext;
-		
-		if(playedGameInfo == null) {
+
+		if (playedGameInfo == null) {
 			playedGameInfo = new PlayedGameInfoClassic(123, 0, 0, 0, 0, new ArrayList<>(), false);
 		}
-		
+
 		this.playedGameInfo = playedGameInfo;
 		initAssets();
 	}
@@ -69,7 +69,8 @@ public class ResultsPane extends StackPane implements Modular {
 		initShareButton();
 		initGameTypeAndTimeTrialContent();
 
-		resultsLayout.getChildren().addAll(titleLabel, puzzleNumberLabel, attemptsGridPane, timerLayout, timeTrialCompletionLayout, shareButton);
+		resultsLayout.getChildren().addAll(titleLabel, puzzleNumberLabel, attemptsGridPane, timerLayout,
+				timeTrialCompletionLayout, shareButton);
 
 		getChildren().add(resultsLayout);
 		refreshStyle();
@@ -171,8 +172,10 @@ public class ResultsPane extends StackPane implements Modular {
 		switch (playedGameInfo.getGameType()) {
 		case CLASSIC:
 			gameTypeLabel.setText("COMPLETED IN CLASSIC MODE");
+			break;
 		case TIME_TRIAL:
 			gameTypeLabel.setText("COMPLETED IN TIME TRIAL MODE");
+			break;
 		default:
 		}
 
@@ -186,13 +189,14 @@ public class ResultsPane extends StackPane implements Modular {
 		timeTrialTimeLabel.setAlignment(Pos.CENTER);
 		VBox.setMargin(timeTrialTimeLabel, new Insets(-10, 0, 0, 0));
 
-		if (playedGameInfo.getGameType() == GameSession.GameType.TIME_TRIAL && playedGameInfo instanceof PlayedGameInfoTimed) {
+		if (playedGameInfo.getGameType() == GameSession.GameType.TIME_TRIAL
+				&& playedGameInfo instanceof PlayedGameInfoTimed) {
 			timeTrialCompletionLabel.setVisible(true);
 			timeTrialTimeLabel.setVisible(true);
-			
+
 			PlayedGameInfoTimed timedGameInfo = (PlayedGameInfoTimed) playedGameInfo;
-			
-			if(timedGameInfo.isCompletedBeforeTimeLimit()) {
+
+			if (timedGameInfo.isCompletedBeforeTimeLimit()) {
 				timeTrialCompletionLabel.setText("COMPLETED IN");
 				timeTrialTimeLabel.setText(formatTimeMinSec(timedGameInfo.getTimeCompleted()));
 			} else {
@@ -203,7 +207,7 @@ public class ResultsPane extends StackPane implements Modular {
 			timeTrialCompletionLabel.setVisible(false);
 			timeTrialTimeLabel.setVisible(false);
 		}
-		
+
 		timeTrialCompletionLayout = new VBox(5, gameTypeLabel, timeTrialCompletionLabel, timeTrialTimeLabel);
 		timeTrialCompletionLayout.setAlignment(Pos.CENTER);
 	}
@@ -212,7 +216,7 @@ public class ResultsPane extends StackPane implements Modular {
 		int minutes = seconds / 60;
 		int remainingSeconds = seconds % 60;
 		return String.format("%02d:%02d", minutes, remainingSeconds);
-	} 
+	}
 
 	private void copyResultsToClipboard() {
 		final Clipboard clipboard = Clipboard.getSystemClipboard();
