@@ -75,6 +75,7 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 	}
 
 	private void showScreen(Pane screen) {
+		setButtonsDisabled(true);
 		screen.setVisible(true);
 		centerStackPane.getChildren().add(screen);
 
@@ -96,6 +97,7 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 
 		scroll.setOnFinished(event -> {
 			screen.setVisible(false);
+			setButtonsDisabled(false);
 			centerStackPane.getChildren().remove(screen);
 		});
 
@@ -104,9 +106,9 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 
 	private void checkSession() {
 		WebSession session = webSessionContext.getSession();
-		
+
 		// has NO user (neither guest nor account)
-		if(session.isEmpty()) {
+		if (session.isEmpty()) {
 			session.login();
 		}
 	}
@@ -169,7 +171,8 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 		playButton.setOnAction(event -> {
 			try {
 				checkSession();
-				GameData gameDataLoadWith = WebUtils.gameGetByPuzzleNumber(webContext, WebUtils.dailyPuzzleNumberGet(webContext));
+				GameData gameDataLoadWith = WebUtils.gameGetByPuzzleNumber(webContext,
+						WebUtils.dailyPuzzleNumberGet(webContext));
 				GameSessionContext gameSessionContext = new GameSessionContext(styleManager, gameDataLoadWith,
 						webContext, webSessionContext);
 				gameSession = new GameSession(gameSessionContext);
@@ -196,14 +199,20 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 		Background background = new Background(new BackgroundFill(LOGIN_BACKGROUND_COLOR, null, null));
 		window.setBackground(background);
 	}
+
+	private ImageView createLogoImageView() {
+		Image logoImage = new Image("file:img/conn_logo.png");
+		ImageView logoImageView = new ImageView(logoImage);
+		logoImageView.setFitWidth(100);
+		logoImageView.setPreserveRatio(true);
+		return logoImageView;
+	}
 	
-	 private ImageView createLogoImageView() {
-	        Image logoImage = new Image("file:img/conn_logo.png");
-	        ImageView logoImageView = new ImageView(logoImage);
-	        logoImageView.setFitWidth(100);
-	        logoImageView.setPreserveRatio(true);
-	        return logoImageView;
-	    }
+	private void setButtonsDisabled(boolean disabled) {
+		loginButton.setDisable(disabled);
+		playButton.setDisable(disabled);
+		showDebugInfoButton.setDisable(disabled);
+	}
 
 	@Override
 	public void setWebContext(WebContext webContext) {

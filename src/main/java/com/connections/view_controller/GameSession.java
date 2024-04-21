@@ -39,6 +39,8 @@ public class GameSession extends StackPane implements Modular {
 	private GameSessionContext gameSessionContext;
 	private OptionSelectOverlayPane gameTypeOptionSelector;
 	private CountDownOverlayPane timeTrialCountDownOverlay;
+	private TimerPane timeTrialTimerPane;
+	private BorderPane timeTrialTimerLayout;
 	private Text mainHeaderText;
 	private BorderPane organizationPane;
 	private StackPane menuPane;
@@ -48,9 +50,6 @@ public class GameSession extends StackPane implements Modular {
 	private CircleRowPane mistakesPane;
 	private HBox gameButtonRowPane;
 	private HBox menuButtonRowPane;
-	
-	private Text countDownText;
-
 	private TileGridAchievement tileGridAchievement;
 
 	private boolean wonGame;
@@ -75,6 +74,7 @@ public class GameSession extends StackPane implements Modular {
 	private PopupWrapperPane popupPane;
 
 	private boolean gameAlreadyFinished;
+	private boolean ranOutOfTime;
 	private GameType gameType;
 
 	public enum GameType {
@@ -155,11 +155,11 @@ public class GameSession extends StackPane implements Modular {
 
 		// === NEW STUFF FOR WEB === (will make neater later)
 		int currentPuzzleNumber = gameSessionContext.getGameData().getPuzzleNumber();
-		
+
 		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
 		currentUser.readFromDatabase();
 		gameAlreadyFinished = currentUser.hasPlayedGameByPuzzleNum(currentPuzzleNumber);
-		
+
 		gameTypeOptionSelector = new OptionSelectOverlayPane(gameSessionContext);
 		gameTypeOptionSelector.addButton("Classic", 68);
 		gameTypeOptionSelector.addButton("Time Trial", 68);
@@ -177,18 +177,34 @@ public class GameSession extends StackPane implements Modular {
 			organizationPane.setEffect(null);
 			sessionBeginNewGame();
 		});
-		
+
 		if (!gameAlreadyFinished) {
 			GaussianBlur blurEffect = new GaussianBlur();
 			organizationPane.setEffect(blurEffect);
 			getChildren().add(gameTypeOptionSelector);
 			gameTypeOptionSelector.appear();
 		}
-		
+
 		timeTrialCountDownOverlay = new CountDownOverlayPane(gameSessionContext);
-		// === NEW STUFF FOR WEB ===
+		timeTrialTimerPane = new TimerPane(gameSessionContext, 20);
+		timeTrialTimerPane.setOnFinishedTimer(event -> {
+			sessionLostTimeTrial();
+		});
+
+		timeTrialTimerLayout = new BorderPane();
+		timeTrialTimerLayout.setBottom(timeTrialTimerPane);
+		timeTrialTimerLayout.setPadding(new Insets(64));
+		BorderPane.setAlignment(timeTrialTimerPane, Pos.CENTER);
 		
-		helperSetGameButtonsDisabled(false);
+		getChildren().add(0, timeTrialTimerLayout);
+//		gameContentPane.getChildren().add(timeTrialTimerPane);
+
+		// === NEW STUFF FOR WEB ===
+
+		helperSetGameButtonsDisabled(true);
+		tileGridWord.setTileWordDisable(true);
+		
+//		helperSetGameButtonsDisabled(false);
 		controlsSetNormal();
 		refreshStyle();
 	}
@@ -297,17 +313,23 @@ public class GameSession extends StackPane implements Modular {
 	// === === === === === === === === === === === ===
 	// === === === === MAIN "SESSION" METHODS
 	// === === === === === === === === === === === ===
-	
-	public void sessionBeginNewGame() {		
-		if(gameType == GameType.CLASSIC) {
+
+	public void sessionBeginNewGame() {
+		if (gameType == GameType.CLASSIC) {
 			gameActive = true;
 			wonGame = false;
-		} else if(gameType == GameType.TIME_TRIAL) {
+			helperSetGameButtonsDisabled(false);
+			tileGridWord.setTileWordDisable(false);
+		} else if (gameType == GameType.TIME_TRIAL) {
 			helperTimeTrialStartCountdown();
 		}
 	}
 
 	public void sessionReachedEndGame() {
+		if(gameType == GameType.TIME_TRIAL && timeTrialTimerPane.isVisible()) {
+			timeTrialTimerPane.disappear();
+		}
+		
 		gameActive = false;
 
 		helperSetGameButtonsDisabled(true);
@@ -340,6 +362,30 @@ public class GameSession extends StackPane implements Modular {
 			}
 		}
 	}
+	
+	public void sessionLostTimeTrial() {
+		// to prevent you "losing" after finishing on time somehow
+		if(wonGame || gameType != GameType.TIME_TRIAL) {
+			return;
+		}
+		
+		ranOutOfTime = true;
+		
+		if(timeTrialTimerPane.isTimerActive()) {
+			timeTrialTimerPane.stopTimer();
+		}
+		
+		helperDisplayPopupNotifcation("Time's Up!", 88.13, POPUP_DEFAULT_DURATION_MS);
+
+		PauseTransition autoSolveDelay = new PauseTransition(Duration.millis(5000));
+		autoSolveDelay.setOnFinished(event -> {
+			helperAutoSolverBegin();
+		});
+
+		autoSolveDelay.play();
+		helperSetGameButtonsDisabled(true);
+		tileGridWord.setTileWordDisable(true);
+	}
 
 	public void sessionHintUsed() {
 
@@ -349,22 +395,36 @@ public class GameSession extends StackPane implements Modular {
 	// === === === === HELPER METHODS
 	// === === === === === === === === === === === ===
 
+	private void helperTimeTrialStartTimer() {
+		if (timeTrialTimerPane == null) {
+			return;
+		}
+
+		timeTrialTimerLayout.setVisible(true);
+		timeTrialTimerPane.appearAndStart();
+	}
+
 	private void helperTimeTrialStartCountdown() {
+		if (timeTrialCountDownOverlay == null) {
+			return;
+		}
+
 		getChildren().add(timeTrialCountDownOverlay);
 		helperSetGameButtonsDisabled(true);
 		tileGridWord.setTileWordDisable(true);
-		
+
 		timeTrialCountDownOverlay.setOnFinishedCountdown(event -> {
 			gameActive = true;
 			wonGame = false;
 			helperSetGameButtonsDisabled(false);
 			tileGridWord.setTileWordDisable(false);
 			getChildren().remove(timeTrialCountDownOverlay);
+			helperTimeTrialStartTimer();
 		});
-		
+
 		timeTrialCountDownOverlay.startCountdown();
 	}
-	
+
 	private void helperDisplayPopupNotifcation(String message, double width, int duration) {
 		NotificationPane popupNotification = new NotificationPane(message, width, gameSessionContext);
 		menuPane.getChildren().add(0, popupNotification);
@@ -467,16 +527,22 @@ public class GameSession extends StackPane implements Modular {
 			mistakesPane.removeCircle();
 
 			if (lostGame) {
-				helperDisplayPopupNotifcation("Next Time", 88.13, POPUP_DEFAULT_DURATION_MS);
+				if((gameType == GameType.TIME_TRIAL && !ranOutOfTime) || gameType != GameType.TIME_TRIAL) {
+					helperDisplayPopupNotifcation("Next Time", 88.13, POPUP_DEFAULT_DURATION_MS);
 
-				PauseTransition autoSolveDelay = new PauseTransition(Duration.millis(500));
-				autoSolveDelay.setOnFinished(event -> {
-					helperAutoSolverBegin();
-				});
+					PauseTransition autoSolveDelay = new PauseTransition(Duration.millis(500));
+					autoSolveDelay.setOnFinished(event -> {
+						helperAutoSolverBegin();
+					});
 
-				autoSolveDelay.play();
-				helperSetGameButtonsDisabled(true);
-				tileGridWord.setTileWordDisable(true);
+					autoSolveDelay.play();
+					helperSetGameButtonsDisabled(true);
+					tileGridWord.setTileWordDisable(true);
+					
+					if(gameType == GameType.TIME_TRIAL) {
+						timeTrialTimerPane.stopTimer();
+					}
+				}
 			} else {
 				if (isOneAway) {
 					helperDisplayPopupNotifcation("One Away...", 96.09, POPUP_DEFAULT_DURATION_MS);

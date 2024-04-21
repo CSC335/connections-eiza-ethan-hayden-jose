@@ -2,7 +2,9 @@ package com.connections.entry;
 
 import com.connections.model.GameData;
 import com.connections.model.GameDataCollection;
+import com.connections.view_controller.GameSessionContext;
 import com.connections.view_controller.StyleManager;
+import com.connections.view_controller.TimerPane;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -29,7 +31,6 @@ public class ConnectionsAppLocal extends Application {
 	@Override
     public void start(Stage primaryStage) {
 //		initGameData();
-//		styleManager = new StyleManager();
 //		GameSessionContext gameSessionContext = new GameSessionContext(styleManager, currentGame, null); 
 //		GameSession gameSession = new GameSession(gameSessionContext);
 		
@@ -45,7 +46,12 @@ public class ConnectionsAppLocal extends Application {
 		GaussianBlur gaussianBlur = new GaussianBlur();
 		underneath.setEffect(gaussianBlur);
 		
-		StackPane layers = new StackPane(underneath, pane);
+		styleManager = new StyleManager();
+		GameSessionContext gameSessionContext = new GameSessionContext(styleManager, null, null, null);
+		TimerPane timerPane = new TimerPane(gameSessionContext, 2);
+		timerPane.appearAndStart();
+		
+		StackPane layers = new StackPane(underneath, pane, timerPane);
 		Scene scene = new Scene(layers, STAGE_WIDTH, STAGE_HEIGHT);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Connections");

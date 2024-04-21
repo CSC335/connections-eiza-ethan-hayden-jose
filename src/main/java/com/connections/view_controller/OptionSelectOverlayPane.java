@@ -5,6 +5,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.animation.FadeTransition;
+import javafx.scene.Node;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BorderPane;
@@ -81,10 +82,22 @@ public class OptionSelectOverlayPane extends StackPane implements Modular {
 		fadeIn.setToValue(1.0);
 		fadeIn.play();
 		
+		fadeIn.setOnFinished(event -> {
+			setOptionsDisabled(false);
+		});
+		
 		setVisible(true);
+	}
+	
+	private void setOptionsDisabled(boolean disabled) {
+		for(Node node : optionsLayout.getChildren()) {
+			node.setDisable(disabled);
+		}
 	}
 
 	public void disappear() {
+		setOptionsDisabled(true);
+		
 		FadeTransition fadeOut = new FadeTransition(Duration.millis(500), this);
 		fadeOut.setFromValue(1.0);
 		fadeOut.setToValue(0.0);

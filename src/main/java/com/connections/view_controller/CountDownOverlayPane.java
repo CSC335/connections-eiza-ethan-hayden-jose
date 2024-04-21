@@ -43,6 +43,7 @@ public class CountDownOverlayPane extends StackPane implements Modular {
 
 		countDownText = new Text("...");
 		countDownText.setVisible(false);
+		countDownText.setTranslateY(-16);
 
 		setAlignment(Pos.CENTER);
 		getChildren().addAll(backgroundPane, countDownText);
@@ -105,19 +106,20 @@ public class CountDownOverlayPane extends StackPane implements Modular {
 
 	public void startCountdown() {
 		PauseTransition delay = new PauseTransition(Duration.millis(1000)); 
+		delay.setOnFinished(event -> {
+			setVisible(true);
+		});
 		
 		FadeTransition fadeIn = new FadeTransition(Duration.millis(500), this);
 		fadeIn.setFromValue(0.0);
 		fadeIn.setToValue(1.0);
 		
-		SequentialTransition sequence = new SequentialTransition(delay, fadeIn);
-		sequence.play();
-		
-		setVisible(true);
-		
 		fadeIn.setOnFinished(event -> {
 			playCountDownAnimation();
 		});
+		
+		SequentialTransition sequence = new SequentialTransition(delay, fadeIn);
+		sequence.play();
 	}
 	
 	public void setOnFinishedCountdown(EventHandler<ActionEvent> onFinishedCountdown) {
