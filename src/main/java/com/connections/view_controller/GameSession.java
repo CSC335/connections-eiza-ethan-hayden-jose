@@ -10,6 +10,10 @@ import com.connections.entry.ConnectionsAppLocal;
 import com.connections.model.DifficultyColor;
 import com.connections.model.GameAnswerColor;
 import com.connections.model.GameData;
+import com.connections.model.GameSaveState;
+import com.connections.model.PlayedGameInfo;
+import com.connections.model.PlayedGameInfoClassic;
+import com.connections.model.PlayedGameInfoTimed;
 import com.connections.model.Word;
 import com.connections.web.WebUser;
 
@@ -35,6 +39,8 @@ import javafx.util.Duration;
 public class GameSession extends StackPane implements Modular {
 	private static final int POPUP_DEFAULT_DURATION_MS = 3000;
 	private static final int MENU_PANE_HEIGHT = NotificationPane.HEIGHT + 10;
+
+	public static final int TIME_TRIAL_DURATION_SEC = 60;
 
 	private GameSessionContext gameSessionContext;
 	private OptionSelectOverlayPane gameTypeOptionSelector;
@@ -73,9 +79,14 @@ public class GameSession extends StackPane implements Modular {
 	private ResultsPane resultsPane;
 	private PopupWrapperPane popupPane;
 
+	private int currentPuzzleNumber;
 	private boolean gameAlreadyFinished;
 	private boolean ranOutOfTime;
+	private boolean loadedFromSaveState;
 	private GameType gameType;
+
+	// will be null if the game was not finished yet
+	private PlayedGameInfo playedGameInfo;
 
 	public enum GameType {
 		CLASSIC, TIME_TRIAL, NONE
@@ -85,6 +96,7 @@ public class GameSession extends StackPane implements Modular {
 		this.gameSessionContext = gameSessionContext;
 		initAssets();
 		initListeners();
+		fastForwardAutoLoad();
 	}
 
 	// === === === === === === === === === === === ===
@@ -92,6 +104,13 @@ public class GameSession extends StackPane implements Modular {
 	// === === === === === === === === === === === ===
 
 	private void initAssets() {
+		getChildren().clear();
+		wonGame = false;
+		gameActive = false;
+		ranOutOfTime = false;
+
+		currentPuzzleNumber = gameSessionContext.getGameData().getPuzzleNumber();
+
 		setPrefSize(ConnectionsAppLocal.STAGE_WIDTH, ConnectionsAppLocal.STAGE_HEIGHT);
 
 		darkModeToggleMenuButton = new DarkModeToggle(gameSessionContext);
@@ -154,11 +173,6 @@ public class GameSession extends StackPane implements Modular {
 		getChildren().add(organizationPane);
 
 		// === NEW STUFF FOR WEB === (will make neater later)
-		int currentPuzzleNumber = gameSessionContext.getGameData().getPuzzleNumber();
-
-		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
-		currentUser.readFromDatabase();
-		gameAlreadyFinished = currentUser.hasPlayedGameByPuzzleNum(currentPuzzleNumber);
 
 		gameTypeOptionSelector = new OptionSelectOverlayPane(gameSessionContext);
 		gameTypeOptionSelector.addButton("Classic", 68);
@@ -178,32 +192,22 @@ public class GameSession extends StackPane implements Modular {
 			sessionBeginNewGame();
 		});
 
-		if (!gameAlreadyFinished) {
-			GaussianBlur blurEffect = new GaussianBlur();
-			organizationPane.setEffect(blurEffect);
-			getChildren().add(gameTypeOptionSelector);
-			gameTypeOptionSelector.appear();
-		}
-
 		timeTrialCountDownOverlay = new CountDownOverlayPane(gameSessionContext);
 		timeTrialTimerPane = new TimerPane(gameSessionContext, 20);
 		timeTrialTimerPane.setOnFinishedTimer(event -> {
 			sessionLostTimeTrial();
 		});
-		
+
 		timeTrialTimerLayout = new BorderPane();
 		timeTrialTimerLayout.setTop(timeTrialTimerPane);
 		timeTrialTimerLayout.setPadding(new Insets(64));
 		BorderPane.setAlignment(timeTrialTimerPane, Pos.CENTER);
-		
+
 		getChildren().add(0, timeTrialTimerLayout);
 //		gameContentPane.getChildren().add(timeTrialTimerPane);
 
 		// === NEW STUFF FOR WEB ===
 
-		helperSetGameButtonsDisabled(true);
-		tileGridWord.setTileWordDisable(true);
-		
 //		helperSetGameButtonsDisabled(false);
 		controlsSetNormal();
 		refreshStyle();
@@ -267,8 +271,7 @@ public class GameSession extends StackPane implements Modular {
 	private void screenDisplayResults() {
 		if (!gameActive) {
 			if (resultsPane == null) {
-				List<Set<Word>> guesses = tileGridWord.getGuesses();
-				resultsPane = new ResultsPane(gameSessionContext, wonGame, 123, guesses.size(), guesses);
+				resultsPane = new ResultsPane(gameSessionContext, playedGameInfo);
 			}
 
 			helperPopupScreen(resultsPane, "");
@@ -311,6 +314,116 @@ public class GameSession extends StackPane implements Modular {
 	}
 
 	// === === === === === === === === === === === ===
+	// === === === === "FAST-FORWARD" METHODS: SAVE-STATE HANDLING
+	// === === === === === === === === === === === ===
+
+	public void fastForwardAutoLoad() {
+		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
+		currentUser.readFromDatabase();
+		if (currentUser.hasLatestSaveState()) {
+			fastForwardLoadSaveState();
+		} else {
+			fastForwardCheckGameFinishedAlready();
+		}
+	}
+
+	/*
+	 * can be called at any time, but preferably immediately after the GameSession
+	 * is initialized to avoid unexpected bugs
+	 * MUST BE CALLED IMMEDIATELY AFTER INITIALIZING THE MAIN ASSETS
+	 */
+	public void fastForwardLoadSaveState() {
+		System.out.println("fastForwardLoadSaveState: called");
+		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
+		currentUser.readFromDatabase();
+
+		if (currentUser.hasLatestSaveState() && currentUser.getLatestGameSaveState() != null) {
+			System.out.println("fastForwardLoadSaveState: user has latest save state, LOADING...");
+			GameSaveState gameSaveState = currentUser.getLatestGameSaveState();
+			loadedFromSaveState = true;
+
+			System.out.println(gameSaveState.getAsDatabaseFormat());
+			System.out.println(currentPuzzleNumber);	
+			
+			int puzzleNumberInSave = gameSaveState.getPuzzleNumber();
+
+			if (puzzleNumberInSave != currentPuzzleNumber) {
+				System.out.println("ERROR: GameSession was asked to load from the save state, but it cannot because the"
+						+ " puzzle number (and likely the puzzle itself) of the save state and provided game data are different!");
+				return;
+			}
+//			initAssets();
+//			initListeners();
+			hintsPane.setNumCircles(gameSaveState.getHintsLeft());
+			mistakesPane.setNumCircles(gameSaveState.getMistakesLeft());
+			tileGridWord.loadFromSaveState(gameSaveState);
+			gameType = gameSaveState.getGameType();
+
+			helperSetGameButtonsDisabled(false);
+			tileGridWord.setTileWordDisable(false);
+
+			gameActive = true;
+			wonGame = false;
+			ranOutOfTime = false;
+			gameAlreadyFinished = false;
+		}
+	}
+
+	public void fastForwardStoreSaveState() {
+		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
+
+		// implement this later, track the time the user has spent playing for both
+		// classic and time trial
+		int timeCompleted = 0;
+
+		GameSaveState gameSaveState = new GameSaveState(tileGridWord, hintsPane, mistakesPane, gameSessionContext,
+				!gameActive, timeCompleted, gameType);
+
+		currentUser.readFromDatabase();
+		currentUser.setLatestGameSaveState(gameSaveState);
+		currentUser.writeToDatabase();
+	}
+
+	public void fastForwardClearSaveState() {
+		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
+		currentUser.readFromDatabase();
+
+		if (currentUser.hasLatestSaveState()) {
+			currentUser.clearLatestGameSaveState();
+			currentUser.writeToDatabase();
+		}
+	}
+
+	/*
+	 * CANNOT be called after loading from a save state
+	 * MUST BE CALLED IMMEDIATELY AFTER INITIALIZING THE MAIN ASSETS
+	 */
+	public void fastForwardCheckGameFinishedAlready() {
+		if (!loadedFromSaveState && !gameActive) {
+//			initAssets();
+//			initListeners();
+
+			WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
+			currentUser.readFromDatabase();
+
+			gameAlreadyFinished = currentUser.hasPlayedGameByPuzzleNum(currentPuzzleNumber);
+
+			helperSetGameButtonsDisabled(true);
+			tileGridWord.setTileWordDisable(true);
+			
+			if (gameAlreadyFinished) {
+				screenDisplayResults();
+				controlsSetViewResultsOnly();
+			} else {
+				GaussianBlur blurEffect = new GaussianBlur();
+				organizationPane.setEffect(blurEffect);
+				getChildren().add(gameTypeOptionSelector);
+				gameTypeOptionSelector.appear();
+			}
+		}
+	}
+
+	// === === === === === === === === === === === ===
 	// === === === === MAIN "SESSION" METHODS
 	// === === === === === === === === === === === ===
 
@@ -326,10 +439,39 @@ public class GameSession extends StackPane implements Modular {
 	}
 
 	public void sessionReachedEndGame() {
-		if(gameType == GameType.TIME_TRIAL && timeTrialTimerPane.isVisible()) {
+		if (gameType == GameType.TIME_TRIAL && timeTrialTimerPane.isVisible()) {
 			timeTrialTimerPane.disappear();
 		}
-		
+
+		fastForwardClearSaveState();
+
+		List<Set<Word>> guesses = tileGridWord.getGuesses();
+		int mistakesMadeCount = mistakesPane.getMaxNumCircles() - mistakesPane.getNumCircles();
+		int hintsUsedCount = hintsPane.getMaxNumCircles() - hintsPane.getNumCircles();
+		int connectionsMade = tileGridWord.getCurrentSolvingRow();
+
+		// implement this properly later
+		// we will have some static, final constant value that will be used for the time
+		// trial time
+		int timeLimit = TIME_TRIAL_DURATION_SEC;
+
+		// implement this properly later
+		// this will be tracked for both time trial and classic users for the
+		// leaderboard
+		int timeCompleted = 0;
+
+		switch (gameType) {
+		case CLASSIC:
+			playedGameInfo = new PlayedGameInfoClassic(currentPuzzleNumber, mistakesMadeCount, hintsUsedCount,
+					connectionsMade, timeCompleted, guesses, wonGame);
+			break;
+		case TIME_TRIAL:
+			playedGameInfo = new PlayedGameInfoTimed(currentPuzzleNumber, mistakesMadeCount, hintsUsedCount,
+					connectionsMade, timeCompleted, guesses, wonGame, timeLimit, !ranOutOfTime);
+			break;
+		default:
+		}
+
 		gameActive = false;
 
 		helperSetGameButtonsDisabled(true);
@@ -362,19 +504,19 @@ public class GameSession extends StackPane implements Modular {
 			}
 		}
 	}
-	
+
 	public void sessionLostTimeTrial() {
 		// to prevent you "losing" after finishing on time somehow
-		if(wonGame || gameType != GameType.TIME_TRIAL) {
+		if (wonGame || gameType != GameType.TIME_TRIAL) {
 			return;
 		}
-		
+
 		ranOutOfTime = true;
-		
-		if(timeTrialTimerPane.isTimerActive()) {
+
+		if (timeTrialTimerPane.isTimerActive()) {
 			timeTrialTimerPane.stopTimer();
 		}
-		
+
 		helperDisplayPopupNotifcation("Time's Up!", 88.13, POPUP_DEFAULT_DURATION_MS);
 
 		PauseTransition autoSolveDelay = new PauseTransition(Duration.millis(5000));
@@ -527,7 +669,7 @@ public class GameSession extends StackPane implements Modular {
 			mistakesPane.removeCircle();
 
 			if (lostGame) {
-				if((gameType == GameType.TIME_TRIAL && !ranOutOfTime) || gameType != GameType.TIME_TRIAL) {
+				if ((gameType == GameType.TIME_TRIAL && !ranOutOfTime) || gameType != GameType.TIME_TRIAL) {
 					helperDisplayPopupNotifcation("Next Time", 88.13, POPUP_DEFAULT_DURATION_MS);
 
 					PauseTransition autoSolveDelay = new PauseTransition(Duration.millis(500));
@@ -538,8 +680,8 @@ public class GameSession extends StackPane implements Modular {
 					autoSolveDelay.play();
 					helperSetGameButtonsDisabled(true);
 					tileGridWord.setTileWordDisable(true);
-					
-					if(gameType == GameType.TIME_TRIAL) {
+
+					if (gameType == GameType.TIME_TRIAL) {
 						timeTrialTimerPane.stopTimer();
 					}
 				}
@@ -549,6 +691,7 @@ public class GameSession extends StackPane implements Modular {
 				}
 				helperSetGameButtonsDisabled(false);
 				tileGridWord.setTileWordDisable(false);
+				fastForwardStoreSaveState();
 			}
 		});
 
@@ -577,6 +720,7 @@ public class GameSession extends StackPane implements Modular {
 			} else {
 				helperSetGameButtonsDisabled(false);
 				tileGridWord.setTileWordDisable(false);
+				fastForwardStoreSaveState();
 			}
 		});
 
@@ -610,7 +754,8 @@ public class GameSession extends StackPane implements Modular {
 			}
 			guesses.add(set);
 		}
-		resultsPane = new ResultsPane(gameSessionContext, false, 123, guesses.size(), guesses);
+		PlayedGameInfo tempPlayedGame = new PlayedGameInfoClassic(123, 0, 0, 0, 0, guesses, false);
+		resultsPane = new ResultsPane(gameSessionContext, tempPlayedGame);
 		screenDisplayResults();
 	}
 

@@ -43,9 +43,14 @@ public class TimerPane extends StackPane implements Modular {
 	private ZonedDateTime startTime;
 	private ZonedDateTime endTime;
 	private int durationSeconds;
+	private int prevSecondsLeftBuffer;
 	private GameSessionContext gameSessionContext;
 	private EventHandler<ActionEvent> onFinishedTimer;
+	// === === === === === === === === === === === === === ===
+	// with delay is not needed anymore, can be removed in future
 	private EventHandler<ActionEvent> onFinishedTimerWithDelay;
+	// === === === === === === === === === === === === === ===
+	private EventHandler<ActionEvent> onSecondPassedBy;
 	private EventHandler<ActionEvent> onDisappear;
 	private boolean timerActive;
 	private boolean timerFinished;
@@ -110,6 +115,7 @@ public class TimerPane extends StackPane implements Modular {
 
 	public void restartTimer() {
 		startTime = ZonedDateTime.now();
+		prevSecondsLeftBuffer = durationSeconds;
 		updateTimerLabel();
 		timerTimeLine.play();
 		timerActive = true;
@@ -135,16 +141,16 @@ public class TimerPane extends StackPane implements Modular {
 		SequentialTransition sequence = new SequentialTransition(delay, fadeIn);
 		sequence.play();
 	}
-	
+
 	public void disappear() {
 		stopTimer();
 		FadeTransition fadeOut = new FadeTransition(Duration.millis(500), this);
 		fadeOut.setFromValue(1.0);
 		fadeOut.setToValue(0.0);
 		fadeOut.play();
-		
+
 		fadeOut.setOnFinished(event -> {
-			if(onDisappear != null) {
+			if (onDisappear != null) {
 				onDisappear.handle(new ActionEvent(this, null));
 			}
 			setVisible(false);
@@ -179,13 +185,31 @@ public class TimerPane extends StackPane implements Modular {
 	public void setOnFinishedTimerWithDelay(EventHandler<ActionEvent> onFinishedTimerWithDelay) {
 		this.onFinishedTimerWithDelay = onFinishedTimerWithDelay;
 	}
-	
+
+	/*
+	 * The main purpose of being able to call code when every second passes is so
+	 * that the current time trial state can be saved in case the user closes their
+	 * browser suddenly
+	 */
+	// PLEASE PLEASE do not remove this method when refactoring until you know that
+	// we do not have that use case anymore.
+	public void setOnSecondPassedBy(EventHandler<ActionEvent> onSecondPassedBy) {
+		this.onSecondPassedBy = onSecondPassedBy;
+	}
+
 	public void setOnDisappear(EventHandler<ActionEvent> onDisappear) {
 		this.onDisappear = onDisappear;
 	}
 
 	private void updateTimerLabel() {
 		int secondsLeft = getSecondsLeft(ZonedDateTime.now());
+
+		if (secondsLeft != prevSecondsLeftBuffer) {
+			prevSecondsLeftBuffer = secondsLeft;
+			if (onSecondPassedBy != null) {
+				onSecondPassedBy.handle(new ActionEvent(this, null));
+			}
+		}
 
 		if (secondsLeft >= 0) {
 			counterLabel.setText(formatTime(secondsLeft));

@@ -19,6 +19,7 @@ import com.connections.model.DifficultyColor;
 import com.connections.model.GameAnswerColor;
 import com.connections.model.GameData;
 import com.connections.model.PlayedGameInfo;
+import com.connections.model.PlayedGameInfoClassic;
 import com.connections.model.Word;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
@@ -37,7 +38,7 @@ public class WebUtils {
 	public static final String COLLECTION_GUEST = "guest";
 
 	public static final String NULL_AS_STRING = "NULL";
-	
+
 	public static final String KEY_IS_SERVER_INIT = "is_server_init";
 	public static final String KEY_LAST_PUZZLE_DATE = "last_puzzle_date";
 	public static final String KEY_CURRENT_PUZZLE_NUMBER = "today_puzzle_number";
@@ -328,13 +329,15 @@ public class WebUtils {
 //		int maxNum = dailyPuzzleNumberGetMax(webContext);
 
 		/*
-		 * WARNING: these values might NOT make sense (e.g. won despite getting 4 mistakes)
+		 * WARNING: these values might NOT make sense (e.g. won despite getting 4
+		 * mistakes)
 		 */
-		
+
 //		int puzzleNumber = minNum + randomGen.nextInt(maxNum - minNum);
 		int puzzleNumber = currentPuzzleNum;
 		int guessCount = randomGen.nextInt(7);
 		int mistakeCount = randomGen.nextInt(4);
+		int hintsUsedCount = randomGen.nextInt(4);
 		int connectionCount = randomGen.nextInt(4);
 		int timeCompleted = randomGen.nextInt(10000);
 		boolean won = randomGen.nextBoolean();
@@ -357,8 +360,8 @@ public class WebUtils {
 			guesses.add(set);
 		}
 
-		PlayedGameInfo sampleGame = new PlayedGameInfo(puzzleNumber, guessCount, mistakeCount, connectionCount,
-				timeCompleted, guesses, won);
+		PlayedGameInfo sampleGame = new PlayedGameInfoClassic(puzzleNumber, mistakeCount, hintsUsedCount,
+				connectionCount, timeCompleted, guesses, won);
 		currentUser.addPlayedGame(sampleGame);
 		currentUser.writeToDatabase();
 	}

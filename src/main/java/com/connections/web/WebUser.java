@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.bson.Document;
 
+import com.connections.model.GameSaveState;
 import com.connections.model.PlayedGameInfo;
 
 public abstract class WebUser implements WebContextAccessible, DatabaseFormattable, DatabaseInteractable {
@@ -14,15 +15,21 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 
 	public static final String KEY_USER_ID = "user_id";
 	public static final String KEY_PLAYED_GAMES = "played_games";
+	public static final String KEY_LATEST_SAVE_STATE = "latest_game_save_state";
+	public static final String KEY_HAS_LATEST_SAVE_STATE = "has_latest_game_save_state";
 
 	protected List<PlayedGameInfo> playedGameList;
 	protected String userID;
 	protected WebContext webContext;
+	protected GameSaveState latestSaveState;
+	protected boolean hasLatestSaveState;
 
 	public WebUser(WebContext webContext) {
 		setWebContext(webContext);
 		this.userID = null;
 		this.playedGameList = new ArrayList<>();
+		this.latestSaveState = null;
+		this.hasLatestSaveState = false;
 	}
 
 	public WebUser(WebContext webContext, Document doc) {
@@ -34,6 +41,8 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 		setWebContext(webContext);
 		this.userID = userID;
 		this.playedGameList = new ArrayList<>();
+		this.latestSaveState = null;
+		this.hasLatestSaveState = false;
 		readFromDatabase();
 	}
 
@@ -51,6 +60,31 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 
 	public void setUserID(String userID) {
 		this.userID = userID;
+	}
+	
+	/*
+	 * If the user does not have any latest game save state, then this will be null.
+	 */
+	public GameSaveState getLatestGameSaveState() {
+		return latestSaveState;
+	}
+	
+	public void setLatestGameSaveState(GameSaveState latestSaveState) {
+		if(latestSaveState == null) {
+			hasLatestSaveState = false;
+		} else {
+			hasLatestSaveState = true;
+		}
+		this.latestSaveState = latestSaveState;
+	}
+	
+	public void clearLatestGameSaveState() {
+		this.latestSaveState = null;
+		this.hasLatestSaveState = false;
+	}
+	
+	public boolean hasLatestSaveState() {
+		return hasLatestSaveState;
 	}
 
 	public abstract UserType getType();
@@ -131,6 +165,10 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 			playedGameListDoc.add(game.getAsDatabaseFormat());
 		}
 		doc.append(KEY_PLAYED_GAMES, playedGameListDoc);
+		if(latestSaveState != null) {
+			doc.append(KEY_LATEST_SAVE_STATE, latestSaveState.getAsDatabaseFormat());
+		}
+		doc.append(KEY_HAS_LATEST_SAVE_STATE, hasLatestSaveState);
 		return doc;
 	}
 
@@ -140,8 +178,13 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 		userID = doc.getString(KEY_USER_ID);
 		List<Document> playedGameListDoc = doc.getList(KEY_PLAYED_GAMES, Document.class);
 		for (Document gameDoc : playedGameListDoc) {
-			playedGameList.add(new PlayedGameInfo(gameDoc));
+			playedGameList.add(PlayedGameInfo.getGameInfoFromDatabaseFormat(gameDoc));
 		}
+		Document saveStateDoc = doc.get(KEY_LATEST_SAVE_STATE, Document.class);
+		if(saveStateDoc != null) {
+			latestSaveState = new GameSaveState(saveStateDoc);
+		}
+		hasLatestSaveState = doc.getBoolean(KEY_HAS_LATEST_SAVE_STATE, false);
 	}
 
 	@Override

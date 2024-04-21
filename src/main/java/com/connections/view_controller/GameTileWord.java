@@ -26,6 +26,12 @@ public class GameTileWord extends StackPane implements Modular {
 	private Word word;
 	private TileGridWord tileGridWord;
 
+	/*
+	 * NOTE: it is >>NOT<< good that GameTileWord currently has a constructor that
+	 * takes in a Font. GameTileWord needs to set its own font with the
+	 * StyleManager, not the parent. This needs to be fixed later.
+	 */
+
 	public GameTileWord(GameTileWord other) {
 		selected = other.selected;
 		incorrect = other.incorrect;
@@ -113,15 +119,18 @@ public class GameTileWord extends StackPane implements Modular {
 	}
 
 	private void setStyleDefault() {
-		styleTransition(tileGridWord.getGameSessionContext().getStyleManager().colorDefaultRectangle(), tileGridWord.getGameSessionContext().getStyleManager().colorText());
+		styleTransition(tileGridWord.getGameSessionContext().getStyleManager().colorDefaultRectangle(),
+				tileGridWord.getGameSessionContext().getStyleManager().colorText());
 	}
 
 	private void setStyleSelected() {
-		styleTransition(tileGridWord.getGameSessionContext().getStyleManager().colorSelectedRectangle(), tileGridWord.getGameSessionContext().getStyleManager().colorTextInverted());
+		styleTransition(tileGridWord.getGameSessionContext().getStyleManager().colorSelectedRectangle(),
+				tileGridWord.getGameSessionContext().getStyleManager().colorTextInverted());
 	}
 
 	private void setStyleIncorrect() {
-		styleTransition(tileGridWord.getGameSessionContext().getStyleManager().colorIncorrectRectangle(), tileGridWord.getGameSessionContext().getStyleManager().colorTextInverted());
+		styleTransition(tileGridWord.getGameSessionContext().getStyleManager().colorIncorrectRectangle(),
+				tileGridWord.getGameSessionContext().getStyleManager().colorTextInverted());
 	}
 
 	private void styleTransition(Color rectangleFill, Color textFill) {

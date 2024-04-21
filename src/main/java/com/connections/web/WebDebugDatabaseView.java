@@ -23,6 +23,9 @@ public class WebDebugDatabaseView extends VBox {
 	private WebContext webContext;
 	private GridPane gridPane;
 	private Text currentPuzzleNum;
+	private static final int SPACING = 3;
+	private static final int PADDING = 3;
+	private static final double FONT_SIZE_SCALE = 1;
 	
 	public WebDebugDatabaseView(WebContext webContext) {
 		this.webContext = webContext;
@@ -93,8 +96,8 @@ public class WebDebugDatabaseView extends VBox {
 		double maxWidth = 1280;
 		
 		gridPane = new GridPane();
-		gridPane.setHgap(3);
-		gridPane.setVgap(3);
+		gridPane.setHgap(SPACING);
+		gridPane.setVgap(SPACING);
 		
 		gridPane.add(new CookieView(webContext, 500, 100), 0, 0);
 		
@@ -108,23 +111,23 @@ public class WebDebugDatabaseView extends VBox {
 			}
 		}
 		
-		HBox mainControlBox = new HBox(5, initDatabase, clearDatabase, refreshAll);
-		HBox dateControlBox = new HBox(5, dailyPuzzleIncrement, dailyPuzzleIncrementMuch, currentPuzzleNum, dailyPuzzleDateSub, dailyPuzzleDateCheck);
-		HBox gameControlBox = new HBox(5, markTodayGamePlayed);
+		HBox mainControlBox = new HBox(SPACING, initDatabase, clearDatabase, refreshAll);
+		HBox dateControlBox = new HBox(SPACING, dailyPuzzleIncrement, dailyPuzzleIncrementMuch, currentPuzzleNum, dailyPuzzleDateSub, dailyPuzzleDateCheck);
+		HBox gameControlBox = new HBox(SPACING, markTodayGamePlayed);
 		
-		VBox tallControlBox = new VBox(10, mainControlBox, dateControlBox, gameControlBox);
+		VBox tallControlBox = new VBox(SPACING * 2, mainControlBox, dateControlBox, gameControlBox);
 		for(Node node : tallControlBox.getChildren()) {
 			if(node instanceof HBox) {
 				HBox hbox = (HBox) node;
 				hbox.setStyle("-fx-border-color: red;");
-				hbox.setPadding(new Insets(3));
+				hbox.setPadding(new Insets(PADDING));
 			}
 		}
 		
 		getChildren().addAll(title, tallControlBox, gridPane);
 		
-		setPadding(new Insets(5));
-		setSpacing(5);
+		setPadding(new Insets(PADDING));
+		setSpacing(SPACING);
 		setStyle("-fx-border-color: blue;");
 		refreshView();
 	}
@@ -150,7 +153,7 @@ public class WebDebugDatabaseView extends VBox {
 
 		public GroupView(WebContext webContext, String text, double width, double height) {
 			title = new Text(text);
-			title.setFont(Font.font("Arial", 16));
+			title.setFont(Font.font("Arial", (int) (FONT_SIZE_SCALE * 16)));
 			
 			reloadButton = new Button("Refresh View");
 			reloadButton.setOnAction(event -> {
@@ -162,11 +165,11 @@ public class WebDebugDatabaseView extends VBox {
 			});
 			
 			controlBox = new HBox(reloadButton, clearButton);
-			controlBox.setSpacing(5);
+			controlBox.setSpacing(SPACING);
 			
 			contentBox = new VBox();
-			contentBox.setPadding(new Insets(5));
-			contentBox.setSpacing(2);
+			contentBox.setPadding(new Insets(PADDING));
+			contentBox.setSpacing(SPACING);
 			scrollPane = new ScrollPane(contentBox);
 			scrollPane.setPrefHeight(height);
 			scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
@@ -177,14 +180,14 @@ public class WebDebugDatabaseView extends VBox {
 			setPrefWidth(width);
 			
 			this.webContext = webContext;
-			setSpacing(5);
-			setPadding(new Insets(5));
+			setSpacing(SPACING);
+			setPadding(new Insets(PADDING));
 			setStyle("-fx-border-color: blue;");
 		}
 		
 		public static Text makeText(String textString) {
 			Text text = new Text(textString);
-			text.setFont(Font.font("Arial", 10));
+			text.setFont(Font.font("Arial", (int) (FONT_SIZE_SCALE * 10)));
 			return text;
 		}
 		

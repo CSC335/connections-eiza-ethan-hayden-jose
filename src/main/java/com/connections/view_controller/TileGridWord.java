@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import com.connections.model.DifficultyColor;
 import com.connections.model.GameAnswerColor;
+import com.connections.model.GameSaveState;
 import com.connections.model.Word;
 
 import javafx.animation.ParallelTransition;
@@ -23,30 +24,130 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.text.Font;
 import javafx.util.Duration;
 
 public class TileGridWord extends BorderPane implements Modular {
-	protected static final int MAX_SELECTED = 4;
-	protected static final int ROWS = 4;
-	protected static final int COLS = 4;
-	protected static final int GAP = 8;
-	protected static final int PANE_WIDTH = GameTile.RECTANGLE_WIDTH * 4 + GAP * 3;
-	protected static final int PANE_HEIGHT = GameTile.RECTANGLE_HEIGHT * 4 + GAP * 3;
+	public static final int MAX_SELECTED = 4;
+	public static final int ROWS = 4;
+	public static final int COLS = 4;
+	public static final int GAP = 8;
+	public static final int PANE_WIDTH = GameTile.RECTANGLE_WIDTH * 4 + GAP * 3;
+	public static final int PANE_HEIGHT = GameTile.RECTANGLE_HEIGHT * 4 + GAP * 3;
 
 	private GridPane gridPane;
 	private int currentSolvingRow;
 	public int selectedTileWordCount;
-	private List<Set<Word>> previousGuesses = new ArrayList<>();
+	private List<Set<Word>> previousGuesses;
 	private GameSessionContext gameSessionContext;
 	private EventHandler<ActionEvent> onTileWordSelection;
 
+	// NOTE: todo, the GameTileWords need to be responsible for setting their own
+	// fonts, not TileGridWord, but this is here because of the old constructor of
+	// GameTileWord. Remove this later.
+	private Font tileWordFont;
+
 	public TileGridWord(GameSessionContext gameSessionContext) {
 		this.gameSessionContext = gameSessionContext;
+		initAssets();
+	}
+
+	public void loadFromSaveState(GameSaveState gameSaveState) {
+		initAssets();
+		gridPane.getChildren().clear();
+
+		System.out.println("prev guesses " + previousGuesses);
+		System.out.println("prev guesses size " + previousGuesses.size());
+
+		System.out.println("list colors " + gameSaveState.getListColorsSolved());
+
+		System.out.println("grid " + gameSaveState.getGrid());
+
+		List<DifficultyColor> colorsSolvedList = gameSaveState.getListColorsSolved();
+
+		/*
+		 * WARNING, BE CAREFUL: this assumes that there will be no null elements before
+		 * non-null elements (this means that the answer tiles should start from the top
+		 * of the grid, work their way down without any middle gaps or missing answer
+		 * tiles.
+		 */
+		for (DifficultyColor color : colorsSolvedList) {
+			if (color == null) {
+				break;
+			} else {
+				currentSolvingRow++;
+				GameAnswerColor answerColor = gameSessionContext.getGameData().getAnswerForColor(color);
+				GameTileAnswer tileAnswer = new GameTileAnswer(answerColor, this);
+				gridSetTileAnswer(tileAnswer);
+			}
+		}
+
+		for (int row = currentSolvingRow; row < ROWS; row++) {
+			DifficultyColor color = null;
+			if (colorsSolvedList != null && row < colorsSolvedList.size()) {
+				color = colorsSolvedList.get(row);
+			}
+
+			if (color == null) {
+				List<Word> wordsOnRow = gameSaveState.getGrid().get(row);
+
+				for (int col = 0; col < COLS; col++) {
+					GameTileWord tileWord = new GameTileWord(tileWordFont, this);
+					tileWord.setWord(wordsOnRow.get(col));
+					gridPane.add(tileWord, col, row);
+				}
+			}
+		}
+
+
+		List<Set<Word>> previousGuessesFromSave = gameSaveState.getGuesses();
+		previousGuesses = new ArrayList<>();
+		
+		for(Set<Word> guessSetFromSave : previousGuessesFromSave) {
+			Set<Word> guessSetFromTileWord = new HashSet<>();
+			
+			for(Word wordFromSave : guessSetFromSave) {
+				// by default set it to the save copy
+				Word wordFromTileWord = wordFromSave;
+				
+				for(int row = currentSolvingRow; row < ROWS; row++) {
+					for(int col = 0; col < COLS; col++) {
+						Node node = gridGetNode(row, col);
+						if(node instanceof GameTileWord) {
+							GameTileWord tileWord = (GameTileWord) node;
+							if(wordFromSave.equals(tileWord.getWord())) {
+								wordFromTileWord = tileWord.getWord();
+								
+								row = ROWS;
+								col = COLS;
+								break;
+							}
+						}
+					}
+				}
+				
+				guessSetFromTileWord.add(wordFromTileWord);
+			}
+			
+			previousGuesses.add(guessSetFromTileWord);
+		}
+		
+		System.out.println("OLD PREVIOUS GUESSES: " + previousGuessesFromSave);
+		System.out.println("NEW UPDATED GUESSES: " + previousGuesses);
+	}
+
+	private void initAssets() {
+		currentSolvingRow = 0;
+		selectedTileWordCount = 0;
+		previousGuesses = new ArrayList<>();
+		tileWordFont = gameSessionContext.getStyleManager().getFont("franklin-normal", 700, 18);
+
 		gridPane = new GridPane();
 		gridPane.setHgap(GAP);
 		gridPane.setVgap(GAP);
 		gridPane.setAlignment(Pos.CENTER);
 		gridPane.setMaxWidth(PANE_WIDTH);
+
 		setMaxWidth(PANE_WIDTH);
 		setCenter(gridPane);
 		initEmptyTileWords();
@@ -56,7 +157,7 @@ public class TileGridWord extends BorderPane implements Modular {
 		gridPane.getChildren().clear();
 		for (int row = 0; row < ROWS; row++) {
 			for (int col = 0; col < COLS; col++) {
-				gridPane.add(new GameTileWord(gameSessionContext.getStyleManager().getFont("franklin-normal", 700, 18), this), col, row);
+				gridPane.add(new GameTileWord(tileWordFont, this), col, row);
 			}
 		}
 	}
@@ -129,7 +230,8 @@ public class TileGridWord extends BorderPane implements Modular {
 		for (DifficultyColor color : DifficultyColor.getAllColors()) {
 			GameAnswerColor answer = gameSessionContext.getGameData().getAnswerForColor(color);
 			List<String> colorWords = Arrays.asList(answer.getWords());
-			int matchCount = (int) getSelectedWords().stream().filter(word -> colorWords.contains(word.getText())).count();
+			int matchCount = (int) getSelectedWords().stream().filter(word -> colorWords.contains(word.getText()))
+					.count();
 			maxMatchCount = Math.max(maxMatchCount, matchCount);
 		}
 		return maxMatchCount;
@@ -170,6 +272,9 @@ public class TileGridWord extends BorderPane implements Modular {
 		return selectedPieceSet;
 	}
 
+	// These methods require that the saved guesses have sets that have the SAME
+	// REFERENCE / MEMORY ADDRESS as the sets generated by getSelectedWords(), they
+	// are NOT suitable for loading from save state
 	public boolean checkSelectedAlreadyGuessed() {
 		Set<Word> selected = getSelectedWords();
 		return previousGuesses.contains(selected);
@@ -177,7 +282,7 @@ public class TileGridWord extends BorderPane implements Modular {
 
 	public void saveSelectedAsGuess() {
 		Set<Word> selected = getSelectedWords();
-		if(!previousGuesses.contains(selected)) {
+		if (!previousGuesses.contains(selected)) {
 			previousGuesses.add(selected);
 		}
 	}
@@ -216,7 +321,7 @@ public class TileGridWord extends BorderPane implements Modular {
 		for (Node node : gridPane.getChildren()) {
 			if (node instanceof GameTileWord) {
 				GameTileWord tileWord = (GameTileWord) node;
-				if(tileWord.getIncorrectStatus()) {
+				if (tileWord.getIncorrectStatus()) {
 					tileWord.setIncorrectStatus(false);
 				}
 			}
@@ -241,8 +346,7 @@ public class TileGridWord extends BorderPane implements Modular {
 		Set<GameTileWord> selectedTileWords = getSelectedTileWords();
 
 		for (GameTileWord tileWord : selectedTileWords) {
-			TranslateTransition individualShakeTransition = new TranslateTransition(Duration.millis(100),
-					tileWord);
+			TranslateTransition individualShakeTransition = new TranslateTransition(Duration.millis(100), tileWord);
 			individualShakeTransition.setByX(8);
 			individualShakeTransition.setAutoReverse(true);
 			individualShakeTransition.setCycleCount(4);
@@ -257,7 +361,7 @@ public class TileGridWord extends BorderPane implements Modular {
 			}
 		});
 
-		SequentialTransition sequentialTransition  = new SequentialTransition(placeholderPause, shakeTransition);
+		SequentialTransition sequentialTransition = new SequentialTransition(placeholderPause, shakeTransition);
 		return sequentialTransition;
 	}
 
@@ -316,7 +420,7 @@ public class TileGridWord extends BorderPane implements Modular {
 	@Override
 	public void refreshStyle() {
 		for (Node node : gridPane.getChildren()) {
-			if(node instanceof Modular) {
+			if (node instanceof Modular) {
 				Modular stylableNode = (Modular) node;
 				stylableNode.refreshStyle();
 			}
@@ -342,14 +446,14 @@ public class TileGridWord extends BorderPane implements Modular {
 
 	public void incrementSelectedTileWordCount() {
 		selectedTileWordCount++;
-		if(onTileWordSelection != null) {
+		if (onTileWordSelection != null) {
 			onTileWordSelection.handle(new ActionEvent(this, null));
 		}
 	}
 
 	public void decrementSelectedTileWordCount() {
 		selectedTileWordCount--;
-		if(onTileWordSelection != null) {
+		if (onTileWordSelection != null) {
 			onTileWordSelection.handle(new ActionEvent(this, null));
 		}
 	}
@@ -389,46 +493,44 @@ public class TileGridWord extends BorderPane implements Modular {
 			}
 		}
 	}
-	
+
 	public List<List<Word>> getGridAsWords() {
 		List<List<Word>> gridWords = new ArrayList<>();
-		
-		for(int row = 0; row < currentSolvingRow; row++) {
-			gridWords.add(null);
+
+		for (int row = 0; row < currentSolvingRow; row++) {
+			gridWords.add(new ArrayList<>());
 		}
-		
-		for(int row = currentSolvingRow; row < ROWS; row++) {
+
+		for (int row = currentSolvingRow; row < ROWS; row++) {
 			List<Word> wordList = new ArrayList<>();
-			
-			for(int col = 0; col < COLS; col++) {
+
+			for (int col = 0; col < COLS; col++) {
 				Node node = gridGetNode(row, col);
-				if(node instanceof GameTileWord) {
+				if (node instanceof GameTileWord) {
 					GameTileWord tile = (GameTileWord) node;
 					wordList.add(tile.getWord());
-				} else {
-					wordList.add(null);
-				} 
+				}
 			}
-			
+
 			gridWords.add(wordList);
 		}
-		
+
 		return gridWords;
 	}
-	
+
 	public List<DifficultyColor> getColorsSolvedOrdered() {
 		List<DifficultyColor> colorList = new ArrayList<>();
-		
-		for(int row = 0; row < ROWS; row++) {
+
+		for (int row = 0; row < ROWS; row++) {
 			Node node = gridGetNode(row, 0);
-			if(node instanceof GameTileAnswer) {
-				GameTileAnswer tileAnswer = (GameTileAnswer) node; 
+			if (node instanceof GameTileAnswer) {
+				GameTileAnswer tileAnswer = (GameTileAnswer) node;
 				colorList.add(tileAnswer.getGameAnswerColor().getColor());
 			} else {
 				colorList.add(null);
 			}
 		}
-		
+
 		return colorList;
 	}
 }

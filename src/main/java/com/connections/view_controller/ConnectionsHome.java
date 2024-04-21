@@ -1,6 +1,7 @@
 package com.connections.view_controller;
 
 import com.connections.model.GameData;
+import com.connections.model.GameSaveState;
 import com.connections.web.WebContext;
 import com.connections.web.WebContextAccessible;
 import com.connections.web.WebDebugDatabaseView;
@@ -173,8 +174,16 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 				checkSession();
 				GameData gameDataLoadWith = WebUtils.gameGetByPuzzleNumber(webContext,
 						WebUtils.dailyPuzzleNumberGet(webContext));
+				
+//				WebUser user = webSessionContext.getSession().getUser();
+//				GameSaveState saveState = null;
+//				if(user.hasLatestSaveState()) {
+//					saveState = user.getLatestGameSaveState();
+//				}
+				
 				GameSessionContext gameSessionContext = new GameSessionContext(styleManager, gameDataLoadWith,
 						webContext, webSessionContext);
+				
 				gameSession = new GameSession(gameSessionContext);
 				showScreen(gameSession);
 			} catch (Exception e) {

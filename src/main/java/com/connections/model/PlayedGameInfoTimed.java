@@ -5,37 +5,46 @@ import java.util.Set;
 
 import org.bson.Document;
 
+import com.connections.view_controller.GameSession;
 import com.connections.web.DatabaseFormattable;
 
 public class PlayedGameInfoTimed extends PlayedGameInfo implements DatabaseFormattable {
 	public static final String KEY_TIME_LIMIT = "time_limit";
 	public static final String KEY_COMPLETED_BEFORE_LIMIT = "completed";
-	protected int timeLimitMin;
+	protected int timeLimit;
 	protected boolean completedBeforeTimeLimit;
 
 	public PlayedGameInfoTimed(Document doc) {
 		super(doc);
 	}
 	
-	public PlayedGameInfoTimed(int puzzleNumber, int guessCount, int mistakeCount, int connectionCount, int timeCompleted,
-            List<Set<Word>> guesses, boolean won, int timeLimitMin, boolean completedBeforeTimeLimit) {
-		super(puzzleNumber, guessCount, mistakeCount, connectionCount, timeCompleted, guesses, won);
-		this.timeLimitMin = timeLimitMin;
+	public PlayedGameInfoTimed(int puzzleNumber, int mistakesMadeCount, int hintsUsedCount, int connectionCount, int timeCompleted,
+			List<Set<Word>> guesses, boolean won, int timeLimit, boolean completedBeforeTimeLimit) {
+		super(puzzleNumber, mistakesMadeCount, hintsUsedCount, connectionCount, timeCompleted, guesses, won);
+		this.timeLimit = timeLimit;
 		this.completedBeforeTimeLimit = completedBeforeTimeLimit;
 	}
 
-    public int getTimeLimitMin() {
-        return timeLimitMin;
+	/*
+	 * The time limit is in seconds
+	 */
+    public int getTimeLimit() {
+        return timeLimit;
     }
 
     public boolean isCompletedBeforeTimeLimit() {
         return completedBeforeTimeLimit;
     }
+    
+    @Override
+    public GameSession.GameType getGameType() {
+    	return GameSession.GameType.TIME_TRIAL;
+    }
 	
 	@Override
 	public Document getAsDatabaseFormat() {
 		Document doc = super.getAsDatabaseFormat();
-		doc.append(KEY_TIME_LIMIT, timeLimitMin);
+		doc.append(KEY_TIME_LIMIT, timeLimit);
 		doc.append(KEY_COMPLETED_BEFORE_LIMIT, completedBeforeTimeLimit);
 		return doc;
 	}
@@ -43,7 +52,7 @@ public class PlayedGameInfoTimed extends PlayedGameInfo implements DatabaseForma
 	@Override
 	public void loadFromDatabaseFormat(Document doc) {
 		super.loadFromDatabaseFormat(doc);
-		guessCount = doc.getInteger(KEY_TIME_LIMIT, -1);
+		timeLimit = doc.getInteger(KEY_TIME_LIMIT, -1);
 		completedBeforeTimeLimit = doc.getBoolean(KEY_COMPLETED_BEFORE_LIMIT, false);
 	}
 }

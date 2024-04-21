@@ -13,6 +13,7 @@ public class CircleRowPane extends HBox implements Modular {
 	private GameSessionContext gameSessionContext;
 	private Pane circlePane;
 	private Text text;
+	private int numCircles;
 	private final static int START_SIZE = 4;
 
 	public CircleRowPane(String label, GameSessionContext gameSessionContext) {
@@ -33,7 +34,9 @@ public class CircleRowPane extends HBox implements Modular {
 	}
 
 	public boolean removeCircle() {
-		if(circlePane.getChildren().size() > 0) {
+		if (numCircles > 0 && circlePane.getChildren().size() > 0) {
+			numCircles--;
+
 			Circle circle = (Circle) circlePane.getChildren().get(circlePane.getChildren().size() - 1);
 			ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(500), circle);
 			scaleTransition.setFromX(1.0);
@@ -49,19 +52,40 @@ public class CircleRowPane extends HBox implements Modular {
 		return false;
 	}
 
+	/*
+	 * Using a dedicated "numCircles" variable now because relying on the pane for
+	 * the count is not the most up-to-date becuse, when removing the circle, the
+	 * size will only update AFTER the circle has disappeared fully in the
+	 * animation.
+	 */
+
 	public int getNumCircles() {
-		return circlePane.getChildren().size();
+//		return circlePane.getChildren().size();
+		return numCircles;
+	}
+
+	public void setNumCircles(int numCircles) {
+		this.numCircles = numCircles;
+		circlePane.getChildren().clear();
+		for (int i = 0; i < numCircles; i++) {
+			circlePane.getChildren().add(makeCircle(i));
+		}
 	}
 
 	public void resetCircles() {
-		circlePane.getChildren().clear();
-		for (int i = 0; i < START_SIZE; i++) {
-			Circle circle = new Circle(8);
-			circle.setFill(Color.rgb(90, 89, 78));
-			circle.setLayoutX(i * 28 + 10);
-			circle.setLayoutY(circlePane.getPrefHeight() / 2 + 12);
-			circlePane.getChildren().add(circle);
-		}
+		setNumCircles(START_SIZE);
+	}
+
+	private Circle makeCircle(int indexPosition) {
+		Circle circle = new Circle(8);
+		circle.setFill(Color.rgb(90, 89, 78));
+		circle.setLayoutX(indexPosition * 28 + 10);
+		circle.setLayoutY(circlePane.getPrefHeight() / 2 + 12);
+		return circle;
+	}
+
+	public int getMaxNumCircles() {
+		return START_SIZE;
 	}
 
 	@Override
