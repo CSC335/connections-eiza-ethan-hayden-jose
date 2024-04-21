@@ -190,9 +190,9 @@ public class GameSession extends StackPane implements Modular {
 		timeTrialTimerPane.setOnFinishedTimer(event -> {
 			sessionLostTimeTrial();
 		});
-
+		
 		timeTrialTimerLayout = new BorderPane();
-		timeTrialTimerLayout.setBottom(timeTrialTimerPane);
+		timeTrialTimerLayout.setTop(timeTrialTimerPane);
 		timeTrialTimerLayout.setPadding(new Insets(64));
 		BorderPane.setAlignment(timeTrialTimerPane, Pos.CENTER);
 		
