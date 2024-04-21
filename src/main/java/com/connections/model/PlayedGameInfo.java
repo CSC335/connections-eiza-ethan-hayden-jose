@@ -72,7 +72,7 @@ public class PlayedGameInfo implements DatabaseFormattable {
     	return won;
     }
 
-    public List<List<Document>> getGuessesAsDatabaseFormat() {
+    public static List<List<Document>> getGuessesAsDatabaseFormat(List<Set<Word>> guesses) {
         List<List<Document>> wordSetList = new ArrayList<>();
         for (Set<Word> set : guesses) {
         	List<Document> wordList = new ArrayList<>();
@@ -84,21 +84,22 @@ public class PlayedGameInfo implements DatabaseFormattable {
         return wordSetList;
     }
     
-    public void loadGuessesFromDatabaseFormat(List<List<Document>> wordSetList) {
-    	guesses = new ArrayList<>();
+    public static List<Set<Word>>  loadGuessesFromDatabaseFormat(List<List<Document>> wordSetList) {
+    	List<Set<Word>> guessesList = new ArrayList<>();
     	for(List<Document> wordList : wordSetList) {
     		Set<Word> set = new HashSet<>();
     		for(Document wordDoc : wordList) {
     			set.add(new Word(wordDoc));
     		}
-    		guesses.add(set);
+    		guessesList.add(set);
     	}
+    	return guessesList;
     }
 
     public Document getAsDatabaseFormat() {
         Document doc = new Document();
         doc.append(KEY_PUZZLE_NUMBER, puzzleNumber);
-        doc.append(KEY_GUESSES, getGuessesAsDatabaseFormat());
+        doc.append(KEY_GUESSES, getGuessesAsDatabaseFormat(guesses));
         doc.append(KEY_GUESS_COUNT, guessCount);
         doc.append(KEY_MISTAKE_COUNT, mistakeCount);
         doc.append(KEY_CONNECTION_COUNT, connectionCount);
@@ -120,7 +121,7 @@ public class PlayedGameInfo implements DatabaseFormattable {
         guesses = new ArrayList<>();
         Object guessesRetrieved = doc.get(KEY_GUESSES);
         if(guessesRetrieved != null) {
-        	loadGuessesFromDatabaseFormat((List<List<Document>>) guessesRetrieved);
+        	guesses = loadGuessesFromDatabaseFormat((List<List<Document>>) guessesRetrieved);
         }
 	}
 }

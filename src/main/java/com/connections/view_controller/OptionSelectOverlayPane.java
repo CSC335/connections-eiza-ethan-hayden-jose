@@ -37,6 +37,10 @@ public class OptionSelectOverlayPane extends StackPane implements Modular {
 		initAssets();
 	}
 
+	/*
+	 * todo: finish the dark mode support of this class
+	 */
+	
 	private void initAssets() {
 		titleText = new Text("Select a Game Mode");
 		

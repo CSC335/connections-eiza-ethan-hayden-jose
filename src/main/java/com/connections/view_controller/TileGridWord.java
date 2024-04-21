@@ -389,4 +389,46 @@ public class TileGridWord extends BorderPane implements Modular {
 			}
 		}
 	}
+	
+	public List<List<Word>> getGridAsWords() {
+		List<List<Word>> gridWords = new ArrayList<>();
+		
+		for(int row = 0; row < currentSolvingRow; row++) {
+			gridWords.add(null);
+		}
+		
+		for(int row = currentSolvingRow; row < ROWS; row++) {
+			List<Word> wordList = new ArrayList<>();
+			
+			for(int col = 0; col < COLS; col++) {
+				Node node = gridGetNode(row, col);
+				if(node instanceof GameTileWord) {
+					GameTileWord tile = (GameTileWord) node;
+					wordList.add(tile.getWord());
+				} else {
+					wordList.add(null);
+				} 
+			}
+			
+			gridWords.add(wordList);
+		}
+		
+		return gridWords;
+	}
+	
+	public List<DifficultyColor> getColorsSolvedOrdered() {
+		List<DifficultyColor> colorList = new ArrayList<>();
+		
+		for(int row = 0; row < ROWS; row++) {
+			Node node = gridGetNode(row, 0);
+			if(node instanceof GameTileAnswer) {
+				GameTileAnswer tileAnswer = (GameTileAnswer) node; 
+				colorList.add(tileAnswer.getGameAnswerColor().getColor());
+			} else {
+				colorList.add(null);
+			}
+		}
+		
+		return colorList;
+	}
 }

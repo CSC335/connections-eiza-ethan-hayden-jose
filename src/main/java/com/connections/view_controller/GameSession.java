@@ -37,8 +37,8 @@ public class GameSession extends StackPane implements Modular {
 	private static final int MENU_PANE_HEIGHT = NotificationPane.HEIGHT + 10;
 
 	private GameSessionContext gameSessionContext;
-
 	private OptionSelectOverlayPane gameTypeOptionSelector;
+	private CountDownOverlayPane timeTrialCountDownOverlay;
 	private Text mainHeaderText;
 	private BorderPane organizationPane;
 	private StackPane menuPane;
@@ -48,6 +48,8 @@ public class GameSession extends StackPane implements Modular {
 	private CircleRowPane mistakesPane;
 	private HBox gameButtonRowPane;
 	private HBox menuButtonRowPane;
+	
+	private Text countDownText;
 
 	private TileGridAchievement tileGridAchievement;
 
@@ -76,7 +78,7 @@ public class GameSession extends StackPane implements Modular {
 	private GameType gameType;
 
 	public enum GameType {
-		CLASSIC, TIME_TRIAL,
+		CLASSIC, TIME_TRIAL, NONE
 	}
 
 	public GameSession(GameSessionContext gameSessionContext) {
@@ -153,7 +155,6 @@ public class GameSession extends StackPane implements Modular {
 
 		// === NEW STUFF FOR WEB === (will make neater later)
 		int currentPuzzleNumber = gameSessionContext.getGameData().getPuzzleNumber();
-		System.out.println(currentPuzzleNumber);
 		
 		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
 		currentUser.readFromDatabase();
@@ -170,8 +171,11 @@ public class GameSession extends StackPane implements Modular {
 			case "Time Trial":
 				gameType = GameType.TIME_TRIAL;
 				break;
+			default:
+				gameType = GameType.NONE;
 			}
 			organizationPane.setEffect(null);
+			sessionBeginNewGame();
 		});
 		
 		if (!gameAlreadyFinished) {
@@ -180,6 +184,8 @@ public class GameSession extends StackPane implements Modular {
 			getChildren().add(gameTypeOptionSelector);
 			gameTypeOptionSelector.appear();
 		}
+		
+		timeTrialCountDownOverlay = new CountDownOverlayPane(gameSessionContext);
 		// === NEW STUFF FOR WEB ===
 		
 		helperSetGameButtonsDisabled(false);
@@ -291,10 +297,14 @@ public class GameSession extends StackPane implements Modular {
 	// === === === === === === === === === === === ===
 	// === === === === MAIN "SESSION" METHODS
 	// === === === === === === === === === === === ===
-
-	public void sessionBeginNewGame() {
-		gameActive = true;
-		wonGame = false;
+	
+	public void sessionBeginNewGame() {		
+		if(gameType == GameType.CLASSIC) {
+			gameActive = true;
+			wonGame = false;
+		} else if(gameType == GameType.TIME_TRIAL) {
+			helperTimeTrialStartCountdown();
+		}
 	}
 
 	public void sessionReachedEndGame() {
@@ -339,6 +349,22 @@ public class GameSession extends StackPane implements Modular {
 	// === === === === HELPER METHODS
 	// === === === === === === === === === === === ===
 
+	private void helperTimeTrialStartCountdown() {
+		getChildren().add(timeTrialCountDownOverlay);
+		helperSetGameButtonsDisabled(true);
+		tileGridWord.setTileWordDisable(true);
+		
+		timeTrialCountDownOverlay.setOnFinishedCountdown(event -> {
+			gameActive = true;
+			wonGame = false;
+			helperSetGameButtonsDisabled(false);
+			tileGridWord.setTileWordDisable(false);
+			getChildren().remove(timeTrialCountDownOverlay);
+		});
+		
+		timeTrialCountDownOverlay.startCountdown();
+	}
+	
 	private void helperDisplayPopupNotifcation(String message, double width, int duration) {
 		NotificationPane popupNotification = new NotificationPane(message, width, gameSessionContext);
 		menuPane.getChildren().add(0, popupNotification);

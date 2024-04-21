@@ -36,6 +36,8 @@ public class WebUtils {
 	public static final String COLLECTION_ACCOUNT = "account";
 	public static final String COLLECTION_GUEST = "guest";
 
+	public static final String NULL_AS_STRING = "NULL";
+	
 	public static final String KEY_IS_SERVER_INIT = "is_server_init";
 	public static final String KEY_LAST_PUZZLE_DATE = "last_puzzle_date";
 	public static final String KEY_CURRENT_PUZZLE_NUMBER = "today_puzzle_number";
