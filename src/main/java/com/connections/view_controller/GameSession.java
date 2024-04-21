@@ -218,7 +218,9 @@ public class GameSession extends StackPane implements Modular {
 			helperUpdateGameButtonStatus();
 		});
 		gameShuffleButton.setOnAction(event -> {
+			// save the now-shuffled grid into the save state
 			tileGridWord.shuffleTileWords();
+			fastForwardStoreSaveState();
 		});
 		gameSubmitButton.setOnAction(event -> {
 			sessionSubmissionAttempt();
