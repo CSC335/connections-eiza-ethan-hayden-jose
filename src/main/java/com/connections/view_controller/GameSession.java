@@ -205,8 +205,6 @@ public class GameSession extends StackPane implements Modular {
 			}
 		});
 
-<<<<<<< HEAD
-=======
 		timeTrialCountDownOverlay = new CountDownOverlayPane(gameSessionContext);
 		timeTrialTimerPane = new TimerPane(gameSessionContext, 60);
 		timeTrialTimerPane.setOnFinishedTimer(event -> {
@@ -247,7 +245,6 @@ public class GameSession extends StackPane implements Modular {
 			}
 		});
 
->>>>>>> a6b570f5e13f9698ce802a856eb1b0f075792cd1
 		errorUserInGamePane = new ErrorOverlayPane(gameSessionContext);
 		errorUserInGamePane.setHeaderText("Game In Progress");
 		errorUserInGamePane.setBodyText(
@@ -507,11 +504,9 @@ public class GameSession extends StackPane implements Modular {
 			currentUser.readFromDatabase();
 
 			gameAlreadyFinished = currentUser.hasPlayedGameByPuzzleNum(currentPuzzleNumber);
-<<<<<<< HEAD
 
 			helperSetAllInteractablesDisabled(true);
-=======
->>>>>>> a6b570f5e13f9698ce802a856eb1b0f075792cd1
+
 
 			gameActive = false;
 
@@ -773,8 +768,6 @@ public class GameSession extends StackPane implements Modular {
 		menuPane.getChildren().add(0, popupNotification);
 		popupNotification.popup(menuPane, duration);
 	}
-<<<<<<< HEAD
-=======
 
 	private void helperSetMenuButtonsDisabled(boolean disabled) {
 		darkModeToggleMenuButton.setDisable(disabled);
@@ -783,7 +776,6 @@ public class GameSession extends StackPane implements Modular {
 		leaderboardMenuButton.setDisable(disabled);
 		profileMenuButton.setDisable(disabled);
 	}
->>>>>>> a6b570f5e13f9698ce802a856eb1b0f075792cd1
 
 	private void helperSetGameButtonsDisabled(boolean disabled) {
 		if (disabled) {

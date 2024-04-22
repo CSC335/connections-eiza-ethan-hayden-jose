@@ -1,10 +1,10 @@
 package com.connections.view_controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.connections.web.WebUser;
-import com.connections.web.WebUserAccount;
-
+import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
@@ -13,7 +13,12 @@ import javafx.scene.layout.StackPane;
 public class LeaderboardPane extends StackPane implements Modular {
     private GameSessionContext gameSessionContext;
     private GridPane leaderboardGrid;
-    private StyleManager styleManager = new StyleManager();
+    private Label rankLabel;
+    private Label nameLabel;
+    private Label scoreLabel;
+    private List<Label> rankValueLabels;
+    private List<Label> nameValueLabels;
+    private List<Label> scoreValueLabels;
 
     public LeaderboardPane(GameSessionContext gameSessionContext) {
         this.gameSessionContext = gameSessionContext;
@@ -21,22 +26,28 @@ public class LeaderboardPane extends StackPane implements Modular {
         getChildren().add(leaderboardGrid);
     }
 
-	private void initializeLeaderboard() {
+    private void initializeLeaderboard() {
         leaderboardGrid = new GridPane();
         leaderboardGrid.setHgap(10);
         leaderboardGrid.setVgap(5);
         leaderboardGrid.setAlignment(Pos.TOP_CENTER);
 
-        Label rankLabel = new Label("Rank");
+        rankLabel = new Label("Rank");
         rankLabel.setFont(gameSessionContext.getStyleManager().getFont("karnakpro-condensedblack", 36));
-        Label nameLabel = new Label("Name");
+
+        nameLabel = new Label("Name");
         nameLabel.setFont(gameSessionContext.getStyleManager().getFont("karnakpro-condensedblack", 36));
-        Label scoreLabel = new Label("Score");
+
+        scoreLabel = new Label("Score");
         scoreLabel.setFont(gameSessionContext.getStyleManager().getFont("karnakpro-condensedblack", 36));
 
         leaderboardGrid.add(rankLabel, 0, 0);
         leaderboardGrid.add(nameLabel, 1, 0);
         leaderboardGrid.add(scoreLabel, 2, 0);
+
+        rankValueLabels = new ArrayList<>();
+        nameValueLabels = new ArrayList<>();
+        scoreValueLabels = new ArrayList<>();
 
         List<WebUser> topUsers = WebUser.getTopUsers(gameSessionContext.getWebContext(), 5);
 
@@ -45,32 +56,48 @@ public class LeaderboardPane extends StackPane implements Modular {
 
             Label rankValueLabel = new Label(String.valueOf(i + 1) + ".");
             rankValueLabel.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 500, 20));
-            Label nameValueLabel;
+            GridPane.setHalignment(rankValueLabel, HPos.CENTER);
+            rankValueLabels.add(rankValueLabel);
+
+            Label nameValueLabel = new Label(user.getUserName());
+            nameValueLabel.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 500, 20));
+            GridPane.setHalignment(nameValueLabel, HPos.CENTER);
+            nameValueLabels.add(nameValueLabel);
+
             Label scoreValueLabel = new Label(String.valueOf(user.getNumAllGamesForAchievements()));
             scoreValueLabel.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 500, 20));
+            GridPane.setHalignment(scoreValueLabel, HPos.CENTER);
+            scoreValueLabels.add(scoreValueLabel);
 
-
-            if (user instanceof WebUserAccount) {
-                WebUserAccount userAccount = (WebUserAccount) user;
-                nameValueLabel = new Label(userAccount.getUserName());
-            } else {
-                nameValueLabel = new Label("Guest");
-            }
-
-            nameValueLabel.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 500, 20));
             leaderboardGrid.add(rankValueLabel, 0, i + 1);
             leaderboardGrid.add(nameValueLabel, 1, i + 1);
             leaderboardGrid.add(scoreValueLabel, 2, i + 1);
         }
     }
 
-	@Override
-	public void refreshStyle() {
-		// Implement any style refreshing logic here
-	}
+    @Override
+    public void refreshStyle() {
+        StyleManager styleManager = gameSessionContext.getStyleManager();
 
-	@Override
-	public GameSessionContext getGameSessionContext() {
-		return gameSessionContext;
-	}
+        rankLabel.setTextFill(styleManager.colorText());
+        nameLabel.setTextFill(styleManager.colorText());
+        scoreLabel.setTextFill(styleManager.colorText());
+
+        for (Label label : rankValueLabels) {
+            label.setTextFill(styleManager.colorText());
+        }
+
+        for (Label label : nameValueLabels) {
+            label.setTextFill(styleManager.colorText());
+        }
+
+        for (Label label : scoreValueLabels) {
+            label.setTextFill(styleManager.colorText());
+        }
+    }
+
+    @Override
+    public GameSessionContext getGameSessionContext() {
+        return gameSessionContext;
+    }
 }
