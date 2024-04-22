@@ -57,43 +57,26 @@ public class TileGridWord extends BorderPane implements Modular {
 		initAssets();
 		gridPane.getChildren().clear();
 
-		List<DifficultyColor> colorsSolvedList = gameSaveState.getListColorsSolved();
+		initGuessedWordsFromExternalVar(gameSaveState.getGuesses());
 
-		/*
-		 * WARNING, BE CAREFUL: this assumes that there will be no null elements before
-		 * non-null elements (this means that the answer tiles should start from the top
-		 * of the grid, work their way down without any middle gaps or missing answer
-		 * tiles.
-		 */
-		for (DifficultyColor color : colorsSolvedList) {
-			if (color == null) {
-				break;
-			} else {
-				currentSolvingRow++;
-				GameAnswerColor answerColor = gameSessionContext.getGameData().getAnswerForColor(color);
+		for (Set<Word> guessedWordSet : previousGuesses) {
+			GameAnswerColor answerColor = checkMatchingAnswerColor(guessedWordSet);
+			if (answerColor != null) {
 				GameTileAnswer tileAnswer = new GameTileAnswer(answerColor, this);
+				currentSolvingRow++;
 				gridSetTileAnswer(tileAnswer);
 			}
 		}
 
 		for (int row = currentSolvingRow; row < ROWS; row++) {
-			DifficultyColor color = null;
-			if (colorsSolvedList != null && row < colorsSolvedList.size()) {
-				color = colorsSolvedList.get(row);
-			}
+			List<Word> wordsOnRow = gameSaveState.getGrid().get(row);
 
-			if (color == null) {
-				List<Word> wordsOnRow = gameSaveState.getGrid().get(row);
-
-				for (int col = 0; col < COLS; col++) {
-					GameTileWord tileWord = new GameTileWord(tileWordFont, this);
-					tileWord.setWord(wordsOnRow.get(col));
-					gridPane.add(tileWord, col, row);
-				}
+			for (int col = 0; col < COLS; col++) {
+				GameTileWord tileWord = new GameTileWord(tileWordFont, this);
+				tileWord.setWord(wordsOnRow.get(col));
+				gridPane.add(tileWord, col, row);
 			}
 		}
-
-		initGuessedWordsFromExternalVar(gameSaveState.getGuesses());
 	}
 
 	/*
@@ -106,23 +89,22 @@ public class TileGridWord extends BorderPane implements Modular {
 	public void loadFromPlayedGameInfo(PlayedGameInfo playedGameInfo) {
 		initAssets();
 		initGuessedWordsFromExternalVar(playedGameInfo.getGuesses());
-		
-		for(Set<Word> guessedWordSet : previousGuesses) {
+
+		for (Set<Word> guessedWordSet : previousGuesses) {
 			GameAnswerColor answerColor = checkMatchingAnswerColor(guessedWordSet);
-			if(answerColor != null) {
+			if (answerColor != null) {
 				GameTileAnswer tileAnswer = new GameTileAnswer(answerColor, this);
 				currentSolvingRow++;
 				gridSetTileAnswer(tileAnswer);
 			}
 		}
-		
+
 		List<DifficultyColor> remainingColors = getSortedUnansweredDifficultyColor();
-		for(DifficultyColor color : remainingColors) {
+		for (DifficultyColor color : remainingColors) {
 			GameAnswerColor answerColor = gameSessionContext.getGameData().getAnswerForColor(color);
 			GameTileAnswer tileAnswer = new GameTileAnswer(answerColor, this);
 			currentSolvingRow++;
 			gridSetTileAnswer(tileAnswer);
-			
 		}
 	}
 
@@ -284,7 +266,7 @@ public class TileGridWord extends BorderPane implements Modular {
 			List<String> colorWords = Arrays.asList(answer.getWords());
 			int matchCount = (int) words.stream().filter(word -> colorWords.contains(word.getText())).count();
 			maxMatchCount = Math.max(maxMatchCount, matchCount);
-			if(maxMatchCount == 4) {
+			if (maxMatchCount == 4) {
 				return answer;
 			}
 		}

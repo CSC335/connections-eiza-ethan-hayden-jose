@@ -1,5 +1,7 @@
 package com.connections.model;
 
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -9,16 +11,18 @@ import org.bson.Document;
 
 import com.connections.view_controller.GameSession;
 import com.connections.web.DatabaseFormattable;
+import com.connections.web.WebUtils;
 
 public abstract class PlayedGameInfo implements DatabaseFormattable {
 	public static final String KEY_PUZZLE_NUMBER = "puzzle_number";
 	public static final String KEY_MISTAKES_MADE_COUNT = "mistakes_made_count";
 	public static final String KEY_HINTS_USED_COUNT = "hints_used_count";
 	public static final String KEY_CONNECTION_COUNT = "connection_count";
-	public static final String KEY_TIME_COMPLETED = "time_completed";
 	public static final String KEY_GUESSES = "guesses";
 	public static final String KEY_WON = "won";
 	public static final String KEY_GAME_TYPE = "game_type";
+	public static final String KEY_GAME_START_TIME = "game_start_time";
+	public static final String KEY_GAME_END_TIME = "game_end_time";
 
 	// NOTE:
 	// puzzle number is used as unique ID
@@ -27,26 +31,28 @@ public abstract class PlayedGameInfo implements DatabaseFormattable {
 	protected int mistakesMadeCount;
 	protected int hintsUsedCount;
 	protected int connectionCount;
-	protected int timeCompleted;
 	protected List<Set<Word>> guesses;
 	protected boolean won;
 	protected GameSession.GameType gameType;
+	protected ZonedDateTime gameStartTime;
+	protected ZonedDateTime gameEndTime;
 
 	/*
 	 * The time completed is in seconds
 	 */
-	
-	public PlayedGameInfo(int puzzleNumber, int mistakesMadeCount, int hintsUsedCount, int connectionCount, int timeCompleted,
-			List<Set<Word>> guesses, boolean won) {
+
+	public PlayedGameInfo(int puzzleNumber, int mistakesMadeCount, int hintsUsedCount, int connectionCount,
+			List<Set<Word>> guesses, boolean won, ZonedDateTime gameStartTime, ZonedDateTime gameEndTime) {
 		this.puzzleNumber = puzzleNumber;
 		this.mistakesMadeCount = mistakesMadeCount;
 		this.hintsUsedCount = hintsUsedCount;
 		this.connectionCount = connectionCount;
-		this.timeCompleted = timeCompleted;
 		this.guesses = guesses;
 		this.won = won;
+		this.gameStartTime = gameStartTime;
+		this.gameEndTime = gameEndTime;
 	}
-	
+
 	public PlayedGameInfo(Document doc) {
 		loadFromDatabaseFormat(doc);
 	}
@@ -66,9 +72,17 @@ public abstract class PlayedGameInfo implements DatabaseFormattable {
 	public int getConnectionCount() {
 		return connectionCount;
 	}
-
+	
+	public ZonedDateTime getGameStartTime() {
+		return gameStartTime;
+	}
+	
+	public ZonedDateTime getGameEndTime() {
+		return gameEndTime;
+	}
+	
 	public int getTimeCompleted() {
-		return timeCompleted;
+		return (int)(ChronoUnit.SECONDS.between(gameStartTime, gameEndTime));
 	}
 
 	public List<Set<Word>> getGuesses() {
@@ -78,16 +92,16 @@ public abstract class PlayedGameInfo implements DatabaseFormattable {
 	public boolean wasWon() {
 		return won;
 	}
-	
+
 	public abstract GameSession.GameType getGameType();
-	
+
 	public static PlayedGameInfo getGameInfoFromDatabaseFormat(Document doc) {
 		String gameTypeString = doc.getString(KEY_GAME_TYPE);
-		
-		if(gameTypeString != null) {
+
+		if (gameTypeString != null) {
 			GameSession.GameType gameType = GameSession.GameType.valueOf(gameTypeString.toUpperCase());
-			
-			switch(gameType) {
+
+			switch (gameType) {
 			case CLASSIC:
 				return new PlayedGameInfoClassic(doc);
 			case TIME_TRIAL:
@@ -98,12 +112,12 @@ public abstract class PlayedGameInfo implements DatabaseFormattable {
 		}
 		return null;
 	}
-	
+
 	public static List<List<Document>> getGuessesAsDatabaseFormat(List<Set<Word>> guesses) {
-		if(guesses == null) {
+		if (guesses == null) {
 			guesses = new ArrayList<>();
 		}
-		
+
 		List<List<Document>> wordSetList = new ArrayList<>();
 		for (Set<Word> set : guesses) {
 			List<Document> wordList = new ArrayList<>();
@@ -134,7 +148,8 @@ public abstract class PlayedGameInfo implements DatabaseFormattable {
 		doc.append(KEY_MISTAKES_MADE_COUNT, mistakesMadeCount);
 		doc.append(KEY_HINTS_USED_COUNT, hintsUsedCount);
 		doc.append(KEY_CONNECTION_COUNT, connectionCount);
-		doc.append(KEY_TIME_COMPLETED, timeCompleted);
+		doc.append(KEY_GAME_START_TIME, WebUtils.helperDateToString(gameStartTime));
+		doc.append(KEY_GAME_END_TIME, WebUtils.helperDateToString(gameEndTime));
 		doc.append(KEY_WON, won);
 		doc.append(KEY_GAME_TYPE, getGameType().toString().toLowerCase());
 		return doc;
@@ -147,7 +162,8 @@ public abstract class PlayedGameInfo implements DatabaseFormattable {
 		mistakesMadeCount = doc.getInteger(KEY_MISTAKES_MADE_COUNT, -1);
 		hintsUsedCount = doc.getInteger(KEY_HINTS_USED_COUNT, -1);
 		connectionCount = doc.getInteger(KEY_CONNECTION_COUNT, -1);
-		timeCompleted = doc.getInteger(KEY_TIME_COMPLETED, -1);
+		gameStartTime = WebUtils.helperStringToDate(doc.getString(KEY_GAME_START_TIME));
+		gameEndTime = WebUtils.helperStringToDate(doc.getString(KEY_GAME_END_TIME));
 		won = doc.getBoolean(KEY_WON, false);
 
 		// NOTE: gameType does not need to be loaded from the database because it

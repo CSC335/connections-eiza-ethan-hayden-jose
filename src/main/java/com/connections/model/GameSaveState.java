@@ -1,5 +1,6 @@
 package com.connections.model;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -11,9 +12,7 @@ import com.connections.view_controller.CircleRowPane;
 import com.connections.view_controller.GameSession;
 import com.connections.view_controller.GameSessionContext;
 import com.connections.view_controller.TileGridWord;
-import com.connections.view_controller.GameSession.GameType;
 import com.connections.web.DatabaseFormattable;
-import com.connections.web.WebSession;
 import com.connections.web.WebUtils;
 
 public class GameSaveState implements DatabaseFormattable {
@@ -21,21 +20,21 @@ public class GameSaveState implements DatabaseFormattable {
 	public static final String KEY_GRID_WORDS = "grid_words";
 	public static final String KEY_GUESSES = PlayedGameInfo.KEY_GUESSES;
 	public static final String KEY_HINTS_LEFT_COUNT = "hints_left_count";
-	public static final String KEY_LIST_COLORS_SOLVED = "list_colors_solved";
 	public static final String KEY_MISTAKES_LEFT_COUNT = "mistakes_left_count";
 	public static final String KEY_GAME_TYPE = PlayedGameInfo.KEY_GAME_TYPE;
 	public static final String KEY_PUZZLE_NUMBER = PlayedGameInfo.KEY_PUZZLE_NUMBER;
-	public static final String KEY_TIME_COMPLETED = PlayedGameInfo.KEY_TIME_COMPLETED;
+	public static final String KEY_GAME_START_TIME = PlayedGameInfo.KEY_GAME_START_TIME;
+	public static final String KEY_SAVE_STATE_CREATION_TIME = "save_state_creation_time";
 
 	protected boolean gameFinished;
 	protected GameSession.GameType gameType;
 	protected int hintsLeft;
 	protected int mistakesLeft;
 	protected int puzzleNumber;
-	protected List<DifficultyColor> listColorsSolved;
 	protected List<List<Word>> grid;
 	protected List<Set<Word>> guesses;
-	protected int timeCompleted;
+	protected ZonedDateTime gameStartTime;
+	protected ZonedDateTime saveStateCreationTime;
 
 	/*
 	 * NOTE: we will NOT allow the user to resume a game that belongs to some
@@ -53,16 +52,16 @@ public class GameSaveState implements DatabaseFormattable {
 	 */
 	public GameSaveState(TileGridWord tileGridWord, CircleRowPane hintsPane, CircleRowPane mistakesPane,
 			GameSessionContext gameSessionContext, boolean gameFinished, int timeCompleted,
-			GameSession.GameType gameType) {
+			GameSession.GameType gameType, ZonedDateTime gameStartTime) {
 		this.gameFinished = gameFinished;
 		this.gameType = gameType;
 		this.grid = tileGridWord.getGridAsWords();
 		this.guesses = tileGridWord.getGuesses();
 		this.puzzleNumber = gameSessionContext.getGameData().getPuzzleNumber();
 		this.hintsLeft = hintsPane.getNumCircles();
-		this.listColorsSolved = tileGridWord.getColorsSolvedOrdered();
 		this.mistakesLeft = mistakesPane.getNumCircles();
-		this.timeCompleted = timeCompleted;
+		this.gameStartTime = gameStartTime;
+		this.saveStateCreationTime = ZonedDateTime.now();
 	}
 
 	public GameSaveState(Document doc) {
@@ -110,117 +109,6 @@ public class GameSaveState implements DatabaseFormattable {
 		return grid;
 	}
 	
-	public static List<String> getColorsAsDatabaseFormat(List<DifficultyColor> listColorsSolved) {
-		List<String> colorsStringList = new ArrayList<>();
-		
-		if(listColorsSolved == null) {
-			return colorsStringList;
-		}
-		
-		for(DifficultyColor color : listColorsSolved) {
-			if(color == null) {
-				colorsStringList.add(WebUtils.NULL_AS_STRING);
-			} else {
-				colorsStringList.add(color.toString().toLowerCase());
-			}
-		}
-		
-		return colorsStringList;
-	}
-	
-	public static List<DifficultyColor> loadColorsFromDatabaseFormat(List<String> listColorsSolved) {
-		List<DifficultyColor> colorsList = new ArrayList<>();
-		
-		if(listColorsSolved == null) {
-			return colorsList;
-		}
-		
-		for(String colorString : listColorsSolved) {
-			if(colorString != null && !colorString.isEmpty() && !colorString.equals(WebUtils.NULL_AS_STRING)) {
-				colorsList.add(DifficultyColor.valueOf(colorString.toUpperCase()));
-			} else {
-				colorsList.add(null);
-			}
-		}
-		
-		return colorsList;
-	}
-//
-//	public static List<List<Document>> getGridAsDatabaseFormat(List<List<Word>> grid) {
-//		if (grid == null) {
-//			grid = new ArrayList<>();
-//		}
-//		System.out.println("getGridAsDatabaseFormat " + grid);
-//
-//		List<List<Document>> gridDocList = new ArrayList<>();
-//		
-//		for(List<Word> row : grid) {
-//			List<Document> wordList = new ArrayList<>();
-//			if(row != null) {
-//				for (Word word : row) {
-//					wordList.add(word.getAsDatabaseFormat());
-//				}
-//			}
-//			gridDocList.add(wordList);
-//		}
-//		
-//		return gridDocList;
-//	}
-//
-//	public static List<List<Word>> loadGridFromDatabaseFormat(List<List<Document>> gridDocList) {
-//		System.out.println("loadGridFromDatabaseFormat " + gridDocList);
-//		List<List<Word>> grid = new ArrayList<>();
-//		for (List<Document> row : gridDocList) {
-//			if(row.size() == 0) {
-//				grid.add(null);
-//			} else {
-//				List<Word> wordList = new ArrayList<>();
-//				for (Document wordDoc : row) {
-//					wordList.add(new Word(wordDoc));
-//				}
-//				grid.add(wordList);
-//			}
-//		}
-//		return grid;
-//	}
-//
-//	public static Document getColorsAsDatabaseFormat(List<DifficultyColor> listColorsSolved) {
-//		if (listColorsSolved == null) {
-//			listColorsSolved = new ArrayList<>();
-//		}
-//
-//		Document colorListDoc = new Document();
-//		List<String> colorListAsString = new ArrayList<>();
-//
-//		for (DifficultyColor color : listColorsSolved) {
-//			if (color == null) {
-//				colorListAsString.add(WebUtils.NULL_AS_STRING);
-//			} else {
-//				colorListAsString.add(color.toString().toLowerCase());
-//			}
-//		}
-//
-//		colorListDoc.append(KEY_LIST_COLORS_SOLVED, colorListAsString);
-//		return colorListDoc;
-//	}
-//
-//	public static List<DifficultyColor> loadColorsFromDatabaseFormat(Document wordSetList) {
-//		List<DifficultyColor> colorList = new ArrayList<>();
-//		List<String> colorListAsString = wordSetList.getList(KEY_LIST_COLORS_SOLVED, String.class);
-//
-//		if (colorListAsString != null) {
-//			for (String colorString : colorListAsString) {
-//				if(colorString.equals(WebUtils.NULL_AS_STRING)) {
-//					colorList.add(null);
-//				} else {
-//					colorList.add(DifficultyColor.valueOf(colorString.toUpperCase()));
-//				}
-//			}
-//		}
-//
-//		return colorList;
-//	}
-
 	public boolean isGameFinished() {
 		return gameFinished;
 	}
@@ -237,10 +125,6 @@ public class GameSaveState implements DatabaseFormattable {
 		return mistakesLeft;
 	}
 
-	public List<DifficultyColor> getListColorsSolved() {
-		return listColorsSolved;
-	}
-
 	public List<List<Word>> getGrid() {
 		return grid;
 	}
@@ -252,9 +136,13 @@ public class GameSaveState implements DatabaseFormattable {
 	public int getPuzzleNumber() {
 		return puzzleNumber;
 	}
-
-	public int getTimeCompleted() {
-		return timeCompleted;
+	
+	public ZonedDateTime getGameStartTime() {
+		return gameStartTime;
+	}
+	
+	public ZonedDateTime getSaveStateCreationTime() {
+		return saveStateCreationTime;
 	}
 
 	@Override
@@ -265,10 +153,10 @@ public class GameSaveState implements DatabaseFormattable {
 		doc.append(KEY_GRID_WORDS, getGridAsDatabaseFormat(grid));
 		doc.append(KEY_GUESSES, PlayedGameInfo.getGuessesAsDatabaseFormat(guesses));
 		doc.append(KEY_HINTS_LEFT_COUNT, hintsLeft);
-		doc.append(KEY_LIST_COLORS_SOLVED, getColorsAsDatabaseFormat(listColorsSolved));
 		doc.append(KEY_MISTAKES_LEFT_COUNT, mistakesLeft);
 		doc.append(KEY_PUZZLE_NUMBER, puzzleNumber);
-		doc.append(KEY_TIME_COMPLETED, timeCompleted);
+		doc.append(KEY_GAME_START_TIME, WebUtils.helperDateToString(gameStartTime));
+		doc.append(KEY_SAVE_STATE_CREATION_TIME, WebUtils.helperDateToString(saveStateCreationTime));
 
 		return doc;
 	}
@@ -279,8 +167,9 @@ public class GameSaveState implements DatabaseFormattable {
 		hintsLeft = doc.getInteger(KEY_HINTS_LEFT_COUNT, -1);
 		mistakesLeft = doc.getInteger(KEY_MISTAKES_LEFT_COUNT, -1);
 		gameFinished = doc.getBoolean(KEY_GAME_FINISHED, false);
-		timeCompleted = doc.getInteger(KEY_TIME_COMPLETED, -1);
+		gameStartTime = WebUtils.helperStringToDate(doc.getString(KEY_GAME_START_TIME));
 		puzzleNumber = doc.getInteger(KEY_PUZZLE_NUMBER, -1);
+		saveStateCreationTime = WebUtils.helperStringToDate(doc.getString(KEY_SAVE_STATE_CREATION_TIME));
 
 		String gameTypeString = doc.getString(KEY_GAME_TYPE);
 		if (gameTypeString == null) {
@@ -301,12 +190,6 @@ public class GameSaveState implements DatabaseFormattable {
 		Object gridRetrieved = doc.get(KEY_GRID_WORDS);
 		if (gridRetrieved != null) {
 			grid = loadGridFromDatabaseFormat((List<List<Document>>) gridRetrieved);
-		}
-
-		listColorsSolved = new ArrayList<>();
-		List<String> colorsRetrieved = doc.getList(KEY_LIST_COLORS_SOLVED, String.class); 
-		if (colorsRetrieved != null) {
-			listColorsSolved = loadColorsFromDatabaseFormat(colorsRetrieved);
 		}
 	}
 }

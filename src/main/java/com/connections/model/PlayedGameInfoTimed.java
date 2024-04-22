@@ -1,5 +1,6 @@
 package com.connections.model;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -18,9 +19,9 @@ public class PlayedGameInfoTimed extends PlayedGameInfo implements DatabaseForma
 		super(doc);
 	}
 	
-	public PlayedGameInfoTimed(int puzzleNumber, int mistakesMadeCount, int hintsUsedCount, int connectionCount, int timeCompleted,
-			List<Set<Word>> guesses, boolean won, int timeLimit, boolean completedBeforeTimeLimit) {
-		super(puzzleNumber, mistakesMadeCount, hintsUsedCount, connectionCount, timeCompleted, guesses, won);
+	public PlayedGameInfoTimed(int puzzleNumber, int mistakesMadeCount, int hintsUsedCount, int connectionCount,
+			List<Set<Word>> guesses, boolean won, int timeLimit, boolean completedBeforeTimeLimit, ZonedDateTime gameStartTime, ZonedDateTime gameEndTime) {
+		super(puzzleNumber, mistakesMadeCount, hintsUsedCount, connectionCount, guesses, won, gameStartTime, gameEndTime);
 		this.timeLimit = timeLimit;
 		this.completedBeforeTimeLimit = completedBeforeTimeLimit;
 	}

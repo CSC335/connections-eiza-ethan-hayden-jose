@@ -129,10 +129,16 @@ public class WebUtils {
 	}
 
 	public static String helperDateToString(ZonedDateTime date) {
+		if(date == null) {
+			return null;
+		}
 		return date.format(DateTimeFormatter.ISO_ZONED_DATE_TIME);
 	}
 
 	public static ZonedDateTime helperStringToDate(String dateString) {
+		if(dateString == null) {
+			return null;
+		}
 		return ZonedDateTime.parse(dateString, DateTimeFormatter.ISO_ZONED_DATE_TIME);
 	}
 
@@ -339,7 +345,6 @@ public class WebUtils {
 		int mistakeCount = randomGen.nextInt(4);
 		int hintsUsedCount = randomGen.nextInt(4);
 		int connectionCount = randomGen.nextInt(4);
-		int timeCompleted = randomGen.nextInt(10000);
 		boolean won = randomGen.nextBoolean();
 
 		List<Set<Word>> guesses = new ArrayList<>();
@@ -361,7 +366,7 @@ public class WebUtils {
 		}
 
 		PlayedGameInfo sampleGame = new PlayedGameInfoClassic(puzzleNumber, mistakeCount, hintsUsedCount,
-				connectionCount, timeCompleted, guesses, won);
+				connectionCount, guesses, won, ZonedDateTime.now(), ZonedDateTime.now());
 		currentUser.addPlayedGame(sampleGame);
 		currentUser.writeToDatabase();
 	}

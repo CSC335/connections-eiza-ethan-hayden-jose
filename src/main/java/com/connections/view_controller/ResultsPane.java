@@ -3,6 +3,7 @@ package com.connections.view_controller;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -52,7 +53,7 @@ public class ResultsPane extends StackPane implements Modular {
 		this.gameSessionContext = gameSessionContext;
 
 		if (playedGameInfo == null) {
-			playedGameInfo = new PlayedGameInfoClassic(123, 0, 0, 0, 0, new ArrayList<>(), false);
+			playedGameInfo = new PlayedGameInfoClassic(123, 0, 0, 0, new ArrayList<>(), false, ZonedDateTime.now(), ZonedDateTime.now());
 		}
 
 		this.playedGameInfo = playedGameInfo;

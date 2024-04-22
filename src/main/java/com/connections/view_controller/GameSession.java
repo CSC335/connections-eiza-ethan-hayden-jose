@@ -1,5 +1,7 @@
 package com.connections.view_controller;
 
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -16,10 +18,14 @@ import com.connections.model.PlayedGameInfoClassic;
 import com.connections.model.PlayedGameInfoTimed;
 import com.connections.model.Word;
 import com.connections.web.WebUser;
+import com.jpro.webapi.InstanceInfo;
+import com.jpro.webapi.WebAPI;
 
+import javafx.animation.KeyFrame;
 import javafx.animation.ParallelTransition;
 import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
+import javafx.animation.Timeline;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -83,10 +89,16 @@ public class GameSession extends StackPane implements Modular {
 	private boolean gameAlreadyFinished;
 	private boolean ranOutOfTime;
 	private boolean loadedFromSaveState;
+	private boolean isBrowserClosed;
 	private GameType gameType;
+
+	private boolean timeKeepingActive;
+	private ZonedDateTime gameStartDateTime;
+	private ZonedDateTime gameEndDateTime;
 
 	// will be null if the game was not finished yet
 	private PlayedGameInfo playedGameInfo;
+	private GameSaveState loadedSaveState;
 
 	public enum GameType {
 		CLASSIC, TIME_TRIAL, NONE
@@ -169,7 +181,7 @@ public class GameSession extends StackPane implements Modular {
 		organizationPane.setCenter(gameContentPane);
 		organizationPane.setPrefSize(ConnectionsAppLocal.STAGE_WIDTH, ConnectionsAppLocal.STAGE_HEIGHT);
 		organizationPane.setPadding(new Insets(10));
-
+		
 		getChildren().add(organizationPane);
 
 		// === NEW STUFF FOR WEB === (will make neater later)
@@ -178,24 +190,32 @@ public class GameSession extends StackPane implements Modular {
 		gameTypeOptionSelector.addButton("Classic", 68);
 		gameTypeOptionSelector.addButton("Time Trial", 68);
 		gameTypeOptionSelector.setOnDisappear(event -> {
+			organizationPane.setEffect(null);
 			switch (gameTypeOptionSelector.getOptionSelected()) {
 			case "Classic":
 				gameType = GameType.CLASSIC;
+				sessionBeginNewGame();
 				break;
 			case "Time Trial":
 				gameType = GameType.TIME_TRIAL;
+				helperTimeTrialStartCountdown();
 				break;
 			default:
 				gameType = GameType.NONE;
 			}
-			organizationPane.setEffect(null);
-			sessionBeginNewGame();
 		});
 
 		timeTrialCountDownOverlay = new CountDownOverlayPane(gameSessionContext);
-		timeTrialTimerPane = new TimerPane(gameSessionContext, 20);
+		timeTrialTimerPane = new TimerPane(gameSessionContext, TIME_TRIAL_DURATION_SEC);
+		timeTrialTimerPane.setOnSecondPassedBy(event -> {
+			if (gameActive && gameType == GameType.TIME_TRIAL) {
+				fastForwardStoreSaveState();
+			}
+		});
 		timeTrialTimerPane.setOnFinishedTimer(event -> {
-			sessionLostTimeTrial();
+			if (gameType == GameType.TIME_TRIAL) {
+				sessionLostTimeTrial();
+			}
 		});
 
 		timeTrialTimerLayout = new BorderPane();
@@ -205,7 +225,7 @@ public class GameSession extends StackPane implements Modular {
 
 		getChildren().add(0, timeTrialTimerLayout);
 //		gameContentPane.getChildren().add(timeTrialTimerPane);
-
+		
 		// === NEW STUFF FOR WEB ===
 
 //		helperSetGameButtonsDisabled(false);
@@ -331,23 +351,18 @@ public class GameSession extends StackPane implements Modular {
 
 	/*
 	 * can be called at any time, but preferably immediately after the GameSession
-	 * is initialized to avoid unexpected bugs
-	 * MUST BE CALLED IMMEDIATELY AFTER INITIALIZING THE MAIN ASSETS
+	 * is initialized to avoid unexpected bugs MUST BE CALLED IMMEDIATELY AFTER
+	 * INITIALIZING THE MAIN ASSETS
 	 */
 	public void fastForwardLoadSaveState() {
-		System.out.println("fastForwardLoadSaveState: called");
 		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
 		currentUser.readFromDatabase();
 
 		if (currentUser.hasLatestSaveState() && currentUser.getLatestGameSaveState() != null) {
-			System.out.println("fastForwardLoadSaveState: user has latest save state, LOADING...");
-			GameSaveState gameSaveState = currentUser.getLatestGameSaveState();
+			loadedSaveState = currentUser.getLatestGameSaveState();
 			loadedFromSaveState = true;
 
-			System.out.println(gameSaveState.getAsDatabaseFormat());
-			System.out.println(currentPuzzleNumber);	
-			
-			int puzzleNumberInSave = gameSaveState.getPuzzleNumber();
+			int puzzleNumberInSave = loadedSaveState.getPuzzleNumber();
 
 			if (puzzleNumberInSave != currentPuzzleNumber) {
 				System.out.println("ERROR: GameSession was asked to load from the save state, but it cannot because the"
@@ -356,11 +371,11 @@ public class GameSession extends StackPane implements Modular {
 			}
 //			initAssets();
 //			initListeners();
-			hintsPane.setNumCircles(gameSaveState.getHintsLeft());
-			mistakesPane.setNumCircles(gameSaveState.getMistakesLeft());
-			tileGridWord.loadFromSaveState(gameSaveState);
-			gameType = gameSaveState.getGameType();
-
+			hintsPane.setNumCircles(loadedSaveState.getHintsLeft());
+			mistakesPane.setNumCircles(loadedSaveState.getMistakesLeft());
+			tileGridWord.loadFromSaveState(loadedSaveState);
+			gameType = loadedSaveState.getGameType();
+			
 			helperSetGameButtonsDisabled(false);
 			tileGridWord.setTileWordDisable(false);
 
@@ -368,22 +383,34 @@ public class GameSession extends StackPane implements Modular {
 			wonGame = false;
 			ranOutOfTime = false;
 			gameAlreadyFinished = false;
+			
+			java.time.Duration previousGameDuration = java.time.Duration.between(loadedSaveState.getGameStartTime(), loadedSaveState.getSaveStateCreationTime());
+			
+			ZonedDateTime newStartTime = ZonedDateTime.now().minus(previousGameDuration);
+			
+			helperTimeKeepingStart(newStartTime);
 		}
 	}
 
 	public void fastForwardStoreSaveState() {
-		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
+		if(gameActive && !gameAlreadyFinished) {
+			WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
 
-		// implement this later, track the time the user has spent playing for both
-		// classic and time trial
-		int timeCompleted = 0;
+			// implement this later, track the time the user has spent playing for both
+			// classic and time trial
+			int timeCompleted = 0;
 
-		GameSaveState gameSaveState = new GameSaveState(tileGridWord, hintsPane, mistakesPane, gameSessionContext,
-				!gameActive, timeCompleted, gameType);
-
-		currentUser.readFromDatabase();
-		currentUser.setLatestGameSaveState(gameSaveState);
-		currentUser.writeToDatabase();
+			GameSaveState gameSaveState = new GameSaveState(tileGridWord, hintsPane, mistakesPane, gameSessionContext,
+					!gameActive, timeCompleted, gameType, gameStartDateTime);
+			
+			currentUser.readFromDatabase();
+			currentUser.setLatestGameSaveState(gameSaveState);
+			currentUser.writeToDatabase();
+		}
+		
+		if(sessionCheckUserClosedBrowser()) {
+			sessionCloseEverything();
+		}
 	}
 
 	public void fastForwardClearSaveState() {
@@ -397,8 +424,8 @@ public class GameSession extends StackPane implements Modular {
 	}
 
 	/*
-	 * CANNOT be called after loading from a save state
-	 * MUST BE CALLED IMMEDIATELY AFTER INITIALIZING THE MAIN ASSETS
+	 * CANNOT be called after loading from a save state MUST BE CALLED IMMEDIATELY
+	 * AFTER INITIALIZING THE MAIN ASSETS
 	 */
 	public void fastForwardCheckGameFinishedAlready() {
 		if (!loadedFromSaveState && !gameActive) {
@@ -409,24 +436,26 @@ public class GameSession extends StackPane implements Modular {
 			currentUser.readFromDatabase();
 
 			gameAlreadyFinished = currentUser.hasPlayedGameByPuzzleNum(currentPuzzleNumber);
-			
+
 			helperSetGameButtonsDisabled(true);
 			tileGridWord.setTileWordDisable(true);
-			
+
 			gameActive = false;
-			
+
 			if (gameAlreadyFinished) {
 				playedGameInfo = currentUser.getPlayedGameByPuzzleNum(currentPuzzleNumber);
+				gameStartDateTime = playedGameInfo.getGameStartTime();
+				gameEndDateTime = playedGameInfo.getGameEndTime();
 				gameType = playedGameInfo.getGameType();
 				wonGame = playedGameInfo.wasWon();
-				
+
 				tileGridWord.loadFromPlayedGameInfo(playedGameInfo);
-				
-				if(gameType == GameSession.GameType.TIME_TRIAL) {
+
+				if (gameType == GameType.TIME_TRIAL) {
 					PlayedGameInfoTimed playedGameInfoTimed = (PlayedGameInfoTimed) playedGameInfo;
 					ranOutOfTime = !playedGameInfoTimed.isCompletedBeforeTimeLimit();
 				}
-				
+
 				screenDisplayResults();
 				controlsSetViewResultsOnly();
 			} else {
@@ -443,14 +472,11 @@ public class GameSession extends StackPane implements Modular {
 	// === === === === === === === === === === === ===
 
 	public void sessionBeginNewGame() {
-		if (gameType == GameType.CLASSIC) {
-			gameActive = true;
-			wonGame = false;
-			helperSetGameButtonsDisabled(false);
-			tileGridWord.setTileWordDisable(false);
-		} else if (gameType == GameType.TIME_TRIAL) {
-			helperTimeTrialStartCountdown();
-		}
+		helperTimeKeepingStart(ZonedDateTime.now());
+		gameActive = true;
+		wonGame = false;
+		helperSetGameButtonsDisabled(false);
+		tileGridWord.setTileWordDisable(false);
 	}
 
 	public void sessionReachedEndGame() {
@@ -473,20 +499,19 @@ public class GameSession extends StackPane implements Modular {
 		// implement this properly later
 		// this will be tracked for both time trial and classic users for the
 		// leaderboard
-		int timeCompleted = 0;
 
 		switch (gameType) {
 		case CLASSIC:
 			playedGameInfo = new PlayedGameInfoClassic(currentPuzzleNumber, mistakesMadeCount, hintsUsedCount,
-					connectionsMade, timeCompleted, guesses, wonGame);
+					connectionsMade, guesses, wonGame, gameStartDateTime, gameEndDateTime);
 			break;
 		case TIME_TRIAL:
 			playedGameInfo = new PlayedGameInfoTimed(currentPuzzleNumber, mistakesMadeCount, hintsUsedCount,
-					connectionsMade, timeCompleted, guesses, wonGame, timeLimit, !ranOutOfTime);
+					connectionsMade, guesses, wonGame, timeLimit, !ranOutOfTime, gameStartDateTime, gameEndDateTime);
 			break;
 		default:
 		}
-		
+
 		// save the game to the user's list of played games
 		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
 		currentUser.readFromDatabase();
@@ -534,6 +559,10 @@ public class GameSession extends StackPane implements Modular {
 
 		ranOutOfTime = true;
 
+		helperTimeKeepingStop();
+
+		// The timer should already be stopped by helperTimeKeepingStop() but this is
+		// here for good measure
 		if (timeTrialTimerPane.isTimerActive()) {
 			timeTrialTimerPane.stopTimer();
 		}
@@ -554,17 +583,63 @@ public class GameSession extends StackPane implements Modular {
 
 	}
 
+	/*
+	 * This NEEDS to be a lot more assertive: it needs to somehow prevent
+	 * everything from executing further. There should probably be a boolean
+	 * in the GameSessionContext that all objects need to check
+	 */
+	public void sessionCloseEverything() {
+		gameActive = false;
+		helperTimeKeepingStop();
+		try {
+			gameSessionContext.getWebContext().getJProApplication().stop();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public boolean sessionCheckUserClosedBrowser() {
+		WebAPI webAPI = gameSessionContext.getWebContext().getWebAPI();
+		InstanceInfo instanceInfo = webAPI.getInstanceInfo();
+		isBrowserClosed = instanceInfo.isAfk() || instanceInfo.isBackground();
+		return isBrowserClosed;
+	}
+
 	// === === === === === === === === === === === ===
 	// === === === === HELPER METHODS
 	// === === === === === === === === === === === ===
 
-	private void helperTimeTrialStartTimer() {
-		if (timeTrialTimerPane == null) {
-			return;
+	private void helperTimeKeepingStart(ZonedDateTime startTime) {
+		if (!timeKeepingActive) {
+			timeKeepingActive = true;
+			if (gameType == GameType.TIME_TRIAL && timeTrialTimerPane != null && !timeTrialTimerPane.isTimerActive()) {
+				timeTrialTimerLayout.setVisible(true);
+				timeTrialTimerPane.appearAndStart(startTime);
+			}
+			gameStartDateTime = startTime;
+			gameEndDateTime = null;
 		}
+	}
 
-		timeTrialTimerLayout.setVisible(true);
-		timeTrialTimerPane.appearAndStart();
+	private void helperTimeKeepingStop() {
+		if (timeKeepingActive) {
+			timeKeepingActive = false;
+			if (gameType == GameType.TIME_TRIAL && timeTrialTimerPane != null && timeTrialTimerPane.isTimerActive()) {
+				timeTrialTimerPane.stopTimer();
+			}
+			gameEndDateTime = ZonedDateTime.now();
+		}
+	}
+
+	private int helperTimeKeepingGetTimeElapsed() {
+		ZonedDateTime stopTimeToUse;
+		if (gameEndDateTime == null || gameActive) {
+			stopTimeToUse = ZonedDateTime.now();
+		} else {
+			stopTimeToUse = gameEndDateTime;
+		}
+		return (int) (ChronoUnit.SECONDS.between(gameEndDateTime, stopTimeToUse));
 	}
 
 	private void helperTimeTrialStartCountdown() {
@@ -577,12 +652,8 @@ public class GameSession extends StackPane implements Modular {
 		tileGridWord.setTileWordDisable(true);
 
 		timeTrialCountDownOverlay.setOnFinishedCountdown(event -> {
-			gameActive = true;
-			wonGame = false;
-			helperSetGameButtonsDisabled(false);
-			tileGridWord.setTileWordDisable(false);
 			getChildren().remove(timeTrialCountDownOverlay);
-			helperTimeTrialStartTimer();
+			sessionBeginNewGame();
 		});
 
 		timeTrialCountDownOverlay.startCountdown();
@@ -669,6 +740,9 @@ public class GameSession extends StackPane implements Modular {
 		placeholderPause.setOnFinished(event -> {
 			helperSetGameButtonsDisabled(true);
 			tileGridWord.setTileWordDisable(true);
+			if(lostGame) {
+				helperTimeKeepingStop();
+			}
 		});
 
 		ParallelTransition jumpTransition = tileGridWord.getTransitionTileWordJump();
@@ -701,10 +775,6 @@ public class GameSession extends StackPane implements Modular {
 					autoSolveDelay.play();
 					helperSetGameButtonsDisabled(true);
 					tileGridWord.setTileWordDisable(true);
-
-					if (gameType == GameType.TIME_TRIAL) {
-						timeTrialTimerPane.stopTimer();
-					}
 				}
 			} else {
 				if (isOneAway) {
@@ -722,11 +792,16 @@ public class GameSession extends StackPane implements Modular {
 	}
 
 	private SequentialTransition helperCreateAnimationSubmissionCorrect() {
+		boolean wonGameSet = tileGridWord.checkAllCategoriesGuessed();
+		
 		SequentialTransition sequentialCorrectTrans = new SequentialTransition();
 		PauseTransition placeholderPause = new PauseTransition(Duration.millis(5));
 		placeholderPause.setOnFinished(event -> {
 			helperSetGameButtonsDisabled(true);
 			tileGridWord.setTileWordDisable(true);
+			if(wonGameSet) {
+				helperTimeKeepingStop();
+			}
 		});
 
 		ParallelTransition jumpTransition = tileGridWord.getTransitionTileWordJump();
@@ -735,7 +810,7 @@ public class GameSession extends StackPane implements Modular {
 		PauseTransition endPauseTransition = new PauseTransition(Duration.millis(500));
 
 		endPauseTransition.setOnFinished(event -> {
-			if (tileGridWord.checkAllCategoriesGuessed()) {
+			if (wonGameSet) {
 				wonGame = true;
 				sessionReachedEndGame();
 			} else {
@@ -775,7 +850,8 @@ public class GameSession extends StackPane implements Modular {
 			}
 			guesses.add(set);
 		}
-		PlayedGameInfo tempPlayedGame = new PlayedGameInfoClassic(123, 0, 0, 0, 0, guesses, false);
+		PlayedGameInfo tempPlayedGame = new PlayedGameInfoClassic(123, 0, 0, 0, guesses, false, ZonedDateTime.now(),
+				ZonedDateTime.now());
 		resultsPane = new ResultsPane(gameSessionContext, tempPlayedGame);
 		screenDisplayResults();
 	}

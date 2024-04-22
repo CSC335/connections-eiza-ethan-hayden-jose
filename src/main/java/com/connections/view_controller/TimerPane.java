@@ -113,8 +113,8 @@ public class TimerPane extends StackPane implements Modular {
 		}
 	}
 
-	public void restartTimer() {
-		startTime = ZonedDateTime.now();
+	public void restartTimer(ZonedDateTime startTime) {
+		this.startTime = startTime;
 		prevSecondsLeftBuffer = durationSeconds;
 		updateTimerLabel();
 		timerTimeLine.play();
@@ -124,7 +124,7 @@ public class TimerPane extends StackPane implements Modular {
 		justInitialized = false;
 	}
 
-	public void appearAndStart() {
+	public void appearAndStart(ZonedDateTime startTime) {
 		PauseTransition delay = new PauseTransition(Duration.millis(100));
 		delay.setOnFinished(event -> {
 			setVisible(true);
@@ -135,7 +135,7 @@ public class TimerPane extends StackPane implements Modular {
 		fadeIn.setToValue(1.0);
 
 		fadeIn.setOnFinished(event -> {
-			restartTimer();
+			restartTimer(startTime);
 		});
 
 		SequentialTransition sequence = new SequentialTransition(delay, fadeIn);

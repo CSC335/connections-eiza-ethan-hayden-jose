@@ -115,11 +115,6 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 	}
 
 	private void initPane() {
-		System.out.println(webSessionContext.getSession().getSessionID());
-		System.out.println(webSessionContext.getSession().getAsDatabaseFormat());
-		if (webSessionContext.getSession().getUser() != null) {
-			System.out.println(webSessionContext.getSession().getUser().getAsDatabaseFormat());
-		}
 		debugDatabaseViewer = new WebDebugDatabaseView(webContext);
 
 		styleManager = new StyleManager();
