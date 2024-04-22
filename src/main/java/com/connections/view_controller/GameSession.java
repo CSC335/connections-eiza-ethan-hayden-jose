@@ -401,10 +401,10 @@ public class GameSession extends StackPane implements Modular {
 	}
 
 	public void fastForwardUserCurrentlyIngame() {
-//		System.out.println("fastForwardUserCurrentlyIngame");
-//		helperSetAllInteractablesDisabled(true);
-//		displayPaneWithGaussianBlur(errorUserInGamePane);
-//		errorUserInGamePane.appear();
+		System.out.println("fastForwardUserCurrentlyIngame");
+		helperSetAllInteractablesDisabled(true);
+		displayPaneWithGaussianBlur(errorUserInGamePane);
+		errorUserInGamePane.appear();
 	}
 	
 	/*
