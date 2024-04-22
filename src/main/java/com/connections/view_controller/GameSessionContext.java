@@ -10,6 +10,7 @@ public class GameSessionContext {
 	private GameData gameData;
 	private WebContext webContext;
 	private WebSessionContext webSessionContext;
+	private boolean haltEverything;
 //	private GameSaveState gameSaveState;
 
 	/*

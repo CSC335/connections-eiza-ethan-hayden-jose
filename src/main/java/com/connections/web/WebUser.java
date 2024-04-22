@@ -17,12 +17,14 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 	public static final String KEY_PLAYED_GAMES = "played_games";
 	public static final String KEY_LATEST_SAVE_STATE = "latest_game_save_state";
 	public static final String KEY_HAS_LATEST_SAVE_STATE = "has_latest_game_save_state";
+	public static final String KEY_CURRENTLY_IN_GAME = "currently_in_game";
 
 	protected List<PlayedGameInfo> playedGameList;
 	protected String userID;
 	protected WebContext webContext;
 	protected GameSaveState latestSaveState;
 	protected boolean hasLatestSaveState;
+	protected boolean currentlyInGame;
 
 	public WebUser(WebContext webContext) {
 		setWebContext(webContext);
@@ -30,6 +32,7 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 		this.playedGameList = new ArrayList<>();
 		this.latestSaveState = null;
 		this.hasLatestSaveState = false;
+		this.currentlyInGame = false;
 	}
 
 	public WebUser(WebContext webContext, Document doc) {
@@ -43,6 +46,7 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 		this.playedGameList = new ArrayList<>();
 		this.latestSaveState = null;
 		this.hasLatestSaveState = false;
+		this.currentlyInGame = false;
 		readFromDatabase();
 	}
 
@@ -85,6 +89,14 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 	
 	public boolean hasLatestSaveState() {
 		return hasLatestSaveState;
+	}
+
+	public void setCurrentlyInGameStatus(boolean currentlyInGame) {
+		this.currentlyInGame = currentlyInGame; 
+	}
+	
+	public boolean isCurrentlyInGame() {
+		return currentlyInGame;
 	}
 
 	public abstract UserType getType();
@@ -178,6 +190,8 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 			doc.append(KEY_LATEST_SAVE_STATE, latestSaveState.getAsDatabaseFormat());
 		}
 		doc.append(KEY_HAS_LATEST_SAVE_STATE, hasLatestSaveState);
+		doc.append(KEY_CURRENTLY_IN_GAME, currentlyInGame);
+		
 		return doc;
 	}
 
@@ -194,6 +208,7 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 			latestSaveState = new GameSaveState(saveStateDoc);
 		}
 		hasLatestSaveState = doc.getBoolean(KEY_HAS_LATEST_SAVE_STATE, false);
+		currentlyInGame = doc.getBoolean(KEY_CURRENTLY_IN_GAME, false);
 	}
 
 	@Override

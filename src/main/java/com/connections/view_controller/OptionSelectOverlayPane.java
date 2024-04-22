@@ -46,8 +46,6 @@ public class OptionSelectOverlayPane extends StackPane implements Modular {
 		titleText = new Text("Select a Game Mode");
 		
 		blurredBackgroundPane = new Pane();
-//		GaussianBlur gaussianBlur = new GaussianBlur();
-//		blurredBackgroundPane.setEffect(gaussianBlur);
 		blurredBackgroundPane.setOpacity(0.25);
 		blurredBackgroundPane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, null)));
 		
