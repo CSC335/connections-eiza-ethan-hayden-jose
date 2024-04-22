@@ -180,11 +180,6 @@ public class GameSession extends StackPane implements Modular {
 	    menuPane = new StackPane(menuButtonRowPane);
 	    menuPane.setPrefHeight(MENU_PANE_HEIGHT);
 
-	    organizationPane = new BorderPane();
-	    organizationPane.setTop(menuPane);
-	    organizationPane.setCenter(gameContentPane);
-	    organizationPane.setPrefSize(ConnectionsAppLocal.STAGE_WIDTH, ConnectionsAppLocal.STAGE_HEIGHT);
-	    organizationPane.setPadding(new Insets(10));
 		organizationPane = new BorderPane();
 		organizationPane.setTop(menuPane);
 		organizationPane.setCenter(gameContentPane);
@@ -192,8 +187,6 @@ public class GameSession extends StackPane implements Modular {
 		organizationPane.setPadding(new Insets(10));
 
 		getChildren().add(organizationPane);
-
-	    getChildren().add(organizationPane);
 
 	    // === NEW STUFF FOR WEB === (will make neater later)
 
