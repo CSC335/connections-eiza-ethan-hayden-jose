@@ -542,20 +542,4 @@ public class TileGridWord extends BorderPane implements Modular {
 
 		return gridWords;
 	}
-
-	public List<DifficultyColor> getColorsSolvedOrdered() {
-		List<DifficultyColor> colorList = new ArrayList<>();
-
-		for (int row = 0; row < ROWS; row++) {
-			Node node = gridGetNode(row, 0);
-			if (node instanceof GameTileAnswer) {
-				GameTileAnswer tileAnswer = (GameTileAnswer) node;
-				colorList.add(tileAnswer.getGameAnswerColor().getColor());
-			} else {
-				colorList.add(null);
-			}
-		}
-
-		return colorList;
-	}
 }

@@ -4,6 +4,8 @@ import org.bson.Document;
 
 public class WebUserGuest extends WebUser implements WebContextAccessible, DatabaseFormattable, DatabaseInteractable {
 
+	public static final String GUEST_DEFAULT_USER_NAME = "Guest";
+	
 	// it will NOT automatically write to the database
 	public WebUserGuest(WebContext webContext) {
 		super(webContext);
@@ -16,6 +18,11 @@ public class WebUserGuest extends WebUser implements WebContextAccessible, Datab
 
 	public WebUserGuest(WebContext webContext, String userID) {
 		super(webContext, userID);
+	}
+	
+	@Override
+	public String getUserName() {
+		return GUEST_DEFAULT_USER_NAME;
 	}
 
 	@Override

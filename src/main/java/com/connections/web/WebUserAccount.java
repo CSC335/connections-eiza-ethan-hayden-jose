@@ -37,6 +37,7 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 		super(webContext, userID);
 	}
 
+	@Override
 	public String getUserName() {
 		return userName;
 	}
