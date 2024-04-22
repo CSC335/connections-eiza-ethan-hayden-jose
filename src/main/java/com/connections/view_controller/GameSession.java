@@ -65,6 +65,8 @@ public class GameSession extends StackPane implements Modular {
 	private HBox menuButtonRowPane;
 	private TileGridAchievement tileGridAchievement;
 
+	private ErrorOverlayPane errorUserInGamePane;
+	
 	private boolean wonGame;
 	private boolean gameActive;
 
@@ -91,6 +93,7 @@ public class GameSession extends StackPane implements Modular {
 	private boolean ranOutOfTime;
 	private boolean loadedFromSaveState;
 	private boolean isBrowserClosed;
+	private boolean blockedStoringSaveState;
 	private GameType gameType;
 
 	private boolean timeKeepingActive;
@@ -182,6 +185,13 @@ public class GameSession extends StackPane implements Modular {
 	    organizationPane.setCenter(gameContentPane);
 	    organizationPane.setPrefSize(ConnectionsAppLocal.STAGE_WIDTH, ConnectionsAppLocal.STAGE_HEIGHT);
 	    organizationPane.setPadding(new Insets(10));
+		organizationPane = new BorderPane();
+		organizationPane.setTop(menuPane);
+		organizationPane.setCenter(gameContentPane);
+		organizationPane.setPrefSize(ConnectionsAppLocal.STAGE_WIDTH, ConnectionsAppLocal.STAGE_HEIGHT);
+		organizationPane.setPadding(new Insets(10));
+
+		getChildren().add(organizationPane);
 
 	    getChildren().add(organizationPane);
 
@@ -227,7 +237,47 @@ public class GameSession extends StackPane implements Modular {
 	    timeTrialTimerLayout.setTop(timeTrialTimerPane);
 	    timeTrialTimerLayout.setPadding(new Insets(64));
 	    BorderPane.setAlignment(timeTrialTimerPane, Pos.CENTER);
+		gameTypeOptionSelector = new OptionSelectOverlayPane(gameSessionContext);
+		gameTypeOptionSelector.addButton("Classic", 68);
+		gameTypeOptionSelector.addButton("Time Trial", 68);
+		gameTypeOptionSelector.setOnDisappear(event -> {
+			organizationPane.setEffect(null);
+			switch (gameTypeOptionSelector.getOptionSelected()) {
+			case "Classic":
+				gameType = GameType.CLASSIC;
+				sessionBeginNewGame();
+				break;
+			case "Time Trial":
+				gameType = GameType.TIME_TRIAL;
+				helperTimeTrialStartCountdown();
+				break;
+			default:
+				gameType = GameType.NONE;
+			}
+		});
+		
+		errorUserInGamePane = new ErrorOverlayPane(gameSessionContext);
+		errorUserInGamePane.setHeaderText("Game In Progress");
+		errorUserInGamePane.setBodyText("You are currently playing from another browser tab or device under the same user.\nPlease wait until the game is finished and try again.");
 
+		timeTrialCountDownOverlay = new CountDownOverlayPane(gameSessionContext);
+//		timeTrialTimerPane = new TimerPane(gameSessionContext, TIME_TRIAL_DURATION_SEC);
+		timeTrialTimerPane = new TimerPane(gameSessionContext, 7);
+		timeTrialTimerPane.setOnSecondPassedBy(event -> {
+			if (gameActive && gameType == GameType.TIME_TRIAL) {
+				fastForwardStoreSaveState();
+			}
+		});
+		timeTrialTimerPane.setOnFinishedTimer(event -> {
+			if (gameType == GameType.TIME_TRIAL) {
+				sessionLostTimeTrial();
+			}
+		});
+
+		timeTrialTimerLayout = new BorderPane();
+		timeTrialTimerLayout.setTop(timeTrialTimerPane);
+		timeTrialTimerLayout.setPadding(new Insets(64));
+		BorderPane.setAlignment(timeTrialTimerPane, Pos.CENTER);
 	    getChildren().add(0, timeTrialTimerLayout);
 	    // gameContentPane.getChildren().add(timeTrialTimerPane);
 
@@ -347,13 +397,23 @@ public class GameSession extends StackPane implements Modular {
 	public void fastForwardAutoLoad() {
 		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
 		currentUser.readFromDatabase();
-		if (currentUser.hasLatestSaveState()) {
+		if (currentUser.isCurrentlyInGame()) {
+			fastForwardUserCurrentlyIngame();
+		}
+		else if (currentUser.hasLatestSaveState()) {
 			fastForwardLoadSaveState();
 		} else {
 			fastForwardCheckGameFinishedAlready();
 		}
 	}
 
+	public void fastForwardUserCurrentlyIngame() {
+		System.out.println("fastForwardUserCurrentlyIngame");
+		helperSetAllInteractablesDisabled(true);
+		displayPaneWithGaussianBlur(errorUserInGamePane);
+		errorUserInGamePane.appear();
+	}
+	
 	/*
 	 * can be called at any time, but preferably immediately after the GameSession
 	 * is initialized to avoid unexpected bugs MUST BE CALLED IMMEDIATELY AFTER
@@ -383,6 +443,8 @@ public class GameSession extends StackPane implements Modular {
 
 			helperSetGameButtonsDisabled(false);
 			tileGridWord.setTileWordDisable(false);
+//			helperSetGameInteractablesDisabled(false);
+			helperSetAllInteractablesDisabled(false);
 
 			gameActive = true;
 			wonGame = false;
@@ -395,11 +457,12 @@ public class GameSession extends StackPane implements Modular {
 			ZonedDateTime newStartTime = ZonedDateTime.now().minus(previousGameDuration);
 
 			helperTimeKeepingStart(newStartTime);
+			helperSetUserInGameStatus(true);
 		}
 	}
 
 	public void fastForwardStoreSaveState() {
-		if (gameActive && !gameAlreadyFinished) {
+		if (gameActive && !gameAlreadyFinished && !blockedStoringSaveState) {
 			WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
 
 			// implement this later, track the time the user has spent playing for both
@@ -412,6 +475,14 @@ public class GameSession extends StackPane implements Modular {
 			currentUser.readFromDatabase();
 			currentUser.setLatestGameSaveState(gameSaveState);
 			currentUser.writeToDatabase();
+
+			/*
+			 * This is to prevent edge cases where the user loads a state RIGHT before they
+			 * ran out of time
+			 */
+			if (gameType == GameType.TIME_TRIAL && timeTrialTimerPane.getTimeLeft() <= 2) {
+				blockedStoringSaveState = true;
+			}
 		}
 
 		if (sessionCheckUserClosedBrowser()) {
@@ -442,9 +513,8 @@ public class GameSession extends StackPane implements Modular {
 			currentUser.readFromDatabase();
 
 			gameAlreadyFinished = currentUser.hasPlayedGameByPuzzleNum(currentPuzzleNumber);
-
-			helperSetGameButtonsDisabled(true);
-			tileGridWord.setTileWordDisable(true);
+			
+			helperSetAllInteractablesDisabled(true);
 
 			gameActive = false;
 
@@ -465,9 +535,8 @@ public class GameSession extends StackPane implements Modular {
 				screenDisplayResults();
 				controlsSetViewResultsOnly();
 			} else {
-				GaussianBlur blurEffect = new GaussianBlur();
-				organizationPane.setEffect(blurEffect);
-				getChildren().add(gameTypeOptionSelector);
+				helperSetUserInGameStatus(true);
+				displayPaneWithGaussianBlur(gameTypeOptionSelector);
 				gameTypeOptionSelector.appear();
 			}
 		}
@@ -481,16 +550,14 @@ public class GameSession extends StackPane implements Modular {
 		helperTimeKeepingStart(ZonedDateTime.now());
 		gameActive = true;
 		wonGame = false;
-		helperSetGameButtonsDisabled(false);
-		tileGridWord.setTileWordDisable(false);
+		blockedStoringSaveState = false;
+		helperSetGameInteractablesDisabled(false);
 	}
 
 	public void sessionReachedEndGame() {
 		if (gameType == GameType.TIME_TRIAL && timeTrialTimerPane.isVisible()) {
 			timeTrialTimerPane.disappear();
 		}
-
-		fastForwardClearSaveState();
 
 		List<Set<Word>> guesses = tileGridWord.getGuesses();
 		int mistakesMadeCount = mistakesPane.getMaxNumCircles() - mistakesPane.getNumCircles();
@@ -524,12 +591,15 @@ public class GameSession extends StackPane implements Modular {
 		currentUser.addPlayedGame(playedGameInfo);
 		currentUser.writeToDatabase();
 
-		gameActive = false;
+		fastForwardClearSaveState();
 
 		gameActive = false;
 
 		helperSetGameButtonsDisabled(true);
 		tileGridWord.setTileWordDisable(true);
+		helperSetUserInGameStatus(false);
+
+		helperSetGameInteractablesDisabled(true);
 
 		boolean noMistakes = (wonGame == true && tileGridWord.getGuesses().size() == 4);
 		int timeTrialTime = (gameType == GameType.TIME_TRIAL) ? timeTrialTimerPane.getElapsedTime() : 0;
@@ -588,8 +658,7 @@ public class GameSession extends StackPane implements Modular {
 		});
 
 		autoSolveDelay.play();
-		helperSetGameButtonsDisabled(true);
-		tileGridWord.setTileWordDisable(true);
+		helperSetGameInteractablesDisabled(true);
 	}
 
 	public void sessionHintUsed() {
@@ -602,6 +671,9 @@ public class GameSession extends StackPane implements Modular {
 	 * GameSessionContext that all objects need to check
 	 */
 	public void sessionCloseEverything() {
+		if(helperGetUserInGameStatus()) {
+			helperSetUserInGameStatus(false);
+		}
 		gameActive = false;
 		helperTimeKeepingStop();
 		try {
@@ -623,6 +695,29 @@ public class GameSession extends StackPane implements Modular {
 	// === === === === HELPER METHODS
 	// === === === === === === === === === === === ===
 
+	private void helperSetUserInGameStatus(boolean status) {
+		System.out.println("helperSetUserInGameStatus " + status);
+		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
+		currentUser.readFromDatabase();
+		currentUser.setCurrentlyInGameStatus(status);
+		currentUser.writeToDatabase();
+	}
+	
+	private boolean helperGetUserInGameStatus() {
+		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
+		currentUser.readFromDatabase();
+		return currentUser.isCurrentlyInGame();
+	}
+	
+	private void displayPaneWithGaussianBlur(Pane pane) {
+		if(pane == null) {
+			return;
+		}
+		GaussianBlur blurEffect = new GaussianBlur();
+		organizationPane.setEffect(blurEffect);
+		getChildren().add(pane);
+	}
+	
 	private void helperTimeKeepingStart(ZonedDateTime startTime) {
 		if (!timeKeepingActive) {
 			timeKeepingActive = true;
@@ -661,8 +756,7 @@ public class GameSession extends StackPane implements Modular {
 		}
 
 		getChildren().add(timeTrialCountDownOverlay);
-		helperSetGameButtonsDisabled(true);
-		tileGridWord.setTileWordDisable(true);
+		helperSetGameInteractablesDisabled(true);
 
 		timeTrialCountDownOverlay.setOnFinishedCountdown(event -> {
 			getChildren().remove(timeTrialCountDownOverlay);
@@ -670,12 +764,33 @@ public class GameSession extends StackPane implements Modular {
 		});
 
 		timeTrialCountDownOverlay.startCountdown();
+		
+		// just to be safe, viewing the countdown is enough to be considered in game
+	}
+	
+	private void helperSetAllInteractablesDisabled(boolean disabled) {
+		tileGridWord.setTileWordDisable(disabled);
+		helperSetGameButtonsDisabled(disabled);
+		helperSetMenuButtonsDisabled(disabled);
+	}
+	
+	private void helperSetGameInteractablesDisabled(boolean disabled) {
+		tileGridWord.setTileWordDisable(disabled);
+		helperSetGameButtonsDisabled(disabled);
 	}
 
 	private void helperDisplayPopupNotifcation(String message, double width, int duration) {
 		NotificationPane popupNotification = new NotificationPane(message, width, gameSessionContext);
 		menuPane.getChildren().add(0, popupNotification);
 		popupNotification.popup(menuPane, duration);
+	}
+	
+	private void helperSetMenuButtonsDisabled(boolean disabled) {
+		darkModeToggleMenuButton.setDisable(disabled);
+		hintMenuButton.setDisable(disabled);
+		achievementsMenuButton.setDisable(disabled);
+		leaderboardMenuButton.setDisable(disabled);
+		profileMenuButton.setDisable(disabled);
 	}
 
 	private void helperSetGameButtonsDisabled(boolean disabled) {
@@ -753,6 +868,7 @@ public class GameSession extends StackPane implements Modular {
 		placeholderPause.setOnFinished(event -> {
 			helperSetGameButtonsDisabled(true);
 			tileGridWord.setTileWordDisable(true);
+			helperSetGameInteractablesDisabled(true);
 			if (lostGame) {
 				helperTimeKeepingStop();
 			}
@@ -786,15 +902,13 @@ public class GameSession extends StackPane implements Modular {
 					});
 
 					autoSolveDelay.play();
-					helperSetGameButtonsDisabled(true);
-					tileGridWord.setTileWordDisable(true);
+					helperSetGameInteractablesDisabled(true);
 				}
 			} else {
 				if (isOneAway) {
 					helperDisplayPopupNotifcation("One Away...", 96.09, POPUP_DEFAULT_DURATION_MS);
 				}
-				helperSetGameButtonsDisabled(false);
-				tileGridWord.setTileWordDisable(false);
+				helperSetGameInteractablesDisabled(false);
 				fastForwardStoreSaveState();
 			}
 		});
@@ -812,6 +926,7 @@ public class GameSession extends StackPane implements Modular {
 		placeholderPause.setOnFinished(event -> {
 			helperSetGameButtonsDisabled(true);
 			tileGridWord.setTileWordDisable(true);
+			helperSetGameInteractablesDisabled(true);
 			if (wonGameSet) {
 				helperTimeKeepingStop();
 			}
@@ -827,8 +942,7 @@ public class GameSession extends StackPane implements Modular {
 				wonGame = true;
 				sessionReachedEndGame();
 			} else {
-				helperSetGameButtonsDisabled(false);
-				tileGridWord.setTileWordDisable(false);
+				helperSetGameInteractablesDisabled(false);
 				fastForwardStoreSaveState();
 			}
 		});

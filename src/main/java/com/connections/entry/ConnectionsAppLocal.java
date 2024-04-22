@@ -2,6 +2,7 @@ package com.connections.entry;
 
 import com.connections.model.GameData;
 import com.connections.model.GameDataCollection;
+import com.connections.view_controller.ErrorOverlayPane;
 import com.connections.view_controller.GameSession;
 import com.connections.view_controller.GameSession.GameType;
 import com.connections.view_controller.GameSessionContext;
@@ -38,27 +39,34 @@ public class ConnectionsAppLocal extends Application {
 		
 //		ConnectionsLogin gameSession = new ConnectionsLogin(null, null); 
 
-		Text text = new Text("This is ConnectionsAppLocal, keep this for emergency local testing.");
-		BorderPane pane = new BorderPane();
-		pane.setCenter(text);
-		
-		GameSession.GameType gameType = GameSession.GameType.valueOf("CLASSIC");
-		
-		Text testText = new Text("Test " + gameType.toString());
-		
-		BorderPane underneath = new BorderPane();
-		underneath.setCenter(new Text("BLAH BLAH BLAH BLAH"));
-		underneath.setTop(testText);
-		
-		GaussianBlur gaussianBlur = new GaussianBlur();
-		underneath.setEffect(gaussianBlur);
-		
+//		Text text = new Text("This is ConnectionsAppLocal, keep this for emergency local testing.");
+//		BorderPane pane = new BorderPane();
+//		pane.setCenter(text);
+//		
+//		GameSession.GameType gameType = GameSession.GameType.valueOf("CLASSIC");
+//		
+//		Text testText = new Text("Test " + gameType.toString());
+//		
+//		BorderPane underneath = new BorderPane();
+//		underneath.setCenter(new Text("BLAH BLAH BLAH BLAH"));
+//		underneath.setTop(testText);
+//		
+//		GaussianBlur gaussianBlur = new GaussianBlur();
+//		underneath.setEffect(gaussianBlur);
+//		
 		styleManager = new StyleManager();
 		GameSessionContext gameSessionContext = new GameSessionContext(styleManager, null, null, null);
-		TimerPane timerPane = new TimerPane(gameSessionContext, 2);
-		timerPane.appearAndStart();
+//		TimerPane timerPane = new TimerPane(gameSessionContext, 2);
+//		timerPane.appearAndStart();
 		
-		StackPane layers = new StackPane(underneath, pane, timerPane);
+		String header = "Game In Progress";
+		String body = "You are currently playing from another browser tab or device under the same user.\nPlease wait until the game is finished and try again.";
+		
+		ErrorOverlayPane error = new ErrorOverlayPane(gameSessionContext, header, body);
+		error.appear();
+		
+//		StackPane layers = new StackPane(underneath, pane, timerPane);
+		StackPane layers = new StackPane(error);
 		Scene scene = new Scene(layers, STAGE_WIDTH, STAGE_HEIGHT);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Connections");
