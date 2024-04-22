@@ -11,6 +11,7 @@ import com.connections.model.DifficultyColor;
 import com.connections.model.GameAnswerColor;
 import com.connections.model.GameData;
 import com.connections.model.Word;
+import com.connections.web.WebSessionContext;
 import com.connections.web.WebUser;
 
 import javafx.animation.ParallelTransition;
@@ -186,7 +187,7 @@ public class GameSession extends StackPane implements Modular {
 		}
 
 		timeTrialCountDownOverlay = new CountDownOverlayPane(gameSessionContext);
-		timeTrialTimerPane = new TimerPane(gameSessionContext, 20);
+		timeTrialTimerPane = new TimerPane(gameSessionContext, 60);
 		timeTrialTimerPane.setOnFinishedTimer(event -> {
 			sessionLostTimeTrial();
 		});
@@ -326,17 +327,22 @@ public class GameSession extends StackPane implements Modular {
 	}
 
 	public void sessionReachedEndGame() {
-		if(gameType == GameType.TIME_TRIAL && timeTrialTimerPane.isVisible()) {
-			timeTrialTimerPane.disappear();
-		}
-		
-		gameActive = false;
+	    if (gameType == GameType.TIME_TRIAL && timeTrialTimerPane.isVisible()) {
+	        timeTrialTimerPane.disappear();
+	    }
 
-		helperSetGameButtonsDisabled(true);
-		tileGridWord.setTileWordDisable(true);
+	    gameActive = false;
 
-		screenDisplayResults();
-		controlsSetViewResultsOnly();
+	    helperSetGameButtonsDisabled(true);
+	    tileGridWord.setTileWordDisable(true);
+
+	    boolean noMistakes = (wonGame == true && tileGridWord.getGuesses().size() == 4);
+	    int timeTrialTime = (gameType == GameType.TIME_TRIAL) ? timeTrialTimerPane.getElapsedTime() : 0;
+	    WebSessionContext webSessionContext = gameSessionContext.getWebSessionContext();
+	    webSessionContext.getSession().updateUserAchievementData(gameType, noMistakes, timeTrialTime, wonGame);
+
+	    screenDisplayResults();
+	    controlsSetViewResultsOnly();
 	}
 
 	public void sessionSubmissionAttempt() {

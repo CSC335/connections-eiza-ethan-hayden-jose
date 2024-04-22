@@ -2,6 +2,9 @@ package com.connections.web;
 
 import org.bson.Document;
 
+import com.connections.model.DifficultyColor;
+import com.connections.view_controller.GameSession.GameType;
+
 public class WebSession implements WebContextAccessible, DatabaseFormattable, DatabaseInteractable {
 	public static final String KEY_SESSION_ID = "session_id";
 
@@ -223,5 +226,25 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 	public void removeFromDatabase() {
 		WebUtils.helperCollectionDelete(webContext, WebUtils.COLLECTION_SESSION_ID_NAME, WebSession.KEY_SESSION_ID,
 				sessionID);
+	}
+
+	public void updateUserAchievementData(GameType gameType, boolean noMistakes, int timeTrialTime, boolean wonGame) {
+		WebUser user = getUser();
+		if (user != null) {
+			if (gameType == GameType.CLASSIC) {
+				user.incrementRegularGamesCompleted();
+			} else if (gameType == GameType.TIME_TRIAL) {
+				user.incrementTimeTrialsCompleted();
+				if (timeTrialTime < 30 && wonGame) {
+					user.incrementTimeTrialsUnderTimeCompleted();
+				}
+			}
+
+			if (noMistakes) {
+				user.incrementNoMistakesCompleted();
+			}
+
+			user.writeToDatabase();
+		}
 	}
 }

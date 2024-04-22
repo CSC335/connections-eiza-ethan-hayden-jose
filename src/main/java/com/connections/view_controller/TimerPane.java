@@ -51,7 +51,7 @@ public class TimerPane extends StackPane implements Modular {
 	private boolean timerFinished;
 	private boolean timerStopped;
 	private boolean justInitialized;
-
+	
 	public TimerPane(GameSessionContext gameSessionContext, int durationSeconds) {
 		this.gameSessionContext = gameSessionContext;
 		this.durationSeconds = durationSeconds;
@@ -106,6 +106,16 @@ public class TimerPane extends StackPane implements Modular {
 		} else {
 			return getSecondsLeft(endTime);
 		}
+	}
+	
+	public int getElapsedTime() {
+	    if (timerActive) {
+	    	return (int) ChronoUnit.SECONDS.between(startTime, ZonedDateTime.now());
+	    } else if (timerFinished || justInitialized) {
+	        return durationSeconds;
+	    } else {
+	        return (int) ChronoUnit.SECONDS.between(startTime, endTime);
+	    }
 	}
 
 	public void restartTimer() {

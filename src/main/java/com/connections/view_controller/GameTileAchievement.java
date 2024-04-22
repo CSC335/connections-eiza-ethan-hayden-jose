@@ -1,6 +1,7 @@
 package com.connections.view_controller;
 
 import com.connections.model.DifficultyColor;
+import com.connections.web.WebUser;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
@@ -28,12 +29,13 @@ public class GameTileAchievement extends StackPane implements Modular {
     private Rectangle backgroundRectangle;
     private TileGridAchievement tileGridAchievement;
     private DifficultyColor difficultyColor;
+    private int row;
 
-    public GameTileAchievement(DifficultyColor difficultyColor, String achievementDescription, boolean completedStatus,
-                               TileGridAchievement tileGridAchievement) {
+    public GameTileAchievement(DifficultyColor difficultyColor, String achievementDescription,
+                               WebUser user, TileGridAchievement tileGridAchievement, int row) {
+    	this.row = row;
         this.difficultyColor = difficultyColor;
         this.tileGridAchievement = tileGridAchievement;
-        this.completedStatus = completedStatus;
         StyleManager styleManager = tileGridAchievement.getGameSessionContext().getStyleManager();
 
         backgroundRectangle = new Rectangle(GameTile.RECTANGLE_WIDTH, GameTile.RECTANGLE_HEIGHT);
@@ -44,11 +46,7 @@ public class GameTileAchievement extends StackPane implements Modular {
         Text part1 = new Text(parts[0]);
         part1.setFont(styleManager.getFont("franklin-normal", 500, 14));
         Text completedText = new Text("completed");
-        if (completedStatus) {
-            completedText.setFont(styleManager.getFont("franklin-normal", 700, 16));
-        } else {
-            completedText.setFont(styleManager.getFont("franklin-normal", 500, 14));
-        }
+        completedText.setFont(styleManager.getFont("franklin-normal", 500, 14));
         Text part2 = new Text(parts.length > 1 ? parts[1] : "");
         part2.setFont(styleManager.getFont("franklin-normal", 500, 14));
 
@@ -69,12 +67,28 @@ public class GameTileAchievement extends StackPane implements Modular {
 
         getChildren().addAll(backgroundRectangle, textBorderPane);
 
-        setCompleted(completedStatus);
+        setCompleted();
         refreshStyle();
     }
 
-    public void setCompleted(boolean status) {
-        completedStatus = status;
+    private boolean checkAchievementCompletion(WebUser user) {
+        user.readFromDatabase();
+        if (row == 0) {
+            return user.hasCompletedRegularGameAchievement(difficultyColor);
+        } else if (row == 1) {
+            return user.hasCompletedTimeTrialAchievement(difficultyColor);
+        } else if (row == 2) {
+            return user.hasCompletedNoMistakesAchievement(difficultyColor);
+        } else if (row == 3) {
+            return user.hasCompletedTimeTrialUnderTimeAchievement(difficultyColor);
+        } else {
+            return false;
+        }
+    }
+
+    public void setCompleted() {
+        WebUser user = tileGridAchievement.getGameSessionContext().getWebSessionContext().getSession().getUser();
+        completedStatus = checkAchievementCompletion(user);
         refreshStyle();
     }
 
