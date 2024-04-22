@@ -44,7 +44,7 @@ public class WebFXMLController implements Initializable {
 
 	private void entry(Stage stage) {
 		MongoDatabase mongoDatabase = connectDatabase();		
-		WebContext webContext = new WebContext(mongoDatabase, jproApplication.getWebAPI());
+		WebContext webContext = new WebContext(mongoDatabase, jproApplication.getWebAPI(), jproApplication);
 		
 		if(!WebUtils.checkDatabaseInit(webContext)) {
 			System.out.println("CONNECTIONS: WebFXMLController initialized the database.");

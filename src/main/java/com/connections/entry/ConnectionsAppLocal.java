@@ -2,6 +2,8 @@ package com.connections.entry;
 
 import com.connections.model.GameData;
 import com.connections.model.GameDataCollection;
+import com.connections.view_controller.GameSession;
+import com.connections.view_controller.GameSession.GameType;
 import com.connections.view_controller.GameSessionContext;
 import com.connections.view_controller.StyleManager;
 import com.connections.view_controller.TimerPane;
@@ -40,8 +42,13 @@ public class ConnectionsAppLocal extends Application {
 		BorderPane pane = new BorderPane();
 		pane.setCenter(text);
 		
+		GameSession.GameType gameType = GameSession.GameType.valueOf("CLASSIC");
+		
+		Text testText = new Text("Test " + gameType.toString());
+		
 		BorderPane underneath = new BorderPane();
 		underneath.setCenter(new Text("BLAH BLAH BLAH BLAH"));
+		underneath.setTop(testText);
 		
 		GaussianBlur gaussianBlur = new GaussianBlur();
 		underneath.setEffect(gaussianBlur);

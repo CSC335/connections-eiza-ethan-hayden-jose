@@ -3,10 +3,15 @@ package com.connections.view_controller;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import com.connections.model.DifficultyColor;
+import com.connections.model.PlayedGameInfo;
+import com.connections.model.PlayedGameInfoClassic;
+import com.connections.model.PlayedGameInfoTimed;
 import com.connections.model.Word;
 
 import javafx.animation.Animation;
@@ -27,11 +32,8 @@ import javafx.util.Duration;
 
 public class ResultsPane extends StackPane implements Modular {
 	private GameSessionContext gameSessionContext;
-	private boolean wonGame;
-	private int puzzleNumber;
-	private List<Set<Word>> guesses;
+	private PlayedGameInfo playedGameInfo;
 
-	private BorderPane entireLayout;
 	private VBox resultsLayout;
 	private Label titleLabel;
 	private Label puzzleNumberLabel;
@@ -39,31 +41,26 @@ public class ResultsPane extends StackPane implements Modular {
 	private VBox timerLayout;
 	private Label nextPuzzleInLabel;
 	private Label timerLabel;
+	private VBox timeTrialCompletionLayout;
+	private Label gameTypeLabel;
+	private Label timeTrialCompletionLabel;
+	private Label timeTrialTimeLabel;
 	private Timeline timerTimeline;
 	private CircularButton shareButton;
-	private int guessCount;
 	private NotificationPane copiedToClipboardNotification;
 
-	public ResultsPane(GameSessionContext gameSessionContext,  boolean wonGame, int puzzleNumber, int guessCount,
-			List<Set<Word>> guesses) {
+	public ResultsPane(GameSessionContext gameSessionContext, PlayedGameInfo playedGameInfo) {
 		this.gameSessionContext = gameSessionContext;
-		this.wonGame = wonGame;
-		this.puzzleNumber = puzzleNumber;
-		this.guesses = guesses;
-		this.guessCount = guessCount;
+
+		if (playedGameInfo == null) {
+			playedGameInfo = new PlayedGameInfoClassic(123, 0, 0, 0, new ArrayList<>(), false, ZonedDateTime.now(), ZonedDateTime.now());
+		}
+
+		this.playedGameInfo = playedGameInfo;
 		initAssets();
 	}
 
 	private void initAssets() {
-//		int bestWidth = 667;
-//		int bestHeight = 402 + (guessCount * 40) + ((guessCount - 1) * TileGridWord.GAP);
-//		int bestHeight = 282 + (guessCount * 40) + ((guessCount - 1) * TileGridWord.GAP);
-//		int bestHeight = 492 + (guessCount * 40) + ((guessCount - 1) * TileGridWord.GAP);
-//		setMinSize(bestWidth, bestHeight);
-//		setMaxSize(bestWidth, bestHeight);
-
-		entireLayout = new BorderPane();
-
 		resultsLayout = new VBox(0);
 		resultsLayout.setAlignment(Pos.TOP_CENTER);
 
@@ -71,13 +68,10 @@ public class ResultsPane extends StackPane implements Modular {
 		initAttemptsGrid();
 		initNextPuzzleTimer();
 		initShareButton();
+		initGameTypeAndTimeTrialContent();
 
-		resultsLayout.getChildren().addAll(titleLabel, puzzleNumberLabel, attemptsGridPane, timerLayout, shareButton);
-//		entireLayout.setCenter(resultsLayout);
-//		entireLayout.setBottom(shareButton);
-
-		BorderPane.setAlignment(shareButton, Pos.CENTER);
-//		entireLayout.setPadding(new Insets(18));
+		resultsLayout.getChildren().addAll(titleLabel, puzzleNumberLabel, attemptsGridPane, timerLayout,
+				timeTrialCompletionLayout, shareButton);
 
 		getChildren().add(resultsLayout);
 		refreshStyle();
@@ -85,19 +79,17 @@ public class ResultsPane extends StackPane implements Modular {
 
 	private void initHeader() {
 		titleLabel = new Label();
-		if (wonGame && guessCount > 4) {
+		if (playedGameInfo.wasWon() && playedGameInfo.getGuesses().size() > 4) {
 			titleLabel.setText("Solid!");
-		}
-		else if (wonGame && guessCount == 4) {
+		} else if (playedGameInfo.wasWon() && playedGameInfo.getGuesses().size() == 4) {
 			titleLabel.setText("Perfect!");
-		}
-		else {
+		} else {
 			titleLabel.setText("Next Time!");
 		}
 		titleLabel.setFont(gameSessionContext.getStyleManager().getFont("karnakpro-condensedblack", 36));
 		VBox.setMargin(titleLabel, new Insets(80, 0, 0, 0));
 
-		puzzleNumberLabel = new Label("Connections #" + puzzleNumber);
+		puzzleNumberLabel = new Label("Connections #" + playedGameInfo.getPuzzleNumber());
 		puzzleNumberLabel.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 500, 20));
 		VBox.setMargin(titleLabel, new Insets(18, 0, 0, 0));
 	}
@@ -109,7 +101,7 @@ public class ResultsPane extends StackPane implements Modular {
 		VBox.setMargin(attemptsGridPane, new Insets(20, 0, 0, 0));
 
 		int i = 0;
-		for (Set<Word> previousGuess : guesses) {
+		for (Set<Word> previousGuess : playedGameInfo.getGuesses()) {
 			int j = 0;
 			for (Word guess : previousGuess) {
 				DifficultyColor colorCategory = guess.getColor();
@@ -172,11 +164,66 @@ public class ResultsPane extends StackPane implements Modular {
 		});
 	}
 
+	private void initGameTypeAndTimeTrialContent() {
+		gameTypeLabel = new Label("COMPLETED IN CLASSIC MODE");
+		gameTypeLabel.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 600, 20));
+		gameTypeLabel.setAlignment(Pos.CENTER);
+		VBox.setMargin(gameTypeLabel, new Insets(20, 0, 0, 0));
+
+		switch (playedGameInfo.getGameType()) {
+		case CLASSIC:
+			gameTypeLabel.setText("COMPLETED IN CLASSIC MODE");
+			break;
+		case TIME_TRIAL:
+			gameTypeLabel.setText("COMPLETED IN TIME TRIAL MODE");
+			break;
+		default:
+		}
+
+		timeTrialCompletionLabel = new Label("...");
+		timeTrialCompletionLabel.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 600, 20));
+		timeTrialCompletionLabel.setAlignment(Pos.CENTER);
+		VBox.setMargin(timeTrialCompletionLabel, new Insets(20, 0, 0, 0));
+
+		timeTrialTimeLabel = new Label();
+		timeTrialTimeLabel.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 600, 40));
+		timeTrialTimeLabel.setAlignment(Pos.CENTER);
+		VBox.setMargin(timeTrialTimeLabel, new Insets(-10, 0, 0, 0));
+
+		if (playedGameInfo.getGameType() == GameSession.GameType.TIME_TRIAL
+				&& playedGameInfo instanceof PlayedGameInfoTimed) {
+			timeTrialCompletionLabel.setVisible(true);
+			timeTrialTimeLabel.setVisible(true);
+
+			PlayedGameInfoTimed timedGameInfo = (PlayedGameInfoTimed) playedGameInfo;
+
+			if (timedGameInfo.isCompletedBeforeTimeLimit()) {
+				timeTrialCompletionLabel.setText("COMPLETED IN");
+				timeTrialTimeLabel.setText(formatTimeMinSec(timedGameInfo.getTimeCompleted()));
+			} else {
+				timeTrialCompletionLabel.setText("COULD NOT COMPLETE IN");
+				timeTrialTimeLabel.setText(formatTimeMinSec(timedGameInfo.getTimeLimit()));
+			}
+		} else {
+			timeTrialCompletionLabel.setVisible(false);
+			timeTrialTimeLabel.setVisible(false);
+		}
+
+		timeTrialCompletionLayout = new VBox(5, gameTypeLabel, timeTrialCompletionLabel, timeTrialTimeLabel);
+		timeTrialCompletionLayout.setAlignment(Pos.CENTER);
+	}
+
+	private String formatTimeMinSec(int seconds) {
+		int minutes = seconds / 60;
+		int remainingSeconds = seconds % 60;
+		return String.format("%02d:%02d", minutes, remainingSeconds);
+	}
+
 	private void copyResultsToClipboard() {
 		final Clipboard clipboard = Clipboard.getSystemClipboard();
 		final ClipboardContent content = new ClipboardContent();
-		String copiedString = "Connections\nPuzzle #" + puzzleNumber + "\n";
-		for (Set<Word> previousGuess : guesses) {
+		String copiedString = "Connections\nPuzzle #" + playedGameInfo.getPuzzleNumber() + "\n";
+		for (Set<Word> previousGuess : playedGameInfo.getGuesses()) {
 			for (Word guess : previousGuess) {
 				switch (guess.getColor()) {
 				case YELLOW:
@@ -210,7 +257,7 @@ public class ResultsPane extends StackPane implements Modular {
 		puzzleNumberLabel.setTextFill(styleManager.colorText());
 		nextPuzzleInLabel.setTextFill(styleManager.colorText());
 		timerLabel.setTextFill(styleManager.colorText());
-		if(copiedToClipboardNotification != null) {
+		if (copiedToClipboardNotification != null) {
 			copiedToClipboardNotification.refreshStyle();
 		}
 	}

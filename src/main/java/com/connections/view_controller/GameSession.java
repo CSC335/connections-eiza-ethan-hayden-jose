@@ -1,5 +1,7 @@
 package com.connections.view_controller;
 
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -10,13 +12,21 @@ import com.connections.entry.ConnectionsAppLocal;
 import com.connections.model.DifficultyColor;
 import com.connections.model.GameAnswerColor;
 import com.connections.model.GameData;
+import com.connections.model.GameSaveState;
+import com.connections.model.PlayedGameInfo;
+import com.connections.model.PlayedGameInfoClassic;
+import com.connections.model.PlayedGameInfoTimed;
 import com.connections.model.Word;
 import com.connections.web.WebSessionContext;
 import com.connections.web.WebUser;
+import com.jpro.webapi.InstanceInfo;
+import com.jpro.webapi.WebAPI;
 
+import javafx.animation.KeyFrame;
 import javafx.animation.ParallelTransition;
 import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
+import javafx.animation.Timeline;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -36,6 +46,8 @@ import javafx.util.Duration;
 public class GameSession extends StackPane implements Modular {
 	private static final int POPUP_DEFAULT_DURATION_MS = 3000;
 	private static final int MENU_PANE_HEIGHT = NotificationPane.HEIGHT + 10;
+
+	public static final int TIME_TRIAL_DURATION_SEC = 60;
 
 	private GameSessionContext gameSessionContext;
 	private OptionSelectOverlayPane gameTypeOptionSelector;
@@ -74,9 +86,20 @@ public class GameSession extends StackPane implements Modular {
 	private ResultsPane resultsPane;
 	private PopupWrapperPane popupPane;
 
+	private int currentPuzzleNumber;
 	private boolean gameAlreadyFinished;
 	private boolean ranOutOfTime;
+	private boolean loadedFromSaveState;
+	private boolean isBrowserClosed;
 	private GameType gameType;
+
+	private boolean timeKeepingActive;
+	private ZonedDateTime gameStartDateTime;
+	private ZonedDateTime gameEndDateTime;
+
+	// will be null if the game was not finished yet
+	private PlayedGameInfo playedGameInfo;
+	private GameSaveState loadedSaveState;
 
 	public enum GameType {
 		CLASSIC, TIME_TRIAL, NONE
@@ -86,6 +109,7 @@ public class GameSession extends StackPane implements Modular {
 		this.gameSessionContext = gameSessionContext;
 		initAssets();
 		initListeners();
+		fastForwardAutoLoad();
 	}
 
 	// === === === === === === === === === === === ===
@@ -93,129 +117,135 @@ public class GameSession extends StackPane implements Modular {
 	// === === === === === === === === === === === ===
 
 	private void initAssets() {
-		setPrefSize(ConnectionsAppLocal.STAGE_WIDTH, ConnectionsAppLocal.STAGE_HEIGHT);
+	    getChildren().clear();
+	    wonGame = false;
+	    gameActive = false;
+	    ranOutOfTime = false;
 
-		darkModeToggleMenuButton = new DarkModeToggle(gameSessionContext);
+	    currentPuzzleNumber = gameSessionContext.getGameData().getPuzzleNumber();
 
-		tileGridWord = new TileGridWord(gameSessionContext);
-		tileGridWord.initTileWords();
+	    setPrefSize(ConnectionsAppLocal.STAGE_WIDTH, ConnectionsAppLocal.STAGE_HEIGHT);
 
-		tileGridWordAnimationPane = new TileGridWordAnimationOverlay(tileGridWord);
+	    darkModeToggleMenuButton = new DarkModeToggle(gameSessionContext);
 
-		tileGridStackPane = new StackPane(tileGridWord, tileGridWordAnimationPane);
+	    tileGridWord = new TileGridWord(gameSessionContext);
+	    tileGridWord.initTileWords();
 
-		tileGridAchievement = new TileGridAchievement(gameSessionContext);
+	    tileGridWordAnimationPane = new TileGridWordAnimationOverlay(tileGridWord);
 
-		hintMenuButton = new HintMenuButton(gameSessionContext);
+	    tileGridStackPane = new StackPane(tileGridWord, tileGridWordAnimationPane);
 
-		achievementsMenuButton = new AchievementsMenuButton(gameSessionContext);
+	    tileGridAchievement = new TileGridAchievement(gameSessionContext);
 
-		leaderboardMenuButton = new LeaderboardMenuButton(gameSessionContext);
+	    hintMenuButton = new HintMenuButton(gameSessionContext);
 
-		profileMenuButton = new ProfileMenuButton(gameSessionContext);
+	    achievementsMenuButton = new AchievementsMenuButton(gameSessionContext);
 
-		mainHeaderText = new Text("Create four groups of four!");
-		mainHeaderText.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 500, 18));
+	    leaderboardMenuButton = new LeaderboardMenuButton(gameSessionContext);
 
-		hintsPane = new CircleRowPane("Hints remaining:", gameSessionContext);
+	    profileMenuButton = new ProfileMenuButton(gameSessionContext);
 
-		mistakesPane = new CircleRowPane("Mistakes remaining:", gameSessionContext);
+	    mainHeaderText = new Text("Create four groups of four!");
+	    mainHeaderText.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 500, 18));
 
-		gameShuffleButton = new CircularButton("Shuffle", 88, gameSessionContext, false);
+	    hintsPane = new CircleRowPane("Hints remaining:", gameSessionContext);
 
-		gameDeselectButton = new CircularButton("Deselect all", 120, gameSessionContext, false);
+	    mistakesPane = new CircleRowPane("Mistakes remaining:", gameSessionContext);
 
-		gameSubmitButton = new CircularButton("Submit", 88, gameSessionContext, true);
+	    gameShuffleButton = new CircularButton("Shuffle", 88, gameSessionContext, false);
 
-		gameViewResultsButton = new CircularButton("View Results", 160, gameSessionContext, false);
+	    gameDeselectButton = new CircularButton("Deselect all", 120, gameSessionContext, false);
 
-		gameButtonRowPane = new HBox(8);
-		gameButtonRowPane.setAlignment(Pos.CENTER);
-		gameButtonRowPane.getChildren().addAll(gameShuffleButton, gameDeselectButton, gameSubmitButton);
+	    gameSubmitButton = new CircularButton("Submit", 88, gameSessionContext, true);
 
-		menuButtonRowPane = new HBox(10, hintMenuButton, profileMenuButton, leaderboardMenuButton,
-				achievementsMenuButton, darkModeToggleMenuButton);
-		menuButtonRowPane.setAlignment(Pos.CENTER);
-		menuButtonRowPane.setMaxHeight(DarkModeToggle.HEIGHT);
-		menuButtonRowPane.setStyle("-fx-alignment: center-right;");
+	    gameViewResultsButton = new CircularButton("View Results", 160, gameSessionContext, false);
 
-		// exclude the hints pane for now
-		gameContentPane = new VBox(24, mainHeaderText, tileGridStackPane, mistakesPane, gameButtonRowPane);
-		gameContentPane.setAlignment(Pos.CENTER);
+	    gameButtonRowPane = new HBox(8);
+	    gameButtonRowPane.setAlignment(Pos.CENTER);
+	    gameButtonRowPane.getChildren().addAll(gameShuffleButton, gameDeselectButton, gameSubmitButton);
 
-		menuPane = new StackPane(menuButtonRowPane);
-		menuPane.setPrefHeight(MENU_PANE_HEIGHT);
+	    menuButtonRowPane = new HBox(10, hintMenuButton, profileMenuButton, leaderboardMenuButton,
+	            achievementsMenuButton, darkModeToggleMenuButton);
+	    menuButtonRowPane.setAlignment(Pos.CENTER);
+	    menuButtonRowPane.setMaxHeight(DarkModeToggle.HEIGHT);
+	    menuButtonRowPane.setStyle("-fx-alignment: center-right;");
 
-		organizationPane = new BorderPane();
-		organizationPane.setTop(menuPane);
-		organizationPane.setCenter(gameContentPane);
-		organizationPane.setPrefSize(ConnectionsAppLocal.STAGE_WIDTH, ConnectionsAppLocal.STAGE_HEIGHT);
-		organizationPane.setPadding(new Insets(10));
+	    // exclude the hints pane for now
+	    gameContentPane = new VBox(24, mainHeaderText, tileGridStackPane, mistakesPane, gameButtonRowPane);
+	    gameContentPane.setAlignment(Pos.CENTER);
 
-		getChildren().add(organizationPane);
+	    menuPane = new StackPane(menuButtonRowPane);
+	    menuPane.setPrefHeight(MENU_PANE_HEIGHT);
 
-		// === NEW STUFF FOR WEB === (will make neater later)
-		int currentPuzzleNumber = gameSessionContext.getGameData().getPuzzleNumber();
+	    organizationPane = new BorderPane();
+	    organizationPane.setTop(menuPane);
+	    organizationPane.setCenter(gameContentPane);
+	    organizationPane.setPrefSize(ConnectionsAppLocal.STAGE_WIDTH, ConnectionsAppLocal.STAGE_HEIGHT);
+	    organizationPane.setPadding(new Insets(10));
 
-		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
-		currentUser.readFromDatabase();
-		gameAlreadyFinished = currentUser.hasPlayedGameByPuzzleNum(currentPuzzleNumber);
+	    getChildren().add(organizationPane);
 
-		gameTypeOptionSelector = new OptionSelectOverlayPane(gameSessionContext);
-		gameTypeOptionSelector.addButton("Classic", 68);
-		gameTypeOptionSelector.addButton("Time Trial", 68);
-		gameTypeOptionSelector.setOnDisappear(event -> {
-			switch (gameTypeOptionSelector.getOptionSelected()) {
-			case "Classic":
-				gameType = GameType.CLASSIC;
-				break;
-			case "Time Trial":
-				gameType = GameType.TIME_TRIAL;
-				break;
-			default:
-				gameType = GameType.NONE;
-			}
-			organizationPane.setEffect(null);
-			sessionBeginNewGame();
-		});
+	    // === NEW STUFF FOR WEB === (will make neater later)
 
-		if (!gameAlreadyFinished) {
-			GaussianBlur blurEffect = new GaussianBlur();
-			organizationPane.setEffect(blurEffect);
-			getChildren().add(gameTypeOptionSelector);
-			gameTypeOptionSelector.appear();
-		}
+	    gameTypeOptionSelector = new OptionSelectOverlayPane(gameSessionContext);
+	    gameTypeOptionSelector.addButton("Classic", 68);
+	    gameTypeOptionSelector.addButton("Time Trial", 68);
+	    gameTypeOptionSelector.setOnDisappear(event -> {
+	        organizationPane.setEffect(null);
+	        switch (gameTypeOptionSelector.getOptionSelected()) {
+	            case "Classic":
+	                gameType = GameType.CLASSIC;
+	                sessionBeginNewGame();
+	                break;
+	            case "Time Trial":
+	                gameType = GameType.TIME_TRIAL;
+	                helperTimeTrialStartCountdown();
+	                break;
+	            default:
+	                gameType = GameType.NONE;
+	        }
+	    });
 
-		timeTrialCountDownOverlay = new CountDownOverlayPane(gameSessionContext);
-		timeTrialTimerPane = new TimerPane(gameSessionContext, 60);
-		timeTrialTimerPane.setOnFinishedTimer(event -> {
-			sessionLostTimeTrial();
-		});
-		
-		timeTrialTimerLayout = new BorderPane();
-		timeTrialTimerLayout.setTop(timeTrialTimerPane);
-		timeTrialTimerLayout.setPadding(new Insets(64));
-		BorderPane.setAlignment(timeTrialTimerPane, Pos.CENTER);
-		
-		getChildren().add(0, timeTrialTimerLayout);
-//		gameContentPane.getChildren().add(timeTrialTimerPane);
+	    timeTrialCountDownOverlay = new CountDownOverlayPane(gameSessionContext);
+	    timeTrialTimerPane = new TimerPane(gameSessionContext, 60);
+	    timeTrialTimerPane.setOnFinishedTimer(event -> {
+	        sessionLostTimeTrial();
+	    });
+	    timeTrialTimerPane = new TimerPane(gameSessionContext, TIME_TRIAL_DURATION_SEC);
+	    timeTrialTimerPane.setOnSecondPassedBy(event -> {
+	        if (gameActive && gameType == GameType.TIME_TRIAL) {
+	            fastForwardStoreSaveState();
+	        }
+	    });
+	    timeTrialTimerPane.setOnFinishedTimer(event -> {
+	        if (gameType == GameType.TIME_TRIAL) {
+	            sessionLostTimeTrial();
+	        }
+	    });
 
-		// === NEW STUFF FOR WEB ===
+	    timeTrialTimerLayout = new BorderPane();
+	    timeTrialTimerLayout.setTop(timeTrialTimerPane);
+	    timeTrialTimerLayout.setPadding(new Insets(64));
+	    BorderPane.setAlignment(timeTrialTimerPane, Pos.CENTER);
 
-		helperSetGameButtonsDisabled(true);
-		tileGridWord.setTileWordDisable(true);
-		
-//		helperSetGameButtonsDisabled(false);
-		controlsSetNormal();
-		refreshStyle();
+	    getChildren().add(0, timeTrialTimerLayout);
+	    // gameContentPane.getChildren().add(timeTrialTimerPane);
+
+	    // === NEW STUFF FOR WEB ===
+
+	    // helperSetGameButtonsDisabled(false);
+	    controlsSetNormal();
+	    refreshStyle();
 	}
-
+	
 	private void initListeners() {
 		tileGridWord.setOnTileWordSelection(event -> {
 			helperUpdateGameButtonStatus();
 		});
 		gameShuffleButton.setOnAction(event -> {
+			// save the now-shuffled grid into the save state
 			tileGridWord.shuffleTileWords();
+			fastForwardStoreSaveState();
 		});
 		gameSubmitButton.setOnAction(event -> {
 			sessionSubmissionAttempt();
@@ -268,8 +298,7 @@ public class GameSession extends StackPane implements Modular {
 	private void screenDisplayResults() {
 		if (!gameActive) {
 			if (resultsPane == null) {
-				List<Set<Word>> guesses = tileGridWord.getGuesses();
-				resultsPane = new ResultsPane(gameSessionContext, wonGame, 123, guesses.size(), guesses);
+				resultsPane = new ResultsPane(gameSessionContext, playedGameInfo);
 			}
 
 			helperPopupScreen(resultsPane, "");
@@ -312,37 +341,203 @@ public class GameSession extends StackPane implements Modular {
 	}
 
 	// === === === === === === === === === === === ===
+	// === === === === "FAST-FORWARD" METHODS: SAVE-STATE HANDLING
+	// === === === === === === === === === === === ===
+
+	public void fastForwardAutoLoad() {
+		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
+		currentUser.readFromDatabase();
+		if (currentUser.hasLatestSaveState()) {
+			fastForwardLoadSaveState();
+		} else {
+			fastForwardCheckGameFinishedAlready();
+		}
+	}
+
+	/*
+	 * can be called at any time, but preferably immediately after the GameSession
+	 * is initialized to avoid unexpected bugs MUST BE CALLED IMMEDIATELY AFTER
+	 * INITIALIZING THE MAIN ASSETS
+	 */
+	public void fastForwardLoadSaveState() {
+		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
+		currentUser.readFromDatabase();
+
+		if (currentUser.hasLatestSaveState() && currentUser.getLatestGameSaveState() != null) {
+			loadedSaveState = currentUser.getLatestGameSaveState();
+			loadedFromSaveState = true;
+
+			int puzzleNumberInSave = loadedSaveState.getPuzzleNumber();
+
+			if (puzzleNumberInSave != currentPuzzleNumber) {
+				System.out.println("ERROR: GameSession was asked to load from the save state, but it cannot because the"
+						+ " puzzle number (and likely the puzzle itself) of the save state and provided game data are different!");
+				return;
+			}
+//			initAssets();
+//			initListeners();
+			hintsPane.setNumCircles(loadedSaveState.getHintsLeft());
+			mistakesPane.setNumCircles(loadedSaveState.getMistakesLeft());
+			tileGridWord.loadFromSaveState(loadedSaveState);
+			gameType = loadedSaveState.getGameType();
+
+			helperSetGameButtonsDisabled(false);
+			tileGridWord.setTileWordDisable(false);
+
+			gameActive = true;
+			wonGame = false;
+			ranOutOfTime = false;
+			gameAlreadyFinished = false;
+
+			java.time.Duration previousGameDuration = java.time.Duration.between(loadedSaveState.getGameStartTime(),
+					loadedSaveState.getSaveStateCreationTime());
+
+			ZonedDateTime newStartTime = ZonedDateTime.now().minus(previousGameDuration);
+
+			helperTimeKeepingStart(newStartTime);
+		}
+	}
+
+	public void fastForwardStoreSaveState() {
+		if (gameActive && !gameAlreadyFinished) {
+			WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
+
+			// implement this later, track the time the user has spent playing for both
+			// classic and time trial
+			int timeCompleted = 0;
+
+			GameSaveState gameSaveState = new GameSaveState(tileGridWord, hintsPane, mistakesPane, gameSessionContext,
+					!gameActive, timeCompleted, gameType, gameStartDateTime);
+
+			currentUser.readFromDatabase();
+			currentUser.setLatestGameSaveState(gameSaveState);
+			currentUser.writeToDatabase();
+		}
+
+		if (sessionCheckUserClosedBrowser()) {
+			sessionCloseEverything();
+		}
+	}
+
+	public void fastForwardClearSaveState() {
+		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
+		currentUser.readFromDatabase();
+
+		if (currentUser.hasLatestSaveState()) {
+			currentUser.clearLatestGameSaveState();
+			currentUser.writeToDatabase();
+		}
+	}
+
+	/*
+	 * CANNOT be called after loading from a save state MUST BE CALLED IMMEDIATELY
+	 * AFTER INITIALIZING THE MAIN ASSETS
+	 */
+	public void fastForwardCheckGameFinishedAlready() {
+		if (!loadedFromSaveState && !gameActive) {
+//			initAssets();
+//			initListeners();
+
+			WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
+			currentUser.readFromDatabase();
+
+			gameAlreadyFinished = currentUser.hasPlayedGameByPuzzleNum(currentPuzzleNumber);
+
+			helperSetGameButtonsDisabled(true);
+			tileGridWord.setTileWordDisable(true);
+
+			gameActive = false;
+
+			if (gameAlreadyFinished) {
+				playedGameInfo = currentUser.getPlayedGameByPuzzleNum(currentPuzzleNumber);
+				gameStartDateTime = playedGameInfo.getGameStartTime();
+				gameEndDateTime = playedGameInfo.getGameEndTime();
+				gameType = playedGameInfo.getGameType();
+				wonGame = playedGameInfo.wasWon();
+
+				tileGridWord.loadFromPlayedGameInfo(playedGameInfo);
+
+				if (gameType == GameType.TIME_TRIAL) {
+					PlayedGameInfoTimed playedGameInfoTimed = (PlayedGameInfoTimed) playedGameInfo;
+					ranOutOfTime = !playedGameInfoTimed.isCompletedBeforeTimeLimit();
+				}
+
+				screenDisplayResults();
+				controlsSetViewResultsOnly();
+			} else {
+				GaussianBlur blurEffect = new GaussianBlur();
+				organizationPane.setEffect(blurEffect);
+				getChildren().add(gameTypeOptionSelector);
+				gameTypeOptionSelector.appear();
+			}
+		}
+	}
+
+	// === === === === === === === === === === === ===
 	// === === === === MAIN "SESSION" METHODS
 	// === === === === === === === === === === === ===
 
 	public void sessionBeginNewGame() {
-		if (gameType == GameType.CLASSIC) {
-			gameActive = true;
-			wonGame = false;
-			helperSetGameButtonsDisabled(false);
-			tileGridWord.setTileWordDisable(false);
-		} else if (gameType == GameType.TIME_TRIAL) {
-			helperTimeTrialStartCountdown();
-		}
+		helperTimeKeepingStart(ZonedDateTime.now());
+		gameActive = true;
+		wonGame = false;
+		helperSetGameButtonsDisabled(false);
+		tileGridWord.setTileWordDisable(false);
 	}
 
 	public void sessionReachedEndGame() {
-	    if (gameType == GameType.TIME_TRIAL && timeTrialTimerPane.isVisible()) {
-	        timeTrialTimerPane.disappear();
-	    }
+		if (gameType == GameType.TIME_TRIAL && timeTrialTimerPane.isVisible()) {
+			timeTrialTimerPane.disappear();
+		}
 
-	    gameActive = false;
+		fastForwardClearSaveState();
 
-	    helperSetGameButtonsDisabled(true);
-	    tileGridWord.setTileWordDisable(true);
+		List<Set<Word>> guesses = tileGridWord.getGuesses();
+		int mistakesMadeCount = mistakesPane.getMaxNumCircles() - mistakesPane.getNumCircles();
+		int hintsUsedCount = hintsPane.getMaxNumCircles() - hintsPane.getNumCircles();
+		int connectionsMade = tileGridWord.getCurrentSolvingRow();
 
-	    boolean noMistakes = (wonGame == true && tileGridWord.getGuesses().size() == 4);
-	    int timeTrialTime = (gameType == GameType.TIME_TRIAL) ? timeTrialTimerPane.getElapsedTime() : 0;
-	    WebSessionContext webSessionContext = gameSessionContext.getWebSessionContext();
-	    webSessionContext.getSession().updateUserAchievementData(gameType, noMistakes, timeTrialTime, wonGame);
+		// implement this properly later
+		// we will have some static, final constant value that will be used for the time
+		// trial time
+		int timeLimit = TIME_TRIAL_DURATION_SEC;
 
-	    screenDisplayResults();
-	    controlsSetViewResultsOnly();
+		// implement this properly later
+		// this will be tracked for both time trial and classic users for the
+		// leaderboard
+
+		switch (gameType) {
+		case CLASSIC:
+			playedGameInfo = new PlayedGameInfoClassic(currentPuzzleNumber, mistakesMadeCount, hintsUsedCount,
+					connectionsMade, guesses, wonGame, gameStartDateTime, gameEndDateTime);
+			break;
+		case TIME_TRIAL:
+			playedGameInfo = new PlayedGameInfoTimed(currentPuzzleNumber, mistakesMadeCount, hintsUsedCount,
+					connectionsMade, guesses, wonGame, timeLimit, !ranOutOfTime, gameStartDateTime, gameEndDateTime);
+			break;
+		default:
+		}
+
+		// save the game to the user's list of played games
+		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
+		currentUser.readFromDatabase();
+		currentUser.addPlayedGame(playedGameInfo);
+		currentUser.writeToDatabase();
+
+		gameActive = false;
+
+		gameActive = false;
+
+		helperSetGameButtonsDisabled(true);
+		tileGridWord.setTileWordDisable(true);
+
+		boolean noMistakes = (wonGame == true && tileGridWord.getGuesses().size() == 4);
+		int timeTrialTime = (gameType == GameType.TIME_TRIAL) ? timeTrialTimerPane.getElapsedTime() : 0;
+		WebSessionContext webSessionContext = gameSessionContext.getWebSessionContext();
+		webSessionContext.getSession().updateUserAchievementData(gameType, noMistakes, timeTrialTime, wonGame);
+
+		screenDisplayResults();
+		controlsSetViewResultsOnly();
 	}
 
 	public void sessionSubmissionAttempt() {
@@ -368,19 +563,23 @@ public class GameSession extends StackPane implements Modular {
 			}
 		}
 	}
-	
+
 	public void sessionLostTimeTrial() {
 		// to prevent you "losing" after finishing on time somehow
-		if(wonGame || gameType != GameType.TIME_TRIAL) {
+		if (wonGame || gameType != GameType.TIME_TRIAL) {
 			return;
 		}
-		
+
 		ranOutOfTime = true;
-		
-		if(timeTrialTimerPane.isTimerActive()) {
+
+		helperTimeKeepingStop();
+
+		// The timer should already be stopped by helperTimeKeepingStop() but this is
+		// here for good measure
+		if (timeTrialTimerPane.isTimerActive()) {
 			timeTrialTimerPane.stopTimer();
 		}
-		
+
 		helperDisplayPopupNotifcation("Time's Up!", 88.13, POPUP_DEFAULT_DURATION_MS);
 
 		PauseTransition autoSolveDelay = new PauseTransition(Duration.millis(5000));
@@ -397,17 +596,63 @@ public class GameSession extends StackPane implements Modular {
 
 	}
 
+	/*
+	 * This NEEDS to be a lot more assertive: it needs to somehow prevent everything
+	 * from executing further. There should probably be a boolean in the
+	 * GameSessionContext that all objects need to check
+	 */
+	public void sessionCloseEverything() {
+		gameActive = false;
+		helperTimeKeepingStop();
+		try {
+			gameSessionContext.getWebContext().getJProApplication().stop();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public boolean sessionCheckUserClosedBrowser() {
+		WebAPI webAPI = gameSessionContext.getWebContext().getWebAPI();
+		InstanceInfo instanceInfo = webAPI.getInstanceInfo();
+		isBrowserClosed = instanceInfo.isAfk() || instanceInfo.isBackground();
+		return isBrowserClosed;
+	}
+
 	// === === === === === === === === === === === ===
 	// === === === === HELPER METHODS
 	// === === === === === === === === === === === ===
 
-	private void helperTimeTrialStartTimer() {
-		if (timeTrialTimerPane == null) {
-			return;
+	private void helperTimeKeepingStart(ZonedDateTime startTime) {
+		if (!timeKeepingActive) {
+			timeKeepingActive = true;
+			if (gameType == GameType.TIME_TRIAL && timeTrialTimerPane != null && !timeTrialTimerPane.isTimerActive()) {
+				timeTrialTimerLayout.setVisible(true);
+				timeTrialTimerPane.appearAndStart(startTime);
+			}
+			gameStartDateTime = startTime;
+			gameEndDateTime = null;
 		}
+	}
 
-		timeTrialTimerLayout.setVisible(true);
-		timeTrialTimerPane.appearAndStart();
+	private void helperTimeKeepingStop() {
+		if (timeKeepingActive) {
+			timeKeepingActive = false;
+			if (gameType == GameType.TIME_TRIAL && timeTrialTimerPane != null && timeTrialTimerPane.isTimerActive()) {
+				timeTrialTimerPane.stopTimer();
+			}
+			gameEndDateTime = ZonedDateTime.now();
+		}
+	}
+
+	private int helperTimeKeepingGetTimeElapsed() {
+		ZonedDateTime stopTimeToUse;
+		if (gameEndDateTime == null || gameActive) {
+			stopTimeToUse = ZonedDateTime.now();
+		} else {
+			stopTimeToUse = gameEndDateTime;
+		}
+		return (int) (ChronoUnit.SECONDS.between(gameEndDateTime, stopTimeToUse));
 	}
 
 	private void helperTimeTrialStartCountdown() {
@@ -420,12 +665,8 @@ public class GameSession extends StackPane implements Modular {
 		tileGridWord.setTileWordDisable(true);
 
 		timeTrialCountDownOverlay.setOnFinishedCountdown(event -> {
-			gameActive = true;
-			wonGame = false;
-			helperSetGameButtonsDisabled(false);
-			tileGridWord.setTileWordDisable(false);
 			getChildren().remove(timeTrialCountDownOverlay);
-			helperTimeTrialStartTimer();
+			sessionBeginNewGame();
 		});
 
 		timeTrialCountDownOverlay.startCountdown();
@@ -512,6 +753,9 @@ public class GameSession extends StackPane implements Modular {
 		placeholderPause.setOnFinished(event -> {
 			helperSetGameButtonsDisabled(true);
 			tileGridWord.setTileWordDisable(true);
+			if (lostGame) {
+				helperTimeKeepingStop();
+			}
 		});
 
 		ParallelTransition jumpTransition = tileGridWord.getTransitionTileWordJump();
@@ -533,7 +777,7 @@ public class GameSession extends StackPane implements Modular {
 			mistakesPane.removeCircle();
 
 			if (lostGame) {
-				if((gameType == GameType.TIME_TRIAL && !ranOutOfTime) || gameType != GameType.TIME_TRIAL) {
+				if ((gameType == GameType.TIME_TRIAL && !ranOutOfTime) || gameType != GameType.TIME_TRIAL) {
 					helperDisplayPopupNotifcation("Next Time", 88.13, POPUP_DEFAULT_DURATION_MS);
 
 					PauseTransition autoSolveDelay = new PauseTransition(Duration.millis(500));
@@ -544,10 +788,6 @@ public class GameSession extends StackPane implements Modular {
 					autoSolveDelay.play();
 					helperSetGameButtonsDisabled(true);
 					tileGridWord.setTileWordDisable(true);
-					
-					if(gameType == GameType.TIME_TRIAL) {
-						timeTrialTimerPane.stopTimer();
-					}
 				}
 			} else {
 				if (isOneAway) {
@@ -555,6 +795,7 @@ public class GameSession extends StackPane implements Modular {
 				}
 				helperSetGameButtonsDisabled(false);
 				tileGridWord.setTileWordDisable(false);
+				fastForwardStoreSaveState();
 			}
 		});
 
@@ -564,11 +805,16 @@ public class GameSession extends StackPane implements Modular {
 	}
 
 	private SequentialTransition helperCreateAnimationSubmissionCorrect() {
+		boolean wonGameSet = tileGridWord.checkAllCategoriesGuessed();
+
 		SequentialTransition sequentialCorrectTrans = new SequentialTransition();
 		PauseTransition placeholderPause = new PauseTransition(Duration.millis(5));
 		placeholderPause.setOnFinished(event -> {
 			helperSetGameButtonsDisabled(true);
 			tileGridWord.setTileWordDisable(true);
+			if (wonGameSet) {
+				helperTimeKeepingStop();
+			}
 		});
 
 		ParallelTransition jumpTransition = tileGridWord.getTransitionTileWordJump();
@@ -577,12 +823,13 @@ public class GameSession extends StackPane implements Modular {
 		PauseTransition endPauseTransition = new PauseTransition(Duration.millis(500));
 
 		endPauseTransition.setOnFinished(event -> {
-			if (tileGridWord.checkAllCategoriesGuessed()) {
+			if (wonGameSet) {
 				wonGame = true;
 				sessionReachedEndGame();
 			} else {
 				helperSetGameButtonsDisabled(false);
 				tileGridWord.setTileWordDisable(false);
+				fastForwardStoreSaveState();
 			}
 		});
 
@@ -616,7 +863,9 @@ public class GameSession extends StackPane implements Modular {
 			}
 			guesses.add(set);
 		}
-		resultsPane = new ResultsPane(gameSessionContext, false, 123, guesses.size(), guesses);
+		PlayedGameInfo tempPlayedGame = new PlayedGameInfoClassic(123, 0, 0, 0, guesses, false, ZonedDateTime.now(),
+				ZonedDateTime.now());
+		resultsPane = new ResultsPane(gameSessionContext, tempPlayedGame);
 		screenDisplayResults();
 	}
 

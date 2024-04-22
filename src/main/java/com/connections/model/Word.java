@@ -1,5 +1,7 @@
 package com.connections.model;
 
+import java.util.Objects;
+
 import org.bson.Document;
 
 import com.connections.web.DatabaseFormattable;
@@ -7,38 +9,53 @@ import com.connections.web.DatabaseFormattable;
 public class Word implements DatabaseFormattable {
 	public static final String KEY_TEXT = "text";
 	public static final String KEY_COLOR = "color";
-	
-    private String text;
-    private DifficultyColor color;
 
-    public Word(Document doc) {
-    	loadFromDatabaseFormat(doc);
-    }
-    
-    public Word(String text, DifficultyColor color) {
-        this.text = text;
-        this.color = color;
-    }
+	private String text;
+	private DifficultyColor color;
 
-    public String getText() {
-        return text;
-    }
+	public Word(Document doc) {
+		loadFromDatabaseFormat(doc);
+	}
 
-    public DifficultyColor getColor() {
-        return color;
-    }
-    
-    @Override
-    public Document getAsDatabaseFormat() {
-    	Document doc = new Document();
-    	doc.append(KEY_TEXT, text);
-    	doc.append(KEY_COLOR, color.toString().toLowerCase());
-    	return doc;
-    }
+	public Word(String text, DifficultyColor color) {
+		this.text = text;
+		this.color = color;
+	}
+
+	public String getText() {
+		return text;
+	}
+
+	public DifficultyColor getColor() {
+		return color;
+	}
+
+	@Override
+	public Document getAsDatabaseFormat() {
+		Document doc = new Document();
+		doc.append(KEY_TEXT, text);
+		doc.append(KEY_COLOR, color.toString().toLowerCase());
+		return doc;
+	}
 
 	@Override
 	public void loadFromDatabaseFormat(Document doc) {
 		text = doc.getString(KEY_TEXT);
 		color = DifficultyColor.valueOf(doc.getString(KEY_COLOR).toUpperCase());
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other == null) {
+			return false;
+		}
+
+		if (!(other instanceof Word)) {
+			return false;
+		}
+
+		Word otherWord = (Word) other;
+
+		return Objects.equals(text, otherWord.text) && Objects.equals(color, otherWord.color);
 	}
 }
