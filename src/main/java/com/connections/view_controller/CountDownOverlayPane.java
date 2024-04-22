@@ -62,11 +62,11 @@ public class CountDownOverlayPane extends StackPane implements Modular {
 		scaleShrink.setFromY(4);
 		scaleShrink.setToX(1);
 		scaleShrink.setToY(1);
-		
+
 		FadeTransition fadeOut = new FadeTransition(Duration.millis(900), countDownText);
 		fadeOut.setFromValue(1.0);
 		fadeOut.setToValue(0);
-		
+
 		ParallelTransition parallel = new ParallelTransition(scaleShrink, fadeOut);
 		PauseTransition pause = new PauseTransition(Duration.millis(100));
 		pause.setOnFinished(event -> {
@@ -79,13 +79,13 @@ public class CountDownOverlayPane extends StackPane implements Modular {
 		SequentialTransition sequence = new SequentialTransition(startupPause, parallel, pause);
 		return sequence;
 	}
-	
+
 	private void fadeOutAndTrigger() {
 		FadeTransition fadeOut = new FadeTransition(Duration.millis(500), this);
 		fadeOut.setFromValue(1.0);
 		fadeOut.setToValue(0.0);
 		fadeOut.play();
-		
+
 		fadeOut.setOnFinished(event -> {
 			if (onFinishedCountdown != null) {
 				onFinishedCountdown.handle(new ActionEvent(this, null));
@@ -93,7 +93,7 @@ public class CountDownOverlayPane extends StackPane implements Modular {
 			setVisible(false);
 		});
 	}
-	
+
 	private void playCountDownAnimation() {
 		SequentialTransition countdownSequence = new SequentialTransition(
 				getShrinkAnimation("3", false),
@@ -105,23 +105,23 @@ public class CountDownOverlayPane extends StackPane implements Modular {
 	}
 
 	public void startCountdown() {
-		PauseTransition delay = new PauseTransition(Duration.millis(1000)); 
+		PauseTransition delay = new PauseTransition(Duration.millis(1000));
 		delay.setOnFinished(event -> {
 			setVisible(true);
 		});
-		
+
 		FadeTransition fadeIn = new FadeTransition(Duration.millis(500), this);
 		fadeIn.setFromValue(0.0);
 		fadeIn.setToValue(1.0);
-		
+
 		fadeIn.setOnFinished(event -> {
 			playCountDownAnimation();
 		});
-		
+
 		SequentialTransition sequence = new SequentialTransition(delay, fadeIn);
 		sequence.play();
 	}
-	
+
 	public void setOnFinishedCountdown(EventHandler<ActionEvent> onFinishedCountdown) {
 		this.onFinishedCountdown = onFinishedCountdown;
 	}
@@ -129,10 +129,10 @@ public class CountDownOverlayPane extends StackPane implements Modular {
 	@Override
 	public void refreshStyle() {
 		StyleManager styleManager = gameSessionContext.getStyleManager();
-		
+
 		backgroundPane.setOpacity(0.5);
 		backgroundPane.setBackground(new Background(new BackgroundFill(Color.BLACK, new CornerRadii(15), null)));
-		
+
 		Font karnakFont = styleManager.getFont("KarnakPro-Medium_400", "otf", 64);
 		countDownText.setFont(Font.font(karnakFont.getFamily(), FontWeight.THIN, 64));
 		countDownText.setFill(Color.WHITE);

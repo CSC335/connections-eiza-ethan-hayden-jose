@@ -1,7 +1,6 @@
 package com.connections.view_controller;
 
 import com.connections.model.GameData;
-import com.connections.model.GameSaveState;
 import com.connections.web.WebContext;
 import com.connections.web.WebSessionContext;
 
@@ -10,8 +9,7 @@ public class GameSessionContext {
 	private GameData gameData;
 	private WebContext webContext;
 	private WebSessionContext webSessionContext;
-	private boolean haltEverything;
-//	private GameSaveState gameSaveState;
+
 
 	/*
 	 * NOTE: if loading from the GameSaveState, its current game information MUST be

@@ -2,7 +2,6 @@ package com.connections.model;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -67,17 +66,17 @@ public class GameSaveState implements DatabaseFormattable {
 	public GameSaveState(Document doc) {
 		loadFromDatabaseFormat(doc);
 	}
-	
+
 	public static List<List<Document>> getGridAsDatabaseFormat(List<List<Word>> grid) {
 		if(grid == null) {
 			grid = new ArrayList<>();
 		}
-		
+
 		List<List<Document>> gridDocList = new ArrayList<>();
-		
+
 		for(List<Word> row : grid) {
 			List<Document> rowDocList = new ArrayList<>();
-			
+
 			if(row != null && row.size() > 0) {
 				for(Word word : row) {
 					rowDocList.add(word.getAsDatabaseFormat());
@@ -85,30 +84,30 @@ public class GameSaveState implements DatabaseFormattable {
 			}
 			gridDocList.add(rowDocList);
 		}
-		
+
 		return gridDocList;
 	}
-	
+
 	public static List<List<Word>> loadGridFromDatabaseFormat(List<List<Document>> gridDocList) {
 		List<List<Word>> grid = new ArrayList<>();
-		
+
 		if(gridDocList == null) {
 			return grid;
 		}
-		
+
 		for(List<Document> row : gridDocList) {
 			List<Word> rowWordList = new ArrayList<>();
-			
+
 			for(Document wordDoc : row) {
 				rowWordList.add(new Word(wordDoc));
 			}
-			
+
 			grid.add(rowWordList);
 		}
-		
+
 		return grid;
 	}
-	
+
 	public boolean isGameFinished() {
 		return gameFinished;
 	}
@@ -136,11 +135,11 @@ public class GameSaveState implements DatabaseFormattable {
 	public int getPuzzleNumber() {
 		return puzzleNumber;
 	}
-	
+
 	public ZonedDateTime getGameStartTime() {
 		return gameStartTime;
 	}
-	
+
 	public ZonedDateTime getSaveStateCreationTime() {
 		return saveStateCreationTime;
 	}

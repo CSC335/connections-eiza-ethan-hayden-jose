@@ -6,9 +6,7 @@ import java.time.temporal.ChronoUnit;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
-import javafx.animation.ParallelTransition;
 import javafx.animation.PauseTransition;
-import javafx.animation.ScaleTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
@@ -26,9 +24,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 public class TimerPane extends StackPane implements Modular {
@@ -56,7 +51,7 @@ public class TimerPane extends StackPane implements Modular {
 	private boolean timerFinished;
 	private boolean timerStopped;
 	private boolean justInitialized;
-	
+
 	public TimerPane(GameSessionContext gameSessionContext, int durationSeconds) {
 		this.gameSessionContext = gameSessionContext;
 		this.durationSeconds = durationSeconds;
@@ -112,7 +107,7 @@ public class TimerPane extends StackPane implements Modular {
 			return getSecondsLeft(endTime);
 		}
 	}
-	
+
 	public int getElapsedTime() {
 	    if (timerActive) {
 	    	return (int) ChronoUnit.SECONDS.between(startTime, ZonedDateTime.now());
@@ -133,7 +128,7 @@ public class TimerPane extends StackPane implements Modular {
 		timerStopped = false;
 		justInitialized = false;
 	}
-	
+
 	public void appearAndStart() {
 	    appearAndStart(ZonedDateTime.now());
 	}

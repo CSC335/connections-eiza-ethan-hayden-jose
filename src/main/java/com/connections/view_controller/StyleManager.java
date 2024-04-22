@@ -103,7 +103,7 @@ public class StyleManager {
 
 		return Font.font("System", size);
 	}
-	
+
 	public Font getFont(String fontName, int weight, int size) {
 		return getFont(fontName, "ttf", weight, size);
 	}

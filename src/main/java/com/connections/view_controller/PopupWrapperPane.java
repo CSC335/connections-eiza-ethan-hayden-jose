@@ -149,7 +149,7 @@ public class PopupWrapperPane extends BorderPane implements Modular {
 		titleText.setFill(styleManager.colorText());
 		goBackCross.setFill(styleManager.colorText());
 		goBackText.setFill(styleManager.colorText());
-		
+
 		if(childPane != null && childPane instanceof Modular) {
 			((Modular) childPane).refreshStyle();
 		}

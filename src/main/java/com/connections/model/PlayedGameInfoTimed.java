@@ -18,7 +18,7 @@ public class PlayedGameInfoTimed extends PlayedGameInfo implements DatabaseForma
 	public PlayedGameInfoTimed(Document doc) {
 		super(doc);
 	}
-	
+
 	public PlayedGameInfoTimed(int puzzleNumber, int mistakesMadeCount, int hintsUsedCount, int connectionCount,
 			List<Set<Word>> guesses, boolean won, int timeLimit, boolean completedBeforeTimeLimit, ZonedDateTime gameStartTime, ZonedDateTime gameEndTime) {
 		super(puzzleNumber, mistakesMadeCount, hintsUsedCount, connectionCount, guesses, won, gameStartTime, gameEndTime);
@@ -36,12 +36,12 @@ public class PlayedGameInfoTimed extends PlayedGameInfo implements DatabaseForma
     public boolean isCompletedBeforeTimeLimit() {
         return completedBeforeTimeLimit;
     }
-    
+
     @Override
     public GameSession.GameType getGameType() {
     	return GameSession.GameType.TIME_TRIAL;
     }
-	
+
 	@Override
 	public Document getAsDatabaseFormat() {
 		Document doc = super.getAsDatabaseFormat();
@@ -49,7 +49,7 @@ public class PlayedGameInfoTimed extends PlayedGameInfo implements DatabaseForma
 		doc.append(KEY_COMPLETED_BEFORE_LIMIT, completedBeforeTimeLimit);
 		return doc;
 	}
-	
+
 	@Override
 	public void loadFromDatabaseFormat(Document doc) {
 		super.loadFromDatabaseFormat(doc);

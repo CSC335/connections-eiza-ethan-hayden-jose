@@ -1,14 +1,12 @@
 package com.connections.view_controller;
 
 import com.connections.model.GameData;
-import com.connections.model.GameSaveState;
 import com.connections.web.WebContext;
 import com.connections.web.WebContextAccessible;
 import com.connections.web.WebDebugDatabaseView;
 import com.connections.web.WebSession;
 import com.connections.web.WebSessionAccessible;
 import com.connections.web.WebSessionContext;
-import com.connections.web.WebUser;
 import com.connections.web.WebUtils;
 
 import javafx.animation.TranslateTransition;
@@ -169,16 +167,16 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 				checkSession();
 				GameData gameDataLoadWith = WebUtils.gameGetByPuzzleNumber(webContext,
 						WebUtils.dailyPuzzleNumberGet(webContext));
-				
+
 //				WebUser user = webSessionContext.getSession().getUser();
 //				GameSaveState saveState = null;
 //				if(user.hasLatestSaveState()) {
 //					saveState = user.getLatestGameSaveState();
 //				}
-				
+
 				GameSessionContext gameSessionContext = new GameSessionContext(styleManager, gameDataLoadWith,
 						webContext, webSessionContext);
-				
+
 				gameSession = new GameSession(gameSessionContext);
 				showScreen(gameSession);
 			} catch (Exception e) {
@@ -211,7 +209,7 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 		logoImageView.setPreserveRatio(true);
 		return logoImageView;
 	}
-	
+
 	private void setButtonsDisabled(boolean disabled) {
 		loginButton.setDisable(disabled);
 		playButton.setDisable(disabled);

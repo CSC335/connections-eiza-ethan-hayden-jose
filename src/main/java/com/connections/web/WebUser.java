@@ -1,7 +1,6 @@
 package com.connections.web;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.bson.Document;
@@ -51,7 +50,7 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
         setWebContext(webContext);
         loadFromDatabaseFormat(doc);
     }
-    
+
 	public WebUser(WebContext webContext, String userID) {
 		setWebContext(webContext);
 		this.userID = userID;
@@ -81,14 +80,14 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 	public void setUserID(String userID) {
 		this.userID = userID;
 	}
-	
+
 	/*
 	 * If the user does not have any latest game save state, then this will be null.
 	 */
 	public GameSaveState getLatestGameSaveState() {
 		return latestSaveState;
 	}
-	
+
 	public void setLatestGameSaveState(GameSaveState latestSaveState) {
 		if(latestSaveState == null) {
 			hasLatestSaveState = false;
@@ -97,26 +96,26 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 		}
 		this.latestSaveState = latestSaveState;
 	}
-	
+
 	public void clearLatestGameSaveState() {
 		this.latestSaveState = null;
 		this.hasLatestSaveState = false;
 	}
-	
+
 	public boolean hasLatestSaveState() {
 		return hasLatestSaveState;
 	}
 
 	public void setCurrentlyInGameStatus(boolean currentlyInGame) {
-		this.currentlyInGame = currentlyInGame; 
+		this.currentlyInGame = currentlyInGame;
 	}
-	
+
 	public boolean isCurrentlyInGame() {
 		return currentlyInGame;
 	}
 
 	public abstract UserType getType();
-	
+
 	public boolean hasPlayedGameByPuzzleNum(int puzzleNumber) {
 		for(PlayedGameInfo playedGame : playedGameList) {
 			if(playedGame.getPuzzleNumber() == puzzleNumber) {
@@ -125,7 +124,7 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 		}
 		return false;
 	}
-	
+
 	public PlayedGameInfo getPlayedGameByPuzzleNum(int puzzleNumber) {
 		for(PlayedGameInfo playedGame : playedGameList) {
 			if(playedGame.getPuzzleNumber() == puzzleNumber) {
@@ -150,12 +149,12 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 	}
 
 	public static WebUser.UserType checkUserTypeByUserID(WebContext webContext, String userID) {
-		if (WebUtils.helperCollectionContains(webContext, WebUtils.COLLECTION_ACCOUNT, WebUserAccount.KEY_USER_ID,
+		if (WebUtils.helperCollectionContains(webContext, WebUtils.COLLECTION_ACCOUNT, WebUser.KEY_USER_ID,
 				userID)) {
 			return WebUser.UserType.ACCOUNT;
 		}
 
-		if (WebUtils.helperCollectionContains(webContext, WebUtils.COLLECTION_GUEST, WebUserAccount.KEY_USER_ID,
+		if (WebUtils.helperCollectionContains(webContext, WebUtils.COLLECTION_GUEST, WebUser.KEY_USER_ID,
 				userID)) {
 			return WebUser.UserType.GUEST;
 		}
@@ -192,7 +191,8 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 		}
 		return sessionDoc.getString(KEY_USER_ID);
 	}
-    
+
+	@Override
 	public Document getAsDatabaseFormat() {
 		Document doc = new Document();
 		doc.append(KEY_USER_ID, userID);
@@ -210,7 +210,7 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 		}
 		doc.append(KEY_HAS_LATEST_SAVE_STATE, hasLatestSaveState);
 		doc.append(KEY_CURRENTLY_IN_GAME, currentlyInGame);
-		
+
 		return doc;
 	}
 
@@ -243,7 +243,7 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 	public void setWebContext(WebContext webContext) {
 		this.webContext = webContext;
 	}
-	
+
 	public boolean hasCompletedRegularGameAchievement(DifficultyColor difficultyColor) {
         int numGamesCompleted = getNumRegularGamesCompleted();
         return numGamesCompleted >= getAchievementThreshold(difficultyColor);
@@ -278,7 +278,7 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
                 return 0;
         }
     }
-    
+
     public static List<WebUser> getTopUsers(WebContext webContext, int limit) {
         List<WebUser> allUsers = new ArrayList<>();
 
@@ -304,7 +304,7 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 
         return allUsers.subList(0, Math.min(limit, allUsers.size()));
     }
-    
+
     public int getNumAllGamesForAchievements() {
     	return regularGamesCompleted + timeTrialsCompleted + noMistakesCompleted + timeTrialsUnderTimeCompleted;
     }
@@ -324,7 +324,7 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
     private int getNumTimeTrialsUnderTimeCompleted() {
         return timeTrialsUnderTimeCompleted;
     }
-    
+
     public void incrementRegularGamesCompleted() {
         regularGamesCompleted++;
     }

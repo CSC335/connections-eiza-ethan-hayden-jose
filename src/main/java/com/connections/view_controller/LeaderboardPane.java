@@ -1,5 +1,7 @@
 package com.connections.view_controller;
 
+import java.util.List;
+
 import com.connections.web.WebUser;
 import com.connections.web.WebUserAccount;
 
@@ -7,9 +9,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-
-import java.util.List;
 
 public class LeaderboardPane extends StackPane implements Modular {
     private GameSessionContext gameSessionContext;
@@ -29,8 +28,11 @@ public class LeaderboardPane extends StackPane implements Modular {
         leaderboardGrid.setAlignment(Pos.TOP_CENTER);
 
         Label rankLabel = new Label("Rank");
+        rankLabel.setFont(gameSessionContext.getStyleManager().getFont("karnakpro-condensedblack", 36));
         Label nameLabel = new Label("Name");
+        nameLabel.setFont(gameSessionContext.getStyleManager().getFont("karnakpro-condensedblack", 36));
         Label scoreLabel = new Label("Score");
+        scoreLabel.setFont(gameSessionContext.getStyleManager().getFont("karnakpro-condensedblack", 36));
 
         leaderboardGrid.add(rankLabel, 0, 0);
         leaderboardGrid.add(nameLabel, 1, 0);
@@ -41,9 +43,12 @@ public class LeaderboardPane extends StackPane implements Modular {
         for (int i = 0; i < topUsers.size(); i++) {
             WebUser user = topUsers.get(i);
 
-            Label rankValueLabel = new Label(String.valueOf(i + 1));
+            Label rankValueLabel = new Label(String.valueOf(i + 1) + ".");
+            rankValueLabel.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 500, 20));
             Label nameValueLabel;
             Label scoreValueLabel = new Label(String.valueOf(user.getNumAllGamesForAchievements()));
+            scoreValueLabel.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 500, 20));
+
 
             if (user instanceof WebUserAccount) {
                 WebUserAccount userAccount = (WebUserAccount) user;
@@ -52,6 +57,7 @@ public class LeaderboardPane extends StackPane implements Modular {
                 nameValueLabel = new Label("Guest");
             }
 
+            nameValueLabel.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 500, 20));
             leaderboardGrid.add(rankValueLabel, 0, i + 1);
             leaderboardGrid.add(nameValueLabel, 1, i + 1);
             leaderboardGrid.add(scoreValueLabel, 2, i + 1);

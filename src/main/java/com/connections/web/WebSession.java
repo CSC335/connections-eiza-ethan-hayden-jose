@@ -2,7 +2,6 @@ package com.connections.web;
 
 import org.bson.Document;
 
-import com.connections.model.DifficultyColor;
 import com.connections.view_controller.GameSession.GameType;
 
 public class WebSession implements WebContextAccessible, DatabaseFormattable, DatabaseInteractable {
@@ -121,11 +120,7 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 	}
 
 	public boolean isSignedIntoAccount() {
-		if (!isSignedIn()) {
-			return false;
-		}
-
-		if (user == null || user.getType() != WebUser.UserType.ACCOUNT) {
+		if (!isSignedIn() || user == null || user.getType() != WebUser.UserType.ACCOUNT) {
 			return false;
 		}
 
@@ -164,7 +159,7 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 //		if (helperResultsNotEmpty(sessionResults)) {
 //			Document matchedSession = sessionResults.first();
 //			String userID = matchedSession.getString(WebBridgeUser.KEY_USER_ID);
-//			
+//
 //			if(userID != null) {
 //				return checkUserTypeByUserID(webContext, userID);
 //			}

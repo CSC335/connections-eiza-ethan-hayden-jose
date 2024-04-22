@@ -18,7 +18,7 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 	protected String email;
 	protected String passWord;
 	protected String bio;
-	
+
 	// it will NOT automatically write to the database
 	public WebUserAccount(WebContext webContext, String userName, String email, String passWord, String bio) {
 		super(webContext);
@@ -28,7 +28,7 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 		this.bio = bio;
 		setUserID(generateUnusedUserID(webContext));
 	}
-	
+
 	public WebUserAccount(WebContext webContext, Document doc) {
 		super(webContext, doc);
 	}
@@ -68,36 +68,37 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 	public void setBio(String bio) {
 		this.bio = bio;
 	}
-	
+
+	@Override
 	public UserType getType() {
 		return UserType.ACCOUNT;
 	}
-	
+
 	public static boolean checkAccountCredentialsMatch(WebContext webContext, String email, String passWord) {
 		Document findByDoc = new Document();
 		findByDoc.append(KEY_EMAIL, email);
 		findByDoc.append(KEY_PASS_WORD, passWord);
 		return WebUtils.helperCollectionContains(webContext, WebUtils.COLLECTION_ACCOUNT, findByDoc);
 	}
-	
+
 	public static WebUserAccount getUserAccountByCredentials(WebContext webContext, String email, String passWord) {
 		Document findByDoc = new Document();
 		findByDoc.append(KEY_EMAIL, email);
 		findByDoc.append(KEY_PASS_WORD, passWord);
-		
+
 		Document userInfoDoc = WebUtils.helperCollectionGet(webContext, WebUtils.COLLECTION_ACCOUNT, findByDoc);
 		if(userInfoDoc == null) {
 			return null;
 		}
-		
+
 		String userID = userInfoDoc.getString(KEY_USER_ID);
 		if(userID == null) {
 			return null;
 		}
-		
+
 		return new WebUserAccount(webContext, userID);
 	}
-	
+
 	public static boolean checkAccountExistsByEmail(WebContext webContext, String email) {
 		return WebUtils.helperCollectionContains(webContext, WebUtils.COLLECTION_ACCOUNT, KEY_EMAIL, email);
 	}
@@ -144,7 +145,7 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 			loadFromDatabaseFormat(doc);
 		}
 	}
-	
+
 	@Override
 	public void writeToDatabase() {
 		WebUtils.helperCollectionUpdate(webContext, WebUtils.COLLECTION_ACCOUNT, KEY_USER_ID, userID, getAsDatabaseFormat());
@@ -154,9 +155,9 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 	public boolean existsInDatabase() {
 		return WebUtils.helperCollectionContains(webContext, WebUtils.COLLECTION_ACCOUNT, KEY_USER_ID, getUserID());
 	}
-	
+
 	@Override
 	public void removeFromDatabase() {
-		WebUtils.helperCollectionDelete(webContext, WebUtils.COLLECTION_ACCOUNT, KEY_USER_ID, getUserID()); 
+		WebUtils.helperCollectionDelete(webContext, WebUtils.COLLECTION_ACCOUNT, KEY_USER_ID, getUserID());
 	}
 }

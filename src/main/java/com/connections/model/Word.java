@@ -46,11 +46,7 @@ public class Word implements DatabaseFormattable {
 
 	@Override
 	public boolean equals(Object other) {
-		if (other == null) {
-			return false;
-		}
-
-		if (!(other instanceof Word)) {
+		if ((other == null) || !(other instanceof Word)) {
 			return false;
 		}
 

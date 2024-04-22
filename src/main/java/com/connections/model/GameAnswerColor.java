@@ -12,15 +12,15 @@ public class GameAnswerColor implements DatabaseFormattable {
 	public static final String KEY_COLOR = "color";
 	public static final String KEY_DESCRIPTION = "label";
 	public static final String KEY_WORDS = "words";
-	
+
 	private DifficultyColor color;
 	private String description;
 	private String[] words;
-	
+
 	public GameAnswerColor(Document doc) {
 		loadFromDatabaseFormat(doc);
 	}
-	
+
 	public GameAnswerColor(DifficultyColor color, String description, String[] words) {
 		this.color = color;
 		this.description = description;
@@ -34,7 +34,7 @@ public class GameAnswerColor implements DatabaseFormattable {
 	public String getDescription() {
 		return description;
 	}
-	
+
 	public String[] getWords() {
 		return words;
 	}

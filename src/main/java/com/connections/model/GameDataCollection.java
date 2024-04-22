@@ -11,7 +11,7 @@ public class GameDataCollection implements DatabaseFormattable {
 	public final static int WORDS_PER_COLOR = 4;
 	public final static int COLOR_COUNT = 4;
 	private List<GameData> gameList;
-	
+
 	public GameDataCollection(String filePath) {
 		gameList = new ArrayList<>();
 	}

@@ -72,15 +72,15 @@ public abstract class PlayedGameInfo implements DatabaseFormattable {
 	public int getConnectionCount() {
 		return connectionCount;
 	}
-	
+
 	public ZonedDateTime getGameStartTime() {
 		return gameStartTime;
 	}
-	
+
 	public ZonedDateTime getGameEndTime() {
 		return gameEndTime;
 	}
-	
+
 	public int getTimeCompleted() {
 		return (int)(ChronoUnit.SECONDS.between(gameStartTime, gameEndTime));
 	}
@@ -141,6 +141,7 @@ public abstract class PlayedGameInfo implements DatabaseFormattable {
 		return guessesList;
 	}
 
+	@Override
 	public Document getAsDatabaseFormat() {
 		Document doc = new Document();
 		doc.append(KEY_PUZZLE_NUMBER, puzzleNumber);
