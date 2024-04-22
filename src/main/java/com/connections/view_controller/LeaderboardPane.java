@@ -1,52 +1,62 @@
 package com.connections.view_controller;
 
 import com.connections.web.WebUser;
+import com.connections.web.WebUserAccount;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.util.List;
 
 public class LeaderboardPane extends StackPane implements Modular {
-	private GameSessionContext gameSessionContext;
-	private VBox leaderboardLayout;
+    private GameSessionContext gameSessionContext;
+    private GridPane leaderboardGrid;
+    private StyleManager styleManager = new StyleManager();
 
-	public LeaderboardPane(GameSessionContext gameSessionContext) {
-		this.gameSessionContext = gameSessionContext;
-		initializeLeaderboard();
-		getChildren().add(leaderboardLayout);
-		
-	}
-	
-	/*
-	 * quick note from eiza:
-	 * in case you ever need to get the username of the current user:
-	 * gameSessionContext.getWebSessionContext().getSession().getUser().getUserName()
-	 */
+    public LeaderboardPane(GameSessionContext gameSessionContext) {
+        this.gameSessionContext = gameSessionContext;
+        initializeLeaderboard();
+        getChildren().add(leaderboardGrid);
+    }
 
 	private void initializeLeaderboard() {
-		leaderboardLayout = new VBox(5);
-		leaderboardLayout.setAlignment(Pos.TOP_CENTER);
-		List<WebUser> topUsers = WebUser.getTopUsers(gameSessionContext.getWebContext(), 5);
+        leaderboardGrid = new GridPane();
+        leaderboardGrid.setHgap(10);
+        leaderboardGrid.setVgap(5);
+        leaderboardGrid.setAlignment(Pos.TOP_CENTER);
 
-		for (int i = 0; i < topUsers.size(); i++) {
-			WebUser user = topUsers.get(i);
-			Label userLabel;
-			boolean isAccount = user.checkUserTypeByUserID(gameSessionContext.getWebContext(), user.getUserID())
-					.equals(WebUser.UserType.ACCOUNT);
-			
-			if (isAccount) {
-				userLabel = new Label((i + 1) + ". " + "Guest " + user.getNumAllGamesForAchievements());
-			} else {
-				//somehow need to actually get the username and not the userID
-				userLabel = new Label(
-						(i + 1) + ". " + user.getUserID() + " " + user.getNumAllGamesForAchievements());
-			}
-			leaderboardLayout.getChildren().add(userLabel);
-		}
-	}
+        Label rankLabel = new Label("Rank");
+        Label nameLabel = new Label("Name");
+        Label scoreLabel = new Label("Score");
+
+        leaderboardGrid.add(rankLabel, 0, 0);
+        leaderboardGrid.add(nameLabel, 1, 0);
+        leaderboardGrid.add(scoreLabel, 2, 0);
+
+        List<WebUser> topUsers = WebUser.getTopUsers(gameSessionContext.getWebContext(), 5);
+
+        for (int i = 0; i < topUsers.size(); i++) {
+            WebUser user = topUsers.get(i);
+
+            Label rankValueLabel = new Label(String.valueOf(i + 1));
+            Label nameValueLabel;
+            Label scoreValueLabel = new Label(String.valueOf(user.getNumAllGamesForAchievements()));
+
+            if (user instanceof WebUserAccount) {
+                WebUserAccount userAccount = (WebUserAccount) user;
+                nameValueLabel = new Label(userAccount.getUserName());
+            } else {
+                nameValueLabel = new Label("Guest");
+            }
+
+            leaderboardGrid.add(rankValueLabel, 0, i + 1);
+            leaderboardGrid.add(nameValueLabel, 1, i + 1);
+            leaderboardGrid.add(scoreValueLabel, 2, i + 1);
+        }
+    }
 
 	@Override
 	public void refreshStyle() {
