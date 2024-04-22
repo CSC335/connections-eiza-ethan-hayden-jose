@@ -355,8 +355,8 @@ public class GameSession extends StackPane implements Modular {
 
 	private void screenDisplayLeaderboard() {
 		BorderPane pane = new BorderPane();
-		pane.setCenter(new Text("LEADERS"));
-		helperPopupScreen(pane, "Leaderboard:");
+//		pane.setCenter(new Text("LEADERS"));
+		helperPopupScreen(new LeaderboardPane(gameSessionContext), "Leaderboard:");
 	}
 
 	private void screenDisplayProfile() {
@@ -401,10 +401,10 @@ public class GameSession extends StackPane implements Modular {
 	}
 
 	public void fastForwardUserCurrentlyIngame() {
-		System.out.println("fastForwardUserCurrentlyIngame");
-		helperSetAllInteractablesDisabled(true);
-		displayPaneWithGaussianBlur(errorUserInGamePane);
-		errorUserInGamePane.appear();
+//		System.out.println("fastForwardUserCurrentlyIngame");
+//		helperSetAllInteractablesDisabled(true);
+//		displayPaneWithGaussianBlur(errorUserInGamePane);
+//		errorUserInGamePane.appear();
 	}
 	
 	/*
@@ -762,14 +762,14 @@ public class GameSession extends StackPane implements Modular {
 	}
 	
 	private void helperSetAllInteractablesDisabled(boolean disabled) {
-		tileGridWord.setTileWordDisable(disabled);
-		helperSetGameButtonsDisabled(disabled);
-		helperSetMenuButtonsDisabled(disabled);
+//		tileGridWord.setTileWordDisable(disabled);
+//		helperSetGameButtonsDisabled(disabled);
+//		helperSetMenuButtonsDisabled(disabled);
 	}
 	
 	private void helperSetGameInteractablesDisabled(boolean disabled) {
-		tileGridWord.setTileWordDisable(disabled);
-		helperSetGameButtonsDisabled(disabled);
+//		tileGridWord.setTileWordDisable(disabled);
+//		helperSetGameButtonsDisabled(disabled);
 	}
 
 	private void helperDisplayPopupNotifcation(String message, double width, int duration) {

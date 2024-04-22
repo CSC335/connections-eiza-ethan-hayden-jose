@@ -235,7 +235,7 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 				user.incrementRegularGamesCompleted();
 			} else if (gameType == GameType.TIME_TRIAL) {
 				user.incrementTimeTrialsCompleted();
-				if (timeTrialTime < 30 && wonGame) {
+				if (timeTrialTime < 30 && timeTrialTime > 0 && wonGame) {
 					user.incrementTimeTrialsUnderTimeCompleted();
 				}
 			}

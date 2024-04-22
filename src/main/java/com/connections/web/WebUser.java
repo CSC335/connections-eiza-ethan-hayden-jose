@@ -9,6 +9,8 @@ import org.bson.Document;
 import com.connections.model.DifficultyColor;
 import com.connections.model.GameSaveState;
 import com.connections.model.PlayedGameInfo;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
 
 public abstract class WebUser implements WebContextAccessible, DatabaseFormattable, DatabaseInteractable {
     public enum UserType {
@@ -275,6 +277,36 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
             default:
                 return 0;
         }
+    }
+    
+    public static List<WebUser> getTopUsers(WebContext webContext, int limit) {
+        List<WebUser> allUsers = new ArrayList<>();
+
+        MongoCollection<Document> accountCollection = webContext.getMongoDatabase().getCollection(WebUtils.COLLECTION_ACCOUNT);
+        FindIterable<Document> accountDocs = accountCollection.find();
+        for (Document doc : accountDocs) {
+            String userId = doc.getString(KEY_USER_ID);
+            WebUser user = getUserByID(webContext, userId);
+            if (user != null) {
+                allUsers.add(user);
+            }
+        }
+
+        for (WebUser user : allUsers) {
+            user.readFromDatabase();
+        }
+
+        allUsers.sort((user1, user2) -> {
+            int totalCount1 = user1.getNumAllGamesForAchievements();
+            int totalCount2 = user2.getNumAllGamesForAchievements();
+            return Integer.compare(totalCount2, totalCount1);
+        });
+
+        return allUsers.subList(0, Math.min(limit, allUsers.size()));
+    }
+    
+    public int getNumAllGamesForAchievements() {
+    	return regularGamesCompleted + timeTrialsCompleted + noMistakesCompleted + timeTrialsUnderTimeCompleted;
     }
 
     private int getNumRegularGamesCompleted() {
