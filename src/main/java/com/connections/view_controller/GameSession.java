@@ -66,7 +66,7 @@ public class GameSession extends StackPane implements Modular {
 	private TileGridAchievement tileGridAchievement;
 
 	private ErrorOverlayPane errorUserInGamePane;
-	
+
 	private boolean wonGame;
 	private boolean gameActive;
 
@@ -120,65 +120,65 @@ public class GameSession extends StackPane implements Modular {
 	// === === === === === === === === === === === ===
 
 	private void initAssets() {
-	    getChildren().clear();
-	    wonGame = false;
-	    gameActive = false;
-	    ranOutOfTime = false;
+		getChildren().clear();
+		wonGame = false;
+		gameActive = false;
+		ranOutOfTime = false;
 
-	    currentPuzzleNumber = gameSessionContext.getGameData().getPuzzleNumber();
+		currentPuzzleNumber = gameSessionContext.getGameData().getPuzzleNumber();
 
-	    setPrefSize(ConnectionsAppLocal.STAGE_WIDTH, ConnectionsAppLocal.STAGE_HEIGHT);
+		setPrefSize(ConnectionsAppLocal.STAGE_WIDTH, ConnectionsAppLocal.STAGE_HEIGHT);
 
-	    darkModeToggleMenuButton = new DarkModeToggle(gameSessionContext);
+		darkModeToggleMenuButton = new DarkModeToggle(gameSessionContext);
 
-	    tileGridWord = new TileGridWord(gameSessionContext);
-	    tileGridWord.initTileWords();
+		tileGridWord = new TileGridWord(gameSessionContext);
+		tileGridWord.initTileWords();
 
-	    tileGridWordAnimationPane = new TileGridWordAnimationOverlay(tileGridWord);
+		tileGridWordAnimationPane = new TileGridWordAnimationOverlay(tileGridWord);
 
-	    tileGridStackPane = new StackPane(tileGridWord, tileGridWordAnimationPane);
+		tileGridStackPane = new StackPane(tileGridWord, tileGridWordAnimationPane);
 
-	    tileGridAchievement = new TileGridAchievement(gameSessionContext);
+		tileGridAchievement = new TileGridAchievement(gameSessionContext);
 
-	    hintMenuButton = new HintMenuButton(gameSessionContext);
+		hintMenuButton = new HintMenuButton(gameSessionContext);
 
-	    achievementsMenuButton = new AchievementsMenuButton(gameSessionContext);
+		achievementsMenuButton = new AchievementsMenuButton(gameSessionContext);
 
-	    leaderboardMenuButton = new LeaderboardMenuButton(gameSessionContext);
+		leaderboardMenuButton = new LeaderboardMenuButton(gameSessionContext);
 
-	    profileMenuButton = new ProfileMenuButton(gameSessionContext);
+		profileMenuButton = new ProfileMenuButton(gameSessionContext);
 
-	    mainHeaderText = new Text("Create four groups of four!");
-	    mainHeaderText.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 500, 18));
+		mainHeaderText = new Text("Create four groups of four!");
+		mainHeaderText.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 500, 18));
 
-	    hintsPane = new CircleRowPane("Hints remaining:", gameSessionContext);
+		hintsPane = new CircleRowPane("Hints remaining:", gameSessionContext);
 
-	    mistakesPane = new CircleRowPane("Mistakes remaining:", gameSessionContext);
+		mistakesPane = new CircleRowPane("Mistakes remaining:", gameSessionContext);
 
-	    gameShuffleButton = new CircularButton("Shuffle", 88, gameSessionContext, false);
+		gameShuffleButton = new CircularButton("Shuffle", 88, gameSessionContext, false);
 
-	    gameDeselectButton = new CircularButton("Deselect all", 120, gameSessionContext, false);
+		gameDeselectButton = new CircularButton("Deselect all", 120, gameSessionContext, false);
 
-	    gameSubmitButton = new CircularButton("Submit", 88, gameSessionContext, true);
+		gameSubmitButton = new CircularButton("Submit", 88, gameSessionContext, true);
 
-	    gameViewResultsButton = new CircularButton("View Results", 160, gameSessionContext, false);
+		gameViewResultsButton = new CircularButton("View Results", 160, gameSessionContext, false);
 
-	    gameButtonRowPane = new HBox(8);
-	    gameButtonRowPane.setAlignment(Pos.CENTER);
-	    gameButtonRowPane.getChildren().addAll(gameShuffleButton, gameDeselectButton, gameSubmitButton);
+		gameButtonRowPane = new HBox(8);
+		gameButtonRowPane.setAlignment(Pos.CENTER);
+		gameButtonRowPane.getChildren().addAll(gameShuffleButton, gameDeselectButton, gameSubmitButton);
 
-	    menuButtonRowPane = new HBox(10, hintMenuButton, profileMenuButton, leaderboardMenuButton,
-	            achievementsMenuButton, darkModeToggleMenuButton);
-	    menuButtonRowPane.setAlignment(Pos.CENTER);
-	    menuButtonRowPane.setMaxHeight(DarkModeToggle.HEIGHT);
-	    menuButtonRowPane.setStyle("-fx-alignment: center-right;");
+		menuButtonRowPane = new HBox(10, hintMenuButton, profileMenuButton, leaderboardMenuButton,
+				achievementsMenuButton, darkModeToggleMenuButton);
+		menuButtonRowPane.setAlignment(Pos.CENTER);
+		menuButtonRowPane.setMaxHeight(DarkModeToggle.HEIGHT);
+		menuButtonRowPane.setStyle("-fx-alignment: center-right;");
 
-	    // exclude the hints pane for now
-	    gameContentPane = new VBox(24, mainHeaderText, tileGridStackPane, mistakesPane, gameButtonRowPane);
-	    gameContentPane.setAlignment(Pos.CENTER);
+		// exclude the hints pane for now
+		gameContentPane = new VBox(24, mainHeaderText, tileGridStackPane, mistakesPane, gameButtonRowPane);
+		gameContentPane.setAlignment(Pos.CENTER);
 
-	    menuPane = new StackPane(menuButtonRowPane);
-	    menuPane.setPrefHeight(MENU_PANE_HEIGHT);
+		menuPane = new StackPane(menuButtonRowPane);
+		menuPane.setPrefHeight(MENU_PANE_HEIGHT);
 
 		organizationPane = new BorderPane();
 		organizationPane.setTop(menuPane);
@@ -188,48 +188,8 @@ public class GameSession extends StackPane implements Modular {
 
 		getChildren().add(organizationPane);
 
-	    // === NEW STUFF FOR WEB === (will make neater later)
+		// === NEW STUFF FOR WEB === (will make neater later)
 
-	    gameTypeOptionSelector = new OptionSelectOverlayPane(gameSessionContext);
-	    gameTypeOptionSelector.addButton("Classic", 68);
-	    gameTypeOptionSelector.addButton("Time Trial", 68);
-	    gameTypeOptionSelector.setOnDisappear(event -> {
-	        organizationPane.setEffect(null);
-	        switch (gameTypeOptionSelector.getOptionSelected()) {
-	            case "Classic":
-	                gameType = GameType.CLASSIC;
-	                sessionBeginNewGame();
-	                break;
-	            case "Time Trial":
-	                gameType = GameType.TIME_TRIAL;
-	                helperTimeTrialStartCountdown();
-	                break;
-	            default:
-	                gameType = GameType.NONE;
-	        }
-	    });
-
-	    timeTrialCountDownOverlay = new CountDownOverlayPane(gameSessionContext);
-	    timeTrialTimerPane = new TimerPane(gameSessionContext, 60);
-	    timeTrialTimerPane.setOnFinishedTimer(event -> {
-	        sessionLostTimeTrial();
-	    });
-	    timeTrialTimerPane = new TimerPane(gameSessionContext, TIME_TRIAL_DURATION_SEC);
-	    timeTrialTimerPane.setOnSecondPassedBy(event -> {
-	        if (gameActive && gameType == GameType.TIME_TRIAL) {
-	            fastForwardStoreSaveState();
-	        }
-	    });
-	    timeTrialTimerPane.setOnFinishedTimer(event -> {
-	        if (gameType == GameType.TIME_TRIAL) {
-	            sessionLostTimeTrial();
-	        }
-	    });
-
-	    timeTrialTimerLayout = new BorderPane();
-	    timeTrialTimerLayout.setTop(timeTrialTimerPane);
-	    timeTrialTimerLayout.setPadding(new Insets(64));
-	    BorderPane.setAlignment(timeTrialTimerPane, Pos.CENTER);
 		gameTypeOptionSelector = new OptionSelectOverlayPane(gameSessionContext);
 		gameTypeOptionSelector.addButton("Classic", 68);
 		gameTypeOptionSelector.addButton("Time Trial", 68);
@@ -248,10 +208,51 @@ public class GameSession extends StackPane implements Modular {
 				gameType = GameType.NONE;
 			}
 		});
-		
+
+		timeTrialCountDownOverlay = new CountDownOverlayPane(gameSessionContext);
+		timeTrialTimerPane = new TimerPane(gameSessionContext, 60);
+		timeTrialTimerPane.setOnFinishedTimer(event -> {
+			sessionLostTimeTrial();
+		});
+		timeTrialTimerPane = new TimerPane(gameSessionContext, TIME_TRIAL_DURATION_SEC);
+		timeTrialTimerPane.setOnSecondPassedBy(event -> {
+			if (gameActive && gameType == GameType.TIME_TRIAL) {
+				fastForwardStoreSaveState();
+			}
+		});
+		timeTrialTimerPane.setOnFinishedTimer(event -> {
+			if (gameType == GameType.TIME_TRIAL) {
+				sessionLostTimeTrial();
+			}
+		});
+
+		timeTrialTimerLayout = new BorderPane();
+		timeTrialTimerLayout.setTop(timeTrialTimerPane);
+		timeTrialTimerLayout.setPadding(new Insets(64));
+		BorderPane.setAlignment(timeTrialTimerPane, Pos.CENTER);
+		gameTypeOptionSelector = new OptionSelectOverlayPane(gameSessionContext);
+		gameTypeOptionSelector.addButton("Classic", 68);
+		gameTypeOptionSelector.addButton("Time Trial", 68);
+		gameTypeOptionSelector.setOnDisappear(event -> {
+			organizationPane.setEffect(null);
+			switch (gameTypeOptionSelector.getOptionSelected()) {
+			case "Classic":
+				gameType = GameType.CLASSIC;
+				sessionBeginNewGame();
+				break;
+			case "Time Trial":
+				gameType = GameType.TIME_TRIAL;
+				helperTimeTrialStartCountdown();
+				break;
+			default:
+				gameType = GameType.NONE;
+			}
+		});
+
 		errorUserInGamePane = new ErrorOverlayPane(gameSessionContext);
 		errorUserInGamePane.setHeaderText("Game In Progress");
-		errorUserInGamePane.setBodyText("You are currently playing from another browser tab or device under the same user.\nPlease wait until the game is finished and try again.");
+		errorUserInGamePane.setBodyText(
+				"You are currently playing from another browser tab or device under the same user.\nPlease wait until the game is finished and try again.");
 
 		timeTrialCountDownOverlay = new CountDownOverlayPane(gameSessionContext);
 //		timeTrialTimerPane = new TimerPane(gameSessionContext, TIME_TRIAL_DURATION_SEC);
@@ -271,16 +272,16 @@ public class GameSession extends StackPane implements Modular {
 		timeTrialTimerLayout.setTop(timeTrialTimerPane);
 		timeTrialTimerLayout.setPadding(new Insets(64));
 		BorderPane.setAlignment(timeTrialTimerPane, Pos.CENTER);
-	    getChildren().add(0, timeTrialTimerLayout);
-	    // gameContentPane.getChildren().add(timeTrialTimerPane);
+		getChildren().add(0, timeTrialTimerLayout);
+		// gameContentPane.getChildren().add(timeTrialTimerPane);
 
-	    // === NEW STUFF FOR WEB ===
+		// === NEW STUFF FOR WEB ===
 
-	    // helperSetGameButtonsDisabled(false);
-	    controlsSetNormal();
-	    refreshStyle();
+		// helperSetGameButtonsDisabled(false);
+		controlsSetNormal();
+		refreshStyle();
 	}
-	
+
 	private void initListeners() {
 		tileGridWord.setOnTileWordSelection(event -> {
 			helperUpdateGameButtonStatus();
@@ -390,10 +391,11 @@ public class GameSession extends StackPane implements Modular {
 	public void fastForwardAutoLoad() {
 		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
 		currentUser.readFromDatabase();
-		if (currentUser.isCurrentlyInGame()) {
-			fastForwardUserCurrentlyIngame();
-		}
-		else if (currentUser.hasLatestSaveState()) {
+//		// Commented this out to prevent the error pane from loading in, but allows the user to load a previous save
+//		if (currentUser.isCurrentlyInGame()) {
+//			fastForwardUserCurrentlyIngame();
+//		}
+		if (currentUser.hasLatestSaveState()) {
 			fastForwardLoadSaveState();
 		} else {
 			fastForwardCheckGameFinishedAlready();
@@ -401,12 +403,12 @@ public class GameSession extends StackPane implements Modular {
 	}
 
 	public void fastForwardUserCurrentlyIngame() {
-//		System.out.println("fastForwardUserCurrentlyIngame");
-//		helperSetAllInteractablesDisabled(true);
-//		displayPaneWithGaussianBlur(errorUserInGamePane);
-//		errorUserInGamePane.appear();
+		System.out.println("fastForwardUserCurrentlyIngame");
+		helperSetAllInteractablesDisabled(true);
+		displayPaneWithGaussianBlur(errorUserInGamePane);
+		errorUserInGamePane.appear();
 	}
-	
+
 	/*
 	 * can be called at any time, but preferably immediately after the GameSession
 	 * is initialized to avoid unexpected bugs MUST BE CALLED IMMEDIATELY AFTER
@@ -506,12 +508,11 @@ public class GameSession extends StackPane implements Modular {
 			currentUser.readFromDatabase();
 
 			gameAlreadyFinished = currentUser.hasPlayedGameByPuzzleNum(currentPuzzleNumber);
-			
-			helperSetAllInteractablesDisabled(true);
 
 			gameActive = false;
 
 			if (gameAlreadyFinished) {
+				helperSetGameInteractablesDisabled(true);
 				playedGameInfo = currentUser.getPlayedGameByPuzzleNum(currentPuzzleNumber);
 				gameStartDateTime = playedGameInfo.getGameStartTime();
 				gameEndDateTime = playedGameInfo.getGameEndTime();
@@ -528,6 +529,7 @@ public class GameSession extends StackPane implements Modular {
 				screenDisplayResults();
 				controlsSetViewResultsOnly();
 			} else {
+				helperSetAllInteractablesDisabled(true);
 				helperSetUserInGameStatus(true);
 				displayPaneWithGaussianBlur(gameTypeOptionSelector);
 				gameTypeOptionSelector.appear();
@@ -544,7 +546,7 @@ public class GameSession extends StackPane implements Modular {
 		gameActive = true;
 		wonGame = false;
 		blockedStoringSaveState = false;
-		helperSetGameInteractablesDisabled(false);
+		helperSetAllInteractablesDisabled(false);
 	}
 
 	public void sessionReachedEndGame() {
@@ -664,7 +666,7 @@ public class GameSession extends StackPane implements Modular {
 	 * GameSessionContext that all objects need to check
 	 */
 	public void sessionCloseEverything() {
-		if(helperGetUserInGameStatus()) {
+		if (helperGetUserInGameStatus()) {
 			helperSetUserInGameStatus(false);
 		}
 		gameActive = false;
@@ -695,22 +697,22 @@ public class GameSession extends StackPane implements Modular {
 		currentUser.setCurrentlyInGameStatus(status);
 		currentUser.writeToDatabase();
 	}
-	
+
 	private boolean helperGetUserInGameStatus() {
 		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
 		currentUser.readFromDatabase();
 		return currentUser.isCurrentlyInGame();
 	}
-	
+
 	private void displayPaneWithGaussianBlur(Pane pane) {
-		if(pane == null) {
+		if (pane == null) {
 			return;
 		}
 		GaussianBlur blurEffect = new GaussianBlur();
 		organizationPane.setEffect(blurEffect);
 		getChildren().add(pane);
 	}
-	
+
 	private void helperTimeKeepingStart(ZonedDateTime startTime) {
 		if (!timeKeepingActive) {
 			timeKeepingActive = true;
@@ -757,19 +759,19 @@ public class GameSession extends StackPane implements Modular {
 		});
 
 		timeTrialCountDownOverlay.startCountdown();
-		
+
 		// just to be safe, viewing the countdown is enough to be considered in game
 	}
-	
+
 	private void helperSetAllInteractablesDisabled(boolean disabled) {
-//		tileGridWord.setTileWordDisable(disabled);
-//		helperSetGameButtonsDisabled(disabled);
-//		helperSetMenuButtonsDisabled(disabled);
+		tileGridWord.setTileWordDisable(disabled);
+		helperSetGameButtonsDisabled(disabled);
+		helperSetMenuButtonsDisabled(disabled);
 	}
-	
+
 	private void helperSetGameInteractablesDisabled(boolean disabled) {
-//		tileGridWord.setTileWordDisable(disabled);
-//		helperSetGameButtonsDisabled(disabled);
+		tileGridWord.setTileWordDisable(disabled);
+		helperSetGameButtonsDisabled(disabled);
 	}
 
 	private void helperDisplayPopupNotifcation(String message, double width, int duration) {
@@ -777,7 +779,7 @@ public class GameSession extends StackPane implements Modular {
 		menuPane.getChildren().add(0, popupNotification);
 		popupNotification.popup(menuPane, duration);
 	}
-	
+
 	private void helperSetMenuButtonsDisabled(boolean disabled) {
 		darkModeToggleMenuButton.setDisable(disabled);
 		hintMenuButton.setDisable(disabled);
@@ -859,8 +861,6 @@ public class GameSession extends StackPane implements Modular {
 
 		PauseTransition placeholderPause = new PauseTransition(Duration.millis(5));
 		placeholderPause.setOnFinished(event -> {
-			helperSetGameButtonsDisabled(true);
-			tileGridWord.setTileWordDisable(true);
 			helperSetGameInteractablesDisabled(true);
 			if (lostGame) {
 				helperTimeKeepingStop();
@@ -917,8 +917,6 @@ public class GameSession extends StackPane implements Modular {
 		SequentialTransition sequentialCorrectTrans = new SequentialTransition();
 		PauseTransition placeholderPause = new PauseTransition(Duration.millis(5));
 		placeholderPause.setOnFinished(event -> {
-			helperSetGameButtonsDisabled(true);
-			tileGridWord.setTileWordDisable(true);
 			helperSetGameInteractablesDisabled(true);
 			if (wonGameSet) {
 				helperTimeKeepingStop();

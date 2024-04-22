@@ -19,6 +19,12 @@ public class LeaderboardPane extends StackPane implements Modular {
 		getChildren().add(leaderboardLayout);
 		
 	}
+	
+	/*
+	 * quick note from eiza:
+	 * in case you ever need to get the username of the current user:
+	 * gameSessionContext.getWebSessionContext().getSession().getUser().getUserName()
+	 */
 
 	private void initializeLeaderboard() {
 		leaderboardLayout = new VBox(5);
@@ -30,6 +36,7 @@ public class LeaderboardPane extends StackPane implements Modular {
 			Label userLabel;
 			boolean isAccount = user.checkUserTypeByUserID(gameSessionContext.getWebContext(), user.getUserID())
 					.equals(WebUser.UserType.ACCOUNT);
+			
 			if (isAccount) {
 				userLabel = new Label((i + 1) + ". " + "Guest " + user.getNumAllGamesForAchievements());
 			} else {

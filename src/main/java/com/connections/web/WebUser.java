@@ -65,6 +65,8 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 		this.currentlyInGame = false;
 		readFromDatabase();
 	}
+	
+	public abstract String getUserName();
 
 	public List<PlayedGameInfo> getPlayedGameList() {
 		return playedGameList;
