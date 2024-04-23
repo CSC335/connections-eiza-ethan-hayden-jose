@@ -20,6 +20,10 @@ public class ProfilePane extends VBox implements Modular {
     private Label emailLabel;
     private Label passwordLabel;
     private Label bioLabel;
+    private Label usernameFieldLabel;
+    private Label emailFieldLabel;
+    private Label passwordFieldLabel;
+    private Label bioFieldLabel;
 
     private TextField usernameTextField;
     private TextField emailTextField;
@@ -31,7 +35,6 @@ public class ProfilePane extends VBox implements Modular {
     private CircularButton editEmailButton;
     private CircularButton editPasswordButton;
     private CircularButton editBioButton;
-
     private CircularButton saveUsernameButton;
     private CircularButton cancelUsernameButton;
     private CircularButton saveEmailButton;
@@ -40,7 +43,6 @@ public class ProfilePane extends VBox implements Modular {
     private CircularButton cancelPasswordButton;
     private CircularButton saveBioButton;
     private CircularButton cancelBioButton;
-
     private CircularButton showPasswordButton;
     private CircularButton hidePasswordButton;
 
@@ -132,10 +134,10 @@ public class ProfilePane extends VBox implements Modular {
         
         hidePasswordButton.setVisible(false);
 
-        Label usernameFieldLabel = new Label("Username:");
-        Label emailFieldLabel = new Label("Email:");
-        Label passwordFieldLabel = new Label("Password:");
-        Label bioFieldLabel = new Label("Bio:");
+        usernameFieldLabel = new Label("Username:");
+        emailFieldLabel = new Label("Email:");
+        passwordFieldLabel = new Label("Password:");
+        bioFieldLabel = new Label("Bio:");
 
         GridPane gridPane = new GridPane();
         gridPane.setHgap(10);
@@ -339,7 +341,30 @@ public class ProfilePane extends VBox implements Modular {
 
     @Override
     public void refreshStyle() {
-        // Implement any style refreshing logic here
+    	StyleManager styleManager = gameSessionContext.getStyleManager();
+    	
+        usernameLabel.setTextFill(styleManager.colorText());
+        emailLabel.setTextFill(styleManager.colorText());
+        passwordLabel.setTextFill(styleManager.colorText());
+        bioLabel.setTextFill(styleManager.colorText());
+        usernameFieldLabel.setTextFill(styleManager.colorText());
+        emailFieldLabel.setTextFill(styleManager.colorText());
+        passwordFieldLabel.setTextFill(styleManager.colorText());
+        bioFieldLabel.setTextFill(styleManager.colorText());
+        editUsernameButton.refreshStyle();
+        editEmailButton.refreshStyle();
+        editPasswordButton.refreshStyle();
+        editBioButton.refreshStyle();
+        saveUsernameButton.refreshStyle();
+        cancelUsernameButton.refreshStyle();
+        saveEmailButton.refreshStyle();
+        cancelEmailButton.refreshStyle();
+        savePasswordButton.refreshStyle();
+        cancelPasswordButton.refreshStyle();
+        saveBioButton.refreshStyle();
+        cancelBioButton.refreshStyle();
+        showPasswordButton.refreshStyle();
+        hidePasswordButton.refreshStyle();
     }
 
     @Override
