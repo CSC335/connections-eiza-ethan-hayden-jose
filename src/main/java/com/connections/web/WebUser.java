@@ -66,6 +66,20 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 	}
 	
 	public abstract String getUserName();
+	
+	public abstract String getEmail();
+	
+	public abstract String getPassWord();
+	
+	public abstract String getBio();
+	
+	public abstract void setUserName(String userName);
+	
+	public abstract void setEmail(String userName);
+	
+	public abstract void setPassWord(String userName);
+	
+	public abstract void setBio(String userName);
 
 	public List<PlayedGameInfo> getPlayedGameList() {
 		return playedGameList;

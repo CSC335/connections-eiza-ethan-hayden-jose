@@ -352,14 +352,11 @@ public class GameSession extends StackPane implements Modular {
 
 	private void screenDisplayLeaderboard() {
 		new BorderPane();
-//		pane.setCenter(new Text("LEADERS"));
 		helperPopupScreen(new LeaderboardPane(gameSessionContext), "Leaderboard:");
 	}
 
 	private void screenDisplayProfile() {
-		BorderPane pane = new BorderPane();
-		pane.setCenter(new Text("PROFILE"));
-		helperPopupScreen(pane, "Profile:");
+		helperPopupScreen(new ProfilePane(gameSessionContext), "Profile:");
 	}
 
 	private void helperPopupScreen(Pane pane, String title) {
