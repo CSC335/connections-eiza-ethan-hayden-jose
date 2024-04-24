@@ -270,14 +270,14 @@ public class TimerPane extends StackPane implements Modular {
 		StyleManager styleManager = gameSessionContext.getStyleManager();
 
 		backgroundPane.setOpacity(0.75);
-		backgroundPane.setBackground(new Background(new BackgroundFill(Color.BLACK, new CornerRadii(30), null)));
+		backgroundPane.setBackground(new Background(new BackgroundFill(styleManager.timerBackground(), new CornerRadii(30), null)));
 
-		timerSVG.setFill(Color.WHITE);
+		timerSVG.setFill(styleManager.colorSVGFill());
 
 //		Font karnakFont = styleManager.getFont("KarnakPro-Medium_400", "otf", 32);
 //		counterLabel.setFont(Font.font(karnakFont.getFamily(), FontWeight.THIN, 32));
 		counterLabel.setFont(styleManager.getFont("franklin-normal", 700, 32));
-		counterLabel.setTextFill(Color.WHITE);
+		counterLabel.setTextFill(styleManager.colorSVGFill());
 	}
 
 	@Override

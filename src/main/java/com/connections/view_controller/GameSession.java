@@ -206,7 +206,7 @@ public class GameSession extends StackPane implements Modular {
 		});
 
 		timeTrialCountDownOverlay = new CountDownOverlayPane(gameSessionContext);
-		timeTrialTimerPane = new TimerPane(gameSessionContext, 60);
+		timeTrialTimerPane = new TimerPane(gameSessionContext, TIME_TRIAL_DURATION_SEC);
 		timeTrialTimerPane.setOnFinishedTimer(event -> {
 			sessionLostTimeTrial();
 		});
@@ -252,7 +252,7 @@ public class GameSession extends StackPane implements Modular {
 
 		timeTrialCountDownOverlay = new CountDownOverlayPane(gameSessionContext);
 //		timeTrialTimerPane = new TimerPane(gameSessionContext, TIME_TRIAL_DURATION_SEC);
-		timeTrialTimerPane = new TimerPane(gameSessionContext, 7);
+		timeTrialTimerPane = new TimerPane(gameSessionContext, TIME_TRIAL_DURATION_SEC);
 		timeTrialTimerPane.setOnSecondPassedBy(event -> {
 			if (gameActive && gameType == GameType.TIME_TRIAL) {
 				fastForwardStoreSaveState();
@@ -1043,7 +1043,7 @@ public class GameSession extends StackPane implements Modular {
 				hintsPane, mistakesPane, gameButtonRowPane, menuButtonRowPane, tileGridAchievement, tileGridWord,
 				tileGridWordAnimationPane, darkModeToggleMenuButton, hintMenuButton, achievementsMenuButton,
 				leaderboardMenuButton, profileMenuButton, gameSubmitButton, gameDeselectButton, gameShuffleButton,
-				gameViewResultsButton, resultsPane, popupPane };
+				gameViewResultsButton, resultsPane, popupPane, timeTrialTimerPane };
 
 		for (Node node : completeComponentList) {
 			helperRefreshStyle(styleManager, node);

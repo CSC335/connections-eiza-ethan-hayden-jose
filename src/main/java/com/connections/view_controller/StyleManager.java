@@ -208,7 +208,11 @@ public class StyleManager {
 	public Color colorSVGFill() {
 		return darkMode ? Color.BLACK : Color.WHITE;
 	}
-
+	
+	public Color timerBackground() {
+		return darkMode ? Color.WHITE : Color.BLACK;
+	}
+	
 	public String styleButton() {
 		return darkMode ? BUTTON_DARK_MODE : BUTTON_LIGHT_MODE;
 	}
