@@ -429,8 +429,8 @@ public class GameSession extends StackPane implements Modular {
 			tileGridWord.loadFromSaveState(loadedSaveState);
 			gameType = loadedSaveState.getGameType();
 
-			helperSetGameButtonsDisabled(false);
-			tileGridWord.setTileWordDisable(false);
+//			helperSetGameButtonsDisabled(false);
+//			tileGridWord.setTileWordDisable(false);
 //			helperSetGameInteractablesDisabled(false);
 			helperSetAllInteractablesDisabled(false);
 
@@ -502,13 +502,13 @@ public class GameSession extends StackPane implements Modular {
 
 			gameAlreadyFinished = currentUser.hasPlayedGameByPuzzleNum(currentPuzzleNumber);
 
-			helperSetAllInteractablesDisabled(true);
-
-
 			gameActive = false;
 
 			if (gameAlreadyFinished) {
+				// By default, enable everything, but disable the game buttons.
+				helperSetAllInteractablesDisabled(false);
 				helperSetGameInteractablesDisabled(true);
+				
 				playedGameInfo = currentUser.getPlayedGameByPuzzleNum(currentPuzzleNumber);
 				gameStartDateTime = playedGameInfo.getGameStartTime();
 				gameEndDateTime = playedGameInfo.getGameEndTime();
