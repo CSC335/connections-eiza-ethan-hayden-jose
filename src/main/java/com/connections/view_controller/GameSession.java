@@ -540,15 +540,16 @@ public class GameSession extends StackPane implements Modular {
 	// === === === === === === === === === === === ===
 
 	/*
-	 * for hints, make sure that:
-	 * (1) make sure sessionHintsSetDisabled() is done for all other conditions when game is loaded mid-game and stuff
+	 * for hints, make sure that: (1) make sure sessionHintsSetDisabled() is done
+	 * for all other conditions when game is loaded mid-game and stuff
 	 */
-	
+
 	public void sessionHintUsed() {
 		if (!hintsCannotBeUsedRightNow && hintsPane.getNumCircles() > 0 && !tileGridWord.hintAnimationIsRunning()) {
 			tileGridWord.hintAnimationShow();
+			hintsPane.removeCircle();
+			fastForwardStoreSaveState();
 			tileGridWord.setOnHintAnimationStopped(event -> {
-				hintsPane.removeCircle();
 				if (!hintsCannotBeUsedRightNow && hintsPane.getNumCircles() > 0) {
 					hintMenuButton.setDisable(false);
 					hintMenuButton.refreshStyle();
@@ -567,15 +568,14 @@ public class GameSession extends StackPane implements Modular {
 
 	public void sessionHintsSetDisabled(boolean disabled) {
 		hintsCannotBeUsedRightNow = disabled;
+		
 		if (disabled) {
 			hintMenuButton.setDisable(true);
 			hintMenuButton.refreshStyle();
 			sessionHintsAnimationStop();
-		} else {
-			if (hintsPane.getNumCircles() > 0) {
-				hintMenuButton.setDisable(false);
-				hintMenuButton.refreshStyle();
-			}
+		} else if (hintsPane.getNumCircles() > 0) {
+			hintMenuButton.setDisable(false);
+			hintMenuButton.refreshStyle();
 		}
 	}
 
@@ -628,10 +628,7 @@ public class GameSession extends StackPane implements Modular {
 
 		gameActive = false;
 
-		helperSetGameButtonsDisabled(true);
-		tileGridWord.setTileWordDisable(true);
 		helperSetUserInGameStatus(false);
-
 		helperSetGameInteractablesDisabled(true);
 
 		boolean noMistakes = (wonGame && tileGridWord.getGuesses().size() == 4);
@@ -796,7 +793,6 @@ public class GameSession extends StackPane implements Modular {
 	private void helperSetGameInteractablesDisabled(boolean disabled) {
 		tileGridWord.setTileWordDisable(disabled);
 		helperSetGameButtonsDisabled(disabled);
-		sessionHintsSetDisabled(disabled);
 	}
 
 	private void helperDisplayPopupNotifcation(String message, double width, int duration) {
@@ -807,13 +803,14 @@ public class GameSession extends StackPane implements Modular {
 
 	private void helperSetMenuButtonsDisabled(boolean disabled) {
 		darkModeToggleMenuButton.setDisable(disabled);
-		hintMenuButton.setDisable(disabled);
 		achievementsMenuButton.setDisable(disabled);
 		leaderboardMenuButton.setDisable(disabled);
 		profileMenuButton.setDisable(disabled);
 	}
 
 	private void helperSetGameButtonsDisabled(boolean disabled) {
+		sessionHintsSetDisabled(disabled);
+
 		if (disabled) {
 			gameShuffleButton.setDisable(true);
 			gameDeselectButton.setDisable(true);

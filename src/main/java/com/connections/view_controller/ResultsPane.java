@@ -163,17 +163,17 @@ public class ResultsPane extends StackPane implements Modular {
 	}
 
 	private void initGameTypeAndTimeTrialContent() {
-		gameTypeLabel = new Label("COMPLETED IN CLASSIC MODE");
+		gameTypeLabel = new Label("PLAYED IN CLASSIC MODE");
 		gameTypeLabel.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 600, 20));
 		gameTypeLabel.setAlignment(Pos.CENTER);
 		VBox.setMargin(gameTypeLabel, new Insets(20, 0, 0, 0));
 
 		switch (playedGameInfo.getGameType()) {
 		case CLASSIC:
-			gameTypeLabel.setText("COMPLETED IN CLASSIC MODE");
+			gameTypeLabel.setText("PLAYED IN CLASSIC MODE");
 			break;
 		case TIME_TRIAL:
-			gameTypeLabel.setText("COMPLETED IN TIME TRIAL MODE");
+			gameTypeLabel.setText("PLAYED IN TIME TRIAL MODE");
 			break;
 		default:
 		}
