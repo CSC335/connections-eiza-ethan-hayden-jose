@@ -20,6 +20,7 @@ public class ProfilePane extends VBox implements Modular {
     private WebContext webContext;
     private WebUser user;
 
+    private Label guestErrorMessageLabel;
     private Label usernameLabel;
     private Label emailLabel;
     private Label passwordLabel;
@@ -96,9 +97,10 @@ public class ProfilePane extends VBox implements Modular {
     }
 
     private void initializeGuestMessage() {
-        Text message = new Text("You are playing as a guest. Create an account or login to view or edit your profile!");
-        message.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 600, 32));
-        getChildren().add(message);
+    	guestErrorMessageLabel = new Label("You are playing as a guest. Create an account or login to view or edit your profile!");
+    	guestErrorMessageLabel.setWrapText(true);
+    	guestErrorMessageLabel.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 600, 16));
+        getChildren().add(guestErrorMessageLabel);
         setAlignment(Pos.CENTER);
     }
 
@@ -313,6 +315,7 @@ public class ProfilePane extends VBox implements Modular {
         }
 
         if (valid) {
+        	user.readFromDatabase();
             if (label == usernameLabel) {
                 user.setUserName(textField.getText());
                 usernameLabel.setText(textField.getText());
@@ -328,7 +331,6 @@ public class ProfilePane extends VBox implements Modular {
                 user.setBio(textField.getText());
                 bioLabel.setText(textField.getText());
             }
-
             user.writeToDatabase();
             replaceTextFieldWithLabel(textField, label);
             hideEditControls(label);
@@ -483,28 +485,32 @@ public class ProfilePane extends VBox implements Modular {
     public void refreshStyle() {
     	StyleManager styleManager = gameSessionContext.getStyleManager();
     	
-        usernameLabel.setTextFill(styleManager.colorText());
-        emailLabel.setTextFill(styleManager.colorText());
-        passwordLabel.setTextFill(styleManager.colorText());
-        bioLabel.setTextFill(styleManager.colorText());
-        usernameFieldLabel.setTextFill(styleManager.colorText());
-        emailFieldLabel.setTextFill(styleManager.colorText());
-        passwordFieldLabel.setTextFill(styleManager.colorText());
-        bioFieldLabel.setTextFill(styleManager.colorText());
-        editUsernameButton.refreshStyle();
-        editEmailButton.refreshStyle();
-        editPasswordButton.refreshStyle();
-        editBioButton.refreshStyle();
-        saveUsernameButton.refreshStyle();
-        cancelUsernameButton.refreshStyle();
-        saveEmailButton.refreshStyle();
-        cancelEmailButton.refreshStyle();
-        savePasswordButton.refreshStyle();
-        cancelPasswordButton.refreshStyle();
-        saveBioButton.refreshStyle();
-        cancelBioButton.refreshStyle();
-        showPasswordButton.refreshStyle();
-        hidePasswordButton.refreshStyle();
+    	if(user.getType() == WebUser.UserType.GUEST) {
+    		guestErrorMessageLabel.setTextFill(styleManager.colorText());
+    	} else {
+    		usernameLabel.setTextFill(styleManager.colorText());
+            emailLabel.setTextFill(styleManager.colorText());
+            passwordLabel.setTextFill(styleManager.colorText());
+            bioLabel.setTextFill(styleManager.colorText());
+            usernameFieldLabel.setTextFill(styleManager.colorText());
+            emailFieldLabel.setTextFill(styleManager.colorText());
+            passwordFieldLabel.setTextFill(styleManager.colorText());
+            bioFieldLabel.setTextFill(styleManager.colorText());
+            editUsernameButton.refreshStyle();
+            editEmailButton.refreshStyle();
+            editPasswordButton.refreshStyle();
+            editBioButton.refreshStyle();
+            saveUsernameButton.refreshStyle();
+            cancelUsernameButton.refreshStyle();
+            saveEmailButton.refreshStyle();
+            cancelEmailButton.refreshStyle();
+            savePasswordButton.refreshStyle();
+            cancelPasswordButton.refreshStyle();
+            saveBioButton.refreshStyle();
+            cancelBioButton.refreshStyle();
+            showPasswordButton.refreshStyle();
+            hidePasswordButton.refreshStyle();
+    	}
     }
 
     @Override
