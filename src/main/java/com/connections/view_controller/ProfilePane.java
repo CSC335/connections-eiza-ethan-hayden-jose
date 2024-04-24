@@ -1,5 +1,6 @@
 package com.connections.view_controller;
 
+import com.connections.web.WebContext;
 import com.connections.web.WebUser;
 import com.connections.web.WebUserAccount;
 import javafx.geometry.Insets;
@@ -10,10 +11,13 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.SVGPath;
 import javafx.scene.text.Text;
 
 public class ProfilePane extends VBox implements Modular {
     private GameSessionContext gameSessionContext;
+    private WebContext webContext;
     private WebUser user;
 
     private Label usernameLabel;
@@ -46,8 +50,42 @@ public class ProfilePane extends VBox implements Modular {
     private CircularButton showPasswordButton;
     private CircularButton hidePasswordButton;
 
+    private WarningMessage invalidUsernameMessage;
+    private WarningMessage invalidEmailMessage;
+    private WarningMessage invalidPasswordMessage;
+    
+    private GridPane gridPane;
+    
+    private class WarningMessage extends HBox {
+		private Label messageLabel;
+		private SVGPath warningSVGPath;
+
+		public WarningMessage(String message) {
+			messageLabel = new Label(message);
+			messageLabel.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 700, 14));
+			messageLabel.setTextFill(Color.RED);
+
+			warningSVGPath = new SVGPath();
+			warningSVGPath.setContent("M2 10a8 8 0 1 1 16 0 8 8 0 0 1-16 0Zm7 1V5h2v6H9Zm0 2v2h2v-2H9Z");
+			warningSVGPath.setScaleX(0.8);
+			warningSVGPath.setScaleY(0.8);
+			warningSVGPath.setFill(Color.RED);
+			warningSVGPath.setFillRule(javafx.scene.shape.FillRule.EVEN_ODD);
+
+			setVisible(false);
+			setAlignment(Pos.CENTER_LEFT);
+			setSpacing(5);
+			getChildren().addAll(warningSVGPath, messageLabel);
+		}
+
+		public void setMessage(String message) {
+			messageLabel.setText(message);
+		}
+	}
+
     public ProfilePane(GameSessionContext gameSessionContext) {
         this.gameSessionContext = gameSessionContext;
+        this.webContext = gameSessionContext.getWebContext();
         user = gameSessionContext.getWebSessionContext().getSession().getUser();
 
         if (user.getType() == WebUser.UserType.GUEST) {
@@ -139,11 +177,11 @@ public class ProfilePane extends VBox implements Modular {
         passwordFieldLabel = new Label("Password:");
         bioFieldLabel = new Label("Bio:");
 
-        GridPane gridPane = new GridPane();
+        gridPane = new GridPane();
         gridPane.setHgap(10);
         gridPane.setVgap(10);
         gridPane.setPadding(new Insets(10));
-
+     
         gridPane.add(usernameFieldLabel, 0, 0);
         gridPane.add(usernameLabel, 1, 0);
         gridPane.add(editUsernameButton, 2, 0);
@@ -170,6 +208,10 @@ public class ProfilePane extends VBox implements Modular {
         emailTextField.setStyle("-fx-pref-width: 200px;");
         passwordField.setStyle("-fx-pref-width: 200px;");
         bioTextField.setStyle("-fx-pref-width: 200px;");
+        
+        invalidUsernameMessage = new WarningMessage("...");
+        invalidEmailMessage = new WarningMessage("Please enter a valid email address.");
+        invalidPasswordMessage = new WarningMessage("...");
 
         HBox hbox = new HBox(gridPane);
         hbox.setAlignment(Pos.CENTER);
@@ -245,29 +287,108 @@ public class ProfilePane extends VBox implements Modular {
     }
 
     private void saveField(Label label, TextField textField) {
+        boolean valid = true;
+
         if (label == usernameLabel) {
-            user.setUserName(textField.getText());
-            usernameLabel.setText(textField.getText());
+            if (!isValidUsername(textField.getText()) || !isDatabaseValidUsername(textField.getText())) {
+                showWarningMessage(invalidUsernameMessage, textField);
+                valid = false;
+            } else {
+                hideWarningMessage(invalidUsernameMessage, textField);
+            }
         } else if (label == emailLabel) {
-            user.setEmail(textField.getText());
-            emailLabel.setText(textField.getText());
+            if (!isValidEmail(textField.getText())) {
+                showWarningMessage(invalidEmailMessage, textField);
+                valid = false;
+            } else {
+                hideWarningMessage(invalidEmailMessage, textField);
+            }
         } else if (label == passwordLabel) {
-            user.setPassWord(passwordField.getText());
-            passwordLabel.setText("••••••••");
-            showPasswordButton.setVisible(true);
-            hidePasswordButton.setVisible(false);
-        } else if (label == bioLabel) {
-            user.setBio(textField.getText());
-            bioLabel.setText(textField.getText());
+            if (!isValidPassword(passwordField.getText())) {
+                showWarningMessage(invalidPasswordMessage, passwordField);
+                valid = false;
+            } else {
+                hideWarningMessage(invalidPasswordMessage, passwordField);
+            }
         }
 
-        user.writeToDatabase();
-        replaceTextFieldWithLabel(textField, label);
-        hideEditControls(label);
+        if (valid) {
+            if (label == usernameLabel) {
+                user.setUserName(textField.getText());
+                usernameLabel.setText(textField.getText());
+            } else if (label == emailLabel) {
+                user.setEmail(textField.getText());
+                emailLabel.setText(textField.getText());
+            } else if (label == passwordLabel) {
+                user.setPassWord(passwordField.getText());
+                passwordLabel.setText("••••••••");
+                showPasswordButton.setVisible(true);
+                hidePasswordButton.setVisible(false);
+            } else if (label == bioLabel) {
+                user.setBio(textField.getText());
+                bioLabel.setText(textField.getText());
+            }
 
-        GridPane gridPane = (GridPane) label.getParent();
-        gridPane.getChildren().remove(getCorrespondingSaveButton(label));
-        gridPane.getChildren().remove(getCorrespondingCancelButton(label));
+            user.writeToDatabase();
+            replaceTextFieldWithLabel(textField, label);
+            hideEditControls(label);
+
+            GridPane gridPane = (GridPane) label.getParent();
+            gridPane.getChildren().remove(getCorrespondingSaveButton(label));
+            gridPane.getChildren().remove(getCorrespondingCancelButton(label));
+        }
+    }
+
+    private void showWarningMessage(WarningMessage message, TextField textField) {
+        message.setVisible(true);
+        textField.setStyle("-fx-border-color: red; -fx-border-width: 1;");
+        GridPane gridPane = (GridPane) textField.getParent();
+        if (gridPane != null) {
+            GridPane.setRowIndex(message, GridPane.getRowIndex(textField));
+            GridPane.setColumnIndex(message, 1);
+            GridPane.setMargin(message, new Insets(60, 0, 0, 0)); // Add top margin
+            if (!gridPane.getChildren().contains(message)) {
+                gridPane.getChildren().add(message);
+            }
+        }
+    }
+
+    private void hideWarningMessage(WarningMessage message, TextField textField) {
+        message.setVisible(false);
+        textField.setStyle("-fx-border-color: black; -fx-border-width: 1;");
+        GridPane gridPane = (GridPane) textField.getParent();
+        if (gridPane != null) {
+            gridPane.getChildren().remove(message);
+        }
+    }
+
+    private boolean isValidUsername(String username) {
+        if (username.length() < 1 || username.length() > 20) {
+            invalidUsernameMessage.setMessage("Username must be between 1 and 20 characters long.");
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isDatabaseValidUsername(String username) {
+        if (WebUserAccount.checkAccountExistsByUserName(webContext, username)) {
+            invalidUsernameMessage.setMessage("Username has been taken!");
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isValidPassword(String password) {
+        if (password.length() < 8) {
+            invalidPasswordMessage.setMessage("Password must be at least 8 characters long.");
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isValidEmail(String email) {
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
+        return email.matches(emailRegex);
     }
 
     private void cancelField(Label label, TextField textField) {
@@ -275,13 +396,32 @@ public class ProfilePane extends VBox implements Modular {
         hideEditControls(label);
 
         GridPane gridPane = (GridPane) label.getParent();
-        gridPane.getChildren().remove(getCorrespondingSaveButton(label));
-        gridPane.getChildren().remove(getCorrespondingCancelButton(label));
+        if (gridPane != null) {
+            gridPane.getChildren().remove(getCorrespondingSaveButton(label));
+            gridPane.getChildren().remove(getCorrespondingCancelButton(label));
 
-        if (label == passwordLabel) {
-        	passwordLabel.setText("••••••••");
-            showPasswordButton.setVisible(true);
-            hidePasswordButton.setVisible(false);
+            // Reset the specific field to its default state
+            if (label == usernameLabel) {
+                gridPane.getChildren().remove(invalidUsernameMessage);
+                GridPane.setRowIndex(editUsernameButton, GridPane.getRowIndex(label));
+                GridPane.setColumnIndex(editUsernameButton, 2);
+            } else if (label == emailLabel) {
+                gridPane.getChildren().remove(invalidEmailMessage);
+                GridPane.setRowIndex(editEmailButton, GridPane.getRowIndex(label));
+                GridPane.setColumnIndex(editEmailButton, 2);
+            } else if (label == passwordLabel) {
+                gridPane.getChildren().remove(invalidPasswordMessage);
+                GridPane.setRowIndex(editPasswordButton, GridPane.getRowIndex(label));
+                GridPane.setColumnIndex(editPasswordButton, 3);
+                GridPane.setColumnIndex(showPasswordButton, 2);
+                GridPane.setColumnIndex(hidePasswordButton, 2);
+                passwordLabel.setText("••••••••");
+                showPasswordButton.setVisible(true);
+                hidePasswordButton.setVisible(false);
+            } else if (label == bioLabel) {
+                GridPane.setRowIndex(editBioButton, GridPane.getRowIndex(label));
+                GridPane.setColumnIndex(editBioButton, 2);
+            }
         }
     }
 
