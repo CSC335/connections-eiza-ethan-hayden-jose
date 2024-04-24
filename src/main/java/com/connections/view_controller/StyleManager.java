@@ -12,6 +12,11 @@ import javafx.event.EventHandler;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
+/**
+* The StyleManager class is responsible for managing the styles and colors used throughout the application.
+* It provides methods for retrieving colors and styles based on the current theme (light or dark mode).
+* It also handles loading and caching fonts from files.
+*/
 public class StyleManager {
 	protected static final Color YELLOW_LIGHT = Color.rgb(249, 223, 109);
 	protected static final Color GREEN_LIGHT = Color.rgb(160, 195, 90);
@@ -71,6 +76,16 @@ public class StyleManager {
 	private EventHandler<ActionEvent> onDarkModeChange;
 	private Map<String, Font> fontMap = new HashMap<>();
 
+   /**
+    * Retrieves a Font instance for the specified font name, file extension, weight, and size.
+    * Fonts are loaded from files and cached for future use.
+    *
+    * @param fontName     The name of the font.
+    * @param fileExtension The file extension of the font file (e.g., "ttf", "otf").
+    * @param weight       The weight of the font (e.g., 400 for normal, 600 for bold).
+    * @param size         The size of the font in points.
+    * @return The Font instance for the specified parameters.
+    */
 	public Font getFont(String fontName, String fileExtension, int weight, int size) {
 		try {
 			String key = String.format("%s-%s-%d-%d", fontName, fileExtension, size, weight);
@@ -89,6 +104,15 @@ public class StyleManager {
 		return Font.font("System", size);
 	}
 
+   /**
+    * Retrieves a Font instance for the specified font name, file extension, and size.
+    * Fonts are loaded from files and cached for future use.
+    *
+    * @param fontName     The name of the font.
+    * @param fileExtension The file extension of the font file (e.g., "ttf", "otf").
+    * @param size         The size of the font in points.
+    * @return The Font instance for the specified parameters.
+    */
 	public Font getFont(String fontName, String fileExtension, int size) {
 		try {
 			String key = String.format("%s-%s-%d", fontName, fileExtension, size);
@@ -107,14 +131,36 @@ public class StyleManager {
 		return Font.font("System", size);
 	}
 
+   /**
+    * Retrieves a Font instance for the specified font name, weight, and size.
+    * The file extension is assumed to be "ttf".
+    *
+    * @param fontName The name of the font.
+    * @param weight   The weight of the font (e.g., 400 for normal, 600 for bold).
+    * @param size     The size of the font in points.
+    * @return The Font instance for the specified parameters.
+    */
 	public Font getFont(String fontName, int weight, int size) {
 		return getFont(fontName, "ttf", weight, size);
 	}
 
+   /**
+    * Retrieves a Font instance for the specified font name and size.
+    * The file extension is assumed to be "ttf", and the weight is assumed to be normal.
+    *
+    * @param fontName The name of the font.
+    * @param size     The size of the font in points.
+    * @return The Font instance for the specified parameters.
+    */
 	public Font getFont(String fontName, int size) {
 		return getFont(fontName, "ttf", size);
 	}
 
+   /**
+    * Sets the dark mode state of the application.
+    *
+    * @param darkMode true to enable dark mode, false to enable light mode.
+    */
 	public void setDarkMode(boolean darkMode) {
 		this.darkMode = darkMode;
 		if(onDarkModeChange != null) {
@@ -122,30 +168,67 @@ public class StyleManager {
 		}
 	}
 
+
+   /**
+    * Retrieves the current dark mode state of the application.
+    *
+    * @return true if dark mode is enabled, false otherwise.
+    */
 	public boolean isDarkMode() {
 		return darkMode;
 	}
 
+   /**
+    * Sets the event handler to be called when the dark mode state changes.
+    *
+    * @param handler The event handler to be called when dark mode changes.
+    */
 	public void setOnDarkModeChange(EventHandler<ActionEvent> handler) {
 		onDarkModeChange = handler;
 	}
 
+   /**
+    * Retrieves the color associated with the "yellow" difficulty level based on the current theme.
+    *
+    * @return The color for the "yellow" difficulty level.
+    */
 	public Color colorYellow() {
 		return darkMode ? YELLOW_DARK : YELLOW_LIGHT;
 	}
 
+   /**
+    * Retrieves the color associated with the "green" difficulty level based on the current theme.
+    *
+    * @return The color for the "green" difficulty level.
+    */
 	public Color colorGreen() {
 		return darkMode ? GREEN_DARK : GREEN_LIGHT;
 	}
 
+   /**
+    * Retrieves the color associated with the "blue" difficulty level based on the current theme.
+    *
+    * @return The color for the "blue" difficulty level.
+    */
 	public Color colorBlue() {
 		return darkMode ? BLUE_DARK : BLUE_LIGHT;
 	}
 
+   /**
+    * Retrieves the color associated with the "purple" difficulty level based on the current theme.
+    *
+    * @return The color for the "purple" difficulty level.
+    */
 	public Color colorPurple() {
 		return darkMode ? PURPLE_DARK : PURPLE_LIGHT;
 	}
 
+   /**
+    * Retrieves the color associated with the specified difficulty level based on the current theme.
+    *
+    * @param dc The difficulty level.
+    * @return The color for the specified difficulty level.
+    */
 	public Color colorDifficulty(DifficultyColor dc) {
 		switch (dc) {
 		case YELLOW:
@@ -161,82 +244,182 @@ public class StyleManager {
 		return colorDefaultRectangle();
 	}
 
+	/**
+	 * Retrieves the color associated with the default rectangle based on the current theme.
+	 *
+	 * @return The color for the default rectangle.
+	 */
 	public Color colorDefaultRectangle() {
 		return darkMode ? RECTANGLE_DEFAULT_COLOR_DARK : RECTANGLE_DEFAULT_COLOR_LIGHT;
 	}
 
+	/**
+	 * Retrieves the color associated with the selected rectangle based on the current theme.
+	 *
+	 * @return The color for the selected rectangle.
+	 */
 	public Color colorSelectedRectangle() {
 		return darkMode ? RECTANGLE_SELECTED_COLOR_DARK : RECTANGLE_RECT_SELECTED_COLOR_LIGHT;
 	}
 
+	/**
+	 * Retrieves the color associated with the incorrect rectangle based on the current theme.
+	 *
+	 * @return The color for the incorrect rectangle.
+	 */
 	public Color colorIncorrectRectangle() {
 		return darkMode ? RECTANGLE_INCORRECT_COLOR_DARK : RECTANGLE_INCORRECT_COLOR_LIGHT;
 	}
 
+	/**
+	 * Retrieves the color associated with the text based on the current theme.
+	 *
+	 * @return The color for the text.
+	 */
 	public Color colorText() {
 		return darkMode ? TEXT_DARK : TEXT_LIGHT;
 	}
 	
+	/**
+	 * Retrieves the color associated with the disabled text based on the current theme.
+	 *
+	 * @return The color for the disabled text.
+	 */
 	public Color colorTextDisabled() {
 		return darkMode ? TEXT_DISABLED_DARK : TEXT_DISABLED_LIGHT;
 	}
 
+	/**
+	 * Retrieves the color associated with the inverted text based on the current theme.
+	 *
+	 * @return The color for the inverted text.
+	 */
 	public Color colorTextInverted() {
 		return darkMode ? TEXT_INVERTED_DARK : TEXT_INVERTED_LIGHT;
 	}
 
+	/**
+	 * Retrieves the color associated with the neutral text based on the current theme.
+	 *
+	 * @return The color for the neutral text.
+	 */
 	public Color colorTextNeutral() {
 		return darkMode ? TEXT_NEUTRAL_DARK : TEXT_NEUTRAL_LIGHT;
 	}
 
+	/**
+	 * Retrieves the color associated with the popup background based on the current theme.
+	 *
+	 * @return The color for the popup background.
+	 */
 	public Color colorPopupBackground() {
 		return darkMode ? Color.WHITE : Color.BLACK;
 	}
 
+	/**
+	 * Retrieves the color associated with the popup text based on the current theme.
+	 *
+	 * @return The color for the popup text.
+	 */
 	public Color colorPopupText() {
 		return darkMode ? Color.BLACK : Color.WHITE;
 	}
 
+	/**
+	 * Retrieves the color associated with the whole achievements pane based on the current theme.
+	 *
+	 * @return The color for the whole achievements pane.
+	 */
 	public Color colorWholeAchievementsPane() {
 		return darkMode ? Color.BLACK : Color.WHITE;
 	}
 
+	/**
+	 * Retrieves the color associated with the whole game background based on the current theme.
+	 *
+	 * @return The color for the whole game background.
+	 */
 	public Color colorWholeGameBackground() {
 		return darkMode ? WHOLE_GAME_BACKGROUND_DARK :WHOLE_GAME_BACKGROUND_LIGHT;
 	}
 
+	/**
+	 * Retrieves the color associated with the SVG fill based on the current theme.
+	 *
+	 * @return The color for the SVG fill.
+	 */
 	public Color colorSVGFill() {
 		return darkMode ? Color.BLACK : Color.WHITE;
 	}
 	
+	/**
+	 * Retrieves the color associated with the timer background based on the current theme.
+	 *
+	 * @return The color for the timer background.
+	 */
 	public Color timerBackground() {
 		return darkMode ? Color.WHITE : Color.BLACK;
 	}
 	
+	/**
+	 * Retrieves the style for buttons based on the current theme.
+	 *
+	 * @return The style for buttons.
+	 */
 	public String styleButton() {
 		return darkMode ? BUTTON_DARK_MODE : BUTTON_LIGHT_MODE;
 	}
 
+	/**
+	 * Retrieves the style for the submit button fill based on the current theme.
+	 *
+	 * @return The style for the submit button fill.
+	 */
 	public String styleSubmitButtonFill() {
 	    return darkMode ? SUBMIT_BUTTON_FILL_DARK_MODE : SUBMIT_BUTTON_FILL_LIGHT_MODE;
 	}
 
+	/**
+	 * Retrieves the style for the share button in the results pane based on the current theme.
+	 *
+	 * @return The style for the share button in the results pane.
+	 */
 	public String styleResultsPaneShareButton() {
 	    return darkMode ? RESULTS_PANE_SHARE_BUTTON_DARK_MODE : RESULTS_PANE_SHARE_BUTTON_LIGHT_MODE;
 	}
 
+	/**
+	 * Retrieves the style for the overlay pane based on the current theme.
+	 *
+	 * @return The style for the overlay pane.
+	 */
 	public String styleOverlayPane() {
 	    return darkMode ? OVERLAY_PANE_DARK_MODE : OVERLAY_PANE_LIGHT_MODE;
 	}
 
+	/**
+	 * Retrieves the style for the whole game based on the current theme.
+	 *
+	 * @return The style for the whole game.
+	 */
 	public String styleWholeGame() {
 	    return darkMode ? WHOLE_GAME_DARK_MODE : WHOLE_GAME_LIGHT_MODE;
 	}
 
+	/**
+	 * Retrieves the style for labels based on the current theme.
+	 *
+	 * @return The style for labels.
+	 */
 	public String styleLabel() {
 	    return darkMode ? LABEL_DARK_MODE : LABEL_LIGHT_MODE;
 	}
-
+	
+	/**
+	 * Retrieves the style for circles based on the current theme.
+	 *
+	 * @return The style for circles.
+	 */
 	public String styleCircle() {
 	    return darkMode ? CIRCLE_DARK_MODE : CIRCLE_LIGHT_MODE;
 	}

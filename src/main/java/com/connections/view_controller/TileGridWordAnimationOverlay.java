@@ -17,6 +17,11 @@ import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.util.Duration;
 
+/**
+* The TileGridWordAnimationOverlay class provides animations
+* and visual effects for the TileGridWord component. It extends the Pane class and
+* implements the Modular interface.
+*/
 public class TileGridWordAnimationOverlay extends Pane implements Modular {
 	private static final int SWAP_TRANS_MS = 350;
 	private static final int BUFFER_MS = 5;
@@ -27,12 +32,21 @@ public class TileGridWordAnimationOverlay extends Pane implements Modular {
 	private boolean allowChangeVisibility = true;
 	private boolean paneShouldBeVisible = false;
 
+
+   /**
+    * Constructs a new TileGridWordAnimationOverlay instance.
+    *
+    * @param tileGridWord The TileGridWord instance associated with this animation overlay.
+    */
 	public TileGridWordAnimationOverlay(TileGridWord tileGridWord) {
 		this.tileGridWord = tileGridWord;
 		setMaxWidth(TileGridWord.PANE_WIDTH);
 		setVisible(false);
 	}
 
+   /**
+    * An inner class that extends the Interpolator class and provides a custom easing curve.
+    */
 	private class EaseOutInterpolator extends Interpolator {
 		@Override
 		protected double curve(double t) {
@@ -40,6 +54,16 @@ public class TileGridWordAnimationOverlay extends Pane implements Modular {
 		}
 	}
 
+   /**
+    * Creates a word swap animation for the given source and destination tile words.
+    *
+    * @param ghostPieceSet The set of ghost tile words for the animation.
+    * @param parallel      The ParallelTransition to which the animation will be added.
+    * @param destRow       The destination row index.
+    * @param destCol       The destination column index.
+    * @param sourceRow     The source row index.
+    * @param sourceCol     The source column index.
+    */
 	private void getWordSwap(Set<GameTileWord> ghostPieceSet, ParallelTransition parallel, int destRow, int destCol,
 			int sourceRow, int sourceCol) {
 		GameTileWord sourcePiece = createGhostPiece(sourceRow, sourceCol);
@@ -69,6 +93,15 @@ public class TileGridWordAnimationOverlay extends Pane implements Modular {
 		ghostPieceSet.add(destPiece);
 	}
 
+   /**
+    * Retrieves the source and destination row and column indices for the word swap animation.
+    *
+    * @param pieceSet      The set of tile words involved in the animation.
+    * @param destRowList   The list to store the destination row indices.
+    * @param destColList   The list to store the destination column indices.
+    * @param sourceRowList The list to store the source row indices.
+    * @param sourceColList The list to store the source column indices.
+    */
 	private void getSwapRowColIndex(Set<GameTileWord> pieceSet, List<Integer> destRowList, List<Integer> destColList,
 			List<Integer> sourceRowList, List<Integer> sourceColList) {
 		for (int c = 0; c < TileGridWord.COLS; c++) {
@@ -92,6 +125,11 @@ public class TileGridWordAnimationOverlay extends Pane implements Modular {
 		}
 	}
 
+   /**
+    * Gets the sequential transition for the correct answer animation.
+    *
+    * @return The SequentialTransition representing the correct answer animation.
+    */
 	public SequentialTransition getSequenceCorrectAnswer() {
 		Set<GameTileWord> originalPieceSet = new HashSet<>();
 		Set<GameTileWord> ghostPieceSet = new HashSet<>();
@@ -184,6 +222,13 @@ public class TileGridWordAnimationOverlay extends Pane implements Modular {
 		return sequence;
 	}
 
+   /**
+    * Creates a ghost tile word (a copy) for the specified row and column.
+    *
+    * @param row The row index.
+    * @param col The column index.
+    * @return The ghost tile word (a copy of the tile word at the specified row and column).
+    */
 	private GameTileWord createGhostPiece(int row, int col) {
 		GameTileWord original = (GameTileWord) tileGridWord.gridGetNode(row, col);
 		GameTileWord copy = new GameTileWord(original);
@@ -196,6 +241,11 @@ public class TileGridWordAnimationOverlay extends Pane implements Modular {
 		return copy;
 	}
 
+   /**
+    * Sets the visibility of the pane, taking into account the allowChangeVisibility flag.
+    *
+    * @param status The visibility status to set.
+    */
 	private void setVisibleWeak(boolean status) {
 		if (allowChangeVisibility) {
 			this.setVisible(status);
@@ -203,11 +253,19 @@ public class TileGridWordAnimationOverlay extends Pane implements Modular {
 		paneShouldBeVisible = status;
 	}
 
+   /**
+    * Sets the visibility of the pane dynamically, allowing or disallowing visibility changes.
+    *
+    * @param status The flag indicating whether visibility changes are allowed.
+    */
 	public void setVisibleDynamic(boolean status) {
 		allowChangeVisibility = status;
 		this.setVisible(paneShouldBeVisible);
 	}
 
+   /**
+    * Refreshes the style of the TileGridWordAnimationOverlay and its children based on the current style settings.
+    */
 	@Override
 	public void refreshStyle() {
 		for (Node node : getChildren()) {
@@ -218,6 +276,11 @@ public class TileGridWordAnimationOverlay extends Pane implements Modular {
 		}
 	}
 
+   /**
+    * Returns the GameSessionContext object associated with the TileGridWord.
+    *
+    * @return The GameSessionContext object.
+    */
 	@Override
 	public GameSessionContext getGameSessionContext() {
 		return tileGridWord.getGameSessionContext();

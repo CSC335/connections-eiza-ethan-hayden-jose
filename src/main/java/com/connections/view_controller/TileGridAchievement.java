@@ -10,11 +10,20 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 
+/**
+* The TileGridAchievement class represents a grid of achievement tiles.
+* It extends the Pane class and implements the Modular interface.
+*/
 public class TileGridAchievement extends Pane implements Modular {
 
     private GameSessionContext gameSessionContext;
     private GridPane gridPane;
 
+    /**
+     * Constructs a new TileGridAchievement object.
+     *
+     * @param gameSessionContext The GameSessionContext object for accessing shared resources.
+     */
     public TileGridAchievement(GameSessionContext gameSessionContext) {
         this.gameSessionContext = gameSessionContext;
         initAssets();
@@ -22,6 +31,9 @@ public class TileGridAchievement extends Pane implements Modular {
         refreshStyle();
     }
 
+    /**
+     * Initializes the assets for the TileGridAchievement.
+     */
     private void initAssets() {
         gridPane = new GridPane();
         gridPane.setHgap(TileGridWord.GAP);
@@ -32,6 +44,9 @@ public class TileGridAchievement extends Pane implements Modular {
         getChildren().add(gridPane);
     }
 
+    /**
+     * Initializes sample achievements in the grid.
+     */
     private void initSampleAchievements() {
         String[] achievementLabels = {
             "1 standard game completed", "10 standard games completed",
@@ -59,6 +74,9 @@ public class TileGridAchievement extends Pane implements Modular {
         }
     }
 
+    /**
+     * Animates the completion of achievements in the grid.
+     */
     public void animateCompletion() {
         for (Node node : gridPane.getChildren()) {
             if (node instanceof GameTileAchievement) {
@@ -68,6 +86,9 @@ public class TileGridAchievement extends Pane implements Modular {
         }
     }
 
+    /**
+     * Refreshes the style of the TileGridAchievement and its children based on the current style settings.
+     */
     @Override
     public void refreshStyle() {
         setBackground(new Background(new BackgroundFill(gameSessionContext.getStyleManager().colorWholeAchievementsPane(), null, null)));
@@ -80,6 +101,11 @@ public class TileGridAchievement extends Pane implements Modular {
         }
     }
 
+    /**
+     * Returns the GameSessionContext object associated with this TileGridAchievement.
+     *
+     * @return The GameSessionContext object.
+     */
     @Override
     public GameSessionContext getGameSessionContext() {
         return gameSessionContext;

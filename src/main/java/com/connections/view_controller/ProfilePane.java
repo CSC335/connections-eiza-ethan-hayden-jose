@@ -15,6 +15,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.text.Text;
 
+/**
+ * The ProfilePane class represents a pane that displays and allows editing of a user's profile information.
+ * It shows the user's username, email, password, and bio, and provides options to edit each field.
+ */
 public class ProfilePane extends VBox implements Modular {
     private GameSessionContext gameSessionContext;
     private WebContext webContext;
@@ -57,10 +61,19 @@ public class ProfilePane extends VBox implements Modular {
     
     private GridPane gridPane;
     
+    /**
+     * The WarningMessage class represents a warning message displayed when a field input is invalid.
+     * It consists of a label and a warning SVG icon.
+     */
     private class WarningMessage extends HBox {
 		private Label messageLabel;
 		private SVGPath warningSVGPath;
 
+        /**
+         * Constructs a new WarningMessage with the specified message.
+         *
+         * @param message the warning message to be displayed
+         */
 		public WarningMessage(String message) {
 			messageLabel = new Label(message);
 			messageLabel.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 700, 14));
@@ -79,11 +92,21 @@ public class ProfilePane extends VBox implements Modular {
 			getChildren().addAll(warningSVGPath, messageLabel);
 		}
 
+        /**
+         * Sets the warning message to be displayed.
+         *
+         * @param message the warning message to be set
+         */
 		public void setMessage(String message) {
 			messageLabel.setText(message);
 		}
 	}
 
+    /**
+     * Constructs a new ProfilePane with the specified GameSessionContext.
+     *
+     * @param gameSessionContext the GameSessionContext used by the profile pane
+     */
     public ProfilePane(GameSessionContext gameSessionContext) {
         this.gameSessionContext = gameSessionContext;
         this.webContext = gameSessionContext.getWebContext();
@@ -96,6 +119,9 @@ public class ProfilePane extends VBox implements Modular {
         }
     }
 
+    /**
+     * Initializes the guest message when the user is playing as a guest.
+     */
     private void initializeGuestMessage() {
     	guestErrorMessageLabel = new Label("You are playing as a guest. Create an account or login to view or edit your profile!");
     	guestErrorMessageLabel.setWrapText(true);
@@ -104,6 +130,9 @@ public class ProfilePane extends VBox implements Modular {
         setAlignment(Pos.CENTER);
     }
 
+    /**
+     * Initializes the profile information and editing components.
+     */
     private void initializeProfile() {
         usernameLabel = new Label(user.getUserName());
         usernameLabel.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 600, 16));
@@ -224,6 +253,13 @@ public class ProfilePane extends VBox implements Modular {
         setAlignment(Pos.CENTER);
     }
 
+    /**
+     * Creates an edit button for the specified label and text field.
+     *
+     * @param label     the label associated with the field
+     * @param textField the text field associated with the field
+     * @return the created edit button
+     */
     private CircularButton createEditButton(Label label, TextField textField) {
         CircularButton editButton = new CircularButton("Edit", 16, gameSessionContext, false);
         editButton.setOnAction(e -> {
@@ -238,6 +274,13 @@ public class ProfilePane extends VBox implements Modular {
         return editButton;
     }
 
+    /**
+     * Creates a save button for the specified label and text field.
+     *
+     * @param label     the label associated with the field
+     * @param textField the text field associated with the field
+     * @return the created save button
+     */
     private CircularButton createSaveButton(Label label, TextField textField) {
         CircularButton saveButton = new CircularButton("Save", 16, gameSessionContext, false);
         saveButton.setOnAction(e -> saveField(label, textField));
@@ -250,6 +293,13 @@ public class ProfilePane extends VBox implements Modular {
         return saveButton;
     }
 
+    /**
+     * Creates a cancel button for the specified label and text field.
+     *
+     * @param label     the label associated with the field
+     * @param textField the text field associated with the field
+     * @return the created cancel button
+     */
     private CircularButton createCancelButton(Label label, TextField textField) {
         CircularButton cancelButton = new CircularButton("Cancel", 16, gameSessionContext, false);
         cancelButton.setOnAction(e -> cancelField(label, textField));
@@ -262,6 +312,15 @@ public class ProfilePane extends VBox implements Modular {
         return cancelButton;
     }
 
+    /**
+     * Edits the specified field by replacing the label with a text field and showing the save and cancel buttons.
+     *
+     * @param label       the label associated with the field
+     * @param textField   the text field associated with the field
+     * @param editButton  the edit button associated with the field
+     * @param saveButton  the save button associated with the field
+     * @param cancelButton the cancel button associated with the field
+     */
     private void editField(Label label, TextField textField, CircularButton editButton, CircularButton saveButton, CircularButton cancelButton) {
         if (label.getParent() instanceof GridPane) {
             int row = GridPane.getRowIndex(label);
@@ -288,6 +347,12 @@ public class ProfilePane extends VBox implements Modular {
         }
     }
 
+    /**
+     * Saves the edited field value if it is valid and updates the user's profile information.
+     *
+     * @param label     the label associated with the field
+     * @param textField the text field associated with the field
+     */
     private void saveField(Label label, TextField textField) {
         boolean valid = true;
 
@@ -341,6 +406,12 @@ public class ProfilePane extends VBox implements Modular {
         }
     }
 
+    /**
+     * Shows the warning message for the specified text field.
+     *
+     * @param message   the warning message to be shown
+     * @param textField the text field associated with the warning message
+     */
     private void showWarningMessage(WarningMessage message, TextField textField) {
         message.setVisible(true);
         textField.setStyle("-fx-border-color: red; -fx-border-width: 1;");
@@ -355,6 +426,12 @@ public class ProfilePane extends VBox implements Modular {
         }
     }
 
+    /**
+     * Hides the warning message for the specified text field.
+     *
+     * @param message   the warning message to be hidden
+     * @param textField the text field associated with the warning message
+     */
     private void hideWarningMessage(WarningMessage message, TextField textField) {
         message.setVisible(false);
         textField.setStyle("-fx-border-color: black; -fx-border-width: 1;");
@@ -364,6 +441,12 @@ public class ProfilePane extends VBox implements Modular {
         }
     }
 
+    /**
+     * Checks if the username is valid.
+     *
+     * @param username the username to be validated
+     * @return true if the username is valid, false otherwise
+     */
     private boolean isValidUsername(String username) {
         if (username.length() < 1 || username.length() > 20) {
             invalidUsernameMessage.setMessage("Username must be between 1 and 20 characters long.");
@@ -372,6 +455,12 @@ public class ProfilePane extends VBox implements Modular {
         return true;
     }
 
+    /**
+     * Checks if the username is valid and available in the database.
+     *
+     * @param username the username to be validated
+     * @return true if the username is valid and available, false otherwise
+     */
     private boolean isDatabaseValidUsername(String username) {
         if (WebUserAccount.checkAccountExistsByUserName(webContext, username)) {
             invalidUsernameMessage.setMessage("Username has been taken!");
@@ -380,6 +469,12 @@ public class ProfilePane extends VBox implements Modular {
         return true;
     }
 
+    /**
+     * Checks if the password is valid.
+     *
+     * @param password the password to be validated
+     * @return true if the password is valid, false otherwise
+     */
     private boolean isValidPassword(String password) {
         if (password.length() < 8) {
             invalidPasswordMessage.setMessage("Password must be at least 8 characters long.");
@@ -388,11 +483,23 @@ public class ProfilePane extends VBox implements Modular {
         return true;
     }
 
+    /**
+     * Checks if the email is valid.
+     *
+     * @param email the email to be validated
+     * @return true if the email is valid, false otherwise
+     */
     private boolean isValidEmail(String email) {
         String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
         return email.matches(emailRegex);
     }
 
+    /**
+     * Cancels the editing of the specified field and reverts to the original value.
+     *
+     * @param label     the label associated with the field
+     * @param textField the text field associated with the field
+     */
     private void cancelField(Label label, TextField textField) {
         replaceTextFieldWithLabel(textField, label);
         hideEditControls(label);
@@ -427,6 +534,12 @@ public class ProfilePane extends VBox implements Modular {
         }
     }
 
+    /**
+     * Replaces the text field with the corresponding label.
+     *
+     * @param textField the text field to be replaced
+     * @param label     the label to replace the text field
+     */
     private void replaceTextFieldWithLabel(TextField textField, Label label) {
         if (textField.getParent() instanceof GridPane) {
             int row = GridPane.getRowIndex(textField);
@@ -436,12 +549,23 @@ public class ProfilePane extends VBox implements Modular {
         }
     }
 
+    /**
+     * Hides the edit controls (save and cancel buttons) for the specified label.
+     *
+     * @param label the label associated with the field
+     */
     private void hideEditControls(Label label) {
         getCorrespondingSaveButton(label).setVisible(false);
         getCorrespondingCancelButton(label).setVisible(false);
         getCorrespondingEditButton(label).setVisible(true);
     }
 
+    /**
+     * Returns the corresponding edit button for the specified label.
+     *
+     * @param label the label associated with the field
+     * @return the corresponding edit button
+     */
     private CircularButton getCorrespondingEditButton(Label label) {
         if (label == usernameLabel) {
             return editUsernameButton;
@@ -455,6 +579,12 @@ public class ProfilePane extends VBox implements Modular {
         return null;
     }
 
+    /**
+     * Returns the corresponding save button for the specified label.
+     *
+     * @param label the label associated with the field
+     * @return the corresponding save button
+     */
     private CircularButton getCorrespondingSaveButton(Label label) {
         if (label == usernameLabel) {
             return saveUsernameButton;
@@ -468,6 +598,12 @@ public class ProfilePane extends VBox implements Modular {
         return null;
     }
 
+    /**
+     * Returns the corresponding cancel button for the specified label.
+     *
+     * @param label the label associated with the field
+     * @return the corresponding cancel button
+     */
     private CircularButton getCorrespondingCancelButton(Label label) {
         if (label == usernameLabel) {
             return cancelUsernameButton;
@@ -481,6 +617,9 @@ public class ProfilePane extends VBox implements Modular {
         return null;
     }
 
+    /**
+     * Refreshes the style of the profile pane based on the current style manager.
+     */
     @Override
     public void refreshStyle() {
     	StyleManager styleManager = gameSessionContext.getStyleManager();
@@ -513,6 +652,11 @@ public class ProfilePane extends VBox implements Modular {
     	}
     }
 
+    /**
+     * Returns the GameSessionContext associated with the profile pane.
+     *
+     * @return the GameSessionContext associated with the profile pane
+     */
     @Override
     public GameSessionContext getGameSessionContext() {
         return gameSessionContext;

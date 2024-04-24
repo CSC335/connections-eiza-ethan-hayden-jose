@@ -19,6 +19,10 @@ import javafx.scene.shape.SVGPath;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
+/**
+ * The PopupWrapperPane class represents a pane that wraps a child pane and displays it as a popup.
+ * It provides a title, a "Go Back" button, and animates the popup appearance.
+ */
 public class PopupWrapperPane extends BorderPane implements Modular {
 	protected static final double POPUP_EDGE_CUTOFF = 125;
 	protected static final double INSETS_MARGIN = 10;
@@ -42,6 +46,13 @@ public class PopupWrapperPane extends BorderPane implements Modular {
 	private String title;
 	private Text goBackText;
 
+    /**
+     * Constructs a new PopupWrapperPane with the specified GameSessionContext, child pane, and title.
+     *
+     * @param gameSessionContext the GameSessionContext used by the popup wrapper pane
+     * @param childPane          the child pane to be displayed inside the popup
+     * @param title              the title of the popup
+     */
 	public PopupWrapperPane(GameSessionContext gameSessionContext, Pane childPane, String title) {
 		this.title = title;
 		this.childPane = childPane;
@@ -54,6 +65,11 @@ public class PopupWrapperPane extends BorderPane implements Modular {
 		refreshStyle();
 	}
 
+    /**
+     * Sets the size of the popup wrapper pane to be fixed or variable.
+     *
+     * @param fixedSize true to set a fixed size, false to allow variable size
+     */
 	public void setSizeFixed(boolean fixedSize) {
 		setMaxSize(POPUP_WIDTH, POPUP_HEIGHT);
 		containerPane.setMaxSize(CONTAINER_WIDTH, CONTAINER_HEIGHT);
@@ -69,6 +85,11 @@ public class PopupWrapperPane extends BorderPane implements Modular {
 		}
 	}
 
+    /**
+     * Sets the child pane to be displayed inside the popup wrapper pane.
+     *
+     * @param pane the child pane to be displayed
+     */
 	public void setChild(Pane pane) {
 	    this.childPane = pane;
 	    containerPane.getChildren().clear();
@@ -76,11 +97,19 @@ public class PopupWrapperPane extends BorderPane implements Modular {
 	    refreshStyle();
 	}
 
+    /**
+     * Sets the title of the popup wrapper pane.
+     *
+     * @param title the title of the popup
+     */
 	public void setTitle(String title) {
 		this.title = title;
 		titleText.setText(title);
 	}
 
+    /**
+     * Animates the popup appearance with a slide-up and fade-in transition.
+     */
 	public void popup() {
 		TranslateTransition slideUp = new TranslateTransition(Duration.millis(FADE_MS), this);
 		setTranslateX(0);
@@ -96,12 +125,18 @@ public class PopupWrapperPane extends BorderPane implements Modular {
 		combined.play();
 	}
 
+    /**
+     * Initializes the assets and components of the popup wrapper pane.
+     */
 	private void initAssets() {
 		containerPane = new StackPane(childPane);
 		setCenter(containerPane);
 		setPadding(new Insets(INSETS_MARGIN));
 	}
 
+    /**
+     * Initializes the menu pane with the title and "Go Back" button.
+     */
 	private void initMenuPane() {
 		goBackCross = new SVGPath();
 		goBackCross.setContent(
@@ -138,10 +173,18 @@ public class PopupWrapperPane extends BorderPane implements Modular {
 		setTop(menuPane);
 	}
 
+    /**
+     * Sets the event handler to be called when the "Go Back" button is pressed.
+     *
+     * @param handler the event handler to be called when the "Go Back" button is pressed
+     */
 	public void setOnGoBackPressed(EventHandler <MouseEvent> handler) {
 		goBackLayout.setOnMouseClicked(handler);
 	}
 
+    /**
+     * Refreshes the style of the popup wrapper pane and its child pane based on the current style manager.
+     */
 	@Override
 	public void refreshStyle() {
 		StyleManager styleManager = gameSessionContext.getStyleManager();
@@ -155,6 +198,11 @@ public class PopupWrapperPane extends BorderPane implements Modular {
 		}
 	}
 
+    /**
+     * Returns the GameSessionContext associated with the popup wrapper pane.
+     *
+     * @return the GameSessionContext associated with the popup wrapper pane
+     */
 	@Override
 	public GameSessionContext getGameSessionContext() {
 		return gameSessionContext;
