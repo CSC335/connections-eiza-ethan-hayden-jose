@@ -36,6 +36,9 @@ public class StyleManager {
 
 	protected static final Color TEXT_LIGHT = Color.BLACK;
 	protected static final Color TEXT_DARK = Color.rgb(176, 247, 121);
+	
+	protected static final Color TEXT_DISABLED_LIGHT = Color.rgb(200, 200, 200);
+	protected static final Color TEXT_DISABLED_DARK = Color.rgb(126, 197, 81);
 
 	protected static final Color TEXT_INVERTED_LIGHT = Color.WHITE;
 	protected static final Color TEXT_INVERTED_DARK = Color.WHITE;
@@ -172,6 +175,10 @@ public class StyleManager {
 
 	public Color colorText() {
 		return darkMode ? TEXT_DARK : TEXT_LIGHT;
+	}
+	
+	public Color colorTextDisabled() {
+		return darkMode ? TEXT_DISABLED_DARK : TEXT_DISABLED_LIGHT;
 	}
 
 	public Color colorTextInverted() {

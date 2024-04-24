@@ -90,6 +90,7 @@ public class GameSession extends StackPane implements Modular {
 	private boolean loadedFromSaveState;
 	private boolean isBrowserClosed;
 	private boolean blockedStoringSaveState;
+	private boolean hintsCannotBeUsedRightNow;
 	private GameType gameType;
 
 	private boolean timeKeepingActive;
@@ -161,7 +162,6 @@ public class GameSession extends StackPane implements Modular {
 
 		gameButtonRowPane = new HBox(8);
 		gameButtonRowPane.setAlignment(Pos.CENTER);
-		gameButtonRowPane.getChildren().addAll(gameShuffleButton, gameDeselectButton, gameSubmitButton);
 
 		menuButtonRowPane = new HBox(10, hintMenuButton, profileMenuButton, leaderboardMenuButton,
 				achievementsMenuButton, darkModeToggleMenuButton);
@@ -170,7 +170,7 @@ public class GameSession extends StackPane implements Modular {
 		menuButtonRowPane.setStyle("-fx-alignment: center-right;");
 
 		// exclude the hints pane for now
-		gameContentPane = new VBox(24, mainHeaderText, tileGridStackPane, mistakesPane, gameButtonRowPane);
+		gameContentPane = new VBox(24);
 		gameContentPane.setAlignment(Pos.CENTER);
 
 		menuPane = new StackPane(menuButtonRowPane);
@@ -300,7 +300,8 @@ public class GameSession extends StackPane implements Modular {
 			screenDisplayResults();
 		});
 		hintMenuButton.setOnMouseClicked(event -> {
-			debugSimulateResultsPane();
+//			debugSimulateResultsPane();
+			sessionHintUsed();
 		});
 		achievementsMenuButton.setOnMouseClicked(event -> {
 			screenDisplayAchievements();
@@ -321,7 +322,8 @@ public class GameSession extends StackPane implements Modular {
 		gameButtonRowPane.getChildren().clear();
 		gameButtonRowPane.getChildren().addAll(gameShuffleButton, gameDeselectButton, gameSubmitButton);
 		gameContentPane.getChildren().clear();
-		gameContentPane.getChildren().addAll(mainHeaderText, tileGridStackPane, mistakesPane, gameButtonRowPane);
+		gameContentPane.getChildren().addAll(mainHeaderText, tileGridStackPane, mistakesPane, hintsPane,
+				gameButtonRowPane);
 	}
 
 	private void controlsSetViewResultsOnly() {
@@ -508,7 +510,7 @@ public class GameSession extends StackPane implements Modular {
 				// By default, enable everything, but disable the game buttons.
 				helperSetAllInteractablesDisabled(false);
 				helperSetGameInteractablesDisabled(true);
-				
+
 				playedGameInfo = currentUser.getPlayedGameByPuzzleNum(currentPuzzleNumber);
 				gameStartDateTime = playedGameInfo.getGameStartTime();
 				gameEndDateTime = playedGameInfo.getGameEndTime();
@@ -536,6 +538,46 @@ public class GameSession extends StackPane implements Modular {
 	// === === === === === === === === === === === ===
 	// === === === === MAIN "SESSION" METHODS
 	// === === === === === === === === === === === ===
+
+	/*
+	 * for hints, make sure that:
+	 * (1) make sure sessionHintsSetDisabled() is done for all other conditions when game is loaded mid-game and stuff
+	 */
+	
+	public void sessionHintUsed() {
+		if (!hintsCannotBeUsedRightNow && hintsPane.getNumCircles() > 0 && !tileGridWord.hintAnimationIsRunning()) {
+			tileGridWord.hintAnimationShow();
+			tileGridWord.setOnHintAnimationStopped(event -> {
+				hintsPane.removeCircle();
+				if (!hintsCannotBeUsedRightNow && hintsPane.getNumCircles() > 0) {
+					hintMenuButton.setDisable(false);
+					hintMenuButton.refreshStyle();
+				}
+			});
+			hintMenuButton.setDisable(true);
+			hintMenuButton.refreshStyle();
+		}
+	}
+
+	public void sessionHintsAnimationStop() {
+		if (tileGridWord.hintAnimationIsRunning()) {
+			tileGridWord.hintAnimationStop();
+		}
+	}
+
+	public void sessionHintsSetDisabled(boolean disabled) {
+		hintsCannotBeUsedRightNow = disabled;
+		if (disabled) {
+			hintMenuButton.setDisable(true);
+			hintMenuButton.refreshStyle();
+			sessionHintsAnimationStop();
+		} else {
+			if (hintsPane.getNumCircles() > 0) {
+				hintMenuButton.setDisable(false);
+				hintMenuButton.refreshStyle();
+			}
+		}
+	}
 
 	public void sessionBeginNewGame() {
 		helperTimeKeepingStart(ZonedDateTime.now());
@@ -652,10 +694,6 @@ public class GameSession extends StackPane implements Modular {
 		helperSetGameInteractablesDisabled(true);
 	}
 
-	public void sessionHintUsed() {
-
-	}
-
 	/*
 	 * This NEEDS to be a lot more assertive: it needs to somehow prevent everything
 	 * from executing further. There should probably be a boolean in the
@@ -758,6 +796,7 @@ public class GameSession extends StackPane implements Modular {
 	private void helperSetGameInteractablesDisabled(boolean disabled) {
 		tileGridWord.setTileWordDisable(disabled);
 		helperSetGameButtonsDisabled(disabled);
+		sessionHintsSetDisabled(disabled);
 	}
 
 	private void helperDisplayPopupNotifcation(String message, double width, int duration) {
@@ -809,6 +848,9 @@ public class GameSession extends StackPane implements Modular {
 
 			SequentialTransition sequentialTransition = new SequentialTransition();
 			PauseTransition pauseBeforeSwapTransition = new PauseTransition(Duration.millis(350));
+			pauseBeforeSwapTransition.setOnFinished(event -> {
+				sessionHintsAnimationStop();
+			});
 			SequentialTransition swapAndAnswerTileSequence = tileGridWordAnimationPane.getSequenceCorrectAnswer();
 			PauseTransition pauseAfterSwapTransition = new PauseTransition(Duration.millis(350));
 			sequentialTransition.getChildren().addAll(pauseBeforeSwapTransition, swapAndAnswerTileSequence,
@@ -847,6 +889,7 @@ public class GameSession extends StackPane implements Modular {
 
 		PauseTransition placeholderPause = new PauseTransition(Duration.millis(5));
 		placeholderPause.setOnFinished(event -> {
+			sessionHintsAnimationStop();
 			helperSetGameInteractablesDisabled(true);
 			if (lostGame) {
 				helperTimeKeepingStop();
@@ -903,6 +946,7 @@ public class GameSession extends StackPane implements Modular {
 		SequentialTransition sequentialCorrectTrans = new SequentialTransition();
 		PauseTransition placeholderPause = new PauseTransition(Duration.millis(5));
 		placeholderPause.setOnFinished(event -> {
+			sessionHintsAnimationStop();
 			helperSetGameInteractablesDisabled(true);
 			if (wonGameSet) {
 				helperTimeKeepingStop();

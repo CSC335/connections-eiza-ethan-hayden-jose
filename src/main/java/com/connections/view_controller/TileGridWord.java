@@ -1,11 +1,15 @@
 package com.connections.view_controller;
 
+import javafx.animation.Animation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import com.connections.model.DifficultyColor;
@@ -42,6 +46,13 @@ public class TileGridWord extends BorderPane implements Modular {
 	private List<Set<Word>> previousGuesses;
 	private GameSessionContext gameSessionContext;
 	private EventHandler<ActionEvent> onTileWordSelection;
+	private EventHandler<ActionEvent> onHintAnimationStopped;
+
+	private Set<GameTileWord> tileWordHintShowSet;
+	private ParallelTransition tileWordHintPulseTransition;
+	private ParallelTransition tileWordHintReturnNormalTransition;
+	private boolean hintAnimationInitialActive;
+	private boolean hintAnimationPlaying;
 
 	// NOTE: todo, the GameTileWords need to be responsible for setting their own
 	// fonts, not TileGridWord, but this is here because of the old constructor of
@@ -431,17 +442,6 @@ public class TileGridWord extends BorderPane implements Modular {
 		}
 	}
 
-	// Method likely no longer needed
-	// Disabling/enabling style changeable during auto solve caused darkmode issues
-	public void setTileWordStyleChangeable(boolean status) {
-		for (Node node : gridPane.getChildren()) {
-			if (node instanceof GameTileWord) {
-				GameTileWord tileWord = (GameTileWord) node;
-				tileWord.setStyleChangeable(status);
-			}
-		}
-	}
-
 	@Override
 	public void refreshStyle() {
 		for (Node node : gridPane.getChildren()) {
@@ -541,5 +541,115 @@ public class TileGridWord extends BorderPane implements Modular {
 		}
 
 		return gridWords;
+	}
+
+	public void setOnHintAnimationStopped(EventHandler<ActionEvent> onHintAnimationStopped) {
+		this.onHintAnimationStopped = onHintAnimationStopped;
+	}
+
+	public boolean hintAnimationIsRunning() {
+		return hintAnimationPlaying;
+	}
+
+	public void hintAnimationStop() {
+		if (hintAnimationInitialActive && hintAnimationPlaying) {
+			hintAnimationInitialActive = false;
+			tileWordHintPulseTransition.stop();
+
+			tileWordHintReturnNormalTransition = new ParallelTransition();
+			for (GameTileWord tileWord : tileWordHintShowSet) {
+				tileWordHintReturnNormalTransition.getChildren().add(tileWord.getHintReturnNormalAnimation());
+			}
+			tileWordHintReturnNormalTransition.setOnFinished(event -> {
+				if (onHintAnimationStopped != null) {
+					onHintAnimationStopped.handle(new ActionEvent(this, null));
+				}
+				for (GameTileWord tileWord : tileWordHintShowSet) {
+					tileWord.setStyleChangeable(true);
+					tileWord.refreshStyle();
+				}
+				hintAnimationPlaying = false;
+			});
+			tileWordHintReturnNormalTransition.play();
+		}
+		gridPane.setOnMouseClicked(null);
+	}
+
+	public void hintAnimationShow() {
+		tileWordHintShowSet = new HashSet<>();
+
+		Set<GameTileWord> tileWordSelectedSet = getSelectedTileWords();
+		Map<DifficultyColor, Integer> tilesByColorCount = new TreeMap<>();
+
+		// Initialize the HashMap with zero for each color.
+		for (DifficultyColor color : DifficultyColor.getAllColors()) {
+			tilesByColorCount.put(color, 0);
+		}
+
+		// Go through all of the selected colors and increment the counters in the
+		// HashMap.
+		for (GameTileWord tileWord : tileWordSelectedSet) {
+			DifficultyColor color = tileWord.getWord().getColor();
+			tilesByColorCount.put(color, tilesByColorCount.get(color) + 1);
+			tileWordHintShowSet.add(tileWord);
+		}
+
+		Set<DifficultyColor> colorsToSearchFor = new TreeSet<>();
+		int numExtraTilesToPulse = 3;
+
+		// Find the first and second maximum count.
+		for (int i = 0; i < numExtraTilesToPulse; i++) {
+			DifficultyColor maxColor = null;
+			int maxCount = -1;
+			for (DifficultyColor color : tilesByColorCount.keySet()) {
+				if (tilesByColorCount.get(color) > maxCount) {
+					maxCount = tilesByColorCount.get(color);
+					maxColor = color;
+				}
+			}
+			if (maxColor != null) {
+				colorsToSearchFor.add(maxColor);
+				tilesByColorCount.remove(maxColor);
+			}
+		}
+
+		// Search the entire grid for non-selected GameTileWord objects that have a
+		// matching color, pulse the first object that is found (and pulse no more
+		// objects of that color).
+		for (Node node : gridPane.getChildren()) {
+			if (node instanceof GameTileWord) {
+				GameTileWord tileWord = (GameTileWord) node;
+				if (!tileWord.getSelectedStatus()) {
+					DifficultyColor color = tileWord.getWord().getColor();
+					if (colorsToSearchFor.contains(color)) {
+						colorsToSearchFor.remove(color);
+						tileWordHintShowSet.add(tileWord);
+					}
+				}
+			}
+
+			if (colorsToSearchFor.isEmpty()) {
+				break;
+			}
+		}
+		
+		tileWordHintPulseTransition = new ParallelTransition();
+
+		for (GameTileWord tileWord : tileWordHintShowSet) {
+			tileWordHintPulseTransition.getChildren().add(tileWord.getHintPulseAnimation());
+			tileWord.setStyleChangeable(false);
+		}
+
+		tileWordHintPulseTransition.setOnFinished(event -> {
+			hintAnimationStop();
+		});
+
+		gridPane.setOnMouseClicked(event -> {
+			hintAnimationStop();
+		});
+
+		tileWordHintPulseTransition.play();
+		hintAnimationInitialActive = true;
+		hintAnimationPlaying = true;
 	}
 }

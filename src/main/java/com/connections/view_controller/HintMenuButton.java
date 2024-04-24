@@ -26,7 +26,14 @@ public class HintMenuButton extends SVGButton implements Modular {
 
     @Override
     public void refreshStyle() {
-    	hintSVG.setStroke(gameSessionContext.getStyleManager().colorText());
-        svgPath.setFill(gameSessionContext.getStyleManager().colorText());
+    	StyleManager styleManager = gameSessionContext.getStyleManager();
+    	
+    	if(isDisabled()) {
+    		hintSVG.setStroke(styleManager.colorTextDisabled());
+            svgPath.setFill(styleManager.colorTextDisabled());
+    	} else {
+    		hintSVG.setStroke(styleManager.colorText());
+            svgPath.setFill(styleManager.colorText());
+    	}
     }
 }
