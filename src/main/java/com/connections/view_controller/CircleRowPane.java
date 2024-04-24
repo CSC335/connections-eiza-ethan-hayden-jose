@@ -9,6 +9,12 @@ import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
+/**
+ * Represents a pane containing a row of circles.
+ *
+ * @param label The label for the circle row.
+ * @param gameSessionContext The context of the game session.
+ */
 public class CircleRowPane extends HBox implements Modular {
 	private GameSessionContext gameSessionContext;
 	private Pane circlePane;
@@ -16,6 +22,12 @@ public class CircleRowPane extends HBox implements Modular {
 	private int numCircles;
 	private final static int START_SIZE = 4;
 
+	 /**
+     * Constructs a PlayedGameInfoTimed object with the given parameters.
+     *
+     * @param label              The label for the circle row.
+     * @param gameSessionContext The game session's context.
+     */
 	public CircleRowPane(String label, GameSessionContext gameSessionContext) {
 		this.gameSessionContext = gameSessionContext;
 
@@ -33,6 +45,11 @@ public class CircleRowPane extends HBox implements Modular {
 		refreshStyle();
 	}
 
+	/**
+	 * Removes a circle from the circle row.
+	 *
+	 * @return true if a circle was removed successfully, false otherwise.
+	 */
 	public boolean removeCircle() {
 		if (numCircles > 0 && circlePane.getChildren().size() > 0) {
 			numCircles--;
@@ -52,18 +69,20 @@ public class CircleRowPane extends HBox implements Modular {
 		return false;
 	}
 
-	/*
-	 * Using a dedicated "numCircles" variable now because relying on the pane for
-	 * the count is not the most up-to-date becuse, when removing the circle, the
-	 * size will only update AFTER the circle has disappeared fully in the
-	 * animation.
+	/**
+	 * Returns the number of circles in the circle row.
+	 *
+	 * @return The number of circles.
 	 */
-
 	public int getNumCircles() {
-//		return circlePane.getChildren().size();
 		return numCircles;
 	}
 
+	/**
+	 * Sets the number of circles in the circle row.
+	 *
+	 * @param numCircles The new number of circles.
+	 */
 	public void setNumCircles(int numCircles) {
 		this.numCircles = numCircles;
 		circlePane.getChildren().clear();
@@ -72,10 +91,18 @@ public class CircleRowPane extends HBox implements Modular {
 		}
 	}
 
+	/**
+	 * Resets the circle row to its initial state.
+	 */
 	public void resetCircles() {
 		setNumCircles(START_SIZE);
 	}
 
+	/**
+	 * Returns makes a stylized Circle object.
+	 *
+	 * @return The stylized Circle object.
+	 */
 	private Circle makeCircle(int indexPosition) {
 		Circle circle = new Circle(8);
 		circle.setFill(Color.rgb(90, 89, 78));
@@ -84,15 +111,28 @@ public class CircleRowPane extends HBox implements Modular {
 		return circle;
 	}
 
+	/**
+	 * Returns the maximum number of circles allowed in the circle row.
+	 *
+	 * @return The maximum number of circles.
+	 */
 	public int getMaxNumCircles() {
 		return START_SIZE;
 	}
 
+	/**
+	 * Refreshes the style for the CircleRowPane
+	 */
 	@Override
 	public void refreshStyle() {
 		text.setFill(gameSessionContext.getStyleManager().colorText());
 	}
 
+    /**
+     * Returns the GameSessionContext associated with the CircleRowPane.
+     *
+     * @return the GameSessionContext associated with the CircleRowPane
+     */
 	@Override
 	public GameSessionContext getGameSessionContext() {
 		return gameSessionContext;

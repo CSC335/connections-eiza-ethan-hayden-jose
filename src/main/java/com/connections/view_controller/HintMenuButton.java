@@ -2,8 +2,18 @@ package com.connections.view_controller;
 
 import javafx.scene.shape.SVGPath;
 
+/**
+ * The HintMenuButton class represents a button with a hint icon in the menu.
+ * It extends the SVGButton class and implements the Modular interface.
+ */
 public class HintMenuButton extends SVGButton implements Modular {
 	private SVGPath hintSVG;
+	
+    /**
+     * Constructs a new HintMenuButton with the specified GameSessionContext.
+     *
+     * @param gameSessionContext the GameSessionContext used by the hint menu button
+     */
     public HintMenuButton(GameSessionContext gameSessionContext) {
         super(gameSessionContext);
 
@@ -24,6 +34,9 @@ public class HintMenuButton extends SVGButton implements Modular {
         refreshStyle();
     }
 
+    /**
+     * Refreshes the style of the hint menu button based on the current style manager.
+     */
     @Override
     public void refreshStyle() {
     	StyleManager styleManager = gameSessionContext.getStyleManager();

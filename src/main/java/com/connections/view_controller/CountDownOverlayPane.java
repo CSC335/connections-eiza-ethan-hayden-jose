@@ -19,6 +19,10 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
+/**
+ * The CountDownOverlayPane class represents a pane that displays a countdown animation.
+ * It is designed to be used as an overlay during a game session.
+ */
 public class CountDownOverlayPane extends StackPane implements Modular {
 	public static final int BACKGROUND_PANE_WIDTH = 500;
 	public static final int BACKGROUND_PANE_HEIGHT = 400;
@@ -31,11 +35,19 @@ public class CountDownOverlayPane extends StackPane implements Modular {
 	 * todo: finish the dark mode support of this class
 	 */
 
+    /**
+     * Constructs a new CountDownOverlayPane with the specified GameSessionContext.
+     *
+     * @param gameSessionContext the GameSessionContext used by the countdown overlay pane
+     */
 	public CountDownOverlayPane(GameSessionContext gameSessionContext) {
 		this.gameSessionContext = gameSessionContext;
 		initAssets();
 	}
 
+	/**
+     * Initializes the assets and components of the countdown overlay pane.
+     */
 	private void initAssets() {
 		backgroundPane = new Pane();
 		backgroundPane.setMinSize(BACKGROUND_PANE_WIDTH, BACKGROUND_PANE_HEIGHT);
@@ -51,6 +63,13 @@ public class CountDownOverlayPane extends StackPane implements Modular {
 		refreshStyle();
 	}
 
+    /**
+     * Creates a shrink animation sequence for the countdown text.
+     *
+     * @param text   the text to display during the animation
+     * @param isLast a boolean indicating if this is the last animation in the sequence
+     * @return a SequentialTransition representing the shrink animation sequence
+     */
 	private SequentialTransition getShrinkAnimation(String text, boolean isLast) {
 		PauseTransition startupPause = new PauseTransition(Duration.millis(5));
 		startupPause.setOnFinished(event -> {
@@ -80,6 +99,9 @@ public class CountDownOverlayPane extends StackPane implements Modular {
 		return sequence;
 	}
 
+    /**
+     * Fades out the countdown overlay pane and triggers the onFinishedCountdown event.
+     */
 	private void fadeOutAndTrigger() {
 		FadeTransition fadeOut = new FadeTransition(Duration.millis(500), this);
 		fadeOut.setFromValue(1.0);
@@ -94,6 +116,9 @@ public class CountDownOverlayPane extends StackPane implements Modular {
 		});
 	}
 
+    /**
+     * Plays the countdown animation sequence.
+     */
 	private void playCountDownAnimation() {
 		SequentialTransition countdownSequence = new SequentialTransition(
 				getShrinkAnimation("3", false),
@@ -104,6 +129,9 @@ public class CountDownOverlayPane extends StackPane implements Modular {
 		countdownSequence.play();
 	}
 
+    /**
+     * Starts the countdown by displaying the countdown overlay pane and playing the animation.
+     */
 	public void startCountdown() {
 		PauseTransition delay = new PauseTransition(Duration.millis(1000));
 		delay.setOnFinished(event -> {
@@ -122,10 +150,18 @@ public class CountDownOverlayPane extends StackPane implements Modular {
 		sequence.play();
 	}
 
+	/**
+     * Sets the event handler to be called when the countdown finishes.
+     *
+     * @param onFinishedCountdown the event handler to be called when the countdown finishes
+     */
 	public void setOnFinishedCountdown(EventHandler<ActionEvent> onFinishedCountdown) {
 		this.onFinishedCountdown = onFinishedCountdown;
 	}
 
+    /**
+     * Refreshes the style of the countdown overlay pane based on the current style manager.
+     */
 	@Override
 	public void refreshStyle() {
 		StyleManager styleManager = gameSessionContext.getStyleManager();
@@ -138,6 +174,11 @@ public class CountDownOverlayPane extends StackPane implements Modular {
 		countDownText.setFill(Color.WHITE);
 	}
 
+	/**
+     * Returns the GameSessionContext used by the countdown overlay pane.
+     *
+     * @return the GameSessionContext used by the countdown overlay pane
+     */
 	@Override
 	public GameSessionContext getGameSessionContext() {
 		return gameSessionContext;

@@ -19,6 +19,10 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
+/**
+ * The OptionSelectOverlayPane class represents a pane that displays options for selecting a game mode.
+ * It appears as an overlay with a blurred background and provides buttons for each option.
+ */
 public class OptionSelectOverlayPane extends StackPane implements Modular {
 	private Pane blurredBackgroundPane;
 	private Text titleText;
@@ -29,6 +33,11 @@ public class OptionSelectOverlayPane extends StackPane implements Modular {
 	private String optionSelected;
 	private EventHandler<ActionEvent> onDisappear;
 
+    /**
+     * Constructs a new OptionSelectOverlayPane with the specified GameSessionContext.
+     *
+     * @param gameSessionContext the GameSessionContext used by the option select overlay pane
+     */
 	public OptionSelectOverlayPane(GameSessionContext gameSessionContext) {
 		this.gameSessionContext = gameSessionContext;
 		initAssets();
@@ -38,6 +47,9 @@ public class OptionSelectOverlayPane extends StackPane implements Modular {
 	 * todo: finish the dark mode support of this class
 	 */
 
+    /**
+     * Initializes the assets and components of the option select overlay pane.
+     */
 	private void initAssets() {
 		titleText = new Text("Select a Game Mode");
 
@@ -59,6 +71,12 @@ public class OptionSelectOverlayPane extends StackPane implements Modular {
 		refreshStyle();
 	}
 
+    /**
+     * Adds a button to the options layout with the specified text and width.
+     *
+     * @param text  the text to be displayed on the button
+     * @param width the width of the button
+     */
 	public void addButton(String text, int width) {
 		CircularButton button = new CircularButton(text, width, gameSessionContext, false);
 		optionsLayout.getChildren().add(button);
@@ -70,6 +88,9 @@ public class OptionSelectOverlayPane extends StackPane implements Modular {
 		optionsLayout.setMaxWidth(optionsWidthTotal);
 	}
 
+    /**
+     * Makes the option select overlay pane appear with a fade-in animation.
+     */
 	public void appear() {
 		FadeTransition fadeIn = new FadeTransition(Duration.millis(500), this);
 		fadeIn.setFromValue(0.0);
@@ -83,12 +104,20 @@ public class OptionSelectOverlayPane extends StackPane implements Modular {
 		setVisible(true);
 	}
 
+    /**
+     * Sets the disabled state of the options in the option select overlay pane.
+     *
+     * @param disabled true to disable the options, false to enable them
+     */
 	private void setOptionsDisabled(boolean disabled) {
 		for(Node node : optionsLayout.getChildren()) {
 			node.setDisable(disabled);
 		}
 	}
 
+    /**
+     * Makes the option select overlay pane disappear with a fade-out animation.
+     */
 	public void disappear() {
 		setOptionsDisabled(true);
 
@@ -105,14 +134,27 @@ public class OptionSelectOverlayPane extends StackPane implements Modular {
 		});
 	}
 
+    /**
+     * Returns the selected option.
+     *
+     * @return the selected option
+     */
 	public String getOptionSelected() {
 		return optionSelected;
 	}
 
+    /**
+     * Sets the event handler to be called when the option select overlay pane disappears.
+     *
+     * @param onDisappear the event handler to be called when the option select overlay pane disappears
+     */
 	public void setOnDisappear(EventHandler<ActionEvent> onDisappear) {
 		this.onDisappear = onDisappear;
 	}
 
+    /**
+     * Refreshes the style of the option select overlay pane based on the current style manager.
+     */
 	@Override
 	public void refreshStyle() {
 		StyleManager styleManager = gameSessionContext.getStyleManager();
@@ -122,6 +164,11 @@ public class OptionSelectOverlayPane extends StackPane implements Modular {
 		titleText.setFill(Color.WHITE);
 	}
 
+    /**
+     * Returns the GameSessionContext associated with the option select overlay pane.
+     *
+     * @return the GameSessionContext associated with the option select overlay pane
+     */
 	@Override
 	public GameSessionContext getGameSessionContext() {
 		return gameSessionContext;

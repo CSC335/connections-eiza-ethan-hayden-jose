@@ -9,6 +9,10 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.SVGPath;
 import javafx.util.Duration;
 
+/**
+ * The DarkModeToggle class represents a toggle switch for switching between light and dark mode.
+ * It provides a visual representation of the toggle using a circle and SVG icons.
+ */
 public class DarkModeToggle extends StackPane implements Modular {
 	protected static final int HEIGHT = 37;
 	private Label label;
@@ -18,6 +22,11 @@ public class DarkModeToggle extends StackPane implements Modular {
 	private SVGPath moonIconSVG;
 	private GameSessionContext gameSessionContext;
 
+    /**
+     * Constructs a new DarkModeToggle with the specified GameSessionContext.
+     *
+     * @param gameSessionContext the GameSessionContext used by the dark mode toggle
+     */
 	public DarkModeToggle(GameSessionContext gameSessionContext) {
 		this.gameSessionContext = gameSessionContext;
 		label = new Label();
@@ -58,6 +67,10 @@ public class DarkModeToggle extends StackPane implements Modular {
 		refreshStyle();
 	}
 
+    /**
+     * Toggles the dark mode state of the application.
+     * It updates the visual representation of the toggle and refreshes the style.
+     */
 	public void toggle() {
 		StyleManager styleManager = gameSessionContext.getStyleManager();
 
@@ -85,12 +98,20 @@ public class DarkModeToggle extends StackPane implements Modular {
 		refreshStyle();
 	}
 
+    /**
+     * Refreshes the style of the dark mode toggle based on the current style manager.
+     */
 	@Override
 	public void refreshStyle() {
 		label.setStyle(gameSessionContext.getStyleManager().styleLabel());
 		circle.setStyle(gameSessionContext.getStyleManager().styleCircle());
 	}
 
+    /**
+     * Returns the GameSessionContext used by the dark mode toggle.
+     *
+     * @return the GameSessionContext used by the dark mode toggle
+     */
 	@Override
 	public GameSessionContext getGameSessionContext() {
 		return gameSessionContext;

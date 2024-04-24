@@ -10,6 +10,10 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 
+/**
+ * The LeaderboardPane class represents a pane that displays the leaderboard.
+ * It shows the top users and their ranks, names, and scores.
+ */
 public class LeaderboardPane extends StackPane implements Modular {
     private GameSessionContext gameSessionContext;
     private GridPane leaderboardGrid;
@@ -20,12 +24,20 @@ public class LeaderboardPane extends StackPane implements Modular {
     private List<Label> nameValueLabels;
     private List<Label> scoreValueLabels;
 
+    /**
+     * Constructs a new LeaderboardPane with the specified GameSessionContext.
+     *
+     * @param gameSessionContext the GameSessionContext used by the leaderboard pane
+     */
     public LeaderboardPane(GameSessionContext gameSessionContext) {
         this.gameSessionContext = gameSessionContext;
         initializeLeaderboard();
         getChildren().add(leaderboardGrid);
     }
 
+    /**
+     * Initializes the leaderboard by creating the grid and populating it with data.
+     */
     private void initializeLeaderboard() {
         leaderboardGrid = new GridPane();
         leaderboardGrid.setHgap(10);
@@ -75,6 +87,9 @@ public class LeaderboardPane extends StackPane implements Modular {
         }
     }
 
+    /**
+     * Refreshes the style of the leaderboard pane based on the current style manager.
+     */
     @Override
     public void refreshStyle() {
         StyleManager styleManager = gameSessionContext.getStyleManager();
@@ -96,6 +111,11 @@ public class LeaderboardPane extends StackPane implements Modular {
         }
     }
 
+    /**
+     * Returns the GameSessionContext associated with the leaderboard pane.
+     *
+     * @return the GameSessionContext associated with the leaderboard pane
+     */
     @Override
     public GameSessionContext getGameSessionContext() {
         return gameSessionContext;

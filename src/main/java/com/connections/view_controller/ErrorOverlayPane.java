@@ -19,6 +19,10 @@ import javafx.scene.shape.StrokeLineJoin;
 import javafx.scene.text.Font;
 import javafx.util.Duration;
 
+/**
+ * The ErrorOverlayPane class represents a pane that displays an error message as an overlay.
+ * It provides a visual representation of the error using an SVG icon and labels for the header and body text.
+ */
 public class ErrorOverlayPane extends StackPane implements Modular {
 	public static final int BACKGROUND_PANE_WIDTH = 500;
 	public static final int BACKGROUND_PANE_HEIGHT = 400;
@@ -37,6 +41,13 @@ public class ErrorOverlayPane extends StackPane implements Modular {
 	 * todo: finish the dark mode support of this class
 	 */
 
+    /**
+     * Constructs a new ErrorOverlayPane with the specified GameSessionContext, header text, and body text.
+     *
+     * @param gameSessionContext the GameSessionContext used by the error overlay pane
+     * @param headerText         the text to be displayed as the header of the error message
+     * @param bodyText           the text to be displayed as the body of the error message
+     */
 	public ErrorOverlayPane(GameSessionContext gameSessionContext, String headerText, String bodyText) {
 		this.gameSessionContext = gameSessionContext;
 		this.headerText = headerText;
@@ -44,6 +55,11 @@ public class ErrorOverlayPane extends StackPane implements Modular {
 		initAssets();
 	}
 
+    /**
+     * Constructs a new ErrorOverlayPane with the specified GameSessionContext and default header and body text.
+     *
+     * @param gameSessionContext the GameSessionContext used by the error overlay pane
+     */
 	public ErrorOverlayPane(GameSessionContext gameSessionContext) {
 		this.gameSessionContext = gameSessionContext;
 		this.headerText = "Error";
@@ -51,18 +67,31 @@ public class ErrorOverlayPane extends StackPane implements Modular {
 		initAssets();
 	}
 
+    /**
+     * Sets the header text of the error message.
+     *
+     * @param headerText the text to be displayed as the header of the error message
+     */
 	public void setHeaderText(String headerText) {
 		this.headerText = headerText;
 		headerLabel.setText(headerText);
 		refreshStyle();
 	}
 
+    /**
+     * Sets the body text of the error message.
+     *
+     * @param bodyText the text to be displayed as the body of the error message
+     */
 	public void setBodyText(String bodyText) {
 		this.bodyText = bodyText;
 		bodyLabel.setText(bodyText);
 		refreshStyle();
 	}
 
+    /**
+     * Initializes the assets and components of the error overlay pane.
+     */
 	private void initAssets() {
 		backgroundPane = new Pane();
 		backgroundPane.setMinSize(BACKGROUND_PANE_WIDTH, BACKGROUND_PANE_HEIGHT);
@@ -95,6 +124,9 @@ public class ErrorOverlayPane extends StackPane implements Modular {
 		refreshStyle();
 	}
 
+    /**
+     * Makes the error overlay pane appear with a fade-in animation.
+     */
 	public void appear() {
 		FadeTransition fadeIn = new FadeTransition(Duration.millis(500), this);
 		fadeIn.setFromValue(0.0);
@@ -104,6 +136,10 @@ public class ErrorOverlayPane extends StackPane implements Modular {
 		setVisible(true);
 	}
 
+    /**
+     * Makes the error overlay pane disappear with a fade-out animation.
+     * It triggers the onDisappear event handler when the animation is finished.
+     */
 	public void disappear() {
 		FadeTransition fadeOut = new FadeTransition(Duration.millis(500), this);
 		fadeOut.setFromValue(1.0);
@@ -118,10 +154,18 @@ public class ErrorOverlayPane extends StackPane implements Modular {
 		});
 	}
 
+    /**
+     * Sets the event handler to be called when the error overlay pane disappears.
+     *
+     * @param onDisappear the event handler to be called when the error overlay pane disappears
+     */
 	public void setOnDisappear(EventHandler<ActionEvent> onDisappear) {
 		this.onDisappear = onDisappear;
 	}
 
+    /**
+     * Refreshes the style of the error overlay pane based on the current style manager.
+     */
 	@Override
 	public void refreshStyle() {
 		StyleManager styleManager = gameSessionContext.getStyleManager();
@@ -141,6 +185,11 @@ public class ErrorOverlayPane extends StackPane implements Modular {
 		bodyLabel.setTextFill(Color.WHITE);
 	}
 
+    /**
+     * Returns the GameSessionContext used by the error overlay pane.
+     *
+     * @return the GameSessionContext used by the error overlay pane
+     */
 	@Override
 	public GameSessionContext getGameSessionContext() {
 		return gameSessionContext;

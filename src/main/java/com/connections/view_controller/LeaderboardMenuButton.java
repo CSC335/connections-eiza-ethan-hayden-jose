@@ -2,7 +2,17 @@ package com.connections.view_controller;
 
 import javafx.scene.shape.SVGPath;
 
+/**
+ * The LeaderboardMenuButton class represents a button with a leaderboard icon in the menu.
+ * It extends the SVGButton class.
+ */
 public class LeaderboardMenuButton extends SVGButton {
+	
+    /**
+     * Constructs a new LeaderboardMenuButton with the specified GameSessionContext.
+     *
+     * @param gameSessionContext the GameSessionContext used by the leaderboard menu button
+     */
 	public LeaderboardMenuButton(GameSessionContext gameSessionContext) {
 		super(gameSessionContext);
 
@@ -21,6 +31,9 @@ public class LeaderboardMenuButton extends SVGButton {
 		refreshStyle();
 	}
 
+    /**
+     * Refreshes the style of the leaderboard menu button based on the current style manager.
+     */
 	@Override
 	public void refreshStyle() {
 		svgPath.setFill(gameSessionContext.getStyleManager().colorWholeGameBackground());

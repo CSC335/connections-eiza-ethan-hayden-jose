@@ -2,6 +2,11 @@ package com.connections.view_controller;
 
 import javafx.scene.shape.SVGPath;
 
+/**
+ * Represents a button for the achievements menu.
+ *
+ * @param gameSessionContext The context of the game session.
+ */
 public class AchievementsMenuButton extends SVGButton {
 	public AchievementsMenuButton(GameSessionContext gameSessionContext) {
 		super(gameSessionContext);
@@ -21,6 +26,9 @@ public class AchievementsMenuButton extends SVGButton {
 		refreshStyle();
 	}
 
+	/**
+	 * Refreshes the style for the AchievementsMenuButton
+	 */
 	@Override
 	public void refreshStyle() {
 		svgPath.setFill(gameSessionContext.getStyleManager().colorWholeGameBackground());

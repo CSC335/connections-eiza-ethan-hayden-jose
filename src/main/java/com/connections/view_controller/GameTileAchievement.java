@@ -19,6 +19,10 @@ import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
 
+/**
+ * The GameTileAchievement class represents an achievement tile in the game.
+ * It displays the achievement description and completion status.
+ */
 public class GameTileAchievement extends StackPane implements Modular {
 
     private static final int APPEAR_POPUP_MS = 250;
@@ -31,6 +35,15 @@ public class GameTileAchievement extends StackPane implements Modular {
     private DifficultyColor difficultyColor;
     private int row;
 
+    /**
+     * Constructs a new GameTileAchievement with the specified parameters.
+     *
+     * @param difficultyColor      the difficulty color of the achievement
+     * @param achievementDescription the description of the achievement
+     * @param user                 the WebUser associated with the achievement
+     * @param tileGridAchievement  the TileGridAchievement containing this achievement tile
+     * @param row                  the row index of the achievement tile
+     */
     public GameTileAchievement(DifficultyColor difficultyColor, String achievementDescription,
                                WebUser user, TileGridAchievement tileGridAchievement, int row) {
     	this.row = row;
@@ -71,6 +84,12 @@ public class GameTileAchievement extends StackPane implements Modular {
         refreshStyle();
     }
 
+    /**
+     * Checks if the achievement is completed by the user.
+     *
+     * @param user the WebUser to check the achievement completion for
+     * @return true if the achievement is completed, false otherwise
+     */
     private boolean checkAchievementCompletion(WebUser user) {
         user.readFromDatabase();
         if (row == 0) {
@@ -86,12 +105,18 @@ public class GameTileAchievement extends StackPane implements Modular {
         }
     }
 
+    /**
+     * Sets the completion status of the achievement tile based on the user's achievement data.
+     */
     public void setCompleted() {
         WebUser user = tileGridAchievement.getGameSessionContext().getWebSessionContext().getSession().getUser();
         completedStatus = checkAchievementCompletion(user);
         refreshStyle();
     }
 
+    /**
+     * Animates the completion of the achievement tile.
+     */
     public void animateCompletion() {
         if (!completedStatus) {
             return;
@@ -118,6 +143,9 @@ public class GameTileAchievement extends StackPane implements Modular {
         sequence.play();
     }
 
+    /**
+     * Refreshes the style of the achievement tile based on the current style manager.
+     */
     @Override
     public void refreshStyle() {
         StyleManager styleManager = tileGridAchievement.getGameSessionContext().getStyleManager();
@@ -147,6 +175,11 @@ public class GameTileAchievement extends StackPane implements Modular {
         }
     }
 
+    /**
+     * Returns the GameSessionContext associated with the achievement tile.
+     *
+     * @return the GameSessionContext associated with the achievement tile
+     */
     @Override
     public GameSessionContext getGameSessionContext() {
         return tileGridAchievement.getGameSessionContext();

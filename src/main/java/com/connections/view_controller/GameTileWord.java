@@ -16,6 +16,10 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
+/**
+ * The GameTileWord class represents a word tile in the game.
+ * It displays a word and allows user interaction for selecting and deselecting the tile.
+ */
 public class GameTileWord extends StackPane implements Modular {
 	protected static final int FILL_TRANSITION_MS = 100;
 	protected static final int FILL_PULSE_TRANSITION_MS = 750;
@@ -33,6 +37,9 @@ public class GameTileWord extends StackPane implements Modular {
 	private TileGridWord tileGridWord;
 	private StyleStatus styleStatus;
 
+    /**
+     * Represents the style status of the word tile.
+     */
 	private enum StyleStatus {
 		DEFAULT, SELECTED, INCORRECT
 	}
@@ -43,6 +50,11 @@ public class GameTileWord extends StackPane implements Modular {
 	 * StyleManager, not the parent. This needs to be fixed later.
 	 */
 
+    /**
+     * Constructs a new GameTileWord based on another GameTileWord.
+     *
+     * @param other the GameTileWord to copy from
+     */
 	public GameTileWord(GameTileWord other) {
 		selected = other.selected;
 		incorrect = other.incorrect;
@@ -56,6 +68,12 @@ public class GameTileWord extends StackPane implements Modular {
 		refreshStyle();
 	}
 
+    /**
+     * Constructs a new GameTileWord with the specified font and TileGridWord.
+     *
+     * @param font         the font to be used for the word text
+     * @param tileGridWord the TileGridWord containing this word tile
+     */
 	public GameTileWord(Font font, TileGridWord tileGridWord) {
 		this.word = null;
 		this.font = font;
@@ -65,11 +83,23 @@ public class GameTileWord extends StackPane implements Modular {
 		enable();
 	}
 
+    /**
+     * Constructs a new GameTileWord with the specified word, font, and TileGridWord.
+     *
+     * @param word         the word associated with the word tile
+     * @param font         the font to be used for the word text
+     * @param tileGridWord the TileGridWord containing this word tile
+     */
 	public GameTileWord(Word word, Font font, TileGridWord tileGridWord) {
 		this(font, tileGridWord);
 		setWord(word);
 	}
 
+    /**
+     * Sets the word associated with the word tile.
+     *
+     * @param word the word to be set
+     */
 	public void setWord(Word word) {
 		if (word != null) {
 			this.word = word;
@@ -77,32 +107,66 @@ public class GameTileWord extends StackPane implements Modular {
 		}
 	}
 
+    /**
+     * Sets whether the style of the word tile is changeable.
+     *
+     * @param styleChangeable true if the style is changeable, false otherwise
+     */
 	public void setStyleChangeable(boolean styleChangeable) {
 		this.styleChangeable = styleChangeable;
 	}
 
+
+    /**
+     * Sets the selected status of the word tile.
+     *
+     * @param selected true if the word tile is selected, false otherwise
+     */
 	public void setSelectedStatus(boolean selected) {
 		this.selected = selected;
 		refreshStyle();
 	}
 
+    /**
+     * Returns the selected status of the word tile.
+     *
+     * @return true if the word tile is selected, false otherwise
+     */
 	public boolean getSelectedStatus() {
 		return selected;
 	}
 
+    /**
+     * Sets the incorrect status of the word tile.
+     *
+     * @param incorrect true if the word tile is marked as incorrect, false otherwise
+     */
 	public void setIncorrectStatus(boolean incorrect) {
 		this.incorrect = incorrect;
 		refreshStyle();
 	}
 
+    /**
+     * Returns the incorrect status of the word tile.
+     *
+     * @return true if the word tile is marked as incorrect, false otherwise
+     */
 	public boolean getIncorrectStatus() {
 		return incorrect;
 	}
 
+    /**
+     * Returns the word associated with the word tile.
+     *
+     * @return the word associated with the word tile
+     */
 	public Word getWord() {
 		return word;
 	}
 
+    /**
+     * Initializes the assets and components of the word tile.
+     */
 	private void initAssets() {
 		rectangle = new Rectangle(GameTile.RECTANGLE_WIDTH, GameTile.RECTANGLE_HEIGHT);
 		rectangle.setArcWidth(GameTile.CORNER_RADIUS);
@@ -117,6 +181,9 @@ public class GameTileWord extends StackPane implements Modular {
 		this.getChildren().addAll(rectangle, text);
 	}
 
+    /**
+     * Updates the style status of the word tile based on its selected and incorrect status.
+     */
 	private void updateStyleStatus() {
 		if (selected && incorrect) {
 			styleStatus = StyleStatus.DEFAULT;
@@ -129,6 +196,11 @@ public class GameTileWord extends StackPane implements Modular {
 		}
 	}
 
+    /**
+     * Returns the fill color for the rectangle based on the style status.
+     *
+     * @return the fill color for the rectangle
+     */
 	private Color getRectFill() {
 		StyleManager styleManager = tileGridWord.getGameSessionContext().getStyleManager();
 
@@ -142,6 +214,11 @@ public class GameTileWord extends StackPane implements Modular {
 		return styleManager.colorDefaultRectangle();
 	}
 
+    /**
+     * Returns the fill color for the text based on the style status.
+     *
+     * @return the fill color for the text
+     */
 	private Color getTextFill() {
 		StyleManager styleManager = tileGridWord.getGameSessionContext().getStyleManager();
 
@@ -155,6 +232,11 @@ public class GameTileWord extends StackPane implements Modular {
 		return styleManager.colorText();
 	}
 
+    /**
+     * Returns the fill color for the text based on the style status.
+     *
+     * @return the fill color for the text
+     */
 	private void updateStyleColor() {
 		FillTransition rectangleFillTransition = new FillTransition(Duration.millis(FILL_TRANSITION_MS), rectangle);
 		rectangleFillTransition.setToValue(getRectFill());
@@ -164,6 +246,11 @@ public class GameTileWord extends StackPane implements Modular {
 		parallelTransition.play();
 	}
 
+    /**
+     * Returns a sequential transition animation for the hint pulse effect.
+     *
+     * @return a sequential transition animation for the hint pulse effect
+     */
 	public SequentialTransition getHintPulseAnimation() {
 		StyleManager styleManager = tileGridWord.getGameSessionContext().getStyleManager();
 
@@ -219,6 +306,11 @@ public class GameTileWord extends StackPane implements Modular {
 		return sequence;
 	}
 
+    /**
+     * Returns a sequential transition animation for the hint pulse effect.
+     *
+     * @return a sequential transition animation for the hint pulse effect
+     */
 	public ParallelTransition getHintReturnNormalAnimation() {
 		updateStyleStatus();
 
@@ -240,6 +332,9 @@ public class GameTileWord extends StackPane implements Modular {
 		return continueParallel;
 	}
 
+    /**
+     * Disables the word tile and removes its event handlers.
+     */
 	public void disable() {
 		this.setDisable(true);
 		this.setOnMouseClicked(null);
@@ -247,6 +342,9 @@ public class GameTileWord extends StackPane implements Modular {
 		this.setOnMouseExited(null);
 	}
 
+    /**
+     * Enables the word tile and sets its event handlers for user interaction.
+     */
 	public void enable() {
 		this.setDisable(false);
 		this.setOnMouseClicked(event -> {
@@ -268,6 +366,12 @@ public class GameTileWord extends StackPane implements Modular {
 		});
 	}
 
+
+    /**
+     * Adds a fade-in transition for the word text to the provided parallel transition.
+     *
+     * @param fadeInTransition the parallel transition to add the fade-in transition to
+     */
 	public void fadeInWordText(ParallelTransition fadeInTransition) {
 		text.setOpacity(0);
 
@@ -277,6 +381,9 @@ public class GameTileWord extends StackPane implements Modular {
 		fadeInTransition.getChildren().add(fadeTransition);
 	}
 
+    /**
+     * Refreshes the style of the word tile based on its style status.
+     */
 	@Override
 	public void refreshStyle() {
 		if(styleChangeable) {
@@ -285,6 +392,11 @@ public class GameTileWord extends StackPane implements Modular {
 		}
 	}
 
+    /**
+     * Returns the GameSessionContext associated with the word tile.
+     *
+     * @return the GameSessionContext associated with the word tile
+     */
 	@Override
 	public GameSessionContext getGameSessionContext() {
 		return tileGridWord.getGameSessionContext();
