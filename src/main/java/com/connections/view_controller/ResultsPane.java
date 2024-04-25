@@ -295,6 +295,7 @@ public class ResultsPane extends StackPane implements Modular {
 		puzzleNumberLabel.setTextFill(styleManager.colorText());
 		nextPuzzleInLabel.setTextFill(styleManager.colorText());
 		timerLabel.setTextFill(styleManager.colorText());
+		gameTypeLabel.setTextFill(styleManager.colorText());
 		if (copiedToClipboardNotification != null) {
 			copiedToClipboardNotification.refreshStyle();
 		}
