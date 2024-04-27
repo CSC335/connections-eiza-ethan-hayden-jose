@@ -32,14 +32,14 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 	public static final String KEY_PLAYED_GAMES = "played_games";
 	public static final String KEY_LATEST_SAVE_STATE = "latest_game_save_state";
 	public static final String KEY_HAS_LATEST_SAVE_STATE = "has_latest_game_save_state";
-	public static final String KEY_CURRENTLY_IN_GAME = "currently_in_game";
+	public static final String KEY_ACTIVE_INSTANCE_ID = "active_instance_id";
 
 	protected List<PlayedGameInfo> playedGameList;
 	protected String userID;
 	protected WebContext webContext;
 	protected GameSaveState latestSaveState;
 	protected boolean hasLatestSaveState;
-	protected boolean currentlyInGame;
+	protected String activeInstanceID;
 
 	/**
 	 * Constructs a new WebUser with the given WebContext.
@@ -52,11 +52,11 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 		this.playedGameList = new ArrayList<>();
 		this.latestSaveState = null;
 		this.hasLatestSaveState = false;
+		this.activeInstanceID = null;
 		regularGamesCompleted = 0;
 		timeTrialsCompleted = 0;
 		noMistakesCompleted = 0;
 		timeTrialsUnderTimeCompleted = 0;
-		this.currentlyInGame = false;
 	}
 
 	/**
@@ -86,7 +86,7 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 		timeTrialsCompleted = 0;
 		noMistakesCompleted = 0;
 		timeTrialsUnderTimeCompleted = 0;
-		this.currentlyInGame = false;
+		this.activeInstanceID = null;
 		readFromDatabase();
 	}
 
@@ -223,23 +223,20 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 		return hasLatestSaveState;
 	}
 
-	/**
-	 * Sets the currently in-game status of the user.
-	 *
-	 * @param currentlyInGame true if the user is currently in a game, false
-	 *                        otherwise
-	 */
-	public void setCurrentlyInGameStatus(boolean currentlyInGame) {
-		this.currentlyInGame = currentlyInGame;
+	public void setActiveInstanceID(String activeInstanceID) {
+		this.activeInstanceID = activeInstanceID;
 	}
-
-	/**
-	 * Checks if the user is currently in a game.
-	 *
-	 * @return true if the user is currently in a game, false otherwise
-	 */
+	
+	public String getActiveInstanceID() {
+		return activeInstanceID;
+	}
+	
+	public void clearActiveInstanceID() {
+		this.activeInstanceID = null;
+	}
+	
 	public boolean isCurrentlyInGame() {
-		return currentlyInGame;
+		return (activeInstanceID != null);
 	}
 
 	/**
@@ -388,7 +385,7 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 			doc.append(KEY_LATEST_SAVE_STATE, latestSaveState.getAsDatabaseFormat());
 		}
 		doc.append(KEY_HAS_LATEST_SAVE_STATE, hasLatestSaveState);
-		doc.append(KEY_CURRENTLY_IN_GAME, currentlyInGame);
+		doc.append(KEY_ACTIVE_INSTANCE_ID, activeInstanceID);
 		return doc;
 	}
 
@@ -414,7 +411,7 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 			latestSaveState = new GameSaveState(saveStateDoc);
 		}
 		hasLatestSaveState = doc.getBoolean(KEY_HAS_LATEST_SAVE_STATE, false);
-		currentlyInGame = doc.getBoolean(KEY_CURRENTLY_IN_GAME, false);
+		activeInstanceID = doc.getString(KEY_ACTIVE_INSTANCE_ID);
 	}
 
 	/**

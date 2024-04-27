@@ -76,7 +76,7 @@ public class WebFXMLController implements Initializable {
 			System.out.println("CONNECTIONS: WebFXMLController initialized the database.");
 			WebUtils.initDatabase(webContext);
 		}
-
+		
 		WebUtils.dailyPuzzleNumberIncrementIfNeeded(webContext);
 
 		WebSession session = new WebSession(webContext);

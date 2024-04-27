@@ -101,7 +101,6 @@ public class GameSession extends StackPane implements Modular {
 	private boolean gameAlreadyFinished;
 	private boolean ranOutOfTime;
 	private boolean loadedFromSaveState;
-	private boolean isBrowserClosed;
 	private boolean blockedStoringSaveState;
 	private boolean hintsCannotBeUsedRightNow;
 	private GameType gameType;
@@ -360,6 +359,9 @@ public class GameSession extends StackPane implements Modular {
 		profileMenuButton.setOnMouseClicked(event -> {
 			screenDisplayProfile();
 		});
+		gameSessionContext.getWebContext().getWebAPI().addInstanceCloseListener(() -> {
+			close();
+		});
 	}
 
 	/**
@@ -451,10 +453,9 @@ public class GameSession extends StackPane implements Modular {
 		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
 		currentUser.readFromDatabase();
 //		// Commented this out to prevent the error pane from loading in, but allows the user to load a previous save
-//		if (currentUser.isCurrentlyInGame()) {
-//			fastForwardUserCurrentlyIngame();
-//		}
-		if (currentUser.hasLatestSaveState()) {
+		if (currentUser.isCurrentlyInGame()) {
+			fastForwardUserCurrentlyIngame();
+		} else if (currentUser.hasLatestSaveState()) {
 			fastForwardLoadSaveState();
 		} else {
 			fastForwardCheckGameFinishedAlready();
@@ -537,10 +538,6 @@ public class GameSession extends StackPane implements Modular {
 			if (gameType == GameType.TIME_TRIAL && timeTrialTimerPane.getTimeLeft() <= 2) {
 				blockedStoringSaveState = true;
 			}
-		}
-
-		if (sessionCheckUserClosedBrowser()) {
-			close();
 		}
 	}
 
@@ -758,36 +755,40 @@ public class GameSession extends StackPane implements Modular {
 		helperSetGameInteractablesDisabled(true);
 	}
 
-	/*
-	 * This NEEDS to be a lot more assertive: it needs to somehow prevent everything
-	 * from executing further. There should probably be a boolean in the
-	 * GameSessionContext that all objects need to check
-	 */
-
-	/**
-	 * Checks if the user has closed the browser during the game session.
-	 *
-	 * @return true if the user has closed the browser, false otherwise
-	 */
-	private boolean sessionCheckUserClosedBrowser() {
-		WebAPI webAPI = gameSessionContext.getWebContext().getWebAPI();
-		InstanceInfo instanceInfo = webAPI.getInstanceInfo();
-		isBrowserClosed = instanceInfo.isAfk() || instanceInfo.isBackground();
-		return isBrowserClosed;
-	}
-
 	/**
 	 * Sets the user's in-game status.
 	 *
 	 * @param status true to set the user as in-game, false otherwise
 	 */
 	private void helperSetUserInGameStatus(boolean status) {
-		System.out.println("helperSetUserInGameStatus " + status);
 		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
+		String currentInstanceID = gameSessionContext.getWebContext().getWebAPI().getInstanceID();
+
 		currentUser.readFromDatabase();
-		currentUser.setCurrentlyInGameStatus(status);
-		currentUser.writeToDatabase();
+
+		// If the user does not have an active instance ID (is not in a game) OR the
+		// current instance ID matches the user's active instance ID.
+		// This check is needed because we do not want to override an existing instance
+		// ID with the current instance ID.
+		if (!currentUser.isCurrentlyInGame() || currentInstanceID.equals(currentUser.getActiveInstanceID())) {
+			System.out.println(String.format("*** helperSetUserInGameStatus: instance %s set in-game status to %s",
+					currentInstanceID, status));
+
+			if (status) {
+				currentUser.setActiveInstanceID(currentInstanceID);
+			} else {
+				currentUser.clearActiveInstanceID();
+			}
+
+			currentUser.writeToDatabase();
+		} else {
+			System.out.println(String.format(
+					"*** helperSetUserInGameStatus: instance %s could NOT overwrite existing status of user instance ID %s with status %s",
+					currentInstanceID, currentUser.getActiveInstanceID(), status));
+		}
 	}
+
+	// CONSIDER REMVOING helperGetUserInGameStatus()
 
 	/**
 	 * Retrieves the user's in-game status.
@@ -1162,12 +1163,8 @@ public class GameSession extends StackPane implements Modular {
 	public void close() {
 		// Since fastForwardStoreSaveState() will call close() when the user is closing
 		// their browser, this if-statement is to prevent an infinite loop.
-		if (!sessionCheckUserClosedBrowser()) {
-			fastForwardStoreSaveState();
-		}
-		if (helperGetUserInGameStatus()) {
-			helperSetUserInGameStatus(false);
-		}
+		fastForwardStoreSaveState();
+		helperSetUserInGameStatus(false);
 		gameActive = false;
 		helperTimeKeepingStop();
 		midnightChecker.stop();

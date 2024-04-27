@@ -13,7 +13,7 @@ public class ConnectionsAppWeb extends JProApplication {
 	@Override
 	public void start(Stage stage) {
 		System.out.println("CONNECTIONS: ConnectionsAppWeb has reached start() method...");
-
+		
 		try {
 			File fxmlFile = new File("src/main/resources/com/connections/web/fxml/webapp.fxml");
 
