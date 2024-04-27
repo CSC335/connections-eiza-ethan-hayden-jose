@@ -96,7 +96,7 @@ public abstract class PlayedGameInfo implements DatabaseFormattable {
      * @return the amount of hints used
      */
 	public int getHintsUsedCount() {
-		return mistakesMadeCount;
+		return hintsUsedCount;
 	}
 	
     /**
@@ -213,6 +213,10 @@ public abstract class PlayedGameInfo implements DatabaseFormattable {
      * @return The list of guesses loaded from the database format.
      */
 	public static List<Set<Word>> loadGuessesFromDatabaseFormat(List<List<Document>> wordSetList) {
+		if(wordSetList == null) {
+			wordSetList = new ArrayList<>();
+		}
+		
 		List<Set<Word>> guessesList = new ArrayList<>();
 		for (List<Document> wordList : wordSetList) {
 			Set<Word> set = new HashSet<>();

@@ -78,6 +78,11 @@ public class Word implements DatabaseFormattable {
 		text = doc.getString(KEY_TEXT);
 		color = DifficultyColor.valueOf(doc.getString(KEY_COLOR).toUpperCase());
 	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(text, color);
+	}
 
     /**
      * Checks if this Word object is equal to another object.

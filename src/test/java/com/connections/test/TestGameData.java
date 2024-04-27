@@ -1,156 +1,104 @@
 package com.connections.test;
 
-import com.connections.model.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.jupiter.api.BeforeEach;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.bson.Document;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.connections.model.DifficultyColor;
+import com.connections.model.GameAnswerColor;
+import com.connections.model.GameData;
 
 public class TestGameData {
-	private GameAnswerColor testGameAnswerYellowOne;
-	private GameAnswerColor testGameAnswerGreenOne;
-	private GameAnswerColor testGameAnswerBlueOne;
-	private GameAnswerColor testGameAnswerPurpleOne;
 
-	private DifficultyColor testGameAnswerYellowOneColor;
-	private String testGameAnswerYellowOneDesc;
-	private String[] testGameAnswerYellowOneHints;
-	private String[] testGameAnswerYellowOneWords;
+    @Test
+    void testConstructorWithDocument() {
+        Document colorDoc1 = new Document(GameAnswerColor.KEY_COLOR, "yellow")
+                .append(GameAnswerColor.KEY_DESCRIPTION, "Sunny")
+                .append(GameAnswerColor.KEY_WORDS, Arrays.asList("sun", "lemon", "banana", "gold"));
+        Document colorDoc2 = new Document(GameAnswerColor.KEY_COLOR, "green")
+                .append(GameAnswerColor.KEY_DESCRIPTION, "Fruity")
+                .append(GameAnswerColor.KEY_WORDS, Arrays.asList("apple", "pear", "orange", "peach"));
+        Document colorDoc3 = new Document(GameAnswerColor.KEY_COLOR, "blue")
+                .append(GameAnswerColor.KEY_DESCRIPTION, "Vegetables")
+                .append(GameAnswerColor.KEY_WORDS, Arrays.asList("cucumber", "carrot", "potato", "eggplant"));
+        Document colorDoc4 = new Document(GameAnswerColor.KEY_COLOR, "purple")
+                .append(GameAnswerColor.KEY_DESCRIPTION, "Drinks")
+                .append(GameAnswerColor.KEY_WORDS, Arrays.asList("milk", "juice", "soda", "punch"));
+        Document doc = new Document(GameData.KEY_PUZZLE_NUMBER, 123)
+                .append(GameData.KEY_COLOR_LIST, Arrays.asList(colorDoc1, colorDoc2, colorDoc3, colorDoc4));
+        GameData gameData = new GameData(doc);
 
-	private DifficultyColor testGameAnswerGreenOneColor;
-	private String testGameAnswerGreenOneDesc;
-	private String[] testGameAnswerGreenOneHints;
-	private String[] testGameAnswerGreenOneWords;
+        assertEquals(123, gameData.getPuzzleNumber());
+        Map<DifficultyColor, GameAnswerColor> answerMap = gameData.getAnswerMap();
+        assertEquals(4, answerMap.size());
+        assertTrue(answerMap.containsKey(DifficultyColor.YELLOW));
+        assertTrue(answerMap.containsKey(DifficultyColor.GREEN));
+    }
 
-	private DifficultyColor testGameAnswerBlueOneColor;
-	private String testGameAnswerBlueOneDesc;
-	private String[] testGameAnswerBlueOneHints;
-	private String[] testGameAnswerBlueOneWords;
+    @Test
+    void testGetAnswerForColor() {
+    	Document colorDoc1 = new Document(GameAnswerColor.KEY_COLOR, "yellow")
+                .append(GameAnswerColor.KEY_DESCRIPTION, "Sunny")
+                .append(GameAnswerColor.KEY_WORDS, Arrays.asList("sun", "lemon", "banana", "gold"));
+        Document colorDoc2 = new Document(GameAnswerColor.KEY_COLOR, "green")
+                .append(GameAnswerColor.KEY_DESCRIPTION, "Fruity")
+                .append(GameAnswerColor.KEY_WORDS, Arrays.asList("apple", "pear", "orange", "peach"));
+        Document colorDoc3 = new Document(GameAnswerColor.KEY_COLOR, "blue")
+                .append(GameAnswerColor.KEY_DESCRIPTION, "Vegetables")
+                .append(GameAnswerColor.KEY_WORDS, Arrays.asList("cucumber", "carrot", "potato", "eggplant"));
+        Document colorDoc4 = new Document(GameAnswerColor.KEY_COLOR, "purple")
+                .append(GameAnswerColor.KEY_DESCRIPTION, "Drinks")
+                .append(GameAnswerColor.KEY_WORDS, Arrays.asList("milk", "juice", "soda", "punch"));
+        Document doc = new Document(GameData.KEY_PUZZLE_NUMBER, 123)
+                .append(GameData.KEY_COLOR_LIST, Arrays.asList(colorDoc1, colorDoc2, colorDoc3, colorDoc4));
+        GameData gameData = new GameData(doc);
 
-	private DifficultyColor testGameAnswerPurpleOneColor;
-	private String testGameAnswerPurpleOneDesc;
-	private String[] testGameAnswerPurpleOneHints;
-	private String[] testGameAnswerPurpleOneWords;
+        GameAnswerColor yellowAnswer = gameData.getAnswerForColor(DifficultyColor.YELLOW);
+        GameAnswerColor greenAnswer = gameData.getAnswerForColor(DifficultyColor.GREEN);
 
-	private GameData gameDataFour;
+        assertEquals(DifficultyColor.YELLOW, yellowAnswer.getColor());
+        assertEquals("Sunny", yellowAnswer.getDescription());
+        assertArrayEquals(new String[] {"sun", "lemon", "banana", "gold"}, yellowAnswer.getWords());
 
-	@BeforeEach
-	public void setUp() {
-		testGameAnswerYellowOneColor = DifficultyColor.YELLOW;
-		testGameAnswerYellowOneDesc = "Yellow description";
-		testGameAnswerYellowOneHints = new String[] { "Yellow Hint1", "Yellow Hint2" };
-		testGameAnswerYellowOneWords = new String[] { "wy1", "wy2", "wy3", "wy4" };
+        assertEquals(DifficultyColor.GREEN, greenAnswer.getColor());
+        assertEquals("Fruity", greenAnswer.getDescription());
+        assertArrayEquals(new String[] {"apple", "pear", "orange", "peach"}, greenAnswer.getWords());
+    }
 
-		testGameAnswerGreenOneColor = DifficultyColor.GREEN;
-		testGameAnswerGreenOneDesc = "Green description";
-		testGameAnswerGreenOneHints = new String[] { "Green Hint1", "Green Hint2" };
-		testGameAnswerGreenOneWords = new String[] { "wg1", "wg2", "wg3", "wg4" };
+    @Test
+    void testGetAsDatabaseFormat() {
+        String[] yellowWords = {"sun", "lemon", "banana", "gold"};
+        String[] greenWords = {"apple", "pear", "orange", "peach"};
+        String[] blueWords = {"cucumber", "carrot", "potato", "eggplant"};
+        String[] purpleWords = {"milk", "juice", "soda", "punch"};
+        GameAnswerColor yellowAnswer = new GameAnswerColor(DifficultyColor.YELLOW, "Sunny", yellowWords);
+        GameAnswerColor greenAnswer = new GameAnswerColor(DifficultyColor.GREEN, "Fruity", greenWords);
+        GameAnswerColor blueAnswer = new GameAnswerColor(DifficultyColor.BLUE, "Vegetables", blueWords);
+        GameAnswerColor purpleAnswer = new GameAnswerColor(DifficultyColor.PURPLE, "Drinks", purpleWords);
+        Map<DifficultyColor, GameAnswerColor> answerMap = Map.of(
+                DifficultyColor.YELLOW, yellowAnswer,
+                DifficultyColor.GREEN, greenAnswer,
+                DifficultyColor.BLUE, blueAnswer,
+                DifficultyColor.PURPLE, purpleAnswer
+        );
+        GameData gameData = new GameData(answerMap, 123);
 
-		testGameAnswerBlueOneColor = DifficultyColor.BLUE;
-		testGameAnswerBlueOneDesc = "Blue description";
-		testGameAnswerBlueOneHints = new String[] { "Blue Hint1", "Blue Hint2" };
-		testGameAnswerBlueOneWords = new String[] { "wb1", "wb2", "wb3", "wb4" };
+        Document expected = new Document(GameData.KEY_PUZZLE_NUMBER, 123)
+                .append(GameData.KEY_COLOR_LIST, Arrays.asList(
+                        yellowAnswer.getAsDatabaseFormat(),
+                        greenAnswer.getAsDatabaseFormat(),
+                        blueAnswer.getAsDatabaseFormat(),
+                        purpleAnswer.getAsDatabaseFormat()
+                ));
 
-		testGameAnswerPurpleOneColor = DifficultyColor.PURPLE;
-		testGameAnswerPurpleOneDesc = "Purple description";
-		testGameAnswerPurpleOneHints = new String[] { "Purple Hint1", "Purple Hint2" };
-		testGameAnswerPurpleOneWords = new String[] { "wp1", "wp2", "wp3", "wp4" };
-
-		testGameAnswerYellowOne = new GameAnswerColor(testGameAnswerYellowOneColor, testGameAnswerYellowOneDesc,
-				testGameAnswerYellowOneHints, testGameAnswerYellowOneWords);
-		testGameAnswerGreenOne = new GameAnswerColor(testGameAnswerGreenOneColor, testGameAnswerGreenOneDesc,
-				testGameAnswerGreenOneHints, testGameAnswerGreenOneWords);
-		testGameAnswerBlueOne = new GameAnswerColor(testGameAnswerBlueOneColor, testGameAnswerBlueOneDesc,
-				testGameAnswerBlueOneHints, testGameAnswerBlueOneWords);
-		testGameAnswerPurpleOne = new GameAnswerColor(testGameAnswerPurpleOneColor, testGameAnswerPurpleOneDesc,
-				testGameAnswerPurpleOneHints, testGameAnswerPurpleOneWords);
-
-		Map<DifficultyColor, GameAnswerColor> answerMap = new HashMap<>();
-		answerMap.put(DifficultyColor.YELLOW, testGameAnswerYellowOne);
-		answerMap.put(DifficultyColor.GREEN, testGameAnswerGreenOne);
-		answerMap.put(DifficultyColor.BLUE, testGameAnswerBlueOne);
-		answerMap.put(DifficultyColor.PURPLE, testGameAnswerPurpleOne);
-
-		gameDataFour = new GameData(answerMap);
-	}
-
-	@Test
-	public void testEmptyGameData() {
-		Map<DifficultyColor, GameAnswerColor> emptyMap = new HashMap<>();
-		GameData emptyGameData = new GameData(emptyMap);
-
-		assertEquals(0, emptyGameData.getAnswerMap().size());
-
-		assertNull(emptyGameData.getAnswerForColor(DifficultyColor.YELLOW));
-		assertNull(emptyGameData.getAnswerForColor(DifficultyColor.GREEN));
-		assertNull(emptyGameData.getAnswerForColor(DifficultyColor.BLUE));
-		assertNull(emptyGameData.getAnswerForColor(DifficultyColor.PURPLE));
-	}
-
-	@Test
-	public void testMapSize() {
-		Map<DifficultyColor, GameAnswerColor> answerMap = gameDataFour.getAnswerMap();
-		assertEquals(4, answerMap.size());
-	}
-
-	@Test
-	public void testAllColors() {
-		assertEquals(testGameAnswerYellowOne, gameDataFour.getAnswerForColor(DifficultyColor.YELLOW));
-		assertEquals(testGameAnswerGreenOne, gameDataFour.getAnswerForColor(DifficultyColor.GREEN));
-		assertEquals(testGameAnswerBlueOne, gameDataFour.getAnswerForColor(DifficultyColor.BLUE));
-		assertEquals(testGameAnswerPurpleOne, gameDataFour.getAnswerForColor(DifficultyColor.PURPLE));
-	}
-
-	@Test
-	public void testOnlyYellow() {
-		Map<DifficultyColor, GameAnswerColor> answerMap = new HashMap<>();
-		answerMap.put(DifficultyColor.YELLOW, testGameAnswerYellowOne);
-		GameData gameData = new GameData(answerMap);
-
-		assertEquals(testGameAnswerYellowOne, gameData.getAnswerForColor(DifficultyColor.YELLOW));
-		assertNull(gameData.getAnswerForColor(DifficultyColor.GREEN));
-		assertNull(gameData.getAnswerForColor(DifficultyColor.BLUE));
-		assertNull(gameData.getAnswerForColor(DifficultyColor.PURPLE));
-	}
-
-	@Test
-	public void testOnlyGreen() {
-		Map<DifficultyColor, GameAnswerColor> answerMap = new HashMap<>();
-		answerMap.put(DifficultyColor.GREEN, testGameAnswerGreenOne);
-		GameData gameData = new GameData(answerMap);
-
-		assertEquals(testGameAnswerGreenOne, gameData.getAnswerForColor(DifficultyColor.GREEN));
-		assertNull(gameData.getAnswerForColor(DifficultyColor.YELLOW));
-		assertNull(gameData.getAnswerForColor(DifficultyColor.BLUE));
-		assertNull(gameData.getAnswerForColor(DifficultyColor.PURPLE));
-	}
-
-	@Test
-	public void testOnlyBlue() {
-		Map<DifficultyColor, GameAnswerColor> answerMap = new HashMap<>();
-		answerMap.put(DifficultyColor.BLUE, testGameAnswerBlueOne);
-		GameData gameData = new GameData(answerMap);
-
-		assertEquals(testGameAnswerBlueOne, gameData.getAnswerForColor(DifficultyColor.BLUE));
-		assertNull(gameData.getAnswerForColor(DifficultyColor.YELLOW));
-		assertNull(gameData.getAnswerForColor(DifficultyColor.GREEN));
-		assertNull(gameData.getAnswerForColor(DifficultyColor.PURPLE));
-	}
-
-	@Test
-	public void testOnlyPurple() {
-		Map<DifficultyColor, GameAnswerColor> answerMap = new HashMap<>();
-		answerMap.put(DifficultyColor.PURPLE, testGameAnswerPurpleOne);
-		GameData gameData = new GameData(answerMap);
-
-		assertEquals(testGameAnswerPurpleOne, gameData.getAnswerForColor(DifficultyColor.PURPLE));
-		assertNull(gameData.getAnswerForColor(DifficultyColor.YELLOW));
-		assertNull(gameData.getAnswerForColor(DifficultyColor.GREEN));
-		assertNull(gameData.getAnswerForColor(DifficultyColor.BLUE));
-	}
+        Document actual = gameData.getAsDatabaseFormat();
+        
+        assertEquals(expected, actual);
+    }
 }
