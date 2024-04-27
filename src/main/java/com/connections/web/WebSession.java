@@ -176,6 +176,11 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 		return user;
 	}
 
+	/**
+	 * Retrieves the creation date associated with the session.
+	 *
+	 * @return the creation date associated with the session
+	 */
 	public ZonedDateTime getCreationDate() {
 		return sessionCreationDate;
 	}
@@ -211,6 +216,12 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 		return true;
 	}
 
+	/**
+	 * Checks if the time between the creation date of the session and the current
+	 * date exceeds the maximum lifespan of a session.
+	 * 
+	 * @return true if the session has expired, false otherwise
+	 */
 	private boolean isExpired() {
 		if (sessionCreationDate == null) {
 			return false;
@@ -257,6 +268,11 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 				sessionID);
 	}
 
+	/**
+	 * Clears all sessions in the MongoDB database that have expired.
+	 * 
+	 * @param webContext the WebContext associated with the session
+	 */
 	public static void clearExpiredSessions(WebContext webContext) {
 		FindIterable<Document> sessionDocIterable = WebUtils.helperCollectionGetAll(webContext,
 				WebUtils.COLLECTION_SESSION_ID_NAME);
