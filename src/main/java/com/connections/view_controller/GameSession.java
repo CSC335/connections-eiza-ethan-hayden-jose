@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-import com.connections.entry.ConnectionsAppLocal;
 import com.connections.model.DifficultyColor;
 import com.connections.model.GameAnswerColor;
 import com.connections.model.GameData;
@@ -48,6 +47,9 @@ import javafx.util.Duration;
  * components related to the game.
  */
 public class GameSession extends StackPane implements Modular {
+	public static final int STAGE_WIDTH = 800;
+	public static final int STAGE_HEIGHT = 750;
+	
 	private static final int POPUP_DEFAULT_DURATION_MS = 3000;
 	private static final int MENU_PANE_HEIGHT = NotificationPane.HEIGHT + 10;
 
@@ -144,7 +146,7 @@ public class GameSession extends StackPane implements Modular {
 
 		currentPuzzleNumber = gameSessionContext.getGameData().getPuzzleNumber();
 
-		setPrefSize(ConnectionsAppLocal.STAGE_WIDTH, ConnectionsAppLocal.STAGE_HEIGHT);
+		setPrefSize(STAGE_WIDTH, STAGE_HEIGHT);
 
 		darkModeToggleMenuButton = new DarkModeToggle(gameSessionContext);
 
@@ -211,7 +213,7 @@ public class GameSession extends StackPane implements Modular {
 		organizationPane = new BorderPane();
 		organizationPane.setTop(menuPane);
 		organizationPane.setCenter(gameContentPane);
-		organizationPane.setPrefSize(ConnectionsAppLocal.STAGE_WIDTH, ConnectionsAppLocal.STAGE_HEIGHT);
+		organizationPane.setPrefSize(STAGE_WIDTH, STAGE_HEIGHT);
 		organizationPane.setPadding(new Insets(10));
 
 		getChildren().add(organizationPane);
@@ -722,20 +724,12 @@ public class GameSession extends StackPane implements Modular {
 		// This check is needed because we do not want to override an existing instance
 		// ID with the current instance ID.
 		if (!currentUser.isCurrentlyInGame() || currentInstanceID.equals(currentUser.getActiveInstanceID())) {
-			System.out.println(String.format("*** helperSetUserInGameStatus: instance %s set in-game status to %s",
-					currentInstanceID, status));
-
 			if (status) {
 				currentUser.setActiveInstanceID(currentInstanceID);
 			} else {
 				currentUser.clearActiveInstanceID();
 			}
-
 			currentUser.writeToDatabase();
-		} else {
-			System.out.println(String.format(
-					"*** helperSetUserInGameStatus: instance %s could NOT overwrite existing status of user instance ID %s with status %s",
-					currentInstanceID, currentUser.getActiveInstanceID(), status));
 		}
 	}
 

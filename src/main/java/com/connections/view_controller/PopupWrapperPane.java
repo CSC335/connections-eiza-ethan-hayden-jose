@@ -1,7 +1,5 @@
 package com.connections.view_controller;
 
-import com.connections.entry.ConnectionsAppLocal;
-
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.animation.TranslateTransition;
@@ -27,8 +25,8 @@ public class PopupWrapperPane extends BorderPane implements Modular {
 	protected static final double POPUP_EDGE_CUTOFF = 125;
 	protected static final double INSETS_MARGIN = 10;
 	protected static final double MENU_HEIGHT = 30;
-	protected static final double POPUP_WIDTH = ConnectionsAppLocal.STAGE_WIDTH - POPUP_EDGE_CUTOFF;
-	protected static final double POPUP_HEIGHT = ConnectionsAppLocal.STAGE_HEIGHT - POPUP_EDGE_CUTOFF;
+	protected static final double POPUP_WIDTH = GameSession.STAGE_WIDTH - POPUP_EDGE_CUTOFF;
+	protected static final double POPUP_HEIGHT = GameSession.STAGE_HEIGHT - POPUP_EDGE_CUTOFF;
 	protected static final double CONTAINER_WIDTH = POPUP_WIDTH - INSETS_MARGIN * 2;
 	protected static final double CONTAINER_HEIGHT = POPUP_HEIGHT - INSETS_MARGIN * 2 - MENU_HEIGHT * 1.5;
 
