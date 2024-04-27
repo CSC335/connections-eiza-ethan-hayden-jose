@@ -45,10 +45,6 @@ public class TimerPane extends StackPane implements Modular {
 	private int prevSecondsLeftBuffer;
 	private GameSessionContext gameSessionContext;
 	private EventHandler<ActionEvent> onFinishedTimer;
-	// === === === === === === === === === === === === === ===
-	// with delay is not needed anymore, can be removed in future
-	private EventHandler<ActionEvent> onFinishedTimerWithDelay;
-	// === === === === === === === === === === === === === ===
 	private EventHandler<ActionEvent> onSecondPassedBy;
 	private EventHandler<ActionEvent> onDisappear;
 	private boolean timerActive;
@@ -253,15 +249,6 @@ public class TimerPane extends StackPane implements Modular {
 		this.onFinishedTimer = onFinishedTimer;
 	}
 
-   /**
-    * Sets the event handler to be called with a delay after the timer finishes.
-    *
-    * @param onFinishedTimerWithDelay The event handler to be called with a delay after the timer finishes.
-    */
-	public void setOnFinishedTimerWithDelay(EventHandler<ActionEvent> onFinishedTimerWithDelay) {
-		this.onFinishedTimerWithDelay = onFinishedTimerWithDelay;
-	}
-
 	/*
 	 * The main purpose of being able to call code when every second passes is so
 	 * that the current time trial state can be saved in case the user closes their
@@ -341,12 +328,6 @@ public class TimerPane extends StackPane implements Modular {
 		pulseTransition.setAutoReverse(true);
 		pulseTransition.setCycleCount(8);
 		pulseTransition.play();
-
-		pulseTransition.setOnFinished(event -> {
-			if (onFinishedTimerWithDelay != null) {
-				onFinishedTimerWithDelay.handle(new ActionEvent(this, null));
-			}
-		});
 	}
 
    /**

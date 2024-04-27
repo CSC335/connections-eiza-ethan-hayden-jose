@@ -14,12 +14,6 @@ public class GameSessionContext {
 	private WebContext webContext;
 	private WebSessionContext webSessionContext;
 
-
-	/*
-	 * NOTE: if loading from the GameSaveState, its current game information MUST be
-	 * consistent with the GameData!
-	 */
-
     /**
      * Constructs a new GameSessionContext with the specified StyleManager, GameData, WebContext, and WebSessionContext.
      *
@@ -28,15 +22,12 @@ public class GameSessionContext {
      * @param webContext       the WebContext used by the game session
      * @param webSessionContext the WebSessionContext used by the game session
      */
-//	public GameSessionContext(StyleManager styleManager, GameData gameData, WebContext webContext,
-//			WebSessionContext webSessionContext, GameSaveState gameSaveState) {
 	public GameSessionContext(StyleManager styleManager, GameData gameData, WebContext webContext,
 			WebSessionContext webSessionContext) {
 		this.styleManager = styleManager;
 		this.gameData = gameData;
 		this.webContext = webContext;
 		this.webSessionContext = webSessionContext;
-//		this.gameSaveState = gameSaveState;
 	}
 
     /**
@@ -74,9 +65,4 @@ public class GameSessionContext {
 	public WebSessionContext getWebSessionContext() {
 		return webSessionContext;
 	}
-	
-//	can be retrieved from the current user
-//	public GameSaveState getGameSaveState() {
-//		return gameSaveState;
-//	}
 }

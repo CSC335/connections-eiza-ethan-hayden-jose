@@ -155,14 +155,6 @@ public class ResultsPane extends StackPane implements Modular {
 			ZonedDateTime midnight = now.toLocalDate().atStartOfDay(now.getZone()).plusDays(1);
 
 			java.time.Duration duration = java.time.Duration.between(now, midnight);
-//			
-//			LocalDateTime now = LocalDateTime.now();
-//			LocalDateTime midnight = LocalDateTime.of(now.toLocalDate().plusDays(1), LocalTime.MIDNIGHT);
-//
-//			long nowMillis = now.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-//			long midnightMillis = midnight.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-//
-//			Duration duration = Duration.millis(midnightMillis - nowMillis);
 
 			long hours = (long) duration.toHours();
 			long minutes = (long) (duration.toMinutes() % 60);

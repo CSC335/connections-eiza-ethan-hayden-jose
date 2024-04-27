@@ -48,12 +48,11 @@ public class GameSaveState implements DatabaseFormattable {
 	 * @param mistakesPane       the CircleRowPane object representing the mistakes
 	 * @param gameSessionContext the GameSessionContext object
 	 * @param gameFinished       indicates whether the game is finished
-	 * @param timeCompleted      the time taken to complete the game
 	 * @param gameType           the type of the game
 	 * @param gameStartTime      the start time of the game
 	 */
 	public GameSaveState(TileGridWord tileGridWord, CircleRowPane hintsPane, CircleRowPane mistakesPane,
-			GameSessionContext gameSessionContext, boolean gameFinished, int timeCompleted,
+			GameSessionContext gameSessionContext, boolean gameFinished,
 			GameSession.GameType gameType, ZonedDateTime gameStartTime) {
 		this.gameFinished = gameFinished;
 		this.gameType = gameType;

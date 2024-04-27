@@ -27,13 +27,16 @@ public class MidnightChecker {
 	private boolean isRunning;
 	private EventHandler<ActionEvent> onMidnight;
 
+	/**
+	 * Constructs the MidnightChecker by setting a Timeline and KeyFrame.
+	 */
 	public MidnightChecker() {
 		keyFrame = new KeyFrame(Duration.seconds(1), event -> {
 			ZonedDateTime currentDate = ZonedDateTime.now();
 			ZonedDateTime midnightDate = currentDate.toLocalDate().atStartOfDay(currentDate.getZone()).plusDays(1);
 
 			java.time.Duration durationUntilMidnight = java.time.Duration.between(currentDate, midnightDate);
-			
+
 			if (durationUntilMidnight.toSeconds() <= TRIGGER_SEC_THRESHOLD) {
 				if (onMidnight != null) {
 					onMidnight.handle(new ActionEvent(this, null));
@@ -46,6 +49,9 @@ public class MidnightChecker {
 		timeline.setCycleCount(MAX_CYCLE_COUNT);
 	}
 
+	/**
+	 * Starts the Timeline if it is not already running.
+	 */
 	public void start() {
 		if (timeline != null && !isRunning) {
 			timeline.play();
@@ -53,6 +59,9 @@ public class MidnightChecker {
 		}
 	}
 
+	/**
+	 * Stops the Timeline if it is already running.
+	 */
 	public void stop() {
 		if (timeline != null && isRunning) {
 			timeline.stop();
@@ -60,10 +69,20 @@ public class MidnightChecker {
 		}
 	}
 
+	/**
+	 * Returns the running status of the Timeline.
+	 * 
+	 * @return true if the Timeline is running and false if otherwise
+	 */
 	public boolean isRunning() {
 		return isRunning;
 	}
 
+	/**
+	 * Sets the event handler to be called when midnight strikes
+	 *
+	 * @param onMidnight the event handler to be called when midnight strikes
+	 */
 	public void setOnMidnight(EventHandler<ActionEvent> onMidnight) {
 		this.onMidnight = onMidnight;
 	}

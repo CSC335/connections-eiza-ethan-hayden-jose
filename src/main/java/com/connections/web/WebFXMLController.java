@@ -39,7 +39,7 @@ public class WebFXMLController implements Initializable {
 	 */
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-
+		// Nothing to initialize.
 	}
 
 	/**
@@ -76,14 +76,14 @@ public class WebFXMLController implements Initializable {
 			System.out.println("CONNECTIONS: WebFXMLController initialized the database.");
 			WebUtils.initDatabase(webContext);
 		}
-		
+
 		WebUtils.dailyPuzzleNumberIncrementIfNeeded(webContext);
 
 		WebSession session = new WebSession(webContext);
 		WebSessionContext webSessionContext = new WebSessionContext(session);
 
 		WebSession.clearExpiredSessions(webContext);
-		
+
 		ConnectionsHome home = new ConnectionsHome(webContext, webSessionContext);
 		Scene scene = new Scene(home, STAGE_WIDTH, STAGE_HEIGHT);
 		stage.setScene(scene);

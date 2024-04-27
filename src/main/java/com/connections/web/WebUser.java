@@ -223,18 +223,37 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 		return hasLatestSaveState;
 	}
 
+	/**
+	 * Sets the active instance ID of the user.
+	 * 
+	 * @param activeInstanceID the String instance ID corresponding to the user
+	 */
 	public void setActiveInstanceID(String activeInstanceID) {
 		this.activeInstanceID = activeInstanceID;
 	}
-	
+
+	/**
+	 * Gets the active instance ID of the user.
+	 * 
+	 * @return the String instance ID corresponding to the user
+	 */
 	public String getActiveInstanceID() {
 		return activeInstanceID;
 	}
-	
+
+	/**
+	 * Clears the active instance ID of the user.
+	 */
 	public void clearActiveInstanceID() {
 		this.activeInstanceID = null;
 	}
-	
+
+	/**
+	 * Returns true or false depending on if the user is currently in a game (has an
+	 * active instance ID).
+	 * 
+	 * @return true if currently in a game, false otherwise
+	 */
 	public boolean isCurrentlyInGame() {
 		return (activeInstanceID != null);
 	}

@@ -29,6 +29,12 @@ public class GameData implements DatabaseFormattable {
 		loadFromDatabaseFormat(doc);
 	}
 
+	/**
+	 * Constructs a GameData from a given map of game answers and a puzzle number.
+	 * 
+	 * @param answerMap    the map of the game answers by color
+	 * @param puzzleNumber the puzzle number
+	 */
 	public GameData(Map<DifficultyColor, GameAnswerColor> answerMap, int puzzleNumber) {
 		this.answerMap = answerMap;
 		this.puzzleNumber = puzzleNumber;

@@ -30,8 +30,9 @@ import javafx.scene.text.Font;
 import javafx.util.Duration;
 
 /**
- * The ConnectionsLogin class represents the login screen of the Connections game.
- * It extends the JavaFX BorderPane class and implements the WebContextAccessible and WebSessionAccessible interfaces.
+ * The ConnectionsLogin class represents the login screen of the Connections
+ * game. It extends the JavaFX BorderPane class and implements the
+ * WebContextAccessible and WebSessionAccessible interfaces.
  */
 public class ConnectionsLogin extends BorderPane implements WebContextAccessible, WebSessionAccessible {
 	private StyleManager styleManager;
@@ -53,43 +54,45 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 	private BigButton continueButtonPlaceholder;
 	private VBox verticalLayout;
 
-	private Font franklin700_14;
-	private Font franklin700_16;
+	private Font franklinSmall;
+	private Font franklinMedium;
 	private Font cheltenham;
 	private BorderPane window;
 	private EventHandler<ActionEvent> onLoginSuccessfully;
 	private EventHandler<ActionEvent> onGoBack;
 	private boolean isCreatingNewAccount;
 
-    /**
-     * Constructs a ConnectionsLogin object with the specified WebContext and WebSessionContext.
-     *
-     * @param webContext        the WebContext associated with the login screen
-     * @param webSessionContext the WebSessionContext associated with the login screen
-     */
+	/**
+	 * Constructs a ConnectionsLogin object with the specified WebContext and
+	 * WebSessionContext.
+	 *
+	 * @param webContext        the WebContext associated with the login screen
+	 * @param webSessionContext the WebSessionContext associated with the login
+	 *                          screen
+	 */
 	public ConnectionsLogin(WebContext webContext, WebSessionContext webSessionContext) {
 		setWebContext(webContext);
 		setWebSessionContext(webSessionContext);
 		initPane();
 	}
 
-    /**
-     * The EntryBox class represents an input field with a label in the login screen.
-     * It extends the JavaFX VBox class.
-     */
+	/**
+	 * The EntryBox class represents an input field with a label in the login
+	 * screen. It extends the JavaFX VBox class.
+	 */
 	private class EntryBox extends VBox {
 		private Label label;
 		protected TextField field;
 		private boolean incorrect;
 
-        /**
-         * Constructs an EntryBox object with the specified label text.
-         *
-         * @param labelText the text to be displayed as the label for the input field
-         */
+		/**
+		 * Constructs an EntryBox object with the specified label text.
+		 *
+		 * @param labelText the text to be displayed as the label for the input field
+		 */
 		public EntryBox(String labelText) {
 			label = new Label(labelText);
-			label.setFont(franklin700_14);
+			label.setFont(franklinSmall);
 			label.setTextFill(Color.BLACK);
 			initField();
 
@@ -98,19 +101,19 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 			getChildren().addAll(label, field);
 		}
 
-        /**
-         * Initializes the input field of the EntryBox.
-         */
+		/**
+		 * Initializes the input field of the EntryBox.
+		 */
 		public void initField() {
 			field = new TextField();
 			field.setPrefSize(450, 46);
 		}
 
-        /**
-         * Sets the incorrect state of the EntryBox.
-         *
-         * @param incorrect true if the input is incorrect, false otherwise
-         */
+		/**
+		 * Sets the incorrect state of the EntryBox.
+		 *
+		 * @param incorrect true if the input is incorrect, false otherwise
+		 */
 		public void setIncorrect(boolean incorrect) {
 			this.incorrect = incorrect;
 			if (incorrect) {
@@ -120,60 +123,60 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 			}
 		}
 
-        /**
-         * Returns the incorrect state of the EntryBox.
-         *
-         * @return true if the input is incorrect, false otherwise
-         */
+		/**
+		 * Returns the incorrect state of the EntryBox.
+		 *
+		 * @return true if the input is incorrect, false otherwise
+		 */
 		public boolean isIncorrect() {
 			return incorrect;
 		}
 
-        /**
-         * Returns the input text of the EntryBox.
-         *
-         * @return the input text of the EntryBox
-         */
+		/**
+		 * Returns the input text of the EntryBox.
+		 *
+		 * @return the input text of the EntryBox
+		 */
 		public String getInput() {
 			return field.getText();
 		}
 
-        /**
-         * Sets a change listener for the input field of the EntryBox.
-         *
-         * @param listener the change listener to be set
-         */
+		/**
+		 * Sets a change listener for the input field of the EntryBox.
+		 *
+		 * @param listener the change listener to be set
+		 */
 		public void setListener(ChangeListener<String> listener) {
 			field.textProperty().addListener(listener);
 		}
 
-        /**
-         * Sets the disabled state of the input field of the EntryBox.
-         *
-         * @param disabled true to disable the input field, false to enable it
-         */
+		/**
+		 * Sets the disabled state of the input field of the EntryBox.
+		 *
+		 * @param disabled true to disable the input field, false to enable it
+		 */
 		public void setInputDisabled(boolean disabled) {
 			field.setDisable(disabled);
 		}
 	}
 
-    /**
-     * The PasswordBox class represents a password input field with a label in the login screen.
-     * It extends the EntryBox class.
-     */
+	/**
+	 * The PasswordBox class represents a password input field with a label in the
+	 * login screen. It extends the EntryBox class.
+	 */
 	private class PasswordBox extends EntryBox {
-        /**
-         * Constructs a PasswordBox object with the specified label text.
-         *
-         * @param labelText the text to be displayed as the label for the password field
-         */
+		/**
+		 * Constructs a PasswordBox object with the specified label text.
+		 *
+		 * @param labelText the text to be displayed as the label for the password field
+		 */
 		public PasswordBox(String labelText) {
 			super(labelText);
 		}
 
-        /**
-         * Initializes the password field of the PasswordBox.
-         */
+		/**
+		 * Initializes the password field of the PasswordBox.
+		 */
 		@Override
 		public void initField() {
 			field = new PasswordField();
@@ -181,22 +184,22 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 		}
 	}
 
-    /**
-     * The WarningMessage class represents a warning message displayed in the login screen.
-     * It extends the JavaFX HBox class.
-     */
+	/**
+	 * The WarningMessage class represents a warning message displayed in the login
+	 * screen. It extends the JavaFX HBox class.
+	 */
 	private class WarningMessage extends HBox {
 		private Label messageLabel;
 		private SVGPath warningSVGPath;
 
-        /**
-         * Constructs a WarningMessage object with the specified message text.
-         *
-         * @param message the text to be displayed as the warning message
-         */
+		/**
+		 * Constructs a WarningMessage object with the specified message text.
+		 *
+		 * @param message the text to be displayed as the warning message
+		 */
 		public WarningMessage(String message) {
 			messageLabel = new Label(message);
-			messageLabel.setFont(franklin700_14);
+			messageLabel.setFont(franklinSmall);
 			messageLabel.setTextFill(Color.RED);
 
 			warningSVGPath = new SVGPath();
@@ -212,26 +215,26 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 			getChildren().addAll(warningSVGPath, messageLabel);
 		}
 
-        /**
-         * Sets the message text of the WarningMessage.
-         *
-         * @param message the message text to be set
-         */
+		/**
+		 * Sets the message text of the WarningMessage.
+		 *
+		 * @param message the message text to be set
+		 */
 		public void setMessage(String message) {
 			messageLabel.setText(message);
 		}
 	}
 
-    /**
-     * The BigButton class represents a large button used in the login screen.
-     * It extends the JavaFX Button class.
-     */
+	/**
+	 * The BigButton class represents a large button used in the login screen. It
+	 * extends the JavaFX Button class.
+	 */
 	private class BigButton extends Button {
-        /**
-         * Constructs a BigButton object with the specified label text.
-         *
-         * @param labelText the text to be displayed on the button
-         */
+		/**
+		 * Constructs a BigButton object with the specified label text.
+		 *
+		 * @param labelText the text to be displayed on the button
+		 */
 		public BigButton(String labelText) {
 			setText(labelText);
 			setStyle(
@@ -239,47 +242,52 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 			setPrefHeight(30);
 			setPrefWidth(450);
 			setPrefSize(450, 44);
-			setFont(franklin700_16);
+			setFont(franklinMedium);
 			setTextFill(Color.WHITE);
 		}
 	}
 
-    /**
-     * Sets the event handler to be invoked when the login is successful.
-     *
-     * @param onLoginSuccessfully the event handler to be set
-     */
+	/**
+	 * Sets the event handler to be invoked when the login is successful.
+	 *
+	 * @param onLoginSuccessfully the event handler to be set
+	 */
 	public void setOnLoginSuccessfully(EventHandler<ActionEvent> onLoginSuccessfully) {
 		this.onLoginSuccessfully = onLoginSuccessfully;
 	}
-	
+
+	/**
+	 * Sets the event handler to be invoked when the back button is pressed.
+	 * 
+	 * @param onGoBack the event handler to be set
+	 */
 	public void setOnGoBack(EventHandler<ActionEvent> onGoBack) {
 		this.onGoBack = onGoBack;
 	}
 
-    /**
-     * Checks if the specified email exists in the database.
-     *
-     * @param email the email to be checked
-     * @return true if the email exists in the database, false otherwise
-     */
+	/**
+	 * Checks if the specified email exists in the database.
+	 *
+	 * @param email the email to be checked
+	 * @return true if the email exists in the database, false otherwise
+	 */
 	private boolean emailExistsInDatabase(String email) {
 		return WebUserAccount.checkAccountExistsByEmail(webContext, email);
 	}
 
-    /**
-     * Checks if the specified username exists in the database.
-     *
-     * @param username the username to be checked
-     * @return true if the username exists in the database, false otherwise
-     */
+	/**
+	 * Checks if the specified username exists in the database.
+	 *
+	 * @param username the username to be checked
+	 * @return true if the username exists in the database, false otherwise
+	 */
 	private boolean userExistsInDatabase(String username) {
 		return WebUserAccount.checkAccountExistsByUserName(webContext, username);
 	}
 
 	/**
-     * Performs the animation to show the next section of the login screen.
-     */
+	 * Performs the animation to show the next section of the login screen.
+	 */
 	private void showNextSectionAnimation() {
 		FadeTransition fadeIn = new FadeTransition(Duration.millis(1250), nextSectionLayout);
 		fadeIn.setFromValue(0.0);
@@ -305,9 +313,9 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 		parallel.play();
 	}
 
-    /**
-     * Displays the menu for creating a new account.
-     */
+	/**
+	 * Displays the menu for creating a new account.
+	 */
 	private void menuForCreatingAccount() {
 		usernameBox.setVisible(true);
 		passwordBox.setVisible(true);
@@ -356,9 +364,9 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 		showNextSectionAnimation();
 	}
 
-    /**
-     * Displays the menu for logging in with an existing account.
-     */
+	/**
+	 * Displays the menu for logging in with an existing account.
+	 */
 	private void menuForLoggingIn() {
 		passwordBox.setVisible(true);
 		continueButton.setText("Login");
@@ -408,15 +416,15 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 		showNextSectionAnimation();
 	}
 
-    /**
-     * Initializes the layout and components of the login screen.
-     */
+	/**
+	 * Initializes the layout and components of the login screen.
+	 */
 	private void initPane() {
 		styleManager = new StyleManager();
-		franklin700_14 = styleManager.getFont("franklin-normal", 700, 14);
-		franklin700_16 = styleManager.getFont("franklin-normal", 700, 16);
+		franklinSmall = styleManager.getFont("franklin-normal", 700, 14);
+		franklinMedium = styleManager.getFont("franklin-normal", 700, 16);
 		cheltenham = styleManager.getFont("cheltenham-normal", 400, 30);
-		
+
 		window = new BorderPane();
 
 		gridLayout = new GridPane();
@@ -497,28 +505,28 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 		backButton.setStyle("-fx-alignment: center-left;");
 		backButton.setMaxWidth(SVGButton.PREF_WIDTH);
 		backButton.setOnMouseClicked(event -> {
-			if(onGoBack != null) {
+			if (onGoBack != null) {
 				// Only want to disable buttons if there IS a onGoBack.
 				setButtonsDisabled(true);
 				onGoBack.handle(new ActionEvent(this, null));
 			}
 		});
 		window.setTop(backButton);
-		
+
 		window.setCenter(verticalLayout);
-		
+
 		setStyle("-fx-background-color: white;");
 		setPadding(new Insets(10));
 		setCenter(window);
-		
+
 	}
 
-    /**
-     * Validates the username input.
-     *
-     * @param username the username to be validated
-     * @return true if the username is valid, false otherwise
-     */
+	/**
+	 * Validates the username input.
+	 *
+	 * @param username the username to be validated
+	 * @return true if the username is valid, false otherwise
+	 */
 	private boolean isValidUsername(String username) {
 		if (username.length() < 1 || username.length() > 20) {
 			invalidUsernameMessage.setMessage("Username must be between 1 and 20 characters long.");
@@ -527,12 +535,12 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 		return true;
 	}
 
-    /**
-     * Validates the username input against the database.
-     *
-     * @param username the username to be validated
-     * @return true if the username is valid and available, false otherwise
-     */
+	/**
+	 * Validates the username input against the database.
+	 *
+	 * @param username the username to be validated
+	 * @return true if the username is valid and available, false otherwise
+	 */
 	private boolean isDatabaseValidUsername(String username) {
 		if (userExistsInDatabase(username)) {
 			invalidUsernameMessage.setMessage("Username has been taken!");
@@ -541,12 +549,12 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 		return true;
 	}
 
-    /**
-     * Validates the password input.
-     *
-     * @param password the password to be validated
-     * @return true if the password is valid, false otherwise
-     */
+	/**
+	 * Validates the password input.
+	 *
+	 * @param password the password to be validated
+	 * @return true if the password is valid, false otherwise
+	 */
 	private boolean isValidPassword(String password) {
 		if (password.length() < 8) {
 			invalidPassMessage.setMessage("Password must be at least 8 characters long.");
@@ -555,12 +563,13 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 		return true;
 	}
 
-    /**
-     * Validates the password input against the database.
-     *
-     * @param password the password to be validated
-     * @return true if the password is valid for the corresponding account, false otherwise
-     */
+	/**
+	 * Validates the password input against the database.
+	 *
+	 * @param password the password to be validated
+	 * @return true if the password is valid for the corresponding account, false
+	 *         otherwise
+	 */
 	private boolean isDatabaseValidPassword(String password) {
 		if (!isCreatingNewAccount && !WebUserAccount.checkAccountCredentialsMatch(webContext, emailBox.getInput(),
 				passwordBox.getInput())) {
@@ -570,12 +579,12 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 		return true;
 	}
 
-    /**
-     * Validates the email input.
-     *
-     * @param email the email to be validated
-     * @return true if the email is valid, false otherwise
-     */
+	/**
+	 * Validates the email input.
+	 *
+	 * @param email the email to be validated
+	 * @return true if the email is valid, false otherwise
+	 */
 	private boolean isValidEmail(String email) {
 		String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
 		return email.matches(emailRegex);
@@ -590,41 +599,41 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 		continueButton.setDisable(disabled);
 	}
 
-    /**
-     * Sets the WebContext associated with the login screen.
-     *
-     * @param webContext the WebContext to be set
-     */
+	/**
+	 * Sets the WebContext associated with the login screen.
+	 *
+	 * @param webContext the WebContext to be set
+	 */
 	@Override
 	public void setWebContext(WebContext webContext) {
 		this.webContext = webContext;
 	}
 
-    /**
-     * Returns the WebContext associated with the login screen.
-     *
-     * @return the WebContext associated with the login screen
-     */
+	/**
+	 * Returns the WebContext associated with the login screen.
+	 *
+	 * @return the WebContext associated with the login screen
+	 */
 	@Override
 	public WebContext getWebContext() {
 		return webContext;
 	}
 
-    /**
-     * Sets the WebSessionContext associated with the login screen.
-     *
-     * @param webSessionContext the WebSessionContext to be set
-     */
+	/**
+	 * Sets the WebSessionContext associated with the login screen.
+	 *
+	 * @param webSessionContext the WebSessionContext to be set
+	 */
 	@Override
 	public void setWebSessionContext(WebSessionContext webSessionContext) {
 		this.webSessionContext = webSessionContext;
 	}
 
-    /**
-     * Returns the WebSessionContext associated with the login screen.
-     *
-     * @return the WebSessionContext associated with the login screen
-     */
+	/**
+	 * Returns the WebSessionContext associated with the login screen.
+	 *
+	 * @return the WebSessionContext associated with the login screen
+	 */
 	@Override
 	public WebSessionContext getWebSessionContext() {
 		return webSessionContext;

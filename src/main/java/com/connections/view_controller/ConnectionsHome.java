@@ -217,6 +217,9 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 		setCenter(window);
 	}
 
+	/**
+	 * Initializes the listeners for the main assets in the home screen.
+	 */
 	private void initListeners() {
 		showDebugInfoButton.setOnAction(event -> {
 			handleDebugScreen();
@@ -236,6 +239,10 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 		});
 	}
 
+	/**
+	 * Handles the debug screen of whether or not it should be shown or removed from
+	 * view.
+	 */
 	private void handleDebugScreen() {
 		debugInfoShown = !debugInfoShown;
 		if (debugInfoShown) {
@@ -245,6 +252,9 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 		}
 	}
 
+	/**
+	 * Initializes the login screen and shows it over the home screen.
+	 */
 	private void initLoginScreen() {
 		ConnectionsLogin loginScreen = new ConnectionsLogin(webContext, webSessionContext);
 		loginScreen.setOnGoBack(event -> {
@@ -258,6 +268,9 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 		showScreen(loginScreen);
 	}
 
+	/**
+	 * Initializes the game session screen and shows it over the home screen.
+	 */
 	private void initGameSession() {
 		checkSession();
 		GameData gameDataLoadWith = WebUtils.gameGetByPuzzleNumber(webContext,
@@ -275,7 +288,7 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 				gameSession.close();
 				setButtonsDisabled(true);
 			});
-			
+
 			PauseTransition delay = new PauseTransition(Duration.millis(2000));
 			delay.setOnFinished(onFinished -> {
 				WebUtils.dailyPuzzleNumberIncrementIfNeeded(webContext);
@@ -286,6 +299,10 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 		showScreen(gameSession);
 	}
 
+	/**
+	 * Display either the login or logout button depending on the current signed in
+	 * state.
+	 */
 	private void layoutAdjustLoginLogoutButtons() {
 		if (centerBox != null && loginButton != null && logoutButton != null) {
 			centerBox.getChildren().removeAll(loginButton, logoutButton);

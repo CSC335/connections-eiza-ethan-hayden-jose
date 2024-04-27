@@ -6,15 +6,15 @@ import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
 
 /**
- * The HintMenuButton class represents a button with a hint icon in the menu. It
- * extends the SVGButton class and implements the Modular interface.
+ * The BackMenuButton class represents a button with a arrow icon in the menu.
+ * It extends the SVGButton class and implements the Modular interface.
  */
 public class BackMenuButton extends SVGButton implements Modular {
-	
+
 	/**
-	 * Constructs a new HintMenuButton with the specified GameSessionContext.
+	 * Constructs a new BackMenuButton with the specified GameSessionContext.
 	 *
-	 * @param gameSessionContext the GameSessionContext used by the hint menu button
+	 * @param gameSessionContext the GameSessionContext used by the back menu button
 	 */
 	public BackMenuButton(GameSessionContext gameSessionContext) {
 		super(gameSessionContext);
@@ -33,18 +33,21 @@ public class BackMenuButton extends SVGButton implements Modular {
 		refreshStyle();
 	}
 
+	/**
+	 * Constructs a new BackMenuButton without a GameSessionContext.
+	 */
 	public BackMenuButton() {
 		this(null);
 	}
 
 	/**
-	 * Refreshes the style of the hint menu button based on the current style
+	 * Refreshes the style of the back menu button based on the current style
 	 * manager.
 	 */
 	@Override
 	public void refreshStyle() {
 		if (gameSessionContext == null) {
-			if(isDisabled()) {
+			if (isDisabled()) {
 				svgPath.setStroke(Color.GRAY);
 			} else {
 				svgPath.setStroke(Color.BLACK);

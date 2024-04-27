@@ -70,9 +70,7 @@ public class GameSession extends StackPane implements Modular {
 	private HBox menuButtonRowRightPane;
 	private HBox menuButtonRowLeftPane;
 	private TileGridAchievement tileGridAchievement;
-
 	private ErrorOverlayPane errorUserInGamePane;
-
 	private MidnightChecker midnightChecker;
 
 	private boolean wonGame;
@@ -218,99 +216,26 @@ public class GameSession extends StackPane implements Modular {
 
 		getChildren().add(organizationPane);
 
-		// === NEW STUFF FOR WEB === (will make neater later)
-
 		midnightChecker = new MidnightChecker();
 		midnightChecker.start();
-		midnightChecker.setOnMidnight(event -> {
-			if (onMidnight != null) {
-				// Disable buttons only if there IS a onMidnight set.
-				helperSetAllInteractablesDisabled(true);
-				onMidnight.handle(new ActionEvent(this, null));
-			}
-		});
-
-		gameTypeOptionSelector = new OptionSelectOverlayPane(gameSessionContext);
-		gameTypeOptionSelector.addButton("Classic", 68);
-		gameTypeOptionSelector.addButton("Time Trial", 68);
-		gameTypeOptionSelector.setOnDisappear(event -> {
-			organizationPane.setEffect(null);
-			switch (gameTypeOptionSelector.getOptionSelected()) {
-			case "Classic":
-				gameType = GameType.CLASSIC;
-				sessionBeginNewGame();
-				break;
-			case "Time Trial":
-				gameType = GameType.TIME_TRIAL;
-				helperTimeTrialStartCountdown();
-				break;
-			default:
-				gameType = GameType.NONE;
-			}
-		});
 
 		timeTrialCountDownOverlay = new CountDownOverlayPane(gameSessionContext);
 		timeTrialTimerPane = new TimerPane(gameSessionContext, TIME_TRIAL_DURATION_SEC);
-		timeTrialTimerPane.setOnFinishedTimer(event -> {
-			sessionLostTimeTrial();
-		});
-		timeTrialTimerPane = new TimerPane(gameSessionContext, TIME_TRIAL_DURATION_SEC);
-		timeTrialTimerPane.setOnSecondPassedBy(event -> {
-			if (gameActive && gameType == GameType.TIME_TRIAL) {
-				fastForwardStoreSaveState();
-			}
-		});
-		timeTrialTimerPane.setOnFinishedTimer(event -> {
-			if (gameType == GameType.TIME_TRIAL) {
-				sessionLostTimeTrial();
-			}
-		});
 
 		timeTrialTimerLayout = new BorderPane();
 		timeTrialTimerLayout.setTop(timeTrialTimerPane);
 		timeTrialTimerLayout.setPadding(new Insets(64));
 		BorderPane.setAlignment(timeTrialTimerPane, Pos.CENTER);
+
 		gameTypeOptionSelector = new OptionSelectOverlayPane(gameSessionContext);
 		gameTypeOptionSelector.addButton("Classic", 68);
 		gameTypeOptionSelector.addButton("Time Trial", 68);
-		gameTypeOptionSelector.setOnDisappear(event -> {
-			organizationPane.setEffect(null);
-			switch (gameTypeOptionSelector.getOptionSelected()) {
-			case "Classic":
-				gameType = GameType.CLASSIC;
-				sessionBeginNewGame();
-				break;
-			case "Time Trial":
-				gameType = GameType.TIME_TRIAL;
-				helperTimeTrialStartCountdown();
-				break;
-			default:
-				gameType = GameType.NONE;
-			}
-		});
 
 		errorUserInGamePane = new ErrorOverlayPane(gameSessionContext);
 		errorUserInGamePane.setHeaderText("Game In Progress");
 		errorUserInGamePane.setBodyText(
 				"You are currently playing from another browser tab or device under the same user.\nPlease wait until the game is finished and try again.");
 
-		timeTrialCountDownOverlay = new CountDownOverlayPane(gameSessionContext);
-		timeTrialTimerPane = new TimerPane(gameSessionContext, TIME_TRIAL_DURATION_SEC);
-		timeTrialTimerPane.setOnSecondPassedBy(event -> {
-			if (gameActive && gameType == GameType.TIME_TRIAL) {
-				fastForwardStoreSaveState();
-			}
-		});
-		timeTrialTimerPane.setOnFinishedTimer(event -> {
-			if (gameType == GameType.TIME_TRIAL) {
-				sessionLostTimeTrial();
-			}
-		});
-
-		timeTrialTimerLayout = new BorderPane();
-		timeTrialTimerLayout.setTop(timeTrialTimerPane);
-		timeTrialTimerLayout.setPadding(new Insets(64));
-		BorderPane.setAlignment(timeTrialTimerPane, Pos.CENTER);
 		getChildren().add(0, timeTrialTimerLayout);
 		controlsSetNormal();
 		refreshStyle();
@@ -361,6 +286,38 @@ public class GameSession extends StackPane implements Modular {
 		});
 		gameSessionContext.getWebContext().getWebAPI().addInstanceCloseListener(() -> {
 			close();
+		});
+		gameTypeOptionSelector.setOnDisappear(event -> {
+			organizationPane.setEffect(null);
+			switch (gameTypeOptionSelector.getOptionSelected()) {
+			case "Classic":
+				gameType = GameType.CLASSIC;
+				sessionBeginNewGame();
+				break;
+			case "Time Trial":
+				gameType = GameType.TIME_TRIAL;
+				helperTimeTrialStartCountdown();
+				break;
+			default:
+				gameType = GameType.NONE;
+			}
+		});
+		timeTrialTimerPane.setOnSecondPassedBy(event -> {
+			if (gameActive && gameType == GameType.TIME_TRIAL) {
+				fastForwardStoreSaveState();
+			}
+		});
+		timeTrialTimerPane.setOnFinishedTimer(event -> {
+			if (gameType == GameType.TIME_TRIAL) {
+				sessionLostTimeTrial();
+			}
+		});
+		midnightChecker.setOnMidnight(event -> {
+			if (onMidnight != null) {
+				// Disable buttons only if there IS a onMidnight set.
+				helperSetAllInteractablesDisabled(true);
+				onMidnight.handle(new ActionEvent(this, null));
+			}
 		});
 	}
 
@@ -452,7 +409,6 @@ public class GameSession extends StackPane implements Modular {
 	private void fastForwardAutoLoad() {
 		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
 		currentUser.readFromDatabase();
-//		// Commented this out to prevent the error pane from loading in, but allows the user to load a previous save
 		if (currentUser.isCurrentlyInGame()) {
 			fastForwardUserCurrentlyIngame();
 		} else if (currentUser.hasLatestSaveState()) {
@@ -466,7 +422,6 @@ public class GameSession extends StackPane implements Modular {
 	 * Displays an error message indicating that the user is currently in-game.
 	 */
 	private void fastForwardUserCurrentlyIngame() {
-		System.out.println("fastForwardUserCurrentlyIngame");
 		helperSetAllInteractablesDisabled(true);
 		displayPaneWithGaussianBlur(errorUserInGamePane);
 		errorUserInGamePane.appear();
@@ -520,12 +475,8 @@ public class GameSession extends StackPane implements Modular {
 		if (gameActive && !gameAlreadyFinished && !blockedStoringSaveState) {
 			WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
 
-			// implement this later, track the time the user has spent playing for both
-			// classic and time trial
-			int timeCompleted = 0;
-
 			GameSaveState gameSaveState = new GameSaveState(tileGridWord, hintsPane, mistakesPane, gameSessionContext,
-					!gameActive, timeCompleted, gameType, gameStartDateTime);
+					!gameActive, gameType, gameStartDateTime);
 
 			currentUser.readFromDatabase();
 			currentUser.setLatestGameSaveState(gameSaveState);
@@ -788,19 +739,6 @@ public class GameSession extends StackPane implements Modular {
 		}
 	}
 
-	// CONSIDER REMVOING helperGetUserInGameStatus()
-
-	/**
-	 * Retrieves the user's in-game status.
-	 *
-	 * @return true if the user is in-game, false otherwise
-	 */
-	private boolean helperGetUserInGameStatus() {
-		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
-		currentUser.readFromDatabase();
-		return currentUser.isCurrentlyInGame();
-	}
-
 	/**
 	 * Displays a pane with a Gaussian blur effect.
 	 *
@@ -862,8 +800,6 @@ public class GameSession extends StackPane implements Modular {
 		});
 
 		timeTrialCountDownOverlay.startCountdown();
-
-		// just to be safe, viewing the countdown is enough to be considered in game
 	}
 
 	/**
@@ -1146,11 +1082,13 @@ public class GameSession extends StackPane implements Modular {
 		 * updated, but it may not be properly updated if it is not a child or currently
 		 * added to another Pane).
 		 */
-		Node[] completeComponentList = { mainHeaderText, organizationPane, menuPane, gameContentPane, tileGridStackPane,
-				hintsPane, mistakesPane, gameButtonRowPane, menuButtonRowRightPane, tileGridAchievement, tileGridWord,
+		Node[] completeComponentList = { gameTypeOptionSelector, timeTrialCountDownOverlay, timeTrialTimerPane,
+				timeTrialTimerLayout, mainHeaderText, organizationPane, menuPane, gameContentPane, tileGridStackPane,
+				hintsPane, mistakesPane, gameButtonRowPane, menuButtonRowContainerPane, menuButtonRowRightPane,
+				menuButtonRowLeftPane, tileGridAchievement, errorUserInGamePane, tileGridWord,
 				tileGridWordAnimationPane, darkModeToggleMenuButton, hintMenuButton, achievementsMenuButton,
-				leaderboardMenuButton, profileMenuButton, gameSubmitButton, gameDeselectButton, gameShuffleButton,
-				gameViewResultsButton, resultsPane, popupPane, timeTrialTimerPane };
+				leaderboardMenuButton, profileMenuButton, backMenuButton, gameSubmitButton, gameDeselectButton,
+				gameShuffleButton, gameViewResultsButton, resultsPane, popupPane };
 
 		for (Node node : completeComponentList) {
 			helperRefreshStyle(styleManager, node);
@@ -1161,24 +1099,27 @@ public class GameSession extends StackPane implements Modular {
 	 * Closes everything related to the game session.
 	 */
 	public void close() {
-		// Since fastForwardStoreSaveState() will call close() when the user is closing
-		// their browser, this if-statement is to prevent an infinite loop.
 		fastForwardStoreSaveState();
 		helperSetUserInGameStatus(false);
 		gameActive = false;
 		helperTimeKeepingStop();
 		midnightChecker.stop();
-//		try {
-//			gameSessionContext.getWebContext().getJProApplication().stop();
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
 	}
 
+	/**
+	 * Sets the event handler to be invoked when the back button is pressed.
+	 * 
+	 * @param onGoBack the event handler to be set
+	 */
 	public void setOnGoBack(EventHandler<ActionEvent> onGoBack) {
 		this.onGoBack = onGoBack;
 	}
 
+	/**
+	 * Sets the event handler to be invoked when midnight strikes.
+	 * 
+	 * @param onMidnight the event handler to be set
+	 */
 	public void setOnMidnight(EventHandler<ActionEvent> onMidnight) {
 		this.onMidnight = onMidnight;
 	}

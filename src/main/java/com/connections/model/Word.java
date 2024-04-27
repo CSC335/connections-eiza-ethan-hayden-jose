@@ -7,8 +7,8 @@ import org.bson.Document;
 import com.connections.web.DatabaseFormattable;
 
 /**
- * Represents a word with its text and color.
- * Implements the DatabaseFormattable interface for database serialization and deserialization.
+ * Represents a word with its text and color. Implements the DatabaseFormattable
+ * interface for database serialization and deserialization.
  */
 public class Word implements DatabaseFormattable {
 	public static final String KEY_TEXT = "text";
@@ -17,40 +17,40 @@ public class Word implements DatabaseFormattable {
 	private String text;
 	private DifficultyColor color;
 
-    /**
-     * Constructs a Word object from a database document.
-     *
-     * @param doc The database document containing the word information.
-     */
+	/**
+	 * Constructs a Word object from a database document.
+	 *
+	 * @param doc The database document containing the word information.
+	 */
 	public Word(Document doc) {
 		loadFromDatabaseFormat(doc);
 	}
 
-    /**
-     * Constructs a Word object with the given text and color.
-     *
-     * @param text  The text of the word.
-     * @param color The color of the word
-     */
+	/**
+	 * Constructs a Word object with the given text and color.
+	 *
+	 * @param text  The text of the word.
+	 * @param color The color of the word
+	 */
 	public Word(String text, DifficultyColor color) {
 		this.text = text;
 		this.color = color;
 	}
 
-    /**
-     * Returns the text of the word.
-     *
-     * @return The text of the word
-     */
+	/**
+	 * Returns the text of the word.
+	 *
+	 * @return The text of the word
+	 */
 	public String getText() {
 		return text;
 	}
 
-    /**
-     * Returns the color of the word.
-     *
-     * @return The color of the word
-     */
+	/**
+	 * Returns the color of the word.
+	 *
+	 * @return The color of the word
+	 */
 	public DifficultyColor getColor() {
 		return color;
 	}
@@ -78,18 +78,21 @@ public class Word implements DatabaseFormattable {
 		text = doc.getString(KEY_TEXT);
 		color = DifficultyColor.valueOf(doc.getString(KEY_COLOR).toUpperCase());
 	}
-	
+
+	/**
+	 * Returns the hash code of the Word object given the text and color.
+	 */
 	@Override
 	public int hashCode() {
 		return Objects.hash(text, color);
 	}
 
-    /**
-     * Checks if this Word object is equal to another object.
-     *
-     * @param other The other object to compare.
-     * @return true if the objects are equal, false otherwise.
-     */
+	/**
+	 * Checks if this Word object is equal to another object.
+	 *
+	 * @param other The other object to compare.
+	 * @return true if the objects are equal, false otherwise.
+	 */
 	@Override
 	public boolean equals(Object other) {
 		if ((other == null) || !(other instanceof Word)) {
