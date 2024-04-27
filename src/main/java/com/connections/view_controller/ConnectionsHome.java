@@ -10,6 +10,8 @@ import com.connections.web.WebSessionContext;
 import com.connections.web.WebUtils;
 
 import javafx.animation.TranslateTransition;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -35,8 +37,6 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 	private StyleManager styleManager;
 	private WebContext webContext;
 	private WebSessionContext webSessionContext;
-	private ConnectionsLogin loginScreen;
-	private GameSession gameSession;
 	private StackPane centerStackPane;
 	private BorderPane window;
 	private VBox centerBox;
@@ -127,11 +127,11 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 
 	/**
 	 * Hides the specified screen by animating its disappearance and removing it
-	 * from the center stack pane.
+	 * from the center stack pane. Will trigger onHide upon closing.
 	 *
 	 * @param screen the screen to be hidden
 	 */
-	private void hideScreen(Pane screen) {
+	private void hideScreen(Pane screen, EventHandler<ActionEvent> onHide) {
 		TranslateTransition scroll = new TranslateTransition(Duration.millis(500), screen);
 		screen.setTranslateX(0);
 		screen.setTranslateY(0);
@@ -142,9 +142,22 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 			screen.setVisible(false);
 			setButtonsDisabled(false);
 			centerStackPane.getChildren().remove(screen);
+			if (onHide != null) {
+				onHide.handle(new ActionEvent(this, null));
+			}
 		});
 
 		scroll.play();
+	}
+
+	/**
+	 * Hides the specified screen by animating its disappearance and removing it
+	 * from the center stack pane.
+	 *
+	 * @param screen the screen to be hidden
+	 */
+	private void hideScreen(Pane screen) {
+		hideScreen(screen, null);
 	}
 
 	/**
@@ -171,13 +184,6 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 		window = new BorderPane();
 		layoutConfigs();
 
-		loginScreen = new ConnectionsLogin(webContext, webSessionContext);
-		loginScreen.setVisible(false);
-		loginScreen.setOnLoginSuccessfully(event -> {
-			hideScreen(loginScreen);
-			layoutAdjustLoginLogoutButtons();
-		});
-
 		karnak_condensed = styleManager.getFont("karnakpro-condensedblack", 65);
 		franklin600_16 = styleManager.getFont("franklin-normal", 600, 65);
 		karnak = styleManager.getFont("KarnakPro-Medium_400", "otf", 65);
@@ -202,9 +208,14 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 				getChildren().remove(debugDatabaseViewer);
 			}
 		});
-		
+
 		loginButton.setOnAction(event -> {
 			try {
+				ConnectionsLogin loginScreen = new ConnectionsLogin(webContext, webSessionContext);
+				loginScreen.setOnLoginSuccessfully(onLogin -> {
+					hideScreen(loginScreen);
+					layoutAdjustLoginLogoutButtons();
+				});
 				showScreen(loginScreen);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -222,16 +233,15 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 				GameData gameDataLoadWith = WebUtils.gameGetByPuzzleNumber(webContext,
 						WebUtils.dailyPuzzleNumberGet(webContext));
 
-//				WebUser user = webSessionContext.getSession().getUser();
-//				GameSaveState saveState = null;
-//				if(user.hasLatestSaveState()) {
-//					saveState = user.getLatestGameSaveState();
-//				}
-
 				GameSessionContext gameSessionContext = new GameSessionContext(styleManager, gameDataLoadWith,
 						webContext, webSessionContext);
 
-				gameSession = new GameSession(gameSessionContext);
+				GameSession gameSession = new GameSession(gameSessionContext);
+				gameSession.setOnGoBack(backEvent -> {
+					hideScreen(gameSession, onHide -> {
+						gameSession.close();
+					});
+				});
 				showScreen(gameSession);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -242,23 +252,21 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 
 		centerBox = new VBox(20);
 		centerBox.setAlignment(Pos.CENTER);
-		// centerBox.getChildren().addAll(logoImageView, title, howTo, playButton,
-		// loginButton);
 		centerBox.getChildren().addAll(logoImageView, title, howTo, playButton, showDebugInfoButton);
 
 		layoutAdjustLoginLogoutButtons();
-		
+
 		centerStackPane = new StackPane(centerBox);
 		window.setCenter(centerStackPane);
 		setCenter(window);
 	}
-	
+
 	private void layoutAdjustLoginLogoutButtons() {
-		if(centerBox != null && loginButton != null && logoutButton != null) {
+		if (centerBox != null && loginButton != null && logoutButton != null) {
 			centerBox.getChildren().removeAll(loginButton, logoutButton);
 			loginButton.setVisible(false);
 			logoutButton.setVisible(false);
-			
+
 			if (currentlySignedInAccount()) {
 				centerBox.getChildren().add(4, logoutButton);
 				logoutButton.setVisible(true);

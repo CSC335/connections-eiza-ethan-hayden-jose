@@ -8,6 +8,11 @@ import javafx.scene.shape.SVGPath;
  * @param gameSessionContext The context of the game session.
  */
 public class AchievementsMenuButton extends SVGButton {
+	/**
+     * Constructs a new AchievementsMenuButton with the specified GameSessionContext.
+     *
+     * @param gameSessionContext the GameSessionContext used by the achievements menu button
+     */
 	public AchievementsMenuButton(GameSessionContext gameSessionContext) {
 		super(gameSessionContext);
 

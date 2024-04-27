@@ -24,6 +24,8 @@ import com.jpro.webapi.WebAPI;
 import javafx.animation.ParallelTransition;
 import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -40,8 +42,9 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 /**
- * The GameSession class represents a game session within the Connections application.
- * It manages the game state, user interactions, and various UI components related to the game.
+ * The GameSession class represents a game session within the Connections
+ * application. It manages the game state, user interactions, and various UI
+ * components related to the game.
  */
 public class GameSession extends StackPane implements Modular {
 	private static final int POPUP_DEFAULT_DURATION_MS = 3000;
@@ -62,7 +65,9 @@ public class GameSession extends StackPane implements Modular {
 	private CircleRowPane hintsPane;
 	private CircleRowPane mistakesPane;
 	private HBox gameButtonRowPane;
-	private HBox menuButtonRowPane;
+	private BorderPane menuButtonRowContainerPane;
+	private HBox menuButtonRowRightPane;
+	private HBox menuButtonRowLeftPane;
 	private TileGridAchievement tileGridAchievement;
 
 	private ErrorOverlayPane errorUserInGamePane;
@@ -78,6 +83,7 @@ public class GameSession extends StackPane implements Modular {
 	private AchievementsMenuButton achievementsMenuButton;
 	private LeaderboardMenuButton leaderboardMenuButton;
 	private ProfileMenuButton profileMenuButton;
+	private BackMenuButton backMenuButton;
 
 	private CircularButton gameSubmitButton;
 	private CircularButton gameDeselectButton;
@@ -101,22 +107,24 @@ public class GameSession extends StackPane implements Modular {
 	private ZonedDateTime gameStartDateTime;
 	private ZonedDateTime gameEndDateTime;
 
+	private EventHandler<ActionEvent> onGoBack;
+
 	// will be null if the game was not finished yet
 	private PlayedGameInfo playedGameInfo;
 	private GameSaveState loadedSaveState;
 
 	/**
-     * Represents the different types of game modes available.
-     */
+	 * Represents the different types of game modes available.
+	 */
 	public enum GameType {
 		CLASSIC, TIME_TRIAL, NONE
 	}
 
-    /**
-     * Constructs a new GameSession with the specified GameSessionContext.
-     *
-     * @param gameSessionContext the GameSessionContext used by the game session
-     */
+	/**
+	 * Constructs a new GameSession with the specified GameSessionContext.
+	 *
+	 * @param gameSessionContext the GameSessionContext used by the game session
+	 */
 	public GameSession(GameSessionContext gameSessionContext) {
 		this.gameSessionContext = gameSessionContext;
 		initAssets();
@@ -124,9 +132,9 @@ public class GameSession extends StackPane implements Modular {
 		fastForwardAutoLoad();
 	}
 
-    /**
-     * Initializes the assets and components of the game session.
-     */
+	/**
+	 * Initializes the assets and components of the game session.
+	 */
 	private void initAssets() {
 		getChildren().clear();
 		wonGame = false;
@@ -147,6 +155,9 @@ public class GameSession extends StackPane implements Modular {
 		tileGridStackPane = new StackPane(tileGridWord, tileGridWordAnimationPane);
 
 		tileGridAchievement = new TileGridAchievement(gameSessionContext);
+
+		backMenuButton = new BackMenuButton(gameSessionContext);
+		backMenuButton.setStyle("-fx-alignment: center-left;");
 
 		hintMenuButton = new HintMenuButton(gameSessionContext);
 
@@ -174,17 +185,26 @@ public class GameSession extends StackPane implements Modular {
 		gameButtonRowPane = new HBox(8);
 		gameButtonRowPane.setAlignment(Pos.CENTER);
 
-		menuButtonRowPane = new HBox(10, hintMenuButton, profileMenuButton, leaderboardMenuButton,
+		menuButtonRowLeftPane = new HBox(10, backMenuButton);
+		menuButtonRowLeftPane.setAlignment(Pos.CENTER);
+		menuButtonRowLeftPane.setMaxHeight(DarkModeToggle.HEIGHT);
+
+		menuButtonRowRightPane = new HBox(10, hintMenuButton, profileMenuButton, leaderboardMenuButton,
 				achievementsMenuButton, darkModeToggleMenuButton);
-		menuButtonRowPane.setAlignment(Pos.CENTER);
-		menuButtonRowPane.setMaxHeight(DarkModeToggle.HEIGHT);
-		menuButtonRowPane.setStyle("-fx-alignment: center-right;");
+		menuButtonRowRightPane.setAlignment(Pos.CENTER);
+		menuButtonRowRightPane.setMaxHeight(DarkModeToggle.HEIGHT);
+
+		menuButtonRowContainerPane = new BorderPane();
+		menuButtonRowContainerPane.setLeft(menuButtonRowLeftPane);
+		menuButtonRowContainerPane.setRight(menuButtonRowRightPane);
+		BorderPane.setAlignment(menuButtonRowLeftPane, Pos.CENTER);
+		BorderPane.setAlignment(menuButtonRowRightPane, Pos.CENTER);
 
 		// exclude the hints pane for now
 		gameContentPane = new VBox(24);
 		gameContentPane.setAlignment(Pos.CENTER);
 
-		menuPane = new StackPane(menuButtonRowPane);
+		menuPane = new StackPane(menuButtonRowContainerPane);
 		menuPane.setPrefHeight(MENU_PANE_HEIGHT);
 
 		organizationPane = new BorderPane();
@@ -283,9 +303,10 @@ public class GameSession extends StackPane implements Modular {
 		refreshStyle();
 	}
 
-    /**
-     * Initializes the event listeners for various UI components in the game session.
-     */
+	/**
+	 * Initializes the event listeners for various UI components in the game
+	 * session.
+	 */
 	private void initListeners() {
 		tileGridWord.setOnTileWordSelection(event -> {
 			helperUpdateGameButtonStatus();
@@ -306,6 +327,11 @@ public class GameSession extends StackPane implements Modular {
 		gameViewResultsButton.setOnAction(event -> {
 			screenDisplayResults();
 		});
+		backMenuButton.setOnMouseClicked(event -> {
+			if (onGoBack != null) {
+				onGoBack.handle(new ActionEvent(this, null));
+			}
+		});
 		hintMenuButton.setOnMouseClicked(event -> {
 			sessionHintUsed();
 		});
@@ -320,10 +346,9 @@ public class GameSession extends StackPane implements Modular {
 		});
 	}
 
-
-    /**
-     * Sets the game controls to the normal state.
-     */
+	/**
+	 * Sets the game controls to the normal state.
+	 */
 	private void controlsSetNormal() {
 		gameButtonRowPane.getChildren().clear();
 		gameButtonRowPane.getChildren().addAll(gameShuffleButton, gameDeselectButton, gameSubmitButton);
@@ -332,9 +357,9 @@ public class GameSession extends StackPane implements Modular {
 				gameButtonRowPane);
 	}
 
-    /**
-     * Sets the game controls to display the "View Results" button only.
-     */
+	/**
+	 * Sets the game controls to display the "View Results" button only.
+	 */
 	private void controlsSetViewResultsOnly() {
 		gameButtonRowPane.getChildren().clear();
 		gameButtonRowPane.getChildren().add(gameViewResultsButton);
@@ -342,9 +367,9 @@ public class GameSession extends StackPane implements Modular {
 		gameContentPane.getChildren().addAll(mainHeaderText, tileGridStackPane, gameButtonRowPane);
 	}
 
-    /**
-     * Displays the results screen.
-     */
+	/**
+	 * Displays the results screen.
+	 */
 	private void screenDisplayResults() {
 		if (!gameActive) {
 			if (resultsPane == null) {
@@ -355,35 +380,35 @@ public class GameSession extends StackPane implements Modular {
 		}
 	}
 
-    /**
-     * Displays the achievements screen.
-     */
+	/**
+	 * Displays the achievements screen.
+	 */
 	private void screenDisplayAchievements() {
 		tileGridAchievement.animateCompletion();
 		helperPopupScreen(tileGridAchievement, "Achievements:");
 	}
 
-    /**
-     * Displays the leaderboard screen.
-     */
+	/**
+	 * Displays the leaderboard screen.
+	 */
 	private void screenDisplayLeaderboard() {
 		new BorderPane();
 		helperPopupScreen(new LeaderboardPane(gameSessionContext), "Leaderboard:");
 	}
 
-    /**
-     * Displays the profile screen.
-     */
+	/**
+	 * Displays the profile screen.
+	 */
 	private void screenDisplayProfile() {
 		helperPopupScreen(new ProfilePane(gameSessionContext), "Profile:");
 	}
 
-    /**
-     * Displays a popup screen with the specified pane and title.
-     *
-     * @param pane  the pane to be displayed in the popup screen
-     * @param title the title of the popup screen
-     */
+	/**
+	 * Displays a popup screen with the specified pane and title.
+	 *
+	 * @param pane  the pane to be displayed in the popup screen
+	 * @param title the title of the popup screen
+	 */
 	private void helperPopupScreen(Pane pane, String title) {
 		if (popupPane == null) {
 			popupPane = new PopupWrapperPane(gameSessionContext, pane, title);
@@ -402,10 +427,11 @@ public class GameSession extends StackPane implements Modular {
 		popupPane.popup();
 	}
 
-    /**
-     * Automatically loads the game session based on the user's save state or checks if the game has already finished.
-     */
-	public void fastForwardAutoLoad() {
+	/**
+	 * Automatically loads the game session based on the user's save state or checks
+	 * if the game has already finished.
+	 */
+	private void fastForwardAutoLoad() {
 		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
 		currentUser.readFromDatabase();
 //		// Commented this out to prevent the error pane from loading in, but allows the user to load a previous save
@@ -419,20 +445,20 @@ public class GameSession extends StackPane implements Modular {
 		}
 	}
 
-    /**
-     * Displays an error message indicating that the user is currently in-game.
-     */
-	public void fastForwardUserCurrentlyIngame() {
+	/**
+	 * Displays an error message indicating that the user is currently in-game.
+	 */
+	private void fastForwardUserCurrentlyIngame() {
 		System.out.println("fastForwardUserCurrentlyIngame");
 		helperSetAllInteractablesDisabled(true);
 		displayPaneWithGaussianBlur(errorUserInGamePane);
 		errorUserInGamePane.appear();
 	}
 
-    /**
-     * Loads the game session from the user's save state.
-     */
-	public void fastForwardLoadSaveState() {
+	/**
+	 * Loads the game session from the user's save state.
+	 */
+	private void fastForwardLoadSaveState() {
 		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
 		currentUser.readFromDatabase();
 
@@ -469,10 +495,10 @@ public class GameSession extends StackPane implements Modular {
 		}
 	}
 
-    /**
-     * Stores the current game state as the user's save state.
-     */
-	public void fastForwardStoreSaveState() {
+	/**
+	 * Stores the current game state as the user's save state.
+	 */
+	private void fastForwardStoreSaveState() {
 		if (gameActive && !gameAlreadyFinished && !blockedStoringSaveState) {
 			WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
 
@@ -497,14 +523,14 @@ public class GameSession extends StackPane implements Modular {
 		}
 
 		if (sessionCheckUserClosedBrowser()) {
-			sessionCloseEverything();
+			close();
 		}
 	}
 
-    /**
-     * Clears the user's save state.
-     */
-	public void fastForwardClearSaveState() {
+	/**
+	 * Clears the user's save state.
+	 */
+	private void fastForwardClearSaveState() {
 		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
 		currentUser.readFromDatabase();
 
@@ -514,10 +540,11 @@ public class GameSession extends StackPane implements Modular {
 		}
 	}
 
-    /**
-     * Checks if the game has already finished and updates the game session accordingly.
-     */
-	public void fastForwardCheckGameFinishedAlready() {
+	/**
+	 * Checks if the game has already finished and updates the game session
+	 * accordingly.
+	 */
+	private void fastForwardCheckGameFinishedAlready() {
 		if (!loadedFromSaveState && !gameActive) {
 
 			WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
@@ -555,10 +582,10 @@ public class GameSession extends StackPane implements Modular {
 		}
 	}
 
-    /**
-     * Handles the event when a hint is used in the game session.
-     */
-	public void sessionHintUsed() {
+	/**
+	 * Handles the event when a hint is used in the game session.
+	 */
+	private void sessionHintUsed() {
 		if (!hintsCannotBeUsedRightNow && hintsPane.getNumCircles() > 0 && !tileGridWord.hintAnimationIsRunning()) {
 			tileGridWord.hintAnimationShow();
 			hintsPane.removeCircle();
@@ -574,23 +601,23 @@ public class GameSession extends StackPane implements Modular {
 		}
 	}
 
-    /**
-     * Stops the hint animation in the game session.
-     */
-	public void sessionHintsAnimationStop() {
+	/**
+	 * Stops the hint animation in the game session.
+	 */
+	private void sessionHintsAnimationStop() {
 		if (tileGridWord.hintAnimationIsRunning()) {
 			tileGridWord.hintAnimationStop();
 		}
 	}
 
-    /**
-     * Sets the disabled state of the hints in the game session.
-     *
-     * @param disabled true to disable the hints, false to enable them
-     */
-	public void sessionHintsSetDisabled(boolean disabled) {
+	/**
+	 * Sets the disabled state of the hints in the game session.
+	 *
+	 * @param disabled true to disable the hints, false to enable them
+	 */
+	private void sessionHintsSetDisabled(boolean disabled) {
 		hintsCannotBeUsedRightNow = disabled;
-		
+
 		if (disabled) {
 			hintMenuButton.setDisable(true);
 			hintMenuButton.refreshStyle();
@@ -601,10 +628,10 @@ public class GameSession extends StackPane implements Modular {
 		}
 	}
 
-    /**
-     * Begins a new game session.
-     */
-	public void sessionBeginNewGame() {
+	/**
+	 * Begins a new game session.
+	 */
+	private void sessionBeginNewGame() {
 		helperTimeKeepingStart(ZonedDateTime.now());
 		gameActive = true;
 		wonGame = false;
@@ -612,10 +639,11 @@ public class GameSession extends StackPane implements Modular {
 		helperSetAllInteractablesDisabled(false);
 	}
 
-    /**
-     * Handles the end of the game session when the player reaches the end of the game.
-     */
-	public void sessionReachedEndGame() {
+	/**
+	 * Handles the end of the game session when the player reaches the end of the
+	 * game.
+	 */
+	private void sessionReachedEndGame() {
 		if (gameType == GameType.TIME_TRIAL && timeTrialTimerPane.isVisible()) {
 			timeTrialTimerPane.disappear();
 		}
@@ -659,10 +687,10 @@ public class GameSession extends StackPane implements Modular {
 		controlsSetViewResultsOnly();
 	}
 
-    /**
-     * Handles a submission attempt by the player in the game session.
-     */
-	public void sessionSubmissionAttempt() {
+	/**
+	 * Handles a submission attempt by the player in the game session.
+	 */
+	private void sessionSubmissionAttempt() {
 		boolean alreadyGuessed = tileGridWord.checkSelectedAlreadyGuessed();
 
 		if (alreadyGuessed) {
@@ -686,10 +714,10 @@ public class GameSession extends StackPane implements Modular {
 		}
 	}
 
-    /**
-     * Handles the event when the player loses a time trial game session.
-     */
-	public void sessionLostTimeTrial() {
+	/**
+	 * Handles the event when the player loses a time trial game session.
+	 */
+	private void sessionLostTimeTrial() {
 		if (wonGame || gameType != GameType.TIME_TRIAL) {
 			return;
 		}
@@ -718,41 +746,24 @@ public class GameSession extends StackPane implements Modular {
 	 * from executing further. There should probably be a boolean in the
 	 * GameSessionContext that all objects need to check
 	 */
-	
-    /**
-     * Closes everything related to the game session.
-     */
-	public void sessionCloseEverything() {
-		if (helperGetUserInGameStatus()) {
-			helperSetUserInGameStatus(false);
-		}
-		gameActive = false;
-		helperTimeKeepingStop();
-		try {
-			gameSessionContext.getWebContext().getJProApplication().stop();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 
-    /**
-     * Checks if the user has closed the browser during the game session.
-     *
-     * @return true if the user has closed the browser, false otherwise
-     */
-	public boolean sessionCheckUserClosedBrowser() {
+	/**
+	 * Checks if the user has closed the browser during the game session.
+	 *
+	 * @return true if the user has closed the browser, false otherwise
+	 */
+	private boolean sessionCheckUserClosedBrowser() {
 		WebAPI webAPI = gameSessionContext.getWebContext().getWebAPI();
 		InstanceInfo instanceInfo = webAPI.getInstanceInfo();
 		isBrowserClosed = instanceInfo.isAfk() || instanceInfo.isBackground();
 		return isBrowserClosed;
 	}
 
-    /**
-     * Sets the user's in-game status.
-     *
-     * @param status true to set the user as in-game, false otherwise
-     */
+	/**
+	 * Sets the user's in-game status.
+	 *
+	 * @param status true to set the user as in-game, false otherwise
+	 */
 	private void helperSetUserInGameStatus(boolean status) {
 		System.out.println("helperSetUserInGameStatus " + status);
 		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
@@ -761,23 +772,22 @@ public class GameSession extends StackPane implements Modular {
 		currentUser.writeToDatabase();
 	}
 
-    /**
-     * Retrieves the user's in-game status.
-     *
-     * @return true if the user is in-game, false otherwise
-     */
+	/**
+	 * Retrieves the user's in-game status.
+	 *
+	 * @return true if the user is in-game, false otherwise
+	 */
 	private boolean helperGetUserInGameStatus() {
 		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
 		currentUser.readFromDatabase();
 		return currentUser.isCurrentlyInGame();
 	}
 
-
-    /**
-     * Displays a pane with a Gaussian blur effect.
-     *
-     * @param pane the pane to be displayed with the Gaussian blur effect
-     */
+	/**
+	 * Displays a pane with a Gaussian blur effect.
+	 *
+	 * @param pane the pane to be displayed with the Gaussian blur effect
+	 */
 	private void displayPaneWithGaussianBlur(Pane pane) {
 		if (pane == null) {
 			return;
@@ -787,11 +797,11 @@ public class GameSession extends StackPane implements Modular {
 		getChildren().add(pane);
 	}
 
-    /**
-     * Starts the time keeping for the game session.
-     *
-     * @param startTime the start time of the game session
-     */
+	/**
+	 * Starts the time keeping for the game session.
+	 *
+	 * @param startTime the start time of the game session
+	 */
 	private void helperTimeKeepingStart(ZonedDateTime startTime) {
 		if (!timeKeepingActive) {
 			timeKeepingActive = true;
@@ -804,9 +814,9 @@ public class GameSession extends StackPane implements Modular {
 		}
 	}
 
-    /**
-     * Stops the time keeping for the game session.
-     */
+	/**
+	 * Stops the time keeping for the game session.
+	 */
 	private void helperTimeKeepingStop() {
 		if (timeKeepingActive) {
 			timeKeepingActive = false;
@@ -817,9 +827,9 @@ public class GameSession extends StackPane implements Modular {
 		}
 	}
 
-    /**
-     * Starts the countdown for a time trial game session.
-     */
+	/**
+	 * Starts the countdown for a time trial game session.
+	 */
 	private void helperTimeTrialStartCountdown() {
 		if (timeTrialCountDownOverlay == null) {
 			return;
@@ -838,11 +848,12 @@ public class GameSession extends StackPane implements Modular {
 		// just to be safe, viewing the countdown is enough to be considered in game
 	}
 
-    /**
-     * Sets the disabled state of all interactable components in the game session.
-     *
-     * @param disabled true to disable all interactable components, false to enable them
-     */
+	/**
+	 * Sets the disabled state of all interactable components in the game session.
+	 *
+	 * @param disabled true to disable all interactable components, false to enable
+	 *                 them
+	 */
 	private void helperSetAllInteractablesDisabled(boolean disabled) {
 		tileGridWord.setTileWordDisable(disabled);
 		helperSetGameButtonsDisabled(disabled);
@@ -850,45 +861,50 @@ public class GameSession extends StackPane implements Modular {
 	}
 
 	/**
-     * Sets the disabled state of game-related interactable components in the game session.
-     *
-     * @param disabled true to disable game-related interactable components, false to enable them
-     */
+	 * Sets the disabled state of game-related interactable components in the game
+	 * session.
+	 *
+	 * @param disabled true to disable game-related interactable components, false
+	 *                 to enable them
+	 */
 	private void helperSetGameInteractablesDisabled(boolean disabled) {
 		tileGridWord.setTileWordDisable(disabled);
 		helperSetGameButtonsDisabled(disabled);
 	}
 
-    /**
-     * Displays a popup notification with the specified message, width, and duration.
-     *
-     * @param message  the message to be displayed in the popup notification
-     * @param width    the width of the popup notification
-     * @param duration the duration (in milliseconds) for which the popup notification should be displayed
-     */
+	/**
+	 * Displays a popup notification with the specified message, width, and
+	 * duration.
+	 *
+	 * @param message  the message to be displayed in the popup notification
+	 * @param width    the width of the popup notification
+	 * @param duration the duration (in milliseconds) for which the popup
+	 *                 notification should be displayed
+	 */
 	private void helperDisplayPopupNotifcation(String message, double width, int duration) {
 		NotificationPane popupNotification = new NotificationPane(message, width, gameSessionContext);
 		menuPane.getChildren().add(0, popupNotification);
 		popupNotification.popup(menuPane, duration);
 	}
 
-    /**
-     * Sets the disabled state of menu buttons in the game session.
-     *
-     * @param disabled true to disable the menu buttons, false to enable them
-     */
+	/**
+	 * Sets the disabled state of menu buttons in the game session.
+	 *
+	 * @param disabled true to disable the menu buttons, false to enable them
+	 */
 	private void helperSetMenuButtonsDisabled(boolean disabled) {
+		backMenuButton.setDisable(disabled);
 		darkModeToggleMenuButton.setDisable(disabled);
 		achievementsMenuButton.setDisable(disabled);
 		leaderboardMenuButton.setDisable(disabled);
 		profileMenuButton.setDisable(disabled);
 	}
 
-    /**
-     * Sets the disabled state of game buttons in the game session.
-     *
-     * @param disabled true to disable the game buttons, false to enable them
-     */
+	/**
+	 * Sets the disabled state of game buttons in the game session.
+	 *
+	 * @param disabled true to disable the game buttons, false to enable them
+	 */
 	private void helperSetGameButtonsDisabled(boolean disabled) {
 		sessionHintsSetDisabled(disabled);
 
@@ -905,9 +921,9 @@ public class GameSession extends StackPane implements Modular {
 		}
 	}
 
-    /**
-     * Updates the status of game buttons based on the current game state.
-     */
+	/**
+	 * Updates the status of game buttons based on the current game state.
+	 */
 	private void helperUpdateGameButtonStatus() {
 		gameDeselectButton.setDisable(tileGridWord.getSelectedTileWordCount() == 0);
 		gameSubmitButton.setDisable(tileGridWord.getSelectedTileWordCount() < TileGridWord.MAX_SELECTED);
@@ -916,11 +932,11 @@ public class GameSession extends StackPane implements Modular {
 		gameSubmitButton.refreshStyle();
 	}
 
-    /**
-     * Handles the selection of the next category in the auto solver.
-     *
-     * @param remainingAnswerCategories the list of remaining answer categories
-     */
+	/**
+	 * Handles the selection of the next category in the auto solver.
+	 *
+	 * @param remainingAnswerCategories the list of remaining answer categories
+	 */
 	private void helperAutoSolverNextCategory(List<GameAnswerColor> remainingAnswerCategories) {
 		if (tileGridWord.getCurrentSolvingRow() < TileGridWord.ROWS) {
 			GameAnswerColor currentColorAnswer = remainingAnswerCategories.remove(0);
@@ -952,9 +968,9 @@ public class GameSession extends StackPane implements Modular {
 		}
 	}
 
-    /**
-     * Begins the auto solver to automatically solve the remaining categories.
-     */
+	/**
+	 * Begins the auto solver to automatically solve the remaining categories.
+	 */
 	private void helperAutoSolverBegin() {
 		List<DifficultyColor> unansweredColor = tileGridWord.getSortedUnansweredDifficultyColor();
 
@@ -969,13 +985,14 @@ public class GameSession extends StackPane implements Modular {
 		}
 	}
 
-    /**
-     * Creates an animation sequence for an incorrect submission attempt.
-     *
-     * @param lostGame  true if the player has lost the game, false otherwise
-     * @param isOneAway true if the submission is one away from the correct answer, false otherwise
-     * @return the created animation sequence for an incorrect submission attempt
-     */
+	/**
+	 * Creates an animation sequence for an incorrect submission attempt.
+	 *
+	 * @param lostGame  true if the player has lost the game, false otherwise
+	 * @param isOneAway true if the submission is one away from the correct answer,
+	 *                  false otherwise
+	 * @return the created animation sequence for an incorrect submission attempt
+	 */
 	private SequentialTransition helperCreateAnimationSubmissionIncorrect(boolean lostGame, boolean isOneAway) {
 		SequentialTransition sequentialIncorrectTrans = new SequentialTransition();
 
@@ -1032,11 +1049,11 @@ public class GameSession extends StackPane implements Modular {
 		return sequentialIncorrectTrans;
 	}
 
-    /**
-     * Creates an animation sequence for a correct submission attempt.
-     *
-     * @return the created animation sequence for a correct submission attempt
-     */
+	/**
+	 * Creates an animation sequence for a correct submission attempt.
+	 *
+	 * @return the created animation sequence for a correct submission attempt
+	 */
 	private SequentialTransition helperCreateAnimationSubmissionCorrect() {
 		boolean wonGameSet = tileGridWord.checkAllCategoriesGuessed();
 
@@ -1070,12 +1087,12 @@ public class GameSession extends StackPane implements Modular {
 		return sequentialCorrectTrans;
 	}
 
-    /**
-     * Recursively refreshes the style of a node and its children.
-     *
-     * @param styleManager the StyleManager used to refresh the styles
-     * @param node         the node to refresh the style for
-     */
+	/**
+	 * Recursively refreshes the style of a node and its children.
+	 *
+	 * @param styleManager the StyleManager used to refresh the styles
+	 * @param node         the node to refresh the style for
+	 */
 	private void helperRefreshStyle(StyleManager styleManager, Node node) {
 		if (node == null) {
 			return;
@@ -1092,9 +1109,9 @@ public class GameSession extends StackPane implements Modular {
 		}
 	}
 
-    /**
-     * Refreshes the style of the game session and its components.
-     */
+	/**
+	 * Refreshes the style of the game session and its components.
+	 */
 	@Override
 	public void refreshStyle() {
 		StyleManager styleManager = gameSessionContext.getStyleManager();
@@ -1112,7 +1129,7 @@ public class GameSession extends StackPane implements Modular {
 		 * added to another Pane).
 		 */
 		Node[] completeComponentList = { mainHeaderText, organizationPane, menuPane, gameContentPane, tileGridStackPane,
-				hintsPane, mistakesPane, gameButtonRowPane, menuButtonRowPane, tileGridAchievement, tileGridWord,
+				hintsPane, mistakesPane, gameButtonRowPane, menuButtonRowRightPane, tileGridAchievement, tileGridWord,
 				tileGridWordAnimationPane, darkModeToggleMenuButton, hintMenuButton, achievementsMenuButton,
 				leaderboardMenuButton, profileMenuButton, gameSubmitButton, gameDeselectButton, gameShuffleButton,
 				gameViewResultsButton, resultsPane, popupPane, timeTrialTimerPane };
@@ -1122,11 +1139,36 @@ public class GameSession extends StackPane implements Modular {
 		}
 	}
 
-    /**
-     * Returns the GameSessionContext used by the game session.
-     *
-     * @return the GameSessionContext used by the game session
-     */
+	/**
+	 * Closes everything related to the game session.
+	 */
+	public void close() {
+		// Since fastForwardStoreSaveState() will call close() when the user is closing
+		// their browser, this if-statement is to prevent an infinite loop.
+		if (!sessionCheckUserClosedBrowser()) {
+			fastForwardStoreSaveState();
+		}
+		if (helperGetUserInGameStatus()) {
+			helperSetUserInGameStatus(false);
+		}
+		gameActive = false;
+		helperTimeKeepingStop();
+//		try {
+//			gameSessionContext.getWebContext().getJProApplication().stop();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+	}
+
+	public void setOnGoBack(EventHandler<ActionEvent> onGoBack) {
+		this.onGoBack = onGoBack;
+	}
+
+	/**
+	 * Returns the GameSessionContext used by the game session.
+	 *
+	 * @return the GameSessionContext used by the game session
+	 */
 	@Override
 	public GameSessionContext getGameSessionContext() {
 		return gameSessionContext;

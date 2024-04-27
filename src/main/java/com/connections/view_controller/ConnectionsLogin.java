@@ -56,7 +56,6 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 	private Font cheltenham;
 	private BorderPane window;
 	private EventHandler<ActionEvent> onLoginSuccessfully;
-
 	private boolean isCreatingNewAccount;
 
     /**
