@@ -1,6 +1,12 @@
 package com.connections.web;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bson.Document;
+
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
 
 /**
  * The WebUserGuest class represents a specific type of WebUser that only has a

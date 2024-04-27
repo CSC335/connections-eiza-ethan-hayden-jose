@@ -9,6 +9,7 @@ import com.connections.web.WebSessionAccessible;
 import com.connections.web.WebSessionContext;
 import com.connections.web.WebUtils;
 
+import javafx.animation.PauseTransition;
 import javafx.animation.TranslateTransition;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -43,6 +44,7 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 	private Font karnak_condensed;
 	private Font franklin600_16;
 	private Font karnak;
+	private ImageView logoImageView;
 	private Label title;
 	private Label howTo;
 	private MenuButton loginButton;
@@ -200,30 +202,28 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 		loginButton = new MenuButton("Log In", false);
 		logoutButton = new MenuButton("Log Out", false);
 		showDebugInfoButton = new MenuButton("Debug Info", false);
+
+		logoImageView = createLogoImageView();
+
+		centerBox = new VBox(20);
+		centerBox.setAlignment(Pos.CENTER);
+		centerBox.getChildren().addAll(logoImageView, title, howTo, playButton, showDebugInfoButton);
+
+		layoutAdjustLoginLogoutButtons();
+		initListeners();
+
+		centerStackPane = new StackPane(centerBox);
+		window.setCenter(centerStackPane);
+		setCenter(window);
+	}
+
+	private void initListeners() {
 		showDebugInfoButton.setOnAction(event -> {
-			debugInfoShown = !debugInfoShown;
-			if (debugInfoShown) {
-				setTop(debugDatabaseViewer);
-			} else {
-				getChildren().remove(debugDatabaseViewer);
-			}
+			handleDebugScreen();
 		});
 
 		loginButton.setOnAction(event -> {
-			try {
-				ConnectionsLogin loginScreen = new ConnectionsLogin(webContext, webSessionContext);
-				loginScreen.setOnGoBack(onGoBack -> {
-					hideScreen(loginScreen);
-					layoutAdjustLoginLogoutButtons();
-				});
-				loginScreen.setOnLoginSuccessfully(onLogin -> {
-					hideScreen(loginScreen);
-					layoutAdjustLoginLogoutButtons();
-				});
-				showScreen(loginScreen);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			initLoginScreen();
 		});
 
 		logoutButton.setOnAction(event -> {
@@ -232,37 +232,58 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 		});
 
 		playButton.setOnAction(event -> {
-			try {
-				checkSession();
-				GameData gameDataLoadWith = WebUtils.gameGetByPuzzleNumber(webContext,
-						WebUtils.dailyPuzzleNumberGet(webContext));
-
-				GameSessionContext gameSessionContext = new GameSessionContext(styleManager, gameDataLoadWith,
-						webContext, webSessionContext);
-
-				GameSession gameSession = new GameSession(gameSessionContext);
-				gameSession.setOnGoBack(onGoBack -> {
-					hideScreen(gameSession, onHide -> {
-						gameSession.close();
-					});
-				});
-				showScreen(gameSession);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			initGameSession();
 		});
+	}
 
-		ImageView logoImageView = createLogoImageView();
+	private void handleDebugScreen() {
+		debugInfoShown = !debugInfoShown;
+		if (debugInfoShown) {
+			setTop(debugDatabaseViewer);
+		} else {
+			getChildren().remove(debugDatabaseViewer);
+		}
+	}
 
-		centerBox = new VBox(20);
-		centerBox.setAlignment(Pos.CENTER);
-		centerBox.getChildren().addAll(logoImageView, title, howTo, playButton, showDebugInfoButton);
+	private void initLoginScreen() {
+		ConnectionsLogin loginScreen = new ConnectionsLogin(webContext, webSessionContext);
+		loginScreen.setOnGoBack(event -> {
+			hideScreen(loginScreen);
+			layoutAdjustLoginLogoutButtons();
+		});
+		loginScreen.setOnLoginSuccessfully(event -> {
+			hideScreen(loginScreen);
+			layoutAdjustLoginLogoutButtons();
+		});
+		showScreen(loginScreen);
+	}
 
-		layoutAdjustLoginLogoutButtons();
-
-		centerStackPane = new StackPane(centerBox);
-		window.setCenter(centerStackPane);
-		setCenter(window);
+	private void initGameSession() {
+		checkSession();
+		GameData gameDataLoadWith = WebUtils.gameGetByPuzzleNumber(webContext,
+				WebUtils.dailyPuzzleNumberGet(webContext));
+		GameSessionContext gameSessionContext = new GameSessionContext(styleManager, gameDataLoadWith, webContext,
+				webSessionContext);
+		GameSession gameSession = new GameSession(gameSessionContext);
+		gameSession.setOnGoBack(event -> {
+			hideScreen(gameSession, onHide -> {
+				gameSession.close();
+			});
+		});
+		gameSession.setOnMidnight(event -> {
+			hideScreen(gameSession, onHide -> {
+				gameSession.close();
+				setButtonsDisabled(true);
+			});
+			
+			PauseTransition delay = new PauseTransition(Duration.millis(2000));
+			delay.setOnFinished(onFinished -> {
+				WebUtils.dailyPuzzleNumberIncrementIfNeeded(webContext);
+				setButtonsDisabled(false);
+			});
+			delay.play();
+		});
+		showScreen(gameSession);
 	}
 
 	private void layoutAdjustLoginLogoutButtons() {

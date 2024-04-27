@@ -18,6 +18,7 @@ import com.connections.model.PlayedGameInfoTimed;
 import com.connections.model.Word;
 import com.connections.web.WebSessionContext;
 import com.connections.web.WebUser;
+import com.connections.web.WebUtils;
 import com.jpro.webapi.InstanceInfo;
 import com.jpro.webapi.WebAPI;
 
@@ -72,6 +73,8 @@ public class GameSession extends StackPane implements Modular {
 
 	private ErrorOverlayPane errorUserInGamePane;
 
+	private MidnightChecker midnightChecker;
+
 	private boolean wonGame;
 	private boolean gameActive;
 
@@ -108,6 +111,7 @@ public class GameSession extends StackPane implements Modular {
 	private ZonedDateTime gameEndDateTime;
 
 	private EventHandler<ActionEvent> onGoBack;
+	private EventHandler<ActionEvent> onMidnight;
 
 	// will be null if the game was not finished yet
 	private PlayedGameInfo playedGameInfo;
@@ -216,6 +220,16 @@ public class GameSession extends StackPane implements Modular {
 		getChildren().add(organizationPane);
 
 		// === NEW STUFF FOR WEB === (will make neater later)
+
+		midnightChecker = new MidnightChecker();
+		midnightChecker.start();
+		midnightChecker.setOnMidnight(event -> {
+			if (onMidnight != null) {
+				// Disable buttons only if there IS a onMidnight set.
+				helperSetAllInteractablesDisabled(true);
+				onMidnight.handle(new ActionEvent(this, null));
+			}
+		});
 
 		gameTypeOptionSelector = new OptionSelectOverlayPane(gameSessionContext);
 		gameTypeOptionSelector.addButton("Classic", 68);
@@ -466,15 +480,15 @@ public class GameSession extends StackPane implements Modular {
 
 		if (currentUser.hasLatestSaveState() && currentUser.getLatestGameSaveState() != null) {
 			loadedSaveState = currentUser.getLatestGameSaveState();
-			loadedFromSaveState = true;
-
 			int puzzleNumberInSave = loadedSaveState.getPuzzleNumber();
 
+			// This occurs when the daily puzzle number has changed (and the previous save
+			// state is on some previous puzzle number).
 			if (puzzleNumberInSave != currentPuzzleNumber) {
-				System.out.println("ERROR: GameSession was asked to load from the save state, but it cannot because the"
-						+ " puzzle number (and likely the puzzle itself) of the save state and provided game data are different!");
+				fastForwardCheckGameFinishedAlready();
 				return;
 			}
+
 			hintsPane.setNumCircles(loadedSaveState.getHintsLeft());
 			mistakesPane.setNumCircles(loadedSaveState.getMistakesLeft());
 			tileGridWord.loadFromSaveState(loadedSaveState);
@@ -486,6 +500,7 @@ public class GameSession extends StackPane implements Modular {
 			wonGame = false;
 			ranOutOfTime = false;
 			gameAlreadyFinished = false;
+			loadedFromSaveState = true;
 
 			java.time.Duration previousGameDuration = java.time.Duration.between(loadedSaveState.getGameStartTime(),
 					loadedSaveState.getSaveStateCreationTime());
@@ -1155,6 +1170,7 @@ public class GameSession extends StackPane implements Modular {
 		}
 		gameActive = false;
 		helperTimeKeepingStop();
+		midnightChecker.stop();
 //		try {
 //			gameSessionContext.getWebContext().getJProApplication().stop();
 //		} catch (Exception e) {
@@ -1164,6 +1180,10 @@ public class GameSession extends StackPane implements Modular {
 
 	public void setOnGoBack(EventHandler<ActionEvent> onGoBack) {
 		this.onGoBack = onGoBack;
+	}
+
+	public void setOnMidnight(EventHandler<ActionEvent> onMidnight) {
+		this.onMidnight = onMidnight;
 	}
 
 	/**

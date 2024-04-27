@@ -501,6 +501,7 @@ public class WebUtils {
 			ZonedDateTime currentDateRoundedToDay = currentDate.toLocalDate().atStartOfDay(currentDate.getZone());
 
 			long daysBetween = ChronoUnit.DAYS.between(prevDateRoundedToDay, currentDateRoundedToDay);
+			
 			while (daysBetween > 0) {
 				dailyPuzzleNumberIncrement(webContext);
 				daysBetween--;
