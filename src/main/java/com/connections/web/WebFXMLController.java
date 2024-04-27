@@ -82,6 +82,8 @@ public class WebFXMLController implements Initializable {
 		WebSession session = new WebSession(webContext);
 		WebSessionContext webSessionContext = new WebSessionContext(session);
 
+		WebSession.clearExpiredSessions(webContext);
+		
 		ConnectionsHome home = new ConnectionsHome(webContext, webSessionContext);
 		Scene scene = new Scene(home, STAGE_WIDTH, STAGE_HEIGHT);
 		stage.setScene(scene);

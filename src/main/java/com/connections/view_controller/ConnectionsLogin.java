@@ -330,7 +330,7 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 				WebSession session = webSessionContext.getSession();
 
 				if (session.isSignedIn()) {
-					session.logout(true);
+					session.logout();
 				}
 
 				session.setUser(newAccount);
@@ -378,7 +378,7 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 					WebSession session = webSessionContext.getSession();
 
 					if (session.isSignedIn()) {
-						session.logout(true);
+						session.logout();
 					}
 
 					session.setUser(existingAccount);

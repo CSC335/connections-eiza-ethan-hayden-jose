@@ -1,8 +1,12 @@
 package com.connections.web;
 
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+
 import org.bson.Document;
 
 import com.connections.view_controller.GameSession.GameType;
+import com.mongodb.client.FindIterable;
 
 /**
  * The WebSession class represents an active connection between a user and the
@@ -11,11 +15,14 @@ import com.connections.view_controller.GameSession.GameType;
  */
 public class WebSession implements WebContextAccessible, DatabaseFormattable, DatabaseInteractable {
 	public static final String KEY_SESSION_ID = "session_id";
+	public static final String KEY_CREATION_DATE = "creation_date";
+	public static final int SESSION_LIFESPAN_DAYS = 7;
 
 	private String sessionID;
 	private WebUser user;
 	private boolean sessionActive;
 	private WebContext webContext;
+	private ZonedDateTime sessionCreationDate;
 
 	/**
 	 * Constructs a new WebSession with the given WebContext and Document.
@@ -24,6 +31,7 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 	 * @param doc        the Document representing the session data
 	 */
 	public WebSession(WebContext webContext, Document doc) {
+		setWebContext(webContext);
 		loadFromDatabaseFormat(doc);
 	}
 
@@ -40,6 +48,7 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 		if (!loadFromCookie()) {
 			this.sessionID = null;
 			this.user = null;
+			this.sessionCreationDate = null;
 		}
 	}
 
@@ -61,23 +70,28 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 		if (readSessionID == null) {
 			return false;
 		}
-		
+
 		// Remove the cookie if its session ID does not exist anymore.
-		if(!checkSessionIDExists(webContext, readSessionID)) {
+		if (!checkSessionIDExists(webContext, readSessionID)) {
 			WebUtils.cookieRemove(webContext, KEY_SESSION_ID);
 			return false;
 		}
 
 		Document sessionInfoDoc = WebUtils.helperCollectionGet(webContext, WebUtils.COLLECTION_SESSION_ID_NAME,
 				KEY_SESSION_ID, readSessionID);
-		String readUserID = sessionInfoDoc.getString(WebUser.KEY_USER_ID);
+		WebSession readSession = new WebSession(webContext, sessionInfoDoc);
 
 		// When user does not exist.
-		if (WebUser.checkUserTypeByUserID(webContext, readUserID) == WebUser.UserType.NONE) {
+		if (readSession.getUser() == null || !readSession.getUser().existsInDatabase()) {
 			return false;
 		}
 
-		user = WebUser.getUserByID(webContext, readUserID);
+		if (readSession.isExpired()) {
+			WebUtils.cookieRemove(webContext, KEY_SESSION_ID);
+			readSession.removeFromDatabase();
+		}
+
+		user = readSession.getUser();
 		sessionID = readSessionID;
 		sessionActive = true;
 
@@ -103,6 +117,7 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 			user.writeToDatabase();
 		}
 
+		sessionCreationDate = ZonedDateTime.now();
 		sessionID = generateUnusedSessionID(webContext);
 		WebUtils.cookieSet(webContext, KEY_SESSION_ID, sessionID);
 		writeToDatabase();
@@ -115,17 +130,11 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 	 * removed from the database. The session is removed from the database and the
 	 * cookies.
 	 *
-	 * @param deleteGuestUser true to delete the guest user associated with the
-	 *                        session, false otherwise
 	 * @return true if the logout is successful, false otherwise
 	 */
-	public boolean logout(boolean deleteGuestUser) {
+	public boolean logout() {
 		if (!sessionActive || !existsInDatabase()) {
 			return false;
-		}
-
-		if (user.getType() == WebUser.UserType.GUEST && user.existsInDatabase()) {
-			user.removeFromDatabase();
 		}
 
 		WebUtils.cookieRemove(webContext, sessionID);
@@ -167,6 +176,10 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 		return user;
 	}
 
+	public ZonedDateTime getCreationDate() {
+		return sessionCreationDate;
+	}
+
 	/**
 	 * Checks if the session is signed in.
 	 *
@@ -196,6 +209,20 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 		}
 
 		return true;
+	}
+
+	private boolean isExpired() {
+		if (sessionCreationDate == null) {
+			return false;
+		}
+
+		ZonedDateTime currentDate = ZonedDateTime.now();
+
+		if (ChronoUnit.DAYS.between(sessionCreationDate, currentDate) > SESSION_LIFESPAN_DAYS) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -228,6 +255,19 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 	public static boolean checkSessionIDExists(WebContext webContext, String sessionID) {
 		return WebUtils.helperCollectionContains(webContext, WebUtils.COLLECTION_SESSION_ID_NAME, KEY_SESSION_ID,
 				sessionID);
+	}
+
+	public static void clearExpiredSessions(WebContext webContext) {
+		FindIterable<Document> sessionDocIterable = WebUtils.helperCollectionGetAll(webContext,
+				WebUtils.COLLECTION_SESSION_ID_NAME);
+
+		for (Document currentSessionDoc : sessionDocIterable) {
+			WebSession currentSession = new WebSession(webContext, currentSessionDoc);
+
+			if (currentSession.isExpired()) {
+				currentSession.removeFromDatabase();
+			}
+		}
 	}
 
 	/**
@@ -284,6 +324,7 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 		String userID = (user == null) ? null : user.getUserID();
 
 		doc.append(WebUser.KEY_USER_ID, userID);
+		doc.append(KEY_CREATION_DATE, WebUtils.helperDateToString(sessionCreationDate));
 		return doc;
 	}
 
@@ -297,6 +338,7 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 		String userID = doc.getString(WebUser.KEY_USER_ID);
 		sessionID = doc.getString(KEY_SESSION_ID);
 		user = WebUser.getUserByID(webContext, userID);
+		sessionCreationDate = WebUtils.helperStringToDate(doc.getString(KEY_CREATION_DATE));
 		sessionActive = false;
 	}
 
@@ -316,6 +358,9 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 	 */
 	@Override
 	public void removeFromDatabase() {
+		if (user != null && user.getType() == WebUser.UserType.GUEST && user.existsInDatabase()) {
+			user.removeFromDatabase();
+		}
 		WebUtils.helperCollectionDelete(webContext, WebUtils.COLLECTION_SESSION_ID_NAME, WebSession.KEY_SESSION_ID,
 				sessionID);
 	}
@@ -332,6 +377,9 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 	public void updateUserAchievementData(GameType gameType, boolean noMistakes, int timeTrialTime, boolean wonGame) {
 		WebUser user = getUser();
 		if (user != null) {
+			// Read from database just to be safe that we are not overwriting with old info.
+			user.readFromDatabase();
+
 			if (gameType == GameType.CLASSIC) {
 				user.incrementRegularGamesCompleted();
 			} else if (gameType == GameType.TIME_TRIAL) {

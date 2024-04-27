@@ -598,7 +598,7 @@ public class WebUtils {
 		currentUser.addPlayedGame(sampleGame);
 		currentUser.writeToDatabase();
 	}
-
+	
 	/**
 	 * Checks if the user's cookie is empty.
 	 *

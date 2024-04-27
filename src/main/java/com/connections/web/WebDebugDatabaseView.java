@@ -294,7 +294,9 @@ public class WebDebugDatabaseView extends VBox {
 				String content = "";
 
 				for (String key : doc.keySet()) {
-					content += String.format("[%s = %s]", key, doc.get(key).toString());
+					Object value = doc.get(key);
+					String valueString = (value == null ? "null" : value.toString());
+					content += String.format("[%s = %s]", key, valueString);
 				}
 
 				Text entry = makeText(content);
