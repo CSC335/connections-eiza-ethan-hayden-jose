@@ -4,6 +4,12 @@ import com.jpro.webapi.JProApplication;
 import com.jpro.webapi.WebAPI;
 import com.mongodb.client.MongoDatabase;
 
+/**
+ * The WebContext class represents the context for a web application, containing
+ * references to the MongoDB database, the web API, and the JProApplication
+ * instance. It provides methods to access these components and facilitates
+ * their interaction.
+ */
 public class WebContext {
 	private MongoDatabase mongoDatabase;
 	private WebAPI webAPI;

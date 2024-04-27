@@ -20,6 +20,10 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
+/**
+ * A JavaFX Pane containing controls for viewing and interacting with the
+ * MongoDB database directly.
+ */
 public class WebDebugDatabaseView extends VBox {
 	private WebContext webContext;
 	private GridPane gridPane;

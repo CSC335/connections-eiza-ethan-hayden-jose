@@ -2,8 +2,12 @@ package com.connections.web;
 
 import org.bson.Document;
 
+/**
+ * The WebUserGuest class represents a specific type of WebUser that only has a
+ * unique user ID and no other unique information that can be used to identify
+ * or authenticate the user.
+ */
 public class WebUserGuest extends WebUser implements WebContextAccessible, DatabaseFormattable, DatabaseInteractable {
-
 	public static final String GUEST_DEFAULT_USER_NAME = "Guest";
 	public static final String GUEST_DEFAULT_EMAIL = "Guest";
 	public static final String GUEST_DEFAULT_PASSWORD = "Guest";

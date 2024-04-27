@@ -8,6 +8,11 @@ import org.bson.Document;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 
+/**
+ * The WebUserAccount class represents a specific type of WebUser that is
+ * attached to a permanent account with more unique identifiers such as a
+ * username, email, and password.
+ */
 public class WebUserAccount extends WebUser implements WebContextAccessible, DatabaseFormattable, DatabaseInteractable {
 	public static final String KEY_USER_NAME = "username";
 	public static final String KEY_EMAIL = "email";
@@ -37,24 +42,25 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 		this.bio = bio;
 		setUserID(generateUnusedUserID(webContext));
 	}
+
 	/**
 	 * Constructs a new WebUserAccount with the given WebContext and Document.
 	 *
 	 * @param webContext the WebContext associated with the user account
-	 * @param doc the Document representing the user account data
+	 * @param doc        the Document representing the user account data
 	 */
 	public WebUserAccount(WebContext webContext, Document doc) {
-	    super(webContext, doc);
+		super(webContext, doc);
 	}
 
 	/**
 	 * Constructs a new WebUserAccount with the given WebContext and user ID.
 	 *
 	 * @param webContext the WebContext associated with the user account
-	 * @param userID the ID of the user account
+	 * @param userID     the ID of the user account
 	 */
 	public WebUserAccount(WebContext webContext, String userID) {
-	    super(webContext, userID);
+		super(webContext, userID);
 	}
 
 	/**
@@ -64,7 +70,7 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 	 */
 	@Override
 	public String getUserName() {
-	    return userName;
+		return userName;
 	}
 
 	/**
@@ -73,7 +79,7 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 	 * @param userName the new username of the user account
 	 */
 	public void setUserName(String userName) {
-	    this.userName = userName;
+		this.userName = userName;
 	}
 
 	/**
@@ -82,7 +88,7 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 	 * @return the email of the user account
 	 */
 	public String getEmail() {
-	    return email;
+		return email;
 	}
 
 	/**
@@ -91,7 +97,7 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 	 * @param email the new email of the user account
 	 */
 	public void setEmail(String email) {
-	    this.email = email;
+		this.email = email;
 	}
 
 	/**
@@ -100,7 +106,7 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 	 * @return the password of the user account
 	 */
 	public String getPassWord() {
-	    return passWord;
+		return passWord;
 	}
 
 	/**
@@ -109,7 +115,7 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 	 * @param passWord the new password of the user account
 	 */
 	public void setPassWord(String passWord) {
-	    this.passWord = passWord;
+		this.passWord = passWord;
 	}
 
 	/**
@@ -118,7 +124,7 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 	 * @return the bio of the user account
 	 */
 	public String getBio() {
-	    return bio;
+		return bio;
 	}
 
 	/**
@@ -127,7 +133,7 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 	 * @param bio the new bio of the user account
 	 */
 	public void setBio(String bio) {
-	    this.bio = bio;
+		this.bio = bio;
 	}
 
 	/**
@@ -137,66 +143,70 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 	 */
 	@Override
 	public UserType getType() {
-	    return UserType.ACCOUNT;
+		return UserType.ACCOUNT;
 	}
+
 	/**
 	 * Checks if the given account credentials match an existing user account.
 	 *
 	 * @param webContext the WebContext associated with the user account
-	 * @param email the email of the user account
-	 * @param passWord the password of the user account
-	 * @return true if the account credentials match an existing user account, false otherwise
+	 * @param email      the email of the user account
+	 * @param passWord   the password of the user account
+	 * @return true if the account credentials match an existing user account, false
+	 *         otherwise
 	 */
 	public static boolean checkAccountCredentialsMatch(WebContext webContext, String email, String passWord) {
-	    Document findByDoc = new Document();
-	    findByDoc.append(KEY_EMAIL, email);
-	    findByDoc.append(KEY_PASS_WORD, passWord);
-	    return WebUtils.helperCollectionContains(webContext, WebUtils.COLLECTION_ACCOUNT, findByDoc);
+		Document findByDoc = new Document();
+		findByDoc.append(KEY_EMAIL, email);
+		findByDoc.append(KEY_PASS_WORD, passWord);
+		return WebUtils.helperCollectionContains(webContext, WebUtils.COLLECTION_ACCOUNT, findByDoc);
 	}
 
 	/**
 	 * Retrieves the user account with the given account credentials.
 	 *
 	 * @param webContext the WebContext associated with the user account
-	 * @param email the email of the user account
-	 * @param passWord the password of the user account
-	 * @return the user account with the given account credentials, or null if not found
+	 * @param email      the email of the user account
+	 * @param passWord   the password of the user account
+	 * @return the user account with the given account credentials, or null if not
+	 *         found
 	 */
 	public static WebUserAccount getUserAccountByCredentials(WebContext webContext, String email, String passWord) {
-	    Document findByDoc = new Document();
-	    findByDoc.append(KEY_EMAIL, email);
-	    findByDoc.append(KEY_PASS_WORD, passWord);
-	    Document userInfoDoc = WebUtils.helperCollectionGet(webContext, WebUtils.COLLECTION_ACCOUNT, findByDoc);
-	    if (userInfoDoc == null) {
-	        return null;
-	    }
-	    String userID = userInfoDoc.getString(KEY_USER_ID);
-	    if (userID == null) {
-	        return null;
-	    }
-	    return new WebUserAccount(webContext, userID);
+		Document findByDoc = new Document();
+		findByDoc.append(KEY_EMAIL, email);
+		findByDoc.append(KEY_PASS_WORD, passWord);
+		Document userInfoDoc = WebUtils.helperCollectionGet(webContext, WebUtils.COLLECTION_ACCOUNT, findByDoc);
+		if (userInfoDoc == null) {
+			return null;
+		}
+		String userID = userInfoDoc.getString(KEY_USER_ID);
+		if (userID == null) {
+			return null;
+		}
+		return new WebUserAccount(webContext, userID);
 	}
 
 	/**
 	 * Checks if a user account with the given email exists.
 	 *
 	 * @param webContext the WebContext associated with the user account
-	 * @param email the email of the user account
+	 * @param email      the email of the user account
 	 * @return true if a user account with the given email exists, false otherwise
 	 */
 	public static boolean checkAccountExistsByEmail(WebContext webContext, String email) {
-	    return WebUtils.helperCollectionContains(webContext, WebUtils.COLLECTION_ACCOUNT, KEY_EMAIL, email);
+		return WebUtils.helperCollectionContains(webContext, WebUtils.COLLECTION_ACCOUNT, KEY_EMAIL, email);
 	}
 
 	/**
 	 * Checks if a user account with the given username exists.
 	 *
 	 * @param webContext the WebContext associated with the user account
-	 * @param userName the username of the user account
-	 * @return true if a user account with the given username exists, false otherwise
+	 * @param userName   the username of the user account
+	 * @return true if a user account with the given username exists, false
+	 *         otherwise
 	 */
 	public static boolean checkAccountExistsByUserName(WebContext webContext, String userName) {
-	    return WebUtils.helperCollectionContains(webContext, WebUtils.COLLECTION_ACCOUNT, KEY_USER_NAME, userName);
+		return WebUtils.helperCollectionContains(webContext, WebUtils.COLLECTION_ACCOUNT, KEY_USER_NAME, userName);
 	}
 
 	/**
@@ -206,13 +216,13 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 	 * @return a list of all user accounts
 	 */
 	public static List<WebUserAccount> getAllAccounts(WebContext webContext) {
-	    MongoCollection<Document> collection = webContext.getMongoDatabase().getCollection(WebUtils.COLLECTION_ACCOUNT);
-	    FindIterable<Document> results = collection.find();
-	    List<WebUserAccount> list = new ArrayList<>();
-	    for (Document doc : results) {
-	        list.add(new WebUserAccount(webContext, doc));
-	    }
-	    return list;
+		MongoCollection<Document> collection = webContext.getMongoDatabase().getCollection(WebUtils.COLLECTION_ACCOUNT);
+		FindIterable<Document> results = collection.find();
+		List<WebUserAccount> list = new ArrayList<>();
+		for (Document doc : results) {
+			list.add(new WebUserAccount(webContext, doc));
+		}
+		return list;
 	}
 
 	/**
@@ -222,12 +232,12 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 	 */
 	@Override
 	public Document getAsDatabaseFormat() {
-	    Document doc = super.getAsDatabaseFormat();
-	    doc.append(KEY_USER_NAME, userName);
-	    doc.append(KEY_EMAIL, email);
-	    doc.append(KEY_PASS_WORD, passWord);
-	    doc.append(KEY_BIO, bio);
-	    return doc;
+		Document doc = super.getAsDatabaseFormat();
+		doc.append(KEY_USER_NAME, userName);
+		doc.append(KEY_EMAIL, email);
+		doc.append(KEY_PASS_WORD, passWord);
+		doc.append(KEY_BIO, bio);
+		return doc;
 	}
 
 	/**
@@ -237,11 +247,11 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 	 */
 	@Override
 	public void loadFromDatabaseFormat(Document doc) {
-	    super.loadFromDatabaseFormat(doc);
-	    userName = doc.getString(KEY_USER_NAME);
-	    email = doc.getString(KEY_EMAIL);
-	    passWord = doc.getString(KEY_PASS_WORD);
-	    bio = doc.getString(KEY_BIO);
+		super.loadFromDatabaseFormat(doc);
+		userName = doc.getString(KEY_USER_NAME);
+		email = doc.getString(KEY_EMAIL);
+		passWord = doc.getString(KEY_PASS_WORD);
+		bio = doc.getString(KEY_BIO);
 	}
 
 	/**
@@ -249,10 +259,10 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 	 */
 	@Override
 	public void readFromDatabase() {
-	    Document doc = WebUtils.helperCollectionGet(webContext, WebUtils.COLLECTION_ACCOUNT, KEY_USER_ID, userID);
-	    if (doc != null) {
-	        loadFromDatabaseFormat(doc);
-	    }
+		Document doc = WebUtils.helperCollectionGet(webContext, WebUtils.COLLECTION_ACCOUNT, KEY_USER_ID, userID);
+		if (doc != null) {
+			loadFromDatabaseFormat(doc);
+		}
 	}
 
 	/**
@@ -260,8 +270,8 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 	 */
 	@Override
 	public void writeToDatabase() {
-	    WebUtils.helperCollectionUpdate(webContext, WebUtils.COLLECTION_ACCOUNT, KEY_USER_ID, userID,
-	            getAsDatabaseFormat());
+		WebUtils.helperCollectionUpdate(webContext, WebUtils.COLLECTION_ACCOUNT, KEY_USER_ID, userID,
+				getAsDatabaseFormat());
 	}
 
 	/**
@@ -271,7 +281,7 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 	 */
 	@Override
 	public boolean existsInDatabase() {
-	    return WebUtils.helperCollectionContains(webContext, WebUtils.COLLECTION_ACCOUNT, KEY_USER_ID, getUserID());
+		return WebUtils.helperCollectionContains(webContext, WebUtils.COLLECTION_ACCOUNT, KEY_USER_ID, getUserID());
 	}
 
 	/**
@@ -279,6 +289,6 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 	 */
 	@Override
 	public void removeFromDatabase() {
-	    WebUtils.helperCollectionDelete(webContext, WebUtils.COLLECTION_ACCOUNT, KEY_USER_ID, getUserID());
+		WebUtils.helperCollectionDelete(webContext, WebUtils.COLLECTION_ACCOUNT, KEY_USER_ID, getUserID());
 	}
 }

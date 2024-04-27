@@ -4,6 +4,11 @@ import org.bson.Document;
 
 import com.connections.view_controller.GameSession.GameType;
 
+/**
+ * The WebSession class represents an active connection between a user and the
+ * website. A session has a unique ID that is stored as a cookie in the web
+ * browser and is associated with a user (by the user ID) in the database.
+ */
 public class WebSession implements WebContextAccessible, DatabaseFormattable, DatabaseInteractable {
 	public static final String KEY_SESSION_ID = "session_id";
 

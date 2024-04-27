@@ -12,13 +12,8 @@ import javafx.stage.Stage;
 public class ConnectionsAppWeb extends JProApplication {
 	@Override
 	public void start(Stage stage) {
-		// load user interface as FXML file
-		// IMPORTANT: for some reason, getResource() fails for ANY FILE anywhere in the project
-//        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/connections/web/fxml/webapp.fxml"));
-
 		System.out.println("CONNECTIONS: ConnectionsAppWeb has reached start() method...");
 
-		// TEMPORARY WORKAROUND: simply use File(), which starts at the very root of the entire project (above src/)
 		try {
 			File fxmlFile = new File("src/main/resources/com/connections/web/fxml/webapp.fxml");
 

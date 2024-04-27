@@ -27,6 +27,10 @@ import com.mongodb.client.model.UpdateOptions;
 
 import javafx.collections.ObservableMap;
 
+/**
+ * A collection of methods that help perform common operations for the MongoDB
+ * database and cookies within the web browser.
+ */
 public class WebUtils {
 	public static final String GAMES_FILE_PATH = "nyt-connections-games.json";
 	public static final String DATABASE_NAME = "connections_db";

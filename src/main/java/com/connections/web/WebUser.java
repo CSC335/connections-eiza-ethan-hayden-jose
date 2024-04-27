@@ -11,6 +11,11 @@ import com.connections.model.PlayedGameInfo;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 
+/**
+ * The WebUser class represents a user in the Connections game: a user has a
+ * unique String ID, has a save state of the latest game they played, and a list
+ * of information relating to the previous games they played.
+ */
 public abstract class WebUser implements WebContextAccessible, DatabaseFormattable, DatabaseInteractable {
 	/**
 	 * Enum representing the types of users.
@@ -276,6 +281,7 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 		}
 		return null;
 	}
+
 	/**
 	 * Generates an unused user ID.
 	 *
@@ -283,51 +289,51 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 	 * @return an unused user ID, or null if unable to generate a unique ID
 	 */
 	public static String generateUnusedUserID(WebContext webContext) {
-	    boolean unique = false;
-	    while (!unique) {
-	        String newID = WebUtils.generateGeneralPurposeID();
-	        if (checkUserTypeByUserID(webContext, newID) == WebUser.UserType.NONE) {
-	            unique = true;
-	            return newID;
-	        }
-	    }
-	    return null;
+		boolean unique = false;
+		while (!unique) {
+			String newID = WebUtils.generateGeneralPurposeID();
+			if (checkUserTypeByUserID(webContext, newID) == WebUser.UserType.NONE) {
+				unique = true;
+				return newID;
+			}
+		}
+		return null;
 	}
 
 	/**
 	 * Checks the user type based on the given user ID.
 	 *
 	 * @param webContext the WebContext associated with the user
-	 * @param userID the user ID to check
+	 * @param userID     the user ID to check
 	 * @return the user type based on the given user ID
 	 */
 	public static WebUser.UserType checkUserTypeByUserID(WebContext webContext, String userID) {
-	    if (WebUtils.helperCollectionContains(webContext, WebUtils.COLLECTION_ACCOUNT, WebUser.KEY_USER_ID, userID)) {
-	        return WebUser.UserType.ACCOUNT;
-	    }
-	    if (WebUtils.helperCollectionContains(webContext, WebUtils.COLLECTION_GUEST, WebUser.KEY_USER_ID, userID)) {
-	        return WebUser.UserType.GUEST;
-	    }
-	    return WebUser.UserType.NONE;
+		if (WebUtils.helperCollectionContains(webContext, WebUtils.COLLECTION_ACCOUNT, WebUser.KEY_USER_ID, userID)) {
+			return WebUser.UserType.ACCOUNT;
+		}
+		if (WebUtils.helperCollectionContains(webContext, WebUtils.COLLECTION_GUEST, WebUser.KEY_USER_ID, userID)) {
+			return WebUser.UserType.GUEST;
+		}
+		return WebUser.UserType.NONE;
 	}
 
 	/**
 	 * Retrieves the WebUser based on the given user ID.
 	 *
 	 * @param webContext the WebContext associated with the user
-	 * @param userID the user ID to retrieve the WebUser for
+	 * @param userID     the user ID to retrieve the WebUser for
 	 * @return the WebUser based on the given user ID, or null if not found
 	 */
 	public static WebUser getUserByID(WebContext webContext, String userID) {
-	    UserType userType = checkUserTypeByUserID(webContext, userID);
-	    switch (userType) {
-	        case ACCOUNT:
-	            return new WebUserAccount(webContext, userID);
-	        case GUEST:
-	            return new WebUserGuest(webContext, userID);
-	        default:
-	            return null;
-	    }
+		UserType userType = checkUserTypeByUserID(webContext, userID);
+		switch (userType) {
+		case ACCOUNT:
+			return new WebUserAccount(webContext, userID);
+		case GUEST:
+			return new WebUserGuest(webContext, userID);
+		default:
+			return null;
+		}
 	}
 
 	/**
@@ -337,27 +343,27 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 	 * @return the user ID from the cookie, or null if not found
 	 */
 	public static String getUserIDByCookie(WebContext webContext) {
-	    String sessionID = WebUtils.cookieGet(webContext, WebSession.KEY_SESSION_ID);
-	    if (sessionID == null) {
-	        return null;
-	    }
-	    return getUserIDBySessionID(webContext, sessionID);
+		String sessionID = WebUtils.cookieGet(webContext, WebSession.KEY_SESSION_ID);
+		if (sessionID == null) {
+			return null;
+		}
+		return getUserIDBySessionID(webContext, sessionID);
 	}
 
 	/**
 	 * Retrieves the user ID based on the given session ID.
 	 *
 	 * @param webContext the WebContext associated with the user
-	 * @param sessionID the session ID to retrieve the user ID for
+	 * @param sessionID  the session ID to retrieve the user ID for
 	 * @return the user ID based on the given session ID, or null if not found
 	 */
 	public static String getUserIDBySessionID(WebContext webContext, String sessionID) {
-	    Document sessionDoc = WebUtils.helperCollectionGet(webContext, WebUtils.COLLECTION_SESSION_ID_NAME,
-	            WebSession.KEY_SESSION_ID, sessionID);
-	    if (sessionDoc == null) {
-	        return null;
-	    }
-	    return sessionDoc.getString(KEY_USER_ID);
+		Document sessionDoc = WebUtils.helperCollectionGet(webContext, WebUtils.COLLECTION_SESSION_ID_NAME,
+				WebSession.KEY_SESSION_ID, sessionID);
+		if (sessionDoc == null) {
+			return null;
+		}
+		return sessionDoc.getString(KEY_USER_ID);
 	}
 
 	/**
@@ -367,23 +373,23 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 	 */
 	@Override
 	public Document getAsDatabaseFormat() {
-	    Document doc = new Document();
-	    doc.append(KEY_USER_ID, userID);
-	    List<Document> playedGameListDoc = new ArrayList<>();
-	    for (PlayedGameInfo game : playedGameList) {
-	        playedGameListDoc.add(game.getAsDatabaseFormat());
-	    }
-	    doc.append(KEY_PLAYED_GAMES, playedGameListDoc);
-	    doc.append("regular_games_completed", regularGamesCompleted);
-	    doc.append("time_trials_completed", timeTrialsCompleted);
-	    doc.append("no_mistakes_completed", noMistakesCompleted);
-	    doc.append("time_trials_under_time_completed", timeTrialsUnderTimeCompleted);
-	    if (latestSaveState != null) {
-	        doc.append(KEY_LATEST_SAVE_STATE, latestSaveState.getAsDatabaseFormat());
-	    }
-	    doc.append(KEY_HAS_LATEST_SAVE_STATE, hasLatestSaveState);
-	    doc.append(KEY_CURRENTLY_IN_GAME, currentlyInGame);
-	    return doc;
+		Document doc = new Document();
+		doc.append(KEY_USER_ID, userID);
+		List<Document> playedGameListDoc = new ArrayList<>();
+		for (PlayedGameInfo game : playedGameList) {
+			playedGameListDoc.add(game.getAsDatabaseFormat());
+		}
+		doc.append(KEY_PLAYED_GAMES, playedGameListDoc);
+		doc.append("regular_games_completed", regularGamesCompleted);
+		doc.append("time_trials_completed", timeTrialsCompleted);
+		doc.append("no_mistakes_completed", noMistakesCompleted);
+		doc.append("time_trials_under_time_completed", timeTrialsUnderTimeCompleted);
+		if (latestSaveState != null) {
+			doc.append(KEY_LATEST_SAVE_STATE, latestSaveState.getAsDatabaseFormat());
+		}
+		doc.append(KEY_HAS_LATEST_SAVE_STATE, hasLatestSaveState);
+		doc.append(KEY_CURRENTLY_IN_GAME, currentlyInGame);
+		return doc;
 	}
 
 	/**
@@ -393,22 +399,22 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 	 */
 	@Override
 	public void loadFromDatabaseFormat(Document doc) {
-	    playedGameList = new ArrayList<>();
-	    userID = doc.getString(KEY_USER_ID);
-	    List<Document> playedGameListDoc = doc.getList(KEY_PLAYED_GAMES, Document.class);
-	    for (Document gameDoc : playedGameListDoc) {
-	        playedGameList.add(PlayedGameInfo.getGameInfoFromDatabaseFormat(gameDoc));
-	    }
-	    regularGamesCompleted = doc.getInteger("regular_games_completed", 0);
-	    timeTrialsCompleted = doc.getInteger("time_trials_completed", 0);
-	    noMistakesCompleted = doc.getInteger("no_mistakes_completed", 0);
-	    timeTrialsUnderTimeCompleted = doc.getInteger("time_trials_under_time_completed", 0);
-	    Document saveStateDoc = doc.get(KEY_LATEST_SAVE_STATE, Document.class);
-	    if (saveStateDoc != null) {
-	        latestSaveState = new GameSaveState(saveStateDoc);
-	    }
-	    hasLatestSaveState = doc.getBoolean(KEY_HAS_LATEST_SAVE_STATE, false);
-	    currentlyInGame = doc.getBoolean(KEY_CURRENTLY_IN_GAME, false);
+		playedGameList = new ArrayList<>();
+		userID = doc.getString(KEY_USER_ID);
+		List<Document> playedGameListDoc = doc.getList(KEY_PLAYED_GAMES, Document.class);
+		for (Document gameDoc : playedGameListDoc) {
+			playedGameList.add(PlayedGameInfo.getGameInfoFromDatabaseFormat(gameDoc));
+		}
+		regularGamesCompleted = doc.getInteger("regular_games_completed", 0);
+		timeTrialsCompleted = doc.getInteger("time_trials_completed", 0);
+		noMistakesCompleted = doc.getInteger("no_mistakes_completed", 0);
+		timeTrialsUnderTimeCompleted = doc.getInteger("time_trials_under_time_completed", 0);
+		Document saveStateDoc = doc.get(KEY_LATEST_SAVE_STATE, Document.class);
+		if (saveStateDoc != null) {
+			latestSaveState = new GameSaveState(saveStateDoc);
+		}
+		hasLatestSaveState = doc.getBoolean(KEY_HAS_LATEST_SAVE_STATE, false);
+		currentlyInGame = doc.getBoolean(KEY_CURRENTLY_IN_GAME, false);
 	}
 
 	/**

@@ -15,6 +15,12 @@ import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
+/**
+ * The WebFXMLController class is a JavaFX controller that handles the
+ * initialization and setup of the web application. It is responsible for
+ * connecting to the database, creating a WebSession and WebSessionContext, and
+ * setting up the main application scene.
+ */
 public class WebFXMLController implements Initializable {
 	protected static final int STAGE_WIDTH = 800;
 	protected static final int STAGE_HEIGHT = 750;

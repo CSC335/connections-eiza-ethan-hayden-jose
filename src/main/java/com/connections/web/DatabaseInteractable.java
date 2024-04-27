@@ -1,5 +1,10 @@
 package com.connections.web;
 
+/**
+ * An interface representing an object that can interact with a MongoDB
+ * database. This interface provides methods for reading, writing, checking
+ * existence, and removing the object's data from the database.
+ */
 public interface DatabaseInteractable {
 	/**
 	 * Updates the state and instance variables of the object based on its
