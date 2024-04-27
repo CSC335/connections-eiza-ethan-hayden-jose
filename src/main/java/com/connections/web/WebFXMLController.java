@@ -21,14 +21,27 @@ public class WebFXMLController implements Initializable {
 
 	@FXML
 	protected StackPane root;
-
 	protected JProApplication jproApplication;
 
+	/**
+	 * Initializes the WebFXMLController.
+	 * 
+	 * @param location  The location used to resolve relative paths for the root
+	 *                  object, or null if the location is not known.
+	 * @param resources The resources used to localize the root object, or null if
+	 *                  the root object was not localized.
+	 */
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 
 	}
 
+	/**
+	 * Returns the MongoDatabase to be used for Connections.
+	 * 
+	 * @return The MongoDatabase object representing the connected database, or null
+	 *         if the connection fails.
+	 */
 	private MongoDatabase connectDatabase() {
 		String mongoURL = "mongodb://localhost:27017/";
 
@@ -42,11 +55,18 @@ public class WebFXMLController implements Initializable {
 		return null;
 	}
 
+	/**
+	 * Entry point of the WebFXMLController. Initializes the database if needed,
+	 * increments the daily puzzle number, creates a new WebSession and
+	 * WebSessionContext, and sets up the main application scene.
+	 * 
+	 * @param stage The primary stage for the application.
+	 */
 	private void entry(Stage stage) {
 		MongoDatabase mongoDatabase = connectDatabase();
 		WebContext webContext = new WebContext(mongoDatabase, jproApplication.getWebAPI(), jproApplication);
 
-		if(!WebUtils.checkDatabaseInit(webContext)) {
+		if (!WebUtils.checkDatabaseInit(webContext)) {
 			System.out.println("CONNECTIONS: WebFXMLController initialized the database.");
 			WebUtils.initDatabase(webContext);
 		}
@@ -63,6 +83,15 @@ public class WebFXMLController implements Initializable {
 		stage.show();
 	}
 
+	/**
+	 * Called by the website entry point of JPro to begin running the web-compatible
+	 * JavaFX application. This method initializes the necessary components and
+	 * starts the application.
+	 * 
+	 * @param jproApplication The JProApplication object representing the web
+	 *                        application.
+	 * @param stage           The primary stage for the application.
+	 */
 	public void init(JProApplication jproApplication, Stage stage) {
 		System.out.println("CONNECTIONS: WebFXMLController init() method reached!");
 		this.jproApplication = jproApplication;

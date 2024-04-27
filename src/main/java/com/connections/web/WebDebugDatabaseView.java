@@ -19,6 +19,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+
 public class WebDebugDatabaseView extends VBox {
 	private WebContext webContext;
 	private GridPane gridPane;
@@ -27,6 +28,12 @@ public class WebDebugDatabaseView extends VBox {
 	private static final int PADDING = 3;
 	private static final double FONT_SIZE_SCALE = 1;
 
+	/**
+	 * Constructs a WebDebugDatabaseView with the specified WebContext.
+	 * 
+	 * @param webContext The WebContext used to interact with the database and web
+	 *                   application.
+	 */
 	public WebDebugDatabaseView(WebContext webContext) {
 		this.webContext = webContext;
 
@@ -61,7 +68,7 @@ public class WebDebugDatabaseView extends VBox {
 			PauseTransition pause = new PauseTransition(Duration.millis(250));
 			pause.setOnFinished(pauseEvent -> {
 				WebUtils.dailyPuzzleNumberIncrement(webContext);
-				if(counter.incrementAndGet() < 500) {
+				if (counter.incrementAndGet() < 500) {
 					pause.play();
 				}
 				refreshView();
@@ -102,22 +109,24 @@ public class WebDebugDatabaseView extends VBox {
 		gridPane.add(new CookieView(webContext, 500, 100), 0, 0);
 
 		for (String collectionName : WebUtils.COLLECTIONS) {
-			gridPane.add(new CollectionView(webContext, collectionName, maxWidth / maxCols, 100), currentCol, currentRow);
+			gridPane.add(new CollectionView(webContext, collectionName, maxWidth / maxCols, 100), currentCol,
+					currentRow);
 
 			currentCol++;
-			if(currentCol >= maxCols) {
+			if (currentCol >= maxCols) {
 				currentCol = 0;
 				currentRow++;
 			}
 		}
 
 		HBox mainControlBox = new HBox(SPACING, initDatabase, clearDatabase, refreshAll);
-		HBox dateControlBox = new HBox(SPACING, dailyPuzzleIncrement, dailyPuzzleIncrementMuch, currentPuzzleNum, dailyPuzzleDateSub, dailyPuzzleDateCheck);
+		HBox dateControlBox = new HBox(SPACING, dailyPuzzleIncrement, dailyPuzzleIncrementMuch, currentPuzzleNum,
+				dailyPuzzleDateSub, dailyPuzzleDateCheck);
 		HBox gameControlBox = new HBox(SPACING, markTodayGamePlayed);
 
 		VBox tallControlBox = new VBox(SPACING * 2, mainControlBox, dateControlBox, gameControlBox);
-		for(Node node : tallControlBox.getChildren()) {
-			if(node instanceof HBox) {
+		for (Node node : tallControlBox.getChildren()) {
+			if (node instanceof HBox) {
 				HBox hbox = (HBox) node;
 				hbox.setStyle("-fx-border-color: red;");
 				hbox.setPadding(new Insets(PADDING));
@@ -132,6 +141,9 @@ public class WebDebugDatabaseView extends VBox {
 		refreshView();
 	}
 
+	/**
+	 * Refreshes the view by updating the displayed data.
+	 */
 	public void refreshView() {
 		currentPuzzleNum.setText("Current Puzzle Num: " + WebUtils.dailyPuzzleNumberGet(webContext));
 
@@ -151,6 +163,16 @@ public class WebDebugDatabaseView extends VBox {
 		protected VBox contentBox;
 		protected ScrollPane scrollPane;
 
+		/**
+		 * Constructs a GroupView with the specified WebContext, text, width, and
+		 * height.
+		 * 
+		 * @param webContext The WebContext used to interact with the database and web
+		 *                   application.
+		 * @param text       The text to be displayed in the title of the GroupView.
+		 * @param width      The preferred width of the GroupView.
+		 * @param height     The preferred height of the GroupView.
+		 */
 		public GroupView(WebContext webContext, String text, double width, double height) {
 			title = new Text(text);
 			title.setFont(Font.font("Arial", (int) (FONT_SIZE_SCALE * 16)));
@@ -185,18 +207,38 @@ public class WebDebugDatabaseView extends VBox {
 			setStyle("-fx-border-color: blue;");
 		}
 
+		/**
+		 * Creates a Text object with the specified text string and applies formatting.
+		 * 
+		 * @param textString The text content of the Text object.
+		 * @return The created Text object with formatting applied.
+		 */
 		public static Text makeText(String textString) {
 			Text text = new Text(textString);
 			text.setFont(Font.font("Arial", (int) (FONT_SIZE_SCALE * 10)));
 			return text;
 		}
 
+		/**
+		 * Refreshes the view by updating the displayed data.
+		 */
 		public abstract void refreshView();
 
+		/**
+		 * Clears all data associated with the GroupView.
+		 */
 		public abstract void clearAll();
 	}
 
 	private class CookieView extends GroupView {
+		/**
+		 * Constructs a CookieView with the specified WebContext, width, and height.
+		 * 
+		 * @param webContext The WebContext used to interact with the database and web
+		 *                   application.
+		 * @param width      The preferred width of the CookieView.
+		 * @param height     The preferred height of the CookieView.
+		 */
 		public CookieView(WebContext webContext, double width, double height) {
 			super(webContext, "Cookies", width, height);
 			refreshView();
@@ -222,6 +264,17 @@ public class WebDebugDatabaseView extends VBox {
 	private class CollectionView extends GroupView {
 		private String collectionName;
 
+		/**
+		 * Constructs a CollectionView with the specified WebContext, collection name,
+		 * width, and height.
+		 * 
+		 * @param webContext     The WebContext used to interact with the database and
+		 *                       web application.
+		 * @param collectionName The name of the MongoDB collection to be displayed in
+		 *                       the CollectionView.
+		 * @param width          The preferred width of the CollectionView.
+		 * @param height         The preferred height of the CollectionView.
+		 */
 		public CollectionView(WebContext webContext, String collectionName, double width, double height) {
 			super(webContext, "Mongo Collection: " + collectionName, width, height);
 			this.collectionName = collectionName;

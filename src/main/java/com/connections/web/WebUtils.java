@@ -38,7 +38,6 @@ public class WebUtils {
 	public static final String COLLECTION_GUEST = "guest";
 
 	public static final String NULL_AS_STRING = "NULL";
-
 	public static final String KEY_IS_SERVER_INIT = "is_server_init";
 	public static final String KEY_LAST_PUZZLE_DATE = "last_puzzle_date";
 	public static final String KEY_CURRENT_PUZZLE_NUMBER = "today_puzzle_number";
@@ -48,41 +47,130 @@ public class WebUtils {
 	public static final String[] COLLECTIONS = { COLLECTION_SERVER_STATUS, COLLECTION_GAMES, COLLECTION_SESSION_ID_NAME,
 			COLLECTION_ACCOUNT, COLLECTION_GUEST };
 
+	/**
+	 * Checks if a MongoDB collection contains a document with the specified query
+	 * key and value.
+	 * 
+	 * @param collection The MongoDB collection to search in
+	 * @param queryKey   The key to query for
+	 * @param queryValue The value to match against the query key
+	 * @return true if the collection contains a document matching the query, false
+	 *         otherwise
+	 */
 	public static boolean helperCollectionContains(MongoCollection<Document> collection, String queryKey,
 			Object queryValue) {
 		return helperResultsNotEmpty(collection.find(new Document(queryKey, queryValue)));
 	}
 
+	/**
+	 * Checks if a MongoDB collection contains a document matching the specified
+	 * query.
+	 * 
+	 * @param collection The MongoDB collection to search in
+	 * @param query      The query document specifying the search criteria
+	 * @return true if the collection contains a document matching the query, false
+	 *         otherwise
+	 */
 	public static boolean helperCollectionContains(MongoCollection<Document> collection, Document query) {
 		return helperResultsNotEmpty(collection.find(query));
 	}
 
+	/**
+	 * Checks if a MongoDB collection in the specified database contains a document
+	 * with the specified query key and value.
+	 * 
+	 * @param webContext     The web context providing access to the MongoDB
+	 *                       database
+	 * @param collectionName The name of the MongoDB collection to search in
+	 * @param queryKey       The key to query for
+	 * @param queryValue     The value to match against the query key
+	 * @return true if the collection contains a document matching the query, false
+	 *         otherwise
+	 */
 	public static boolean helperCollectionContains(WebContext webContext, String collectionName, String queryKey,
 			Object queryValue) {
 		return helperCollectionContains(webContext.getMongoDatabase().getCollection(collectionName), queryKey,
 				queryValue);
 	}
 
+	/**
+	 * Checks if a MongoDB collection in the specified database contains a document
+	 * matching the specified query.
+	 * 
+	 * @param webContext     The web context providing access to the MongoDB
+	 *                       database
+	 * @param collectionName The name of the MongoDB collection to search in
+	 * @param query          The query document specifying the search criteria
+	 * @return true if the collection contains a document matching the query, false
+	 *         otherwise
+	 */
 	public static boolean helperCollectionContains(WebContext webContext, String collectionName, Document query) {
 		return helperCollectionContains(webContext.getMongoDatabase().getCollection(collectionName), query);
 	}
 
+	/**
+	 * Inserts a document into the specified MongoDB collection.
+	 * 
+	 * @param webContext     The web context providing access to the MongoDB
+	 *                       database
+	 * @param collectionName The name of the MongoDB collection to insert into
+	 * @param doc            The document to be inserted
+	 */
 	public static void helperCollectionPut(WebContext webContext, String collectionName, Document doc) {
 		webContext.getMongoDatabase().getCollection(collectionName).insertOne(doc);
 	}
 
+	/**
+	 * Inserts a key-value pair as a document into the specified MongoDB collection.
+	 * 
+	 * @param webContext     The web context providing access to the MongoDB
+	 *                       database
+	 * @param collectionName The name of the MongoDB collection to insert into
+	 * @param key            The key of the document to be inserted
+	 * @param value          The value associated with the key
+	 */
 	public static void helperCollectionPut(WebContext webContext, String collectionName, String key, Object value) {
 		helperCollectionPut(webContext, collectionName, new Document(key, value));
 	}
 
+	/**
+	 * Deletes a document from the specified MongoDB collection.
+	 * 
+	 * @param webContext     The web context providing access to the MongoDB
+	 *                       database
+	 * @param collectionName The name of the MongoDB collection to delete from
+	 * @param doc            The document to be deleted
+	 */
 	public static void helperCollectionDelete(WebContext webContext, String collectionName, Document doc) {
 		webContext.getMongoDatabase().getCollection(collectionName).deleteOne(doc);
 	}
 
+	/**
+	 * Deletes a document with the specified key-value pair from the specified
+	 * MongoDB collection.
+	 * 
+	 * @param webContext     The web context providing access to the MongoDB
+	 *                       database
+	 * @param collectionName The name of the MongoDB collection to delete from
+	 * @param key            The key of the document to be deleted
+	 * @param value          The value associated with the key
+	 */
 	public static void helperCollectionDelete(WebContext webContext, String collectionName, String key, Object value) {
 		webContext.getMongoDatabase().getCollection(collectionName).deleteOne(new Document(key, value));
 	}
 
+	/**
+	 * Retrieves a document from the specified MongoDB collection based on the
+	 * specified key-value pair.
+	 * 
+	 * @param webContext     The web context providing access to the MongoDB
+	 *                       database
+	 * @param collectionName The name of the MongoDB collection to retrieve from
+	 * @param findByKey      The key to search for
+	 * @param findByValue    The value to match against the search key
+	 * @return The found document, or null if no document matches the search
+	 *         criteria
+	 */
 	public static Document helperCollectionGet(WebContext webContext, String collectionName, String findByKey,
 			Object findByValue) {
 		MongoCollection<Document> collection = webContext.getMongoDatabase().getCollection(collectionName);
@@ -90,19 +178,59 @@ public class WebUtils {
 		return collection.find(findCriteria).first();
 	}
 
+	/**
+	 * Retrieves a document from the specified MongoDB collection based on the
+	 * specified search criteria.
+	 * 
+	 * @param webContext     The web context providing access to the MongoDB
+	 *                       database
+	 * @param collectionName The name of the MongoDB collection to retrieve from
+	 * @param findBy         The search criteria as a document
+	 * @return The found document, or null if no document matches the search
+	 *         criteria
+	 */
 	public static Document helperCollectionGet(WebContext webContext, String collectionName, Document findBy) {
 		return webContext.getMongoDatabase().getCollection(collectionName).find(findBy).first();
 	}
 
+	/**
+	 * Retrieves all documents from the specified MongoDB collection.
+	 * 
+	 * @param webContext     The web context providing access to the MongoDB
+	 *                       database
+	 * @param collectionName The name of the MongoDB collection to retrieve from
+	 * @return An iterable containing all the documents in the collection
+	 */
 	public static FindIterable<Document> helperCollectionGetAll(WebContext webContext, String collectionName) {
 		return webContext.getMongoDatabase().getCollection(collectionName).find();
 	}
 
+	/**
+	 * Retrieves a document from the specified MongoDB collection where the
+	 * specified key exists.
+	 * 
+	 * @param webContext     The web context providing access to the MongoDB
+	 *                       database
+	 * @param collectionName The name of the MongoDB collection to retrieve from
+	 * @param findByKey      The key to search for
+	 * @return The found document, or null if no document has the specified key
+	 */
 	public static Document helperCollectionGetByKey(WebContext webContext, String collectionName, String findByKey) {
 		Document findBy = new Document(findByKey, new Document("$exists", true));
 		return helperCollectionGet(webContext, collectionName, findBy);
 	}
 
+	/**
+	 * Updates a document in the specified MongoDB collection based on the specified
+	 * key-value pair.
+	 * 
+	 * @param webContext     The web context providing access to the MongoDB
+	 *                       database
+	 * @param collectionName The name of the MongoDB collection to update
+	 * @param findByKey      The key to search for
+	 * @param findByValue    The value to match against the search key
+	 * @param updateWith     The document containing the updated fields
+	 */
 	public static void helperCollectionUpdate(WebContext webContext, String collectionName, String findByKey,
 			Object findByValue, Document updateWith) {
 		MongoCollection<Document> collection = webContext.getMongoDatabase().getCollection(collectionName);
@@ -113,6 +241,16 @@ public class WebUtils {
 		collection.updateOne(findCriteria, updateCriteria, options);
 	}
 
+	/**
+	 * Updates a document in the specified MongoDB collection based on the specified
+	 * key.
+	 * 
+	 * @param webContext     The web context providing access to the MongoDB
+	 *                       database
+	 * @param collectionName The name of the MongoDB collection to update
+	 * @param findByKey      The key to search for
+	 * @param updateWith     The updated value for the specified key
+	 */
 	public static void helperCollectionUpdateByKey(WebContext webContext, String collectionName, String findByKey,
 			Object updateWith) {
 		Document found = helperCollectionGetByKey(webContext, collectionName, findByKey);
@@ -128,20 +266,41 @@ public class WebUtils {
 		}
 	}
 
+	/**
+	 * Converts a ZonedDateTime object to a string representation in ISO format.
+	 * 
+	 * @param date The ZonedDateTime object to convert
+	 * @return The string representation of the date in ISO format, or null if the
+	 *         input is null
+	 */
 	public static String helperDateToString(ZonedDateTime date) {
-		if(date == null) {
+		if (date == null) {
 			return null;
 		}
 		return date.format(DateTimeFormatter.ISO_ZONED_DATE_TIME);
 	}
 
+	/**
+	 * Converts a string representation of a date in ISO format to a ZonedDateTime
+	 * object.
+	 * 
+	 * @param dateString The string representation of the date in ISO format
+	 * @return The ZonedDateTime object parsed from the string, or null if the input
+	 *         is null
+	 */
 	public static ZonedDateTime helperStringToDate(String dateString) {
-		if(dateString == null) {
+		if (dateString == null) {
 			return null;
 		}
 		return ZonedDateTime.parse(dateString, DateTimeFormatter.ISO_ZONED_DATE_TIME);
 	}
 
+	/**
+	 * Checks if the specified iterable of MongoDB documents is not empty.
+	 * 
+	 * @param iter The iterable of documents to check
+	 * @return true if the iterable contains at least one document, false otherwise
+	 */
 	public static boolean helperResultsNotEmpty(FindIterable<Document> iter) {
 		for (Document document : iter) {
 			return true;
@@ -149,17 +308,31 @@ public class WebUtils {
 		return false;
 	}
 
+	/**
+	 * Checks if the database has been initialized.
+	 * 
+	 * @param webContext The web context providing access to the MongoDB database
+	 * @return true if the database has been initialized, false otherwise
+	 */
 	public static boolean checkDatabaseInit(WebContext webContext) {
 		return helperCollectionContains(webContext, COLLECTION_SERVER_STATUS, KEY_IS_SERVER_INIT, true);
 	}
 
+	/**
+	 * Clears the database by dropping all collections.
+	 * 
+	 * @param webContext The web context providing access to the MongoDB database
+	 */
 	public static void clearDatabase(WebContext webContext) {
 		webContext.getMongoDatabase().drop();
 	}
 
-	// RECOMMENDED to use this method over calling drop directly because it will
-	// re-initialize constant values like the archived game data and its words,
-	// answers, etc.
+	/**
+	 * Initializes the database by dropping all collections and inserting initial
+	 * data.
+	 * 
+	 * @param webContext The web context providing access to the MongoDB database
+	 */
 	public static void initDatabase(WebContext webContext) {
 		webContext.getMongoDatabase().drop();
 
@@ -200,6 +373,13 @@ public class WebUtils {
 		helperCollectionPut(webContext, COLLECTION_SERVER_STATUS, KEY_IS_SERVER_INIT, true);
 	}
 
+	/**
+	 * Drops the specified collection from the database.
+	 * 
+	 * @param webContext     The web context providing access to the MongoDB
+	 *                       database
+	 * @param collectionName The name of the collection to drop
+	 */
 	public static void helperCollectionDrop(WebContext webContext, String collectionName) {
 		webContext.getMongoDatabase().getCollection(collectionName).drop();
 	}
@@ -214,6 +394,14 @@ public class WebUtils {
 		return list;
 	}
 
+	/**
+	 * Retrieves the game data for the specified puzzle number from the database.
+	 * 
+	 * @param webContext   The web context providing access to the MongoDB database
+	 * @param puzzleNumber The puzzle number to search for
+	 * @return The GameData object representing the game with the specified puzzle
+	 *         number, or null if not found
+	 */
 	public static GameData gameGetByPuzzleNumber(WebContext webContext, int puzzleNumber) {
 		Document searchBy = new Document(GameData.KEY_PUZZLE_NUMBER, puzzleNumber);
 		Document gameDoc = helperCollectionGet(webContext, COLLECTION_GAMES, searchBy);
@@ -225,11 +413,22 @@ public class WebUtils {
 		return new GameData(gameDoc);
 	}
 
+	/**
+	 * Generates a random UUID as a general-purpose ID.
+	 * 
+	 * @return The generated UUID as a string
+	 */
 	public static String generateGeneralPurposeID() {
 		UUID randomUUID = UUID.randomUUID();
 		return randomUUID.toString();
 	}
 
+	/**
+	 * Gets the minimum puzzle number for the daily puzzle.
+	 *
+	 * @param webContext The WebContext associated with the request.
+	 * @return The minimum puzzle number for the daily puzzle, or -1 if not found.
+	 */
 	public static int dailyPuzzleNumberGetMin(WebContext webContext) {
 		Document result = helperCollectionGetByKey(webContext, COLLECTION_SERVER_STATUS, KEY_MIN_PUZZLE_NUMBER);
 		if (result != null && result.containsKey(KEY_MIN_PUZZLE_NUMBER)) {
@@ -238,6 +437,12 @@ public class WebUtils {
 		return -1;
 	}
 
+	/**
+	 * Gets the maximum puzzle number for the daily puzzle.
+	 *
+	 * @param webContext The WebContext associated with the request.
+	 * @return The maximum puzzle number for the daily puzzle, or -1 if not found.
+	 */
 	public static int dailyPuzzleNumberGetMax(WebContext webContext) {
 		Document result = helperCollectionGetByKey(webContext, COLLECTION_SERVER_STATUS, KEY_MAX_PUZZLE_NUMBER);
 		if (result != null && result.containsKey(KEY_MAX_PUZZLE_NUMBER)) {
@@ -246,6 +451,12 @@ public class WebUtils {
 		return -1;
 	}
 
+	/**
+	 * Gets the current puzzle number for the daily puzzle.
+	 *
+	 * @param webContext The WebContext associated with the request.
+	 * @return The current puzzle number for the daily puzzle, or -1 if not found.
+	 */
 	public static int dailyPuzzleNumberGet(WebContext webContext) {
 		Document result = helperCollectionGetByKey(webContext, COLLECTION_SERVER_STATUS, KEY_CURRENT_PUZZLE_NUMBER);
 		if (result != null && result.containsKey(KEY_CURRENT_PUZZLE_NUMBER)) {
@@ -254,6 +465,12 @@ public class WebUtils {
 		return -1;
 	}
 
+	/**
+	 * Rewinds the clock for the daily puzzle by the specified number of hours.
+	 *
+	 * @param webContext The WebContext associated with the request.
+	 * @param hours      The number of hours to rewind the clock.
+	 */
 	public static void dailyPuzzleNumberRewindClockHours(WebContext webContext, int hours) {
 		Document prevDateDoc = helperCollectionGetByKey(webContext, COLLECTION_SERVER_STATUS, KEY_LAST_PUZZLE_DATE);
 		if (prevDateDoc != null) {
@@ -264,6 +481,12 @@ public class WebUtils {
 		}
 	}
 
+	/**
+	 * Increments the daily puzzle number if needed based on the current date and
+	 * time.
+	 *
+	 * @param webContext The WebContext associated with the request.
+	 */
 	public static void dailyPuzzleNumberIncrementIfNeeded(WebContext webContext) {
 		Document prevDateDoc = helperCollectionGetByKey(webContext, COLLECTION_SERVER_STATUS, KEY_LAST_PUZZLE_DATE);
 		if (prevDateDoc != null) {
@@ -283,6 +506,11 @@ public class WebUtils {
 		}
 	}
 
+	/**
+	 * Increments the daily puzzle number.
+	 *
+	 * @param webContext The WebContext associated with the request.
+	 */
 	public static void dailyPuzzleNumberIncrement(WebContext webContext) {
 		Document minNumDoc = helperCollectionGetByKey(webContext, COLLECTION_SERVER_STATUS, KEY_MIN_PUZZLE_NUMBER);
 		int minPuzzleNumber = (minNumDoc == null) ? -1 : minNumDoc.getInteger(KEY_MIN_PUZZLE_NUMBER, -1);
@@ -313,6 +541,11 @@ public class WebUtils {
 		}
 	}
 
+	/**
+	 * Marks the current user as having played the daily puzzle for today.
+	 *
+	 * @param webContext The WebContext associated with the request.
+	 */
 	public static void debugMarkTodayGamePlayed(WebContext webContext) {
 		WebUser currentUser = WebUser.getUserByID(webContext, WebUser.getUserIDByCookie(webContext));
 		if (currentUser == null) {
@@ -331,15 +564,6 @@ public class WebUtils {
 		GameData gameData = gameGetByPuzzleNumber(webContext, currentPuzzleNum);
 		Random randomGen = new Random();
 
-//		int minNum = dailyPuzzleNumberGetMin(webContext);
-//		int maxNum = dailyPuzzleNumberGetMax(webContext);
-
-		/*
-		 * WARNING: these values might NOT make sense (e.g. won despite getting 4
-		 * mistakes)
-		 */
-
-//		int puzzleNumber = minNum + randomGen.nextInt(maxNum - minNum);
 		int puzzleNumber = currentPuzzleNum;
 		int guessCount = randomGen.nextInt(7);
 		int mistakeCount = randomGen.nextInt(4);
@@ -371,10 +595,21 @@ public class WebUtils {
 		currentUser.writeToDatabase();
 	}
 
+	/**
+	 * Checks if the user's cookie is empty.
+	 *
+	 * @param webContext The WebContext associated with the request.
+	 * @return True if the user's cookie is empty, false otherwise.
+	 */
 	public static boolean cookieIsEmpty(WebContext webContext) {
 		return webContext.getWebAPI().getCookies().size() == 0;
 	}
 
+	/**
+	 * Clears the user's cookie.
+	 *
+	 * @param webContext The WebContext associated with the request.
+	 */
 	public static void cookieClear(WebContext webContext) {
 		ObservableMap<String, String> map = webContext.getWebAPI().getCookies();
 		for (String key : map.keySet()) {
@@ -382,24 +617,59 @@ public class WebUtils {
 		}
 	}
 
+	/**
+	 * Checks if the user's cookie contains the specified key.
+	 *
+	 * @param webContext The WebContext associated with the request.
+	 * @param key        The key to check for in the cookie.
+	 * @return True if the user's cookie contains the specified key, false
+	 *         otherwise.
+	 */
 	public static boolean cookieContains(WebContext webContext, String key) {
 		return webContext.getWebAPI().getCookies().containsKey(key);
 	}
 
+	/**
+	 * Gets the value associated with the specified key in the user's cookie.
+	 *
+	 * @param webContext The WebContext associated with the request.
+	 * @param key        The key to retrieve the value for.
+	 * @return The value associated with the specified key in the user's cookie, or
+	 *         null if the key is not found.
+	 */
 	public static String cookieGet(WebContext webContext, String key) {
 		return webContext.getWebAPI().getCookies().get(key);
 	}
 
+	/**
+	 * Sets the value for the specified key in the user's cookie.
+	 *
+	 * @param webContext The WebContext associated with the request.
+	 * @param key        The key to set the value for.
+	 * @param value      The value to set for the specified key.
+	 */
 	public static void cookieSet(WebContext webContext, String key, String value) {
 		webContext.getWebAPI().setCookie(key, value);
 	}
 
+	/**
+	 * Removes the specified key from the user's cookie.
+	 *
+	 * @param webContext The WebContext associated with the request.
+	 * @param key        The key to remove from the cookie.
+	 */
 	public static void cookieRemove(WebContext webContext, String key) {
 		if (cookieContains(webContext, key)) {
 			webContext.getWebAPI().deleteCookie(key);
 		}
 	}
 
+	/**
+	 * Gets a map of all the key-value pairs in the user's cookie.
+	 *
+	 * @param webContext The WebContext associated with the request.
+	 * @return A map of all the key-value pairs in the user's cookie.
+	 */
 	public static ObservableMap<String, String> cookieGetMap(WebContext webContext) {
 		return webContext.getWebAPI().getCookies();
 	}

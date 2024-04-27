@@ -12,15 +12,23 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 	private boolean sessionActive;
 	private WebContext webContext;
 
-	// option A: load session data from database, log in (uncommon, but possible)
+	/**
+	 * Constructs a new WebSession with the given WebContext and Document.
+	 *
+	 * @param webContext the WebContext associated with the session
+	 * @param doc        the Document representing the session data
+	 */
 	public WebSession(WebContext webContext, Document doc) {
 		loadFromDatabaseFormat(doc);
 	}
 
-	// option B:
-	// (1) attempt to load from cookie
-	// (2) if the cookie fails, then when you login later with the login() method,
-	// it will create a guest user
+	/**
+	 * Constructs a new WebSession with the given WebContext. It will first attempt
+	 * to load from the cookie, and if that fails, it will create a new guest user
+	 * with the login() method and save it to the database.
+	 *
+	 * @param webContext the WebContext associated with the session
+	 */
 	public WebSession(WebContext webContext) {
 		setWebContext(webContext);
 
@@ -30,15 +38,21 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 		}
 	}
 
+	/**
+	 * Loads the session data from a cookie.
+	 *
+	 * @return true if the session data is successfully loaded from the cookie,
+	 *         false otherwise
+	 */
 	private boolean loadFromCookie() {
-		// there is no cookie with the session ID
+		// When there is no cookie with the session ID.
 		if (!WebUtils.cookieContains(webContext, KEY_SESSION_ID)) {
 			return false;
 		}
 
 		String readSessionID = WebUtils.cookieGet(webContext, KEY_SESSION_ID);
 
-		// session ID does not actually exist (not valid)
+		// When the session ID does not actually exist (not valid).
 		if (readSessionID == null || !checkSessionIDExists(webContext, readSessionID)) {
 			return false;
 		}
@@ -47,7 +61,7 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 				KEY_SESSION_ID, readSessionID);
 		String readUserID = sessionInfoDoc.getString(WebUser.KEY_USER_ID);
 
-		// user does not exist
+		// When user does not exist.
 		if (WebUser.checkUserTypeByUserID(webContext, readUserID) == WebUser.UserType.NONE) {
 			return false;
 		}
@@ -59,6 +73,12 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 		return true;
 	}
 
+	/**
+	 * Logs in the session. If the session contains no user, it will create a new
+	 * guest user. It will store the session in the database and in the cookie.
+	 *
+	 * @return true if the login is successful, false otherwise
+	 */
 	public boolean login() {
 		if (sessionActive || existsInDatabase()) {
 			return false;
@@ -79,6 +99,15 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 		return true;
 	}
 
+	/**
+	 * Logs out the session. If the user in the session is a guest user, it will be
+	 * removed from the database. The session is removed from the database and the
+	 * cookies.
+	 *
+	 * @param deleteGuestUser true to delete the guest user associated with the
+	 *                        session, false otherwise
+	 * @return true if the logout is successful, false otherwise
+	 */
 	public boolean logout(boolean deleteGuestUser) {
 		if (!sessionActive || !existsInDatabase()) {
 			return false;
@@ -95,6 +124,12 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 		return true;
 	}
 
+	/**
+	 * Sets the user associated with the session.
+	 *
+	 * @param user the user to associate with the session
+	 * @return true if the user is successfully set, false otherwise
+	 */
 	public boolean setUser(WebUser user) {
 		if (sessionActive) {
 			return false;
@@ -103,22 +138,47 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 		return true;
 	}
 
+	/**
+	 * Retrieves the session ID.
+	 *
+	 * @return the session ID
+	 */
 	public String getSessionID() {
 		return sessionID;
 	}
 
+	/**
+	 * Retrieves the user associated with the session.
+	 *
+	 * @return the user associated with the session
+	 */
 	public WebUser getUser() {
 		return user;
 	}
 
+	/**
+	 * Checks if the session is signed in.
+	 *
+	 * @return true if the session is signed in, false otherwise
+	 */
 	public boolean isSignedIn() {
 		return sessionActive;
 	}
 
+	/**
+	 * Checks if the session is empty (no user associated).
+	 *
+	 * @return true if the session is empty, false otherwise
+	 */
 	public boolean isEmpty() {
 		return user == null;
 	}
 
+	/**
+	 * Checks if the session is signed into an account.
+	 *
+	 * @return true if the session is signed into an account, false otherwise
+	 */
 	public boolean isSignedIntoAccount() {
 		if (!isSignedIn() || user == null || user.getType() != WebUser.UserType.ACCOUNT) {
 			return false;
@@ -127,6 +187,12 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 		return true;
 	}
 
+	/**
+	 * Generates an unused session ID.
+	 *
+	 * @param webContext the WebContext associated with the session
+	 * @return an unused session ID, or null if unable to generate a unique ID
+	 */
 	public static String generateUnusedSessionID(WebContext webContext) {
 		boolean unique = false;
 
@@ -141,42 +207,41 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 		return null;
 	}
 
+	/**
+	 * Checks if the given session ID exists.
+	 *
+	 * @param webContext the WebContext associated with the session
+	 * @param sessionID  the session ID to check
+	 * @return true if the session ID exists, false otherwise
+	 */
 	public static boolean checkSessionIDExists(WebContext webContext, String sessionID) {
 		return WebUtils.helperCollectionContains(webContext, WebUtils.COLLECTION_SESSION_ID_NAME, KEY_SESSION_ID,
 				sessionID);
 	}
 
-//	public static WebBridgeUser.UserType checkCookieSessionUserType(WebContext webContext) {
-//		if(!WebBridge.cookieContains(webContext, KEY_SESSION_ID)) {
-//			return WebBridgeUser.UserType.NONE;
-//		}
-//	}
-
-//	public static WebBridgeUser.UserType checkuserTypeBySessionID(WebContext webContext, String sessionID) {
-//		MongoCollection<Document> collectionSession = webContext.getMongoDatabase().getCollection(COLLECTION_SESSION_ID_NAME);
-//		Document sessionSearch = new Document(WebBridgeSession.KEY_SESSION_ID, sessionID);
-//		FindIterable<Document> sessionResults = collectionSession.find(sessionSearch);
-//		if (helperResultsNotEmpty(sessionResults)) {
-//			Document matchedSession = sessionResults.first();
-//			String userID = matchedSession.getString(WebBridgeUser.KEY_USER_ID);
-//
-//			if(userID != null) {
-//				return checkUserTypeByUserID(webContext, userID);
-//			}
-//		}
-//		return WebBridgeUser.UserType.NONE;
-//	}
-
+	/**
+	 * Retrieves the WebContext associated with the session.
+	 *
+	 * @return the WebContext associated with the session
+	 */
 	@Override
 	public WebContext getWebContext() {
 		return webContext;
 	}
 
+	/**
+	 * Sets the WebContext associated with the session.
+	 *
+	 * @param webContext the WebContext to associate with the session
+	 */
 	@Override
 	public void setWebContext(WebContext webContext) {
 		this.webContext = webContext;
 	}
 
+	/**
+	 * Reads the session data from the database.
+	 */
 	@Override
 	public void readFromDatabase() {
 		Document doc = WebUtils.helperCollectionGet(webContext, WebUtils.COLLECTION_SESSION_ID_NAME, KEY_SESSION_ID,
@@ -186,12 +251,20 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 		}
 	}
 
+	/**
+	 * Writes the session data to the database.
+	 */
 	@Override
 	public void writeToDatabase() {
 		WebUtils.helperCollectionUpdate(webContext, WebUtils.COLLECTION_SESSION_ID_NAME, KEY_SESSION_ID, sessionID,
 				getAsDatabaseFormat());
 	}
 
+	/**
+	 * Retrieves the session data as a Document for database storage.
+	 *
+	 * @return the session data as a Document for database storage
+	 */
 	@Override
 	public Document getAsDatabaseFormat() {
 		Document doc = new Document();
@@ -203,6 +276,11 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 		return doc;
 	}
 
+	/**
+	 * Loads the session data from a Document retrieved from the database.
+	 *
+	 * @param doc the Document containing the session data
+	 */
 	@Override
 	public void loadFromDatabaseFormat(Document doc) {
 		String userID = doc.getString(WebUser.KEY_USER_ID);
@@ -211,18 +289,35 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 		sessionActive = false;
 	}
 
+	/**
+	 * Checks if the session exists in the database.
+	 *
+	 * @return true if the session exists in the database, false otherwise
+	 */
 	@Override
 	public boolean existsInDatabase() {
 		return WebUtils.helperCollectionContains(webContext, WebUtils.COLLECTION_SESSION_ID_NAME,
 				WebSession.KEY_SESSION_ID, sessionID);
 	}
 
+	/**
+	 * Removes the session from the database.
+	 */
 	@Override
 	public void removeFromDatabase() {
 		WebUtils.helperCollectionDelete(webContext, WebUtils.COLLECTION_SESSION_ID_NAME, WebSession.KEY_SESSION_ID,
 				sessionID);
 	}
 
+	/**
+	 * Updates the user achievement data based on the game session.
+	 *
+	 * @param gameType      the type of the game played
+	 * @param noMistakes    true if the game was completed with no mistakes, false
+	 *                      otherwise
+	 * @param timeTrialTime the time taken to complete the time trial game
+	 * @param wonGame       true if the game was won, false otherwise
+	 */
 	public void updateUserAchievementData(GameType gameType, boolean noMistakes, int timeTrialTime, boolean wonGame) {
 		WebUser user = getUser();
 		if (user != null) {
