@@ -2,14 +2,11 @@ package com.connections.view_controller;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 import com.connections.model.DifficultyColor;
 import com.connections.model.GameAnswerColor;
-import com.connections.model.GameData;
 import com.connections.model.GameSaveState;
 import com.connections.model.PlayedGameInfo;
 import com.connections.model.PlayedGameInfoClassic;
@@ -17,9 +14,6 @@ import com.connections.model.PlayedGameInfoTimed;
 import com.connections.model.Word;
 import com.connections.web.WebSessionContext;
 import com.connections.web.WebUser;
-import com.connections.web.WebUtils;
-import com.jpro.webapi.InstanceInfo;
-import com.jpro.webapi.WebAPI;
 
 import javafx.animation.ParallelTransition;
 import javafx.animation.PauseTransition;

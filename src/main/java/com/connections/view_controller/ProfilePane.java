@@ -3,6 +3,7 @@ package com.connections.view_controller;
 import com.connections.web.WebContext;
 import com.connections.web.WebUser;
 import com.connections.web.WebUserAccount;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -13,7 +14,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.SVGPath;
-import javafx.scene.text.Text;
 
 /**
  * The ProfilePane class represents a pane that displays and allows editing of a user's profile information.

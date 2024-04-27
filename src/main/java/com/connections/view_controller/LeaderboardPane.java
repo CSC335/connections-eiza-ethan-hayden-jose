@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.connections.web.WebUser;
+
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
