@@ -48,6 +48,7 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 		if (!loadFromCookie()) {
 			this.sessionID = null;
 			this.user = null;
+			this.sessionActive = false;
 			this.sessionCreationDate = null;
 		}
 	}
@@ -140,7 +141,9 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 		WebUtils.cookieRemove(webContext, sessionID);
 		removeFromDatabase();
 		sessionID = null;
+		user = null;
 		sessionActive = false;
+		sessionCreationDate = null;
 		return true;
 	}
 
