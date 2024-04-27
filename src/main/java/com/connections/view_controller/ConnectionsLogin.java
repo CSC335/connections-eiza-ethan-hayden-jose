@@ -13,6 +13,7 @@ import javafx.animation.TranslateTransition;
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -47,6 +48,7 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 	private WarningMessage invalidEmailMessage;
 	private WarningMessage accountErrorMessage;
 	private Label loginHeadingLabel;
+	private BackMenuButton backButton;
 	private BigButton continueButton;
 	private BigButton continueButtonPlaceholder;
 	private VBox verticalLayout;
@@ -56,6 +58,7 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 	private Font cheltenham;
 	private BorderPane window;
 	private EventHandler<ActionEvent> onLoginSuccessfully;
+	private EventHandler<ActionEvent> onGoBack;
 	private boolean isCreatingNewAccount;
 
     /**
@@ -249,6 +252,10 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 	public void setOnLoginSuccessfully(EventHandler<ActionEvent> onLoginSuccessfully) {
 		this.onLoginSuccessfully = onLoginSuccessfully;
 	}
+	
+	public void setOnGoBack(EventHandler<ActionEvent> onGoBack) {
+		this.onGoBack = onGoBack;
+	}
 
     /**
      * Checks if the specified email exists in the database.
@@ -337,6 +344,7 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 
 				if (success) {
 					newAccount.writeToDatabase();
+					setButtonsDisabled(true);
 					if (onLoginSuccessfully != null) {
 						onLoginSuccessfully.handle(new ActionEvent(this, null));
 					}
@@ -388,6 +396,7 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 				}
 
 				if (success) {
+					setButtonsDisabled(true);
 					if (onLoginSuccessfully != null) {
 						onLoginSuccessfully.handle(new ActionEvent(this, null));
 					}
@@ -403,13 +412,11 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
      * Initializes the layout and components of the login screen.
      */
 	private void initPane() {
-		setStyle("-fx-background-color: white;");
-
 		styleManager = new StyleManager();
 		franklin700_14 = styleManager.getFont("franklin-normal", 700, 14);
 		franklin700_16 = styleManager.getFont("franklin-normal", 700, 16);
 		cheltenham = styleManager.getFont("cheltenham-normal", 400, 30);
-
+		
 		window = new BorderPane();
 
 		gridLayout = new GridPane();
@@ -486,10 +493,24 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 		verticalLayout.setAlignment(Pos.CENTER);
 		verticalLayout.getChildren().addAll(loginHeadingLabel, gridLayout);
 
+		backButton = new BackMenuButton();
+		backButton.setStyle("-fx-alignment: center-left;");
+		backButton.setMaxWidth(SVGButton.PREF_WIDTH);
+		backButton.setOnMouseClicked(event -> {
+			if(onGoBack != null) {
+				// Only want to disable buttons if there IS a onGoBack.
+				setButtonsDisabled(true);
+				onGoBack.handle(new ActionEvent(this, null));
+			}
+		});
+		window.setTop(backButton);
+		
 		window.setCenter(verticalLayout);
+		
+		setStyle("-fx-background-color: white;");
+		setPadding(new Insets(10));
 		setCenter(window);
-//		WebDebugDatabaseView dbView = new WebDebugDatabaseView(webContext);
-//		setBottom(dbView);
+		
 	}
 
     /**
@@ -558,6 +579,15 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 	private boolean isValidEmail(String email) {
 		String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
 		return email.matches(emailRegex);
+	}
+
+	/**
+	 * Sets the disabled state of the buttons in the Connections login screen.
+	 *
+	 * @param disabled true to disable the buttons, false to enable them
+	 */
+	private void setButtonsDisabled(boolean disabled) {
+		continueButton.setDisable(disabled);
 	}
 
     /**

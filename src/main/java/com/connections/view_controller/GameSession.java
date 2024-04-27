@@ -329,6 +329,8 @@ public class GameSession extends StackPane implements Modular {
 		});
 		backMenuButton.setOnMouseClicked(event -> {
 			if (onGoBack != null) {
+				// Disable buttons only if there IS a onGoBack set.
+				helperSetAllInteractablesDisabled(true);
 				onGoBack.handle(new ActionEvent(this, null));
 			}
 		});

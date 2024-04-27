@@ -9,6 +9,7 @@ import javafx.scene.shape.SVGPath;
 * This class extends the JavaFX Pane and implements the Modular interface.
 */
 public abstract class SVGButton extends Pane implements Modular {
+	public static final int PREF_WIDTH = 30;
 	protected GameSessionContext gameSessionContext;
 	protected SVGPath svgPath;
 
@@ -20,7 +21,7 @@ public abstract class SVGButton extends Pane implements Modular {
 	public SVGButton(GameSessionContext gameSessionContext) {
 		this.gameSessionContext = gameSessionContext;
 		this.svgPath = null;
-		setPrefWidth(30);
+		setPrefWidth(PREF_WIDTH);
 		prefHeightProperty().bind(widthProperty());
 		setOnMouseEntered(event -> {
 			setCursor(Cursor.HAND);

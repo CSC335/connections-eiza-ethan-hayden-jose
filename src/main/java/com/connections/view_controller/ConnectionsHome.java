@@ -212,6 +212,10 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 		loginButton.setOnAction(event -> {
 			try {
 				ConnectionsLogin loginScreen = new ConnectionsLogin(webContext, webSessionContext);
+				loginScreen.setOnGoBack(onGoBack -> {
+					hideScreen(loginScreen);
+					layoutAdjustLoginLogoutButtons();
+				});
 				loginScreen.setOnLoginSuccessfully(onLogin -> {
 					hideScreen(loginScreen);
 					layoutAdjustLoginLogoutButtons();
@@ -237,7 +241,7 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 						webContext, webSessionContext);
 
 				GameSession gameSession = new GameSession(gameSessionContext);
-				gameSession.setOnGoBack(backEvent -> {
+				gameSession.setOnGoBack(onGoBack -> {
 					hideScreen(gameSession, onHide -> {
 						gameSession.close();
 					});
