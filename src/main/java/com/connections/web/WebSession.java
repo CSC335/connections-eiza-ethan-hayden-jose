@@ -58,7 +58,13 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 		String readSessionID = WebUtils.cookieGet(webContext, KEY_SESSION_ID);
 
 		// When the session ID does not actually exist (not valid).
-		if (readSessionID == null || !checkSessionIDExists(webContext, readSessionID)) {
+		if (readSessionID == null) {
+			return false;
+		}
+		
+		// Remove the cookie if its session ID does not exist anymore.
+		if(!checkSessionIDExists(webContext, readSessionID)) {
+			WebUtils.cookieRemove(webContext, KEY_SESSION_ID);
 			return false;
 		}
 
