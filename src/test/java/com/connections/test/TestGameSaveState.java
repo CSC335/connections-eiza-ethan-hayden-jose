@@ -1,28 +1,20 @@
 package com.connections.test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.bson.Document;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
-import com.connections.model.DifficultyColor;
-import com.connections.model.GameAnswerColor;
-import com.connections.model.GameData;
 import com.connections.model.GameSaveState;
-import com.connections.model.PlayedGameInfoClassic;
-import com.connections.model.PlayedGameInfoTimed;
 import com.connections.model.Word;
 import com.connections.view_controller.GameSession;
-import com.connections.view_controller.GameSessionContext;
 
 public class TestGameSaveState {
 	@Test

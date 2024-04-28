@@ -11,7 +11,6 @@ import javafx.scene.Cursor;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
@@ -31,7 +30,6 @@ public class GameTileWord extends StackPane implements Modular {
 	private boolean styleChangeable;
 	private Rectangle rectangle;
 	private Text text;
-	private Font font;
 	private Word word;
 	private TileGridWord tileGridWord;
 	private StyleStatus styleStatus;
@@ -60,7 +58,6 @@ public class GameTileWord extends StackPane implements Modular {
 		styleChangeable = other.styleChangeable;
 		tileGridWord = other.tileGridWord;
 		word = other.word;
-		font = other.font;
 
 		initAssets();
 		enable();
@@ -73,9 +70,8 @@ public class GameTileWord extends StackPane implements Modular {
      * @param font         the font to be used for the word text
      * @param tileGridWord the TileGridWord containing this word tile
      */
-	public GameTileWord(Font font, TileGridWord tileGridWord) {
+	public GameTileWord(TileGridWord tileGridWord) {
 		this.word = null;
-		this.font = font;
 		this.tileGridWord = tileGridWord;
 		this.styleChangeable = true;
 		initAssets();
@@ -89,8 +85,8 @@ public class GameTileWord extends StackPane implements Modular {
      * @param font         the font to be used for the word text
      * @param tileGridWord the TileGridWord containing this word tile
      */
-	public GameTileWord(Word word, Font font, TileGridWord tileGridWord) {
-		this(font, tileGridWord);
+	public GameTileWord(Word word, TileGridWord tileGridWord) {
+		this(tileGridWord);
 		setWord(word);
 	}
 
@@ -170,14 +166,14 @@ public class GameTileWord extends StackPane implements Modular {
 		rectangle = new Rectangle(GameTile.RECTANGLE_WIDTH, GameTile.RECTANGLE_HEIGHT);
 		rectangle.setArcWidth(GameTile.CORNER_RADIUS);
 		rectangle.setArcHeight(GameTile.CORNER_RADIUS);
-		rectangle.setFill(tileGridWord.getGameSessionContext().getStyleManager().colorDefaultRectangle());
 
 		text = new Text();
-		text.setFont(font);
-		text.setFill(tileGridWord.getGameSessionContext().getStyleManager().colorText());
+		text.setFont(tileGridWord.getGameSessionContext().getStyleManager().getFont("franklin-normal", 700, 18));
 		setWord(word);
 
 		this.getChildren().addAll(rectangle, text);
+		
+		refreshStyle();
 	}
 
     /**

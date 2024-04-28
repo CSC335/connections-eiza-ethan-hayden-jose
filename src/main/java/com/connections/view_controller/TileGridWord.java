@@ -28,7 +28,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.text.Font;
 import javafx.util.Duration;
 
 /**
@@ -56,11 +55,6 @@ public class TileGridWord extends BorderPane implements Modular {
 	private ParallelTransition tileWordHintReturnNormalTransition;
 	private boolean hintAnimationInitialActive;
 	private boolean hintAnimationPlaying;
-
-	// NOTE: todo, the GameTileWords need to be responsible for setting their own
-	// fonts, not TileGridWord, but this is here because of the old constructor of
-	// GameTileWord. Remove this later.
-	private Font tileWordFont;
 
    /**
     * Constructs a new TileGridWord instance.
@@ -96,7 +90,7 @@ public class TileGridWord extends BorderPane implements Modular {
 			List<Word> wordsOnRow = gameSaveState.getGrid().get(row);
 
 			for (int col = 0; col < COLS; col++) {
-				GameTileWord tileWord = new GameTileWord(tileWordFont, this);
+				GameTileWord tileWord = new GameTileWord(this);
 				tileWord.setWord(wordsOnRow.get(col));
 				gridPane.add(tileWord, col, row);
 			}
@@ -137,7 +131,6 @@ public class TileGridWord extends BorderPane implements Modular {
 		currentSolvingRow = 0;
 		selectedTileWordCount = 0;
 		previousGuesses = new ArrayList<>();
-		tileWordFont = gameSessionContext.getStyleManager().getFont("franklin-normal", 700, 18);
 
 		gridPane = new GridPane();
 		gridPane.setHgap(GAP);
@@ -195,7 +188,7 @@ public class TileGridWord extends BorderPane implements Modular {
 		gridPane.getChildren().clear();
 		for (int row = 0; row < ROWS; row++) {
 			for (int col = 0; col < COLS; col++) {
-				gridPane.add(new GameTileWord(tileWordFont, this), col, row);
+				gridPane.add(new GameTileWord(this), col, row);
 			}
 		}
 	}
