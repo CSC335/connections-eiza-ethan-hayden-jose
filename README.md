@@ -1,5 +1,9 @@
 # CSC 335 Final Project: New York Times' Connections
 
+<img src="screenshots/connections-game-light.png" width="400"/>
+
+<img src="screenshots/connections-game-dark.png" width="400"/>
+
 **This project was created by Eiza Stanford, Ethan Wong, Hayden Roberts, and Jose Antonio.**
 
 # Installation Guide
@@ -45,6 +49,11 @@ This project is based on the NYT Connections, a puzzle game where, given a 4x4 g
 There is a new puzzle each day. If the Connections game is ran in a web server, the server will automatically switch to a new game after a day. The player can only complete the puzzle for that day: once they win or lose, they will only be able to view the results of the puzzle until the next day.
 
 ## Home Screen and Login
+
+<img src="screenshots/connections-home.png" width="400"/>
+
+<img src="screenshots/connections-account.png" width="400"/>
+
 When the player first loads up Connections in their browser, they can do the following:
 * **Play**: When the player is ready to start a new game (or view a finished one), they can hit the **Play** button. The player can either play as a **Guest** (signed out) or with an **Account** (signed in).
 * * **Login**: If the player is signed out, they will see this button. When clicking the **Login** button, they can either create a new account or log into an existing one. An account has an email, username, and password.
@@ -63,6 +72,9 @@ A **Guest** generally can do anything that an **Account** can do, except for the
 ## In the Game
 
 ### Choosing a Game Mode
+
+<img src="screenshots/connections-choose.png" width="400"/>
+
 Connections offers two main game modes: **Classic** and **Time Trial**. The **Classic** mode is just like regular Connections as it is on New York Times' website. The **Time Trial** forces a player to complete within one minute and will stop the player once time runs out.
 
 ### Main Buttons and Interaction
@@ -91,6 +103,9 @@ A player also has **4 hints** in a game. Here is what happens when the player us
 When a player leaves mid-game, their game is saved into the database so that it is loaded back in when they come back to Connections. Their saved game includes the arrangement of words in the grid, mistakes, hints, and guesses.
 
 ### Joining From Another Tab
+
+<img src="screenshots/connections-block.png" width="400"/>
+
 To prevent the same player from cheating or breaking the game by having multiple games open simultaneously, Connections will require that the player only have one game open at a time (and any additional tab that is opened will display an error message).
 
 **NOTE**: JPro One, the library that allows us to have JavaFX in the web browser, is not perfect and may mistakenly think that a player has not closed their browser. JPro One may not be entirely compatible with all browsers and systems.
