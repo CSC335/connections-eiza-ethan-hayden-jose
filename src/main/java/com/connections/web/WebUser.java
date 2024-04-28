@@ -33,12 +33,14 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 	public static final String KEY_LATEST_SAVE_STATE = "latest_game_save_state";
 	public static final String KEY_HAS_LATEST_SAVE_STATE = "has_latest_game_save_state";
 	public static final String KEY_ACTIVE_INSTANCE_ID = "active_instance_id";
+	public static final String KEY_DARK_MODE = "dark_mode";
 
 	protected List<PlayedGameInfo> playedGameList;
 	protected String userID;
 	protected WebContext webContext;
 	protected GameSaveState latestSaveState;
 	protected boolean hasLatestSaveState;
+	protected boolean darkModeStatus;
 	protected String activeInstanceID;
 
 	/**
@@ -259,6 +261,24 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 	}
 
 	/**
+	 * Sets dark mode status of the user.
+	 * 
+	 * @param darkModeStatus true if dark mode is on, false otherwise
+	 */
+	public void setDarkModeStatus(boolean darkModeStatus) {
+		this.darkModeStatus = darkModeStatus;
+	}
+
+	/**
+	 * Gets dark mode status of the user.
+	 * 
+	 * @return true if dark mode is on, false otherwise
+	 */
+	public boolean getDarkModeStatus() {
+		return darkModeStatus;
+	}
+
+	/**
 	 * Retrieves the type of the user.
 	 *
 	 * @return the type of the user
@@ -405,6 +425,7 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 		}
 		doc.append(KEY_HAS_LATEST_SAVE_STATE, hasLatestSaveState);
 		doc.append(KEY_ACTIVE_INSTANCE_ID, activeInstanceID);
+		doc.append(KEY_DARK_MODE, darkModeStatus);
 		return doc;
 	}
 
@@ -431,6 +452,7 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 		}
 		hasLatestSaveState = doc.getBoolean(KEY_HAS_LATEST_SAVE_STATE, false);
 		activeInstanceID = doc.getString(KEY_ACTIVE_INSTANCE_ID);
+		darkModeStatus = doc.getBoolean(KEY_DARK_MODE, false);
 	}
 
 	/**

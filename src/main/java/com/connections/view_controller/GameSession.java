@@ -232,6 +232,12 @@ public class GameSession extends StackPane implements Modular {
 		errorUserInGamePane.setBodyText(
 				"You are currently playing from another browser tab or device under the same user.\nPlease wait until the game is finished and try again.");
 
+		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
+		currentUser.readFromDatabase();
+		if(currentUser.getDarkModeStatus()) {
+			darkModeToggleMenuButton.toggle();
+		}
+		
 		getChildren().add(0, timeTrialTimerLayout);
 		controlsSetNormal();
 		refreshStyle();
@@ -255,9 +261,17 @@ public class GameSession extends StackPane implements Modular {
 		gameDeselectButton.setOnAction(event -> {
 			tileGridWord.deselectTileWords();
 		});
-		gameSessionContext.getStyleManager().setOnDarkModeChange(event -> {
+		
+		StyleManager styleManager = gameSessionContext.getStyleManager();
+		
+		styleManager.setOnDarkModeChange(event -> {
+			WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
+			currentUser.readFromDatabase();
+			currentUser.setDarkModeStatus(styleManager.isDarkMode());
+			currentUser.writeToDatabase();
 			refreshStyle();
 		});
+		
 		gameViewResultsButton.setOnAction(event -> {
 			screenDisplayResults();
 		});
