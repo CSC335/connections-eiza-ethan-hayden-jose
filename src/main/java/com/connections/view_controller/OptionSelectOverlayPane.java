@@ -13,7 +13,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -43,10 +42,6 @@ public class OptionSelectOverlayPane extends StackPane implements Modular {
 		initAssets();
 	}
 
-	/*
-	 * todo: finish the dark mode support of this class
-	 */
-
     /**
      * Initializes the assets and components of the option select overlay pane.
      */
@@ -54,15 +49,12 @@ public class OptionSelectOverlayPane extends StackPane implements Modular {
 		titleText = new Text("Select a Game Mode");
 
 		blurredBackgroundPane = new Pane();
-		blurredBackgroundPane.setOpacity(0.25);
-		blurredBackgroundPane.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, null)));
 
 		optionsWidthTotal = 130;
 
 		optionsLayout = new HBox(10);
 		optionsLayout.setAlignment(Pos.CENTER);
 		optionsLayout.setPadding(new Insets(20));
-		optionsLayout.setBackground(new Background(new BackgroundFill(Color.WHITE, new CornerRadii(10), null)));
 
 		entireLayout = new VBox(10, titleText, optionsLayout);
 		entireLayout.setAlignment(Pos.CENTER);
@@ -159,9 +151,20 @@ public class OptionSelectOverlayPane extends StackPane implements Modular {
 	public void refreshStyle() {
 		StyleManager styleManager = gameSessionContext.getStyleManager();
 
+		blurredBackgroundPane.setOpacity(0.25);
+		blurredBackgroundPane.setBackground(new Background(new BackgroundFill(styleManager.colorPopupBackground(), CornerRadii.EMPTY, null)));
+		
+		optionsLayout.setBackground(new Background(new BackgroundFill(styleManager.colorWholeGameBackground(), new CornerRadii(10), null)));
+		
 		Font karnakFont = styleManager.getFont("KarnakPro-Medium_400", "otf", 65);
 		titleText.setFont(Font.font(karnakFont.getFamily(), FontWeight.THIN, 20));
-		titleText.setFill(Color.WHITE);
+		titleText.setFill(styleManager.colorWholeGameBackground());
+		
+		for(Node node : optionsLayout.getChildren()) {
+			if(node instanceof Modular) {
+				((Modular) node).refreshStyle();
+			}
+		}
 	}
 
     /**

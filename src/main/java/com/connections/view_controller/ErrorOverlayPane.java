@@ -37,10 +37,6 @@ public class ErrorOverlayPane extends StackPane implements Modular {
 	private String headerText;
 	private String bodyText;
 
-	/*
-	 * todo: finish the dark mode support of this class
-	 */
-
     /**
      * Constructs a new ErrorOverlayPane with the specified GameSessionContext, header text, and body text.
      *
@@ -169,20 +165,20 @@ public class ErrorOverlayPane extends StackPane implements Modular {
 	@Override
 	public void refreshStyle() {
 		StyleManager styleManager = gameSessionContext.getStyleManager();
-
-		errorSVG.setStroke(Color.WHITE);
+		
+		errorSVG.setStroke(styleManager.colorPopupText());
 		errorSVG.setFill(Color.TRANSPARENT);
 
 		backgroundPane.setOpacity(0.5);
-		backgroundPane.setBackground(new Background(new BackgroundFill(Color.BLACK, new CornerRadii(15), null)));
+		backgroundPane.setBackground(new Background(new BackgroundFill(styleManager.colorPopupBackground(), new CornerRadii(15), null)));
 
 		Font headerFont = styleManager.getFont("franklin-normal", 700, 32);
 		Font bodyFont = styleManager.getFont("franklin-normal", 600, 22);
 
 		headerLabel.setFont(headerFont);
-		headerLabel.setTextFill(Color.WHITE);
+		headerLabel.setTextFill(styleManager.colorPopupText());
 		bodyLabel.setFont(bodyFont);
-		bodyLabel.setTextFill(Color.WHITE);
+		bodyLabel.setTextFill(styleManager.colorPopupText());
 	}
 
     /**

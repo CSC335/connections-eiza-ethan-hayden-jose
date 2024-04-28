@@ -30,11 +30,7 @@ public class CountDownOverlayPane extends StackPane implements Modular {
 	private Text countDownText;
 	private GameSessionContext gameSessionContext;
 	private EventHandler<ActionEvent> onFinishedCountdown;
-
-	/*
-	 * todo: finish the dark mode support of this class
-	 */
-
+	
     /**
      * Constructs a new CountDownOverlayPane with the specified GameSessionContext.
      *
@@ -158,20 +154,20 @@ public class CountDownOverlayPane extends StackPane implements Modular {
 	public void setOnFinishedCountdown(EventHandler<ActionEvent> onFinishedCountdown) {
 		this.onFinishedCountdown = onFinishedCountdown;
 	}
-
+	
     /**
      * Refreshes the style of the countdown overlay pane based on the current style manager.
      */
 	@Override
 	public void refreshStyle() {
 		StyleManager styleManager = gameSessionContext.getStyleManager();
-
+		
 		backgroundPane.setOpacity(0.5);
-		backgroundPane.setBackground(new Background(new BackgroundFill(Color.BLACK, new CornerRadii(15), null)));
+		backgroundPane.setBackground(new Background(new BackgroundFill(styleManager.colorPopupBackground(), new CornerRadii(15), null)));
 
 		Font karnakFont = styleManager.getFont("KarnakPro-Medium_400", "otf", 64);
 		countDownText.setFont(Font.font(karnakFont.getFamily(), FontWeight.THIN, 64));
-		countDownText.setFill(Color.WHITE);
+		countDownText.setFill(styleManager.colorPopupText());
 	}
 
 	/**
