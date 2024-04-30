@@ -33,7 +33,9 @@ These instructions were taken from this [MongoDB Guide](https://www.mongodb.com/
 
 ### Cloning the Repo and Running
 * First clone this [GitHub repository](https://github.com/CSC335/empty-repo-haydenjoseeizaethan).
-* In the repo folder, run `mvn jpro:run` to run Connections.
+* In the repo folder, for the first time running Connections, run `mvn clear` followed by `mvn compile` to run Connections.
+* Any subsequent run will only require running `mvn jpro:run` to run Connections.
+* However, if any changes are made to the code, rerun `mvn compile` before `mvn jpro:run` if you would like these changes to be realized.
 * In a web browser, connect to the URL `localhost:8080`.
 * Once you are finished with the game, hit **Ctrl-C** in the terminal where JPro is running.
 * **NOTE**: Make sure that MongoDB is running on your system BEFORE you start Connections!
