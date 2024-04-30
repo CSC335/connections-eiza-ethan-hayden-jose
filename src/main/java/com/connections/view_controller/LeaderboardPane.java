@@ -62,7 +62,7 @@ public class LeaderboardPane extends StackPane implements Modular {
 		nameValueLabels = new ArrayList<>();
 		scoreValueLabels = new ArrayList<>();
 
-		List<WebUser> topUsers = WebUser.getTopUsers(gameSessionContext.getWebContext(), 5);
+		List<WebUser> topUsers = WebUser.getTopUsers(gameSessionContext.getWebContext(), 10);
 
 		for (int i = 0; i < topUsers.size(); i++) {
 			WebUser user = topUsers.get(i);
