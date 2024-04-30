@@ -67,35 +67,39 @@ public class DarkModeToggle extends StackPane implements Modular {
 		refreshStyle();
 	}
 
-    /**
-     * Toggles the dark mode state of the application.
-     * It updates the visual representation of the toggle and refreshes the style.
-     */
-	public void toggle() {
-		StyleManager styleManager = gameSessionContext.getStyleManager();
-
-		boolean isDarkModeCurrently = styleManager.isDarkMode();
-		boolean isDarkModeNow = !isDarkModeCurrently;
-		styleManager.setDarkMode(isDarkModeNow);
+	/**
+	 * Sets the dark mode state of the application.
+	 * It updates the visual representation of the toggle and refreshes the style.
+	 * 
+	 * @param darkMode true if dark mode is enabled, false otherwise
+	 */
+	public void setDarkMode(boolean darkMode) {
+		gameSessionContext.getStyleManager().setDarkMode(darkMode);
 
 		TranslateTransition transition = new TranslateTransition(Duration.millis(300), circle);
 		TranslateTransition transitionSVG = new TranslateTransition(Duration.millis(300), svgPane);
-		if (isDarkModeNow) {
+		if (darkMode) {
 			transition.setToX(27.5);
 			transitionSVG.setToX(27.5);
 			moonIconSVG.setVisible(true);
 			sunIconSVG.setVisible(false);
-			styleManager.setDarkMode(true);
 		} else {
 			transition.setToX(-27.5);
 			transitionSVG.setToX(-27.5);
 			moonIconSVG.setVisible(false);
 			sunIconSVG.setVisible(true);
-			styleManager.setDarkMode(false);
 		}
 		transition.play();
 		transitionSVG.play();
 		refreshStyle();
+	}
+	
+    /**
+     * Toggles the dark mode state of the application.
+     * It updates the visual representation of the toggle and refreshes the style.
+     */
+	public void toggle() {
+		setDarkMode(!gameSessionContext.getStyleManager().isDarkMode());
 	}
 
     /**

@@ -234,10 +234,7 @@ public class GameSession extends StackPane implements Modular {
 
 		WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
 		currentUser.readFromDatabase();
-		if(currentUser.getDarkModeStatus()) {
-			darkModeToggleMenuButton.toggle();
-		}
-		
+		darkModeToggleMenuButton.setDarkMode(currentUser.getDarkModeStatus());
 		getChildren().add(0, timeTrialTimerLayout);
 		controlsSetNormal();
 		refreshStyle();
