@@ -42,6 +42,7 @@ These instructions were taken from this [MongoDB Guide](https://www.mongodb.com/
 * **NOTE**: Be careful that you do NOT hit **Ctrl-C** while in a game (non-graceful shutdown)!
 	* Only use it if you are currently at the Connections home screen (graceful shutdown).
 	* Otherwise Connections will display the "Game In-Session" error message even if you are not currently in a game.
+ * **NOTE**: The "Share Results" button was verified to work and actually copy to your clipboard when we ran Connections locally before it was ported to the web browser, but JPro does not support copying to clipboard in the web browser, so the feature does not work in the web browser.
 
 # Player Guide Game Rules
 
