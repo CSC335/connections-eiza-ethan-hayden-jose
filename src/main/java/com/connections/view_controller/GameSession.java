@@ -43,7 +43,7 @@ import javafx.util.Duration;
 public class GameSession extends StackPane implements Modular {
 	public static final int STAGE_WIDTH = 800;
 	public static final int STAGE_HEIGHT = 750;
-	
+
 	private static final int POPUP_DEFAULT_DURATION_MS = 3000;
 	private static final int MENU_PANE_HEIGHT = NotificationPane.HEIGHT + 10;
 
@@ -257,10 +257,11 @@ public class GameSession extends StackPane implements Modular {
 		});
 		gameDeselectButton.setOnAction(event -> {
 			tileGridWord.deselectTileWords();
+			helperUpdateGameButtonStatus();
 		});
-		
+
 		StyleManager styleManager = gameSessionContext.getStyleManager();
-		
+
 		styleManager.setOnDarkModeChange(event -> {
 			WebUser currentUser = gameSessionContext.getWebSessionContext().getSession().getUser();
 			currentUser.readFromDatabase();
@@ -268,7 +269,7 @@ public class GameSession extends StackPane implements Modular {
 			currentUser.writeToDatabase();
 			refreshStyle();
 		});
-		
+
 		gameViewResultsButton.setOnAction(event -> {
 			screenDisplayResults();
 		});
@@ -865,13 +866,14 @@ public class GameSession extends StackPane implements Modular {
 			gameShuffleButton.setDisable(true);
 			gameDeselectButton.setDisable(true);
 			gameSubmitButton.setDisable(true);
-			gameSubmitButton.refreshStyle();
 		} else {
 			gameShuffleButton.setDisable(false);
 			gameDeselectButton.setDisable(tileGridWord.checkNumWordsMatchSelected() == 0);
 			gameSubmitButton.setDisable(tileGridWord.checkNumWordsMatchSelected() < TileGridWord.MAX_SELECTED);
-			gameSubmitButton.refreshStyle();
 		}
+		gameShuffleButton.refreshStyle();
+		gameDeselectButton.refreshStyle();
+		gameSubmitButton.refreshStyle();
 	}
 
 	/**
@@ -880,7 +882,6 @@ public class GameSession extends StackPane implements Modular {
 	private void helperUpdateGameButtonStatus() {
 		gameDeselectButton.setDisable(tileGridWord.getSelectedTileWordCount() == 0);
 		gameSubmitButton.setDisable(tileGridWord.getSelectedTileWordCount() < TileGridWord.MAX_SELECTED);
-
 		gameDeselectButton.refreshStyle();
 		gameSubmitButton.refreshStyle();
 	}
