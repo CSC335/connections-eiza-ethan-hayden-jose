@@ -47,6 +47,7 @@ public class WebUtils {
 	public static final String KEY_CURRENT_PUZZLE_NUMBER = "today_puzzle_number";
 	public static final String KEY_MIN_PUZZLE_NUMBER = "min_puzzle_number";
 	public static final String KEY_MAX_PUZZLE_NUMBER = "max_puzzle_number";
+	public static final String KEY_DEBUG_MODE = "debug_mode";
 
 	public static final String[] COLLECTIONS = { COLLECTION_SERVER_STATUS, COLLECTION_GAMES, COLLECTION_SESSION_ID_NAME,
 			COLLECTION_ACCOUNT, COLLECTION_GUEST };
@@ -375,6 +376,7 @@ public class WebUtils {
 		helperCollectionPut(webContext, COLLECTION_SERVER_STATUS, KEY_MIN_PUZZLE_NUMBER, minPuzzleNumber);
 		helperCollectionPut(webContext, COLLECTION_SERVER_STATUS, KEY_MAX_PUZZLE_NUMBER, maxPuzzleNumber);
 		helperCollectionPut(webContext, COLLECTION_SERVER_STATUS, KEY_IS_SERVER_INIT, true);
+		helperCollectionPut(webContext, COLLECTION_SERVER_STATUS, KEY_DEBUG_MODE, false);
 	}
 
 	/**
@@ -501,7 +503,7 @@ public class WebUtils {
 			ZonedDateTime currentDateRoundedToDay = currentDate.toLocalDate().atStartOfDay(currentDate.getZone());
 
 			long daysBetween = ChronoUnit.DAYS.between(prevDateRoundedToDay, currentDateRoundedToDay);
-			
+
 			while (daysBetween > 0) {
 				dailyPuzzleNumberIncrement(webContext);
 				daysBetween--;
@@ -547,59 +549,19 @@ public class WebUtils {
 	}
 
 	/**
-	 * Marks the current user as having played the daily puzzle for today.
-	 *
+	 * Checks if debug mode is enabled.
+	 * 
 	 * @param webContext The WebContext associated with the request.
+	 * @return True if debug mode is enabled, false otherwise.
 	 */
-	public static void debugMarkTodayGamePlayed(WebContext webContext) {
-		WebUser currentUser = WebUser.getUserByID(webContext, WebUser.getUserIDByCookie(webContext));
-		if (currentUser == null) {
-			return;
+	public static boolean debugIsEnabled(WebContext webContext) {
+		Document debugDoc = helperCollectionGetByKey(webContext, COLLECTION_SERVER_STATUS, KEY_DEBUG_MODE);
+		if(debugDoc != null) {
+			return debugDoc.getBoolean(KEY_DEBUG_MODE, false);
 		}
-
-		int currentPuzzleNum = dailyPuzzleNumberGet(webContext);
-
-		List<PlayedGameInfo> playedGameList = currentUser.getPlayedGameList();
-		for (PlayedGameInfo playedGame : playedGameList) {
-			if (playedGame.getPuzzleNumber() == currentPuzzleNum) {
-				return;
-			}
-		}
-
-		GameData gameData = gameGetByPuzzleNumber(webContext, currentPuzzleNum);
-		Random randomGen = new Random();
-
-		int puzzleNumber = currentPuzzleNum;
-		int guessCount = randomGen.nextInt(7);
-		int mistakeCount = randomGen.nextInt(4);
-		int hintsUsedCount = randomGen.nextInt(4);
-		int connectionCount = randomGen.nextInt(4);
-		boolean won = randomGen.nextBoolean();
-
-		List<Set<Word>> guesses = new ArrayList<>();
-		for (int i = 0; i < guessCount; i++) {
-			Set<Word> set = new HashSet<>();
-
-			DifficultyColor[] possibleColors = { DifficultyColor.YELLOW, DifficultyColor.GREEN, DifficultyColor.BLUE,
-					DifficultyColor.PURPLE };
-			while (set.size() < 4) {
-				DifficultyColor randomColor = possibleColors[randomGen.nextInt(4)];
-				GameAnswerColor randAnswer = gameData.getAnswerForColor(randomColor);
-				String[] words = randAnswer.getWords();
-				Word randomWord = new Word(words[randomGen.nextInt(words.length)], randomColor);
-				if (!set.contains(randomWord)) {
-					set.add(randomWord);
-				}
-			}
-			guesses.add(set);
-		}
-
-		PlayedGameInfo sampleGame = new PlayedGameInfoClassic(puzzleNumber, mistakeCount, hintsUsedCount,
-				connectionCount, guesses, won, ZonedDateTime.now(), ZonedDateTime.now());
-		currentUser.addPlayedGame(sampleGame);
-		currentUser.writeToDatabase();
+		return false;
 	}
-	
+
 	/**
 	 * Checks if the user's cookie is empty.
 	 *

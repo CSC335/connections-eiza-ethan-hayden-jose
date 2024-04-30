@@ -87,7 +87,7 @@ public class WebFXMLController implements Initializable {
 		ConnectionsHome home = new ConnectionsHome(webContext, webSessionContext);
 		Scene scene = new Scene(home, STAGE_WIDTH, STAGE_HEIGHT);
 		stage.setScene(scene);
-		stage.setTitle("Connections Debug");
+		stage.setTitle("Connections");
 		stage.show();
 	}
 
