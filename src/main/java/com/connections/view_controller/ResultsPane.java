@@ -290,6 +290,8 @@ public class ResultsPane extends StackPane implements Modular {
 		nextPuzzleInLabel.setTextFill(styleManager.colorText());
 		timerLabel.setTextFill(styleManager.colorText());
 		gameTypeLabel.setTextFill(styleManager.colorText());
+		timeTrialCompletionLabel.setTextFill(styleManager.colorText());
+		timeTrialTimeLabel.setTextFill(styleManager.colorText());
 		if (copiedToClipboardNotification != null) {
 			copiedToClipboardNotification.refreshStyle();
 		}

@@ -39,6 +39,9 @@ These instructions were taken from this [MongoDB Guide](https://www.mongodb.com/
 * In a web browser, connect to the URL `localhost:8080`.
 * Once you are finished with the game, hit **Ctrl-C** in the terminal where JPro is running.
 * **NOTE**: Make sure that MongoDB is running on your system BEFORE you start Connections!
+* **NOTE**: Be careful that you do NOT hit **Ctrl-C** while in a game (non-graceful shutdown)!
+	* Only use it if you are currently at the Connections home screen (graceful shutdown).
+	* Otherwise Connections will display the "Game In-Session" error message even if you are not currently in a game.
 
 # Player Guide Game Rules
 
