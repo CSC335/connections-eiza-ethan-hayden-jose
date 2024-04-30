@@ -14,38 +14,38 @@ import com.connections.model.DifficultyColor;
 
 class TestDifficultyColor {
 
-    @Test
-    void testListShuffleAndSort() {
-        List<DifficultyColor> colors = new ArrayList<>(DifficultyColor.getAllColors());
-        Collections.shuffle(colors);
-        Collections.sort(colors);
+	@Test
+	void testListShuffleAndSort() {
+		List<DifficultyColor> colors = new ArrayList<>(DifficultyColor.getAllColors());
+		Collections.shuffle(colors);
+		Collections.sort(colors);
 
-        List<DifficultyColor> expected = List.of(DifficultyColor.YELLOW, DifficultyColor.GREEN,
-                DifficultyColor.BLUE, DifficultyColor.PURPLE);
+		List<DifficultyColor> expected = List.of(DifficultyColor.YELLOW, DifficultyColor.GREEN, DifficultyColor.BLUE,
+				DifficultyColor.PURPLE);
 
-        assertEquals(expected, colors);
-    }
+		assertEquals(expected, colors);
+	}
 
-    @Test
-    void testGetAllColors() {
-        EnumSet<DifficultyColor> allColors = DifficultyColor.getAllColors();
-        EnumSet<DifficultyColor> expected = EnumSet.allOf(DifficultyColor.class);
+	@Test
+	void testGetAllColors() {
+		EnumSet<DifficultyColor> allColors = DifficultyColor.getAllColors();
+		EnumSet<DifficultyColor> expected = EnumSet.allOf(DifficultyColor.class);
 
-        assertEquals(expected, allColors);
-    }
+		assertEquals(expected, allColors);
+	}
 
-    @Test
-    void testGetDifficultyLevel() {
-        assertEquals(1, DifficultyColor.YELLOW.getDifficultyLevel());
-        assertEquals(2, DifficultyColor.GREEN.getDifficultyLevel());
-        assertEquals(3, DifficultyColor.BLUE.getDifficultyLevel());
-        assertEquals(4, DifficultyColor.PURPLE.getDifficultyLevel());
-    }
+	@Test
+	void testGetDifficultyLevel() {
+		assertEquals(1, DifficultyColor.YELLOW.getDifficultyLevel());
+		assertEquals(2, DifficultyColor.GREEN.getDifficultyLevel());
+		assertEquals(3, DifficultyColor.BLUE.getDifficultyLevel());
+		assertEquals(4, DifficultyColor.PURPLE.getDifficultyLevel());
+	}
 
-    @Test
-    void testComparable() {
-        DifficultyColor[] sortedColors = DifficultyColor.values();
-        assertArrayEquals(new DifficultyColor[] { DifficultyColor.YELLOW, DifficultyColor.GREEN,
-                DifficultyColor.BLUE, DifficultyColor.PURPLE }, sortedColors);
-    }
+	@Test
+	void testComparable() {
+		DifficultyColor[] sortedColors = DifficultyColor.values();
+		assertArrayEquals(new DifficultyColor[] { DifficultyColor.YELLOW, DifficultyColor.GREEN, DifficultyColor.BLUE,
+				DifficultyColor.PURPLE }, sortedColors);
+	}
 }

@@ -18,7 +18,7 @@ public class WebContext {
 	/**
 	 * Constructs a WebContext with the specified MongoDatabase, WebAPI, and
 	 * JProApplication.
-	 * 
+	 *
 	 * @param mongoDatabase   The MongoDatabase object representing the connected
 	 *                        database.
 	 * @param webAPI          The WebAPI object used to interact with the web
@@ -34,7 +34,7 @@ public class WebContext {
 
 	/**
 	 * Retrieves the MongoDatabase object associated with this WebContext.
-	 * 
+	 *
 	 * @return The MongoDatabase object representing the connected database.
 	 */
 	public MongoDatabase getMongoDatabase() {
@@ -43,7 +43,7 @@ public class WebContext {
 
 	/**
 	 * Retrieves the WebAPI object associated with this WebContext.
-	 * 
+	 *
 	 * @return The WebAPI object used to interact with the web application.
 	 */
 	public WebAPI getWebAPI() {
@@ -52,7 +52,7 @@ public class WebContext {
 
 	/**
 	 * Retrieves the JProApplication object associated with this WebContext.
-	 * 
+	 *
 	 * @return The JProApplication object representing the web application.
 	 */
 	public JProApplication getJProApplication() {

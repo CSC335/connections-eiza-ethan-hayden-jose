@@ -78,6 +78,7 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 	 *
 	 * @param userName the new username of the user account
 	 */
+	@Override
 	public void setUserName(String userName) {
 		this.userName = userName;
 	}
@@ -87,6 +88,7 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 	 *
 	 * @return the email of the user account
 	 */
+	@Override
 	public String getEmail() {
 		return email;
 	}
@@ -96,6 +98,7 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 	 *
 	 * @param email the new email of the user account
 	 */
+	@Override
 	public void setEmail(String email) {
 		this.email = email;
 	}
@@ -105,6 +108,7 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 	 *
 	 * @return the password of the user account
 	 */
+	@Override
 	public String getPassWord() {
 		return passWord;
 	}
@@ -114,6 +118,7 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 	 *
 	 * @param passWord the new password of the user account
 	 */
+	@Override
 	public void setPassWord(String passWord) {
 		this.passWord = passWord;
 	}
@@ -123,6 +128,7 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 	 *
 	 * @return the bio of the user account
 	 */
+	@Override
 	public String getBio() {
 		return bio;
 	}
@@ -132,6 +138,7 @@ public class WebUserAccount extends WebUser implements WebContextAccessible, Dat
 	 *
 	 * @param bio the new bio of the user account
 	 */
+	@Override
 	public void setBio(String bio) {
 		this.bio = bio;
 	}

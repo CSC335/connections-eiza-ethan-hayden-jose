@@ -258,7 +258,7 @@ public class ConnectionsLogin extends BorderPane implements WebContextAccessible
 
 	/**
 	 * Sets the event handler to be invoked when the back button is pressed.
-	 * 
+	 *
 	 * @param onGoBack the event handler to be set
 	 */
 	public void setOnGoBack(EventHandler<ActionEvent> onGoBack) {

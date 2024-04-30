@@ -31,9 +31,10 @@ import javafx.scene.layout.GridPane;
 import javafx.util.Duration;
 
 /**
-* The TileGridWord class is a JavaFX component that represents a grid of tiles containing words.
-* It extends the BorderPane class and implements the Modular interface.
-*/
+ * The TileGridWord class is a JavaFX component that represents a grid of tiles
+ * containing words. It extends the BorderPane class and implements the Modular
+ * interface.
+ */
 public class TileGridWord extends BorderPane implements Modular {
 	public static final int MAX_SELECTED = 4;
 	public static final int ROWS = 4;
@@ -56,21 +57,23 @@ public class TileGridWord extends BorderPane implements Modular {
 	private boolean hintAnimationInitialActive;
 	private boolean hintAnimationPlaying;
 
-   /**
-    * Constructs a new TileGridWord instance.
-    *
-    * @param gameSessionContext The GameSessionContext object for accessing shared resources.
-    */
+	/**
+	 * Constructs a new TileGridWord instance.
+	 *
+	 * @param gameSessionContext The GameSessionContext object for accessing shared
+	 *                           resources.
+	 */
 	public TileGridWord(GameSessionContext gameSessionContext) {
 		this.gameSessionContext = gameSessionContext;
 		initAssets();
 	}
 
-   /**
-    * Loads the grid from a saved game state.
-    *
-    * @param gameSaveState The GameSaveState object containing the saved game state.
-    */
+	/**
+	 * Loads the grid from a saved game state.
+	 *
+	 * @param gameSaveState The GameSaveState object containing the saved game
+	 *                      state.
+	 */
 	public void loadFromSaveState(GameSaveState gameSaveState) {
 		initAssets();
 		gridPane.getChildren().clear();
@@ -97,11 +100,12 @@ public class TileGridWord extends BorderPane implements Modular {
 		}
 	}
 
-   /**
-    * Loads the grid from a played game info.
-    *
-    * @param playedGameInfo The PlayedGameInfo object containing the played game information.
-    */
+	/**
+	 * Loads the grid from a played game info.
+	 *
+	 * @param playedGameInfo The PlayedGameInfo object containing the played game
+	 *                       information.
+	 */
 	public void loadFromPlayedGameInfo(PlayedGameInfo playedGameInfo) {
 		initAssets();
 		initGuessedWordsFromExternalVar(playedGameInfo.getGuesses());
@@ -124,9 +128,9 @@ public class TileGridWord extends BorderPane implements Modular {
 		}
 	}
 
-   /**
-    * Initializes the assets for the TileGridWord.
-    */
+	/**
+	 * Initializes the assets for the TileGridWord.
+	 */
 	private void initAssets() {
 		currentSolvingRow = 0;
 		selectedTileWordCount = 0;
@@ -143,11 +147,12 @@ public class TileGridWord extends BorderPane implements Modular {
 		initEmptyTileWords();
 	}
 
-   /**
-    * Initializes the previously guessed words from an external variable.
-    *
-    * @param previousGuessesExternal The external list of previously guessed word sets.
-    */
+	/**
+	 * Initializes the previously guessed words from an external variable.
+	 *
+	 * @param previousGuessesExternal The external list of previously guessed word
+	 *                                sets.
+	 */
 	private void initGuessedWordsFromExternalVar(List<Set<Word>> previousGuessesExternal) {
 		previousGuesses = new ArrayList<>();
 
@@ -181,9 +186,9 @@ public class TileGridWord extends BorderPane implements Modular {
 		}
 	}
 
-   /**
-    * Initializes empty tile words in the grid.
-    */
+	/**
+	 * Initializes empty tile words in the grid.
+	 */
 	private void initEmptyTileWords() {
 		gridPane.getChildren().clear();
 		for (int row = 0; row < ROWS; row++) {
@@ -193,9 +198,9 @@ public class TileGridWord extends BorderPane implements Modular {
 		}
 	}
 
-   /**
-    * Initializes the tile words with words from the game data.
-    */
+	/**
+	 * Initializes the tile words with words from the game data.
+	 */
 	public void initTileWords() {
 		List<Word> words = new ArrayList<>();
 		for (DifficultyColor color : DifficultyColor.getAllColors()) {
@@ -217,9 +222,9 @@ public class TileGridWord extends BorderPane implements Modular {
 		}
 	}
 
-   /**
-    * Deselects all tile words in the grid.
-    */
+	/**
+	 * Deselects all tile words in the grid.
+	 */
 	public void deselectTileWords() {
 		gridPane.getChildren().forEach(node -> {
 			if (node instanceof GameTileWord) {
@@ -230,9 +235,9 @@ public class TileGridWord extends BorderPane implements Modular {
 		selectedTileWordCount = 0;
 	}
 
-   /**
-    * Shuffles the tile words in the grid.
-    */
+	/**
+	 * Shuffles the tile words in the grid.
+	 */
 	public void shuffleTileWords() {
 		ObservableList<Node> children = gridPane.getChildren();
 		List<GameTileWord> gameTileWords = children.stream().filter(node -> node instanceof GameTileWord)
@@ -261,20 +266,20 @@ public class TileGridWord extends BorderPane implements Modular {
 		fadeInTransition.play();
 	}
 
-   /**
-    * Retrieves the number of selected tiles.
-    *
-    * @return The number of selected tiles.
-    */
+	/**
+	 * Retrieves the number of selected tiles.
+	 *
+	 * @return The number of selected tiles.
+	 */
 	public int getSelectedTileWordCount() {
 		return selectedTileWordCount;
 	}
 
-   /**
-    * Checks the number of words that match the selected words.
-    *
-    * @return The number of words that match the selected words.
-    */
+	/**
+	 * Checks the number of words that match the selected words.
+	 *
+	 * @return The number of words that match the selected words.
+	 */
 	public int checkNumWordsMatchSelected() {
 		int maxMatchCount = 0;
 		for (DifficultyColor color : DifficultyColor.getAllColors()) {
@@ -287,12 +292,12 @@ public class TileGridWord extends BorderPane implements Modular {
 		return maxMatchCount;
 	}
 
-   /**
-    * Checks the number of words in the given set that match an answer.
-    *
-    * @param words The set of words to check.
-    * @return The number of words that match an answer.
-    */
+	/**
+	 * Checks the number of words in the given set that match an answer.
+	 *
+	 * @param words The set of words to check.
+	 * @return The number of words that match an answer.
+	 */
 	public int checkNumWordsMatch(Set<Word> words) {
 		int maxMatchCount = 0;
 		for (DifficultyColor color : DifficultyColor.getAllColors()) {
@@ -304,12 +309,12 @@ public class TileGridWord extends BorderPane implements Modular {
 		return maxMatchCount;
 	}
 
-   /**
-    * Checks if the given set of words matches an answer color.
-    *
-    * @param words The set of words to check.
-    * @return The GameAnswerColor object if a match is found, otherwise null.
-    */
+	/**
+	 * Checks if the given set of words matches an answer color.
+	 *
+	 * @param words The set of words to check.
+	 * @return The GameAnswerColor object if a match is found, otherwise null.
+	 */
 	public GameAnswerColor checkMatchingAnswerColor(Set<Word> words) {
 		int maxMatchCount = 0;
 		for (DifficultyColor color : DifficultyColor.getAllColors()) {
@@ -324,11 +329,11 @@ public class TileGridWord extends BorderPane implements Modular {
 		return null;
 	}
 
-   /**
-    * Checks if all categories (difficulty colors) have been guessed.
-    *
-    * @return true if all categories have been guessed, false otherwise.
-    */
+	/**
+	 * Checks if all categories (difficulty colors) have been guessed.
+	 *
+	 * @return true if all categories have been guessed, false otherwise.
+	 */
 	public boolean checkAllCategoriesGuessed() {
 		Set<DifficultyColor> guessedColors = new HashSet<>();
 		for (Set<Word> guess : previousGuesses) {
@@ -339,11 +344,11 @@ public class TileGridWord extends BorderPane implements Modular {
 		return guessedColors.size() == DifficultyColor.getAllColors().size();
 	}
 
-   /**
-    * Gets the set of currently selected tile words.
-    *
-    * @return The set of selected tile words.
-    */
+	/**
+	 * Gets the set of currently selected tile words.
+	 *
+	 * @return The set of selected tile words.
+	 */
 	public Set<GameTileWord> getSelectedTileWords() {
 		Set<GameTileWord> selectedPieceSet = new HashSet<>();
 
@@ -357,20 +362,21 @@ public class TileGridWord extends BorderPane implements Modular {
 		}
 		return selectedPieceSet;
 	}
-	
-   /**
-    * Checks if the currently selected words have already been guessed.
-    *
-    * @return true if the selected words have already been guessed, false otherwise.
-    */
+
+	/**
+	 * Checks if the currently selected words have already been guessed.
+	 *
+	 * @return true if the selected words have already been guessed, false
+	 *         otherwise.
+	 */
 	public boolean checkSelectedAlreadyGuessed() {
 		Set<Word> selected = getSelectedWords();
 		return previousGuesses.contains(selected);
 	}
 
-   /**
-    * Saves the currently selected words as a guess.
-    */
+	/**
+	 * Saves the currently selected words as a guess.
+	 */
 	public void saveSelectedAsGuess() {
 		Set<Word> selected = getSelectedWords();
 		if (!previousGuesses.contains(selected)) {
@@ -378,11 +384,11 @@ public class TileGridWord extends BorderPane implements Modular {
 		}
 	}
 
-   /**
-    * Gets the set of currently selected words.
-    *
-    * @return The set of selected words.
-    */
+	/**
+	 * Gets the set of currently selected words.
+	 *
+	 * @return The set of selected words.
+	 */
 	public Set<Word> getSelectedWords() {
 		Set<Word> selectedWords = new HashSet<>();
 
@@ -397,11 +403,11 @@ public class TileGridWord extends BorderPane implements Modular {
 		return selectedWords;
 	}
 
-   /**
-    * Gets the sorted list of unanswered difficulty colors.
-    *
-    * @return The list of unanswered difficulty colors sorted by difficulty.
-    */
+	/**
+	 * Gets the sorted list of unanswered difficulty colors.
+	 *
+	 * @return The list of unanswered difficulty colors sorted by difficulty.
+	 */
 	public List<DifficultyColor> getSortedUnansweredDifficultyColor() {
 		List<DifficultyColor> unansweredColor = new ArrayList<>(DifficultyColor.getAllColors());
 
@@ -418,9 +424,9 @@ public class TileGridWord extends BorderPane implements Modular {
 		return unansweredColor;
 	}
 
-   /**
-    * Unsets the incorrect status of all tile words.
-    */
+	/**
+	 * Unsets the incorrect status of all tile words.
+	 */
 	public void unsetIncorrectTileWords() {
 		for (Node node : gridPane.getChildren()) {
 			if (node instanceof GameTileWord) {
@@ -432,11 +438,11 @@ public class TileGridWord extends BorderPane implements Modular {
 		}
 	}
 
-   /**
-    * Selects the tile words that match the given answer.
-    *
-    * @param answer The GameAnswerColor object containing the answer.
-    */
+	/**
+	 * Selects the tile words that match the given answer.
+	 *
+	 * @param answer The GameAnswerColor object containing the answer.
+	 */
 	public void selectMatchingAnswerWords(GameAnswerColor answer) {
 		Set<String> wordStringSet = new HashSet<>(Arrays.asList(answer.getWords()));
 		for (Node node : gridPane.getChildren()) {
@@ -450,11 +456,11 @@ public class TileGridWord extends BorderPane implements Modular {
 		}
 	}
 
-   /**
-    * Gets a sequential transition that shakes the selected tile words.
-    *
-    * @return The sequential transition for shaking the selected tile words.
-    */
+	/**
+	 * Gets a sequential transition that shakes the selected tile words.
+	 *
+	 * @return The sequential transition for shaking the selected tile words.
+	 */
 	public SequentialTransition getTransitionTileWordShake() {
 		ParallelTransition shakeTransition = new ParallelTransition();
 		Set<GameTileWord> selectedTileWords = getSelectedTileWords();
@@ -479,11 +485,11 @@ public class TileGridWord extends BorderPane implements Modular {
 		return sequentialTransition;
 	}
 
-   /**
-    * Gets a parallel transition that makes the selected tile words jump.
-    *
-    * @return The parallel transition for making the selected tile words jump.
-    */
+	/**
+	 * Gets a parallel transition that makes the selected tile words jump.
+	 *
+	 * @return The parallel transition for making the selected tile words jump.
+	 */
 	public ParallelTransition getTransitionTileWordJump() {
 		GameTileWord[][] tileWordGrid = new GameTileWord[ROWS][COLS];
 		for (Node node : gridPane.getChildren()) {
@@ -513,20 +519,20 @@ public class TileGridWord extends BorderPane implements Modular {
 		return jumpTransition;
 	}
 
-   /**
-    * Gets the list of previous guesses.
-    *
-    * @return The list of previous guesses.
-    */
+	/**
+	 * Gets the list of previous guesses.
+	 *
+	 * @return The list of previous guesses.
+	 */
 	public List<Set<Word>> getGuesses() {
 		return previousGuesses;
 	}
 
-   /**
-    * Sets the disabled state of all tile words.
-    *
-    * @param status The disabled state to set.
-    */
+	/**
+	 * Sets the disabled state of all tile words.
+	 *
+	 * @param status The disabled state to set.
+	 */
 	public void setTileWordDisable(boolean status) {
 		for (Node node : gridPane.getChildren()) {
 			if (node instanceof GameTileWord) {
@@ -535,9 +541,10 @@ public class TileGridWord extends BorderPane implements Modular {
 		}
 	}
 
-   /**
-    * Refreshes the style of the TileGridWord and its children based on the current style settings.
-    */
+	/**
+	 * Refreshes the style of the TileGridWord and its children based on the current
+	 * style settings.
+	 */
 	@Override
 	public void refreshStyle() {
 		for (Node node : gridPane.getChildren()) {
@@ -548,44 +555,44 @@ public class TileGridWord extends BorderPane implements Modular {
 		}
 	}
 
-   /**
-    * Gets the GameSessionContext object associated with this TileGridWord.
-    *
-    * @return The GameSessionContext object.
-    */
+	/**
+	 * Gets the GameSessionContext object associated with this TileGridWord.
+	 *
+	 * @return The GameSessionContext object.
+	 */
 	@Override
 	public GameSessionContext getGameSessionContext() {
 		return gameSessionContext;
 	}
 
-   /**
-    * Gets the current solving row index.
-    *
-    * @return The current solving row index.
-    */
+	/**
+	 * Gets the current solving row index.
+	 *
+	 * @return The current solving row index.
+	 */
 	public int getCurrentSolvingRow() {
 		return currentSolvingRow;
 	}
 
-   /**
-    * Increments the current solving row index.
-    */
+	/**
+	 * Increments the current solving row index.
+	 */
 	public void incrementCurrentSolvingRow() {
 		currentSolvingRow++;
 	}
 
-   /**
-    * Sets the event handler for tile word selection.
-    *
-    * @param event The event handler to be called when a tile word is selected.
-    */
+	/**
+	 * Sets the event handler for tile word selection.
+	 *
+	 * @param event The event handler to be called when a tile word is selected.
+	 */
 	public void setOnTileWordSelection(EventHandler<ActionEvent> event) {
 		onTileWordSelection = event;
 	}
 
-   /**
-    * Increments the count of selected tile words.
-    */
+	/**
+	 * Increments the count of selected tile words.
+	 */
 	public void incrementSelectedTileWordCount() {
 		selectedTileWordCount++;
 		if (onTileWordSelection != null) {
@@ -593,9 +600,9 @@ public class TileGridWord extends BorderPane implements Modular {
 		}
 	}
 
-   /**
-    * Decrements the count of selected tile words.
-    */
+	/**
+	 * Decrements the count of selected tile words.
+	 */
 	public void decrementSelectedTileWordCount() {
 		selectedTileWordCount--;
 		if (onTileWordSelection != null) {
@@ -603,13 +610,13 @@ public class TileGridWord extends BorderPane implements Modular {
 		}
 	}
 
-   /**
-    * Gets the node at the specified row and column in the grid.
-    *
-    * @param row The row index.
-    * @param col The column index.
-    * @return The node at the specified row and column, or null if not found.
-    */
+	/**
+	 * Gets the node at the specified row and column in the grid.
+	 *
+	 * @param row The row index.
+	 * @param col The column index.
+	 * @return The node at the specified row and column, or null if not found.
+	 */
 	public Node gridGetNode(int row, int col) {
 		for (Node node : gridPane.getChildren()) {
 			if (GridPane.getRowIndex(node) == row && GridPane.getColumnIndex(node) == col) {
@@ -619,33 +626,34 @@ public class TileGridWord extends BorderPane implements Modular {
 		return null;
 	}
 
-   /**
-    * Removes the specified set of nodes from the grid.
-    *
-    * @param nodeSet The set of nodes to be removed.
-    */
+	/**
+	 * Removes the specified set of nodes from the grid.
+	 *
+	 * @param nodeSet The set of nodes to be removed.
+	 */
 	public void gridRemoveNodeSet(Set<? extends Node> nodeSet) {
 		gridPane.getChildren().removeAll(nodeSet);
 	}
 
-   /**
-    * Sets the tile answer in the grid at the specified row.
-    *
-    * @param tileAnswer The tile answer to be set.
-    */
+	/**
+	 * Sets the tile answer in the grid at the specified row.
+	 *
+	 * @param tileAnswer The tile answer to be set.
+	 */
 	public void gridSetTileAnswer(GameTileAnswer tileAnswer) {
 		gridPane.add(tileAnswer, 0, currentSolvingRow - 1);
 		GridPane.setColumnSpan(tileAnswer, COLS);
 	}
 
-   /**
-    * Swaps the nodes at the specified source and destination row and column indices.
-    *
-    * @param sourceRow The source row index.
-    * @param sourceCol The source column index.
-    * @param destRow   The destination row index.
-    * @param destCol   The destination column index.
-    */
+	/**
+	 * Swaps the nodes at the specified source and destination row and column
+	 * indices.
+	 *
+	 * @param sourceRow The source row index.
+	 * @param sourceCol The source column index.
+	 * @param destRow   The destination row index.
+	 * @param destCol   The destination column index.
+	 */
 	public void gridSwapNode(int sourceRow, int sourceCol, int destRow, int destCol) {
 		Node node1 = gridGetNode(sourceRow, sourceCol);
 		Node node2 = gridGetNode(destRow, destCol);
@@ -656,11 +664,11 @@ public class TileGridWord extends BorderPane implements Modular {
 		gridPane.add(node2, sourceCol, sourceRow);
 	}
 
-   /**
-    * Sets the visibility of non-solving nodes in the grid.
-    *
-    * @param status The visibility status to set.
-    */
+	/**
+	 * Sets the visibility of non-solving nodes in the grid.
+	 *
+	 * @param status The visibility status to set.
+	 */
 	public void gridSetNonSolvingNodeVisible(boolean status) {
 		for (Node node : gridPane.getChildren()) {
 			if (GridPane.getRowIndex(node) >= currentSolvingRow) {
@@ -669,11 +677,11 @@ public class TileGridWord extends BorderPane implements Modular {
 		}
 	}
 
-   /**
-    * Gets the grid as a list of lists of words.
-    *
-    * @return The grid as a list of lists of words.
-    */
+	/**
+	 * Gets the grid as a list of lists of words.
+	 *
+	 * @return The grid as a list of lists of words.
+	 */
 	public List<List<Word>> getGridAsWords() {
 		List<List<Word>> gridWords = new ArrayList<>();
 
@@ -698,27 +706,28 @@ public class TileGridWord extends BorderPane implements Modular {
 		return gridWords;
 	}
 
-   /**
-    * Sets the event handler to be called when the hint animation stops.
-    *
-    * @param onHintAnimationStopped The event handler to be called when the hint animation stops.
-    */
+	/**
+	 * Sets the event handler to be called when the hint animation stops.
+	 *
+	 * @param onHintAnimationStopped The event handler to be called when the hint
+	 *                               animation stops.
+	 */
 	public void setOnHintAnimationStopped(EventHandler<ActionEvent> onHintAnimationStopped) {
 		this.onHintAnimationStopped = onHintAnimationStopped;
 	}
 
-   /**
-    * Checks if the hint animation is currently running.
-    *
-    * @return true if the hint animation is running, false otherwise.
-    */
+	/**
+	 * Checks if the hint animation is currently running.
+	 *
+	 * @return true if the hint animation is running, false otherwise.
+	 */
 	public boolean hintAnimationIsRunning() {
 		return hintAnimationPlaying;
 	}
 
-   /**
-    * Stops the hint animation.
-    */
+	/**
+	 * Stops the hint animation.
+	 */
 	public void hintAnimationStop() {
 		if (hintAnimationInitialActive && hintAnimationPlaying) {
 			hintAnimationInitialActive = false;
@@ -743,9 +752,9 @@ public class TileGridWord extends BorderPane implements Modular {
 		gridPane.setOnMouseClicked(null);
 	}
 
-   /**
-    * Shows the hint animation.
-    */
+	/**
+	 * Shows the hint animation.
+	 */
 	public void hintAnimationShow() {
 		tileWordHintShowSet = new HashSet<>();
 
@@ -803,7 +812,7 @@ public class TileGridWord extends BorderPane implements Modular {
 				break;
 			}
 		}
-		
+
 		tileWordHintPulseTransition = new ParallelTransition();
 
 		for (GameTileWord tileWord : tileWordHintShowSet) {

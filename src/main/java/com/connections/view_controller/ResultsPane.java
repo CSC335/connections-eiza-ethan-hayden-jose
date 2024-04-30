@@ -26,10 +26,12 @@ import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
 /**
-* The ResultsPane class displays the results of a completed game of Connections.
-* It shows information such as the number of attempts, the difficulty colors of the words guessed, the game mode,
-* and the time taken for a timed game. It also provides a share button to copy the results to the clipboard.
-*/
+ * The ResultsPane class displays the results of a completed game of
+ * Connections. It shows information such as the number of attempts, the
+ * difficulty colors of the words guessed, the game mode, and the time taken for
+ * a timed game. It also provides a share button to copy the results to the
+ * clipboard.
+ */
 public class ResultsPane extends StackPane implements Modular {
 	private GameSessionContext gameSessionContext;
 	private PlayedGameInfo playedGameInfo;
@@ -49,26 +51,29 @@ public class ResultsPane extends StackPane implements Modular {
 	private CircularButton shareButton;
 	private NotificationPane copiedToClipboardNotification;
 
-   /**
-    * Constructs a new ResultsPane object.
-    *
-    * @param gameSessionContext The GameSessionContext object that provides access to shared resources.
-    * @param playedGameInfo     The PlayedGameInfo object containing information about the completed game.
-    */
+	/**
+	 * Constructs a new ResultsPane object.
+	 *
+	 * @param gameSessionContext The GameSessionContext object that provides access
+	 *                           to shared resources.
+	 * @param playedGameInfo     The PlayedGameInfo object containing information
+	 *                           about the completed game.
+	 */
 	public ResultsPane(GameSessionContext gameSessionContext, PlayedGameInfo playedGameInfo) {
 		this.gameSessionContext = gameSessionContext;
 
 		if (playedGameInfo == null) {
-			playedGameInfo = new PlayedGameInfoClassic(123, 0, 0, 0, new ArrayList<>(), false, ZonedDateTime.now(), ZonedDateTime.now());
+			playedGameInfo = new PlayedGameInfoClassic(123, 0, 0, 0, new ArrayList<>(), false, ZonedDateTime.now(),
+					ZonedDateTime.now());
 		}
 
 		this.playedGameInfo = playedGameInfo;
 		initAssets();
 	}
 
-   /**
-    * Initializes and sets up the UI components for the ResultsPane.
-    */
+	/**
+	 * Initializes and sets up the UI components for the ResultsPane.
+	 */
 	private void initAssets() {
 		resultsLayout = new VBox(0);
 		resultsLayout.setAlignment(Pos.TOP_CENTER);
@@ -86,9 +91,10 @@ public class ResultsPane extends StackPane implements Modular {
 		refreshStyle();
 	}
 
-   /**
-    * Initializes the header section of the ResultsPane, including the title label and puzzle number label.
-    */
+	/**
+	 * Initializes the header section of the ResultsPane, including the title label
+	 * and puzzle number label.
+	 */
 	private void initHeader() {
 		titleLabel = new Label();
 		if (playedGameInfo.wasWon() && playedGameInfo.getGuesses().size() > 4) {
@@ -106,9 +112,9 @@ public class ResultsPane extends StackPane implements Modular {
 		VBox.setMargin(titleLabel, new Insets(18, 0, 0, 0));
 	}
 
-   /**
-    * Initializes the grid pane that displays the attempts made during the game.
-    */
+	/**
+	 * Initializes the grid pane that displays the attempts made during the game.
+	 */
 	private void initAttemptsGrid() {
 		attemptsGridPane = new GridPane();
 		attemptsGridPane.setVgap(TileGridWord.GAP);
@@ -131,9 +137,10 @@ public class ResultsPane extends StackPane implements Modular {
 		}
 	}
 
-   /**
-    * Initializes the timer layout that displays the time remaining until the next puzzle.
-    */
+	/**
+	 * Initializes the timer layout that displays the time remaining until the next
+	 * puzzle.
+	 */
 	private void initNextPuzzleTimer() {
 		nextPuzzleInLabel = new Label("NEXT PUZZLE IN");
 		nextPuzzleInLabel.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 600, 20));
@@ -153,9 +160,9 @@ public class ResultsPane extends StackPane implements Modular {
 
 			java.time.Duration duration = java.time.Duration.between(now, midnight);
 
-			long hours = (long) duration.toHours();
-			long minutes = (long) (duration.toMinutes() % 60);
-			long seconds = (long) (duration.toSeconds() % 60);
+			long hours = duration.toHours();
+			long minutes = duration.toMinutes() % 60;
+			long seconds = duration.toSeconds() % 60;
 
 			String timerText = String.format("%02d:%02d:%02d", hours, minutes, seconds);
 			timerLabel.setText(timerText);
@@ -165,9 +172,10 @@ public class ResultsPane extends StackPane implements Modular {
 		timerTimeline.play();
 	}
 
-   /**
-    * Initializes the share button that copies the results to the clipboard when clicked.
-    */
+	/**
+	 * Initializes the share button that copies the results to the clipboard when
+	 * clicked.
+	 */
 	private void initShareButton() {
 		shareButton = new CircularButton("Share Your Results", 162, gameSessionContext, true);
 		shareButton.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 600, 16));
@@ -182,10 +190,11 @@ public class ResultsPane extends StackPane implements Modular {
 		});
 	}
 
-   /**
-    * Initializes the game type label and time trial completion layout, which displays information
-    * specific to the game mode played (Classic or Time Trial).
-    */
+	/**
+	 * Initializes the game type label and time trial completion layout, which
+	 * displays information specific to the game mode played (Classic or Time
+	 * Trial).
+	 */
 	private void initGameTypeAndTimeTrialContent() {
 		gameTypeLabel = new Label("PLAYED IN CLASSIC MODE");
 		gameTypeLabel.setFont(gameSessionContext.getStyleManager().getFont("franklin-normal", 600, 20));
@@ -235,21 +244,21 @@ public class ResultsPane extends StackPane implements Modular {
 		timeTrialCompletionLayout.setAlignment(Pos.CENTER);
 	}
 
-   /**
-    * Formats the given time in seconds to a string in the format "mm:ss".
-    *
-    * @param seconds The time in seconds to be formatted.
-    * @return The formatted time string.
-    */
+	/**
+	 * Formats the given time in seconds to a string in the format "mm:ss".
+	 *
+	 * @param seconds The time in seconds to be formatted.
+	 * @return The formatted time string.
+	 */
 	private String formatTimeMinSec(int seconds) {
 		int minutes = seconds / 60;
 		int remainingSeconds = seconds % 60;
 		return String.format("%02d:%02d", minutes, remainingSeconds);
 	}
 
-   /**
-    * Copies the game results to the system clipboard in a formatted string.
-    */
+	/**
+	 * Copies the game results to the system clipboard in a formatted string.
+	 */
 	private void copyResultsToClipboard() {
 		final Clipboard clipboard = Clipboard.getSystemClipboard();
 		final ClipboardContent content = new ClipboardContent();
@@ -277,13 +286,14 @@ public class ResultsPane extends StackPane implements Modular {
 		clipboard.setContent(content);
 	}
 
-   /**
-    * Refreshes the style of the ResultsPane and its components based on the current style settings.
-    */
+	/**
+	 * Refreshes the style of the ResultsPane and its components based on the
+	 * current style settings.
+	 */
 	@Override
 	public void refreshStyle() {
 		StyleManager styleManager = gameSessionContext.getStyleManager();
-		
+
 		shareButton.refreshStyle();
 		titleLabel.setTextFill(styleManager.colorText());
 		puzzleNumberLabel.setTextFill(styleManager.colorText());
@@ -297,11 +307,11 @@ public class ResultsPane extends StackPane implements Modular {
 		}
 	}
 
-   /**
-    * Returns the GameSessionContext object associated with this ResultsPane.
-    *
-    * @return The GameSessionContext object.
-    */
+	/**
+	 * Returns the GameSessionContext object associated with this ResultsPane.
+	 *
+	 * @return The GameSessionContext object.
+	 */
 	@Override
 	public GameSessionContext getGameSessionContext() {
 		return gameSessionContext;

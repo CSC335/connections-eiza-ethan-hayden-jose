@@ -34,7 +34,7 @@ public class WebDebugDatabaseView extends VBox {
 
 	/**
 	 * Constructs a WebDebugDatabaseView with the specified WebContext.
-	 * 
+	 *
 	 * @param webContext The WebContext used to interact with the database and web
 	 *                   application.
 	 */
@@ -163,7 +163,7 @@ public class WebDebugDatabaseView extends VBox {
 		/**
 		 * Constructs a GroupView with the specified WebContext, text, width, and
 		 * height.
-		 * 
+		 *
 		 * @param webContext The WebContext used to interact with the database and web
 		 *                   application.
 		 * @param text       The text to be displayed in the title of the GroupView.
@@ -206,7 +206,7 @@ public class WebDebugDatabaseView extends VBox {
 
 		/**
 		 * Creates a Text object with the specified text string and applies formatting.
-		 * 
+		 *
 		 * @param textString The text content of the Text object.
 		 * @return The created Text object with formatting applied.
 		 */
@@ -230,7 +230,7 @@ public class WebDebugDatabaseView extends VBox {
 	private class CookieView extends GroupView {
 		/**
 		 * Constructs a CookieView with the specified WebContext, width, and height.
-		 * 
+		 *
 		 * @param webContext The WebContext used to interact with the database and web
 		 *                   application.
 		 * @param width      The preferred width of the CookieView.
@@ -264,7 +264,7 @@ public class WebDebugDatabaseView extends VBox {
 		/**
 		 * Constructs a CollectionView with the specified WebContext, collection name,
 		 * width, and height.
-		 * 
+		 *
 		 * @param webContext     The WebContext used to interact with the database and
 		 *                       web application.
 		 * @param collectionName The name of the MongoDB collection to be displayed in

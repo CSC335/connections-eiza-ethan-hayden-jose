@@ -12,7 +12,7 @@ import javafx.util.Duration;
 /**
  * Represents a pane containing a row of circles.
  *
- * @param label The label for the circle row.
+ * @param label              The label for the circle row.
  * @param gameSessionContext The context of the game session.
  */
 public class CircleRowPane extends HBox implements Modular {
@@ -22,12 +22,12 @@ public class CircleRowPane extends HBox implements Modular {
 	private int numCircles;
 	private final static int START_SIZE = 4;
 
-	 /**
-     * Constructs a PlayedGameInfoTimed object with the given parameters.
-     *
-     * @param label              The label for the circle row.
-     * @param gameSessionContext The game session's context.
-     */
+	/**
+	 * Constructs a PlayedGameInfoTimed object with the given parameters.
+	 *
+	 * @param label              The label for the circle row.
+	 * @param gameSessionContext The game session's context.
+	 */
 	public CircleRowPane(String label, GameSessionContext gameSessionContext) {
 		this.gameSessionContext = gameSessionContext;
 
@@ -128,11 +128,11 @@ public class CircleRowPane extends HBox implements Modular {
 		text.setFill(gameSessionContext.getStyleManager().colorText());
 	}
 
-    /**
-     * Returns the GameSessionContext associated with the CircleRowPane.
-     *
-     * @return the GameSessionContext associated with the CircleRowPane
-     */
+	/**
+	 * Returns the GameSessionContext associated with the CircleRowPane.
+	 *
+	 * @return the GameSessionContext associated with the CircleRowPane
+	 */
 	@Override
 	public GameSessionContext getGameSessionContext() {
 		return gameSessionContext;

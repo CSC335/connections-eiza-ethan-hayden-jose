@@ -227,7 +227,7 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 
 	/**
 	 * Sets the active instance ID of the user.
-	 * 
+	 *
 	 * @param activeInstanceID the String instance ID corresponding to the user
 	 */
 	public void setActiveInstanceID(String activeInstanceID) {
@@ -236,7 +236,7 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 
 	/**
 	 * Gets the active instance ID of the user.
-	 * 
+	 *
 	 * @return the String instance ID corresponding to the user
 	 */
 	public String getActiveInstanceID() {
@@ -253,7 +253,7 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 	/**
 	 * Returns true or false depending on if the user is currently in a game (has an
 	 * active instance ID).
-	 * 
+	 *
 	 * @return true if currently in a game, false otherwise
 	 */
 	public boolean isCurrentlyInGame() {
@@ -262,7 +262,7 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 
 	/**
 	 * Sets dark mode status of the user.
-	 * 
+	 *
 	 * @param darkModeStatus true if dark mode is on, false otherwise
 	 */
 	public void setDarkModeStatus(boolean darkModeStatus) {
@@ -271,7 +271,7 @@ public abstract class WebUser implements WebContextAccessible, DatabaseFormattab
 
 	/**
 	 * Gets dark mode status of the user.
-	 * 
+	 *
 	 * @return true if dark mode is on, false otherwise
 	 */
 	public boolean getDarkModeStatus() {

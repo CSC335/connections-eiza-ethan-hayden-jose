@@ -15,7 +15,7 @@ import javafx.stage.Stage;
 public class ConnectionsAppWeb extends JProApplication {
 	/**
 	 * Initializes the JavaFX assets for the Connections page.
-	 * 
+	 *
 	 * @param stage the primary stage of the JavaFX view
 	 */
 	@Override
@@ -48,7 +48,7 @@ public class ConnectionsAppWeb extends JProApplication {
 	/**
 	 * The entry point method that JPro One will first call when a user loads in
 	 * Connections.
-	 * 
+	 *
 	 * @param args command-line arguments
 	 */
 	public static void main(String[] args) {

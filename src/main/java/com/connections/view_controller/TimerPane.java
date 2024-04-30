@@ -26,9 +26,9 @@ import javafx.scene.shape.StrokeLineJoin;
 import javafx.util.Duration;
 
 /**
-* The TimerPane class displays a timer countdown.
-* It extends the StackPane class and implements the Modular interface.
-*/
+ * The TimerPane class displays a timer countdown. It extends the StackPane
+ * class and implements the Modular interface.
+ */
 public class TimerPane extends StackPane implements Modular {
 	public static final int BACKGROUND_PANE_WIDTH = 160;
 	public static final int BACKGROUND_PANE_HEIGHT = 60;
@@ -51,21 +51,22 @@ public class TimerPane extends StackPane implements Modular {
 	private boolean timerStopped;
 	private boolean justInitialized;
 
-   /**
-    * Constructs a new TimerPane instance.
-    *
-    * @param gameSessionContext The GameSessionContext object for accessing shared resources.
-    * @param durationSeconds    The duration of the timer in seconds.
-    */
+	/**
+	 * Constructs a new TimerPane instance.
+	 *
+	 * @param gameSessionContext The GameSessionContext object for accessing shared
+	 *                           resources.
+	 * @param durationSeconds    The duration of the timer in seconds.
+	 */
 	public TimerPane(GameSessionContext gameSessionContext, int durationSeconds) {
 		this.gameSessionContext = gameSessionContext;
 		this.durationSeconds = durationSeconds;
 		initAssets();
 	}
 
-   /**
-    * Initializes the assets for the TimerPane.
-    */
+	/**
+	 * Initializes the assets for the TimerPane.
+	 */
 	private void initAssets() {
 		timerActive = false;
 		timerFinished = false;
@@ -106,11 +107,11 @@ public class TimerPane extends StackPane implements Modular {
 		refreshStyle();
 	}
 
-   /**
-    * Returns the time left on the timer in seconds.
-    *
-    * @return The time left in seconds.
-    */
+	/**
+	 * Returns the time left on the timer in seconds.
+	 *
+	 * @return The time left in seconds.
+	 */
 	public int getTimeLeft() {
 		if (timerActive) {
 			return getSecondsLeft(ZonedDateTime.now());
@@ -121,26 +122,26 @@ public class TimerPane extends StackPane implements Modular {
 		}
 	}
 
-   /**
-    * Returns the elapsed time in seconds since the timer started.
-    *
-    * @return The elapsed time in seconds.
-    */
+	/**
+	 * Returns the elapsed time in seconds since the timer started.
+	 *
+	 * @return The elapsed time in seconds.
+	 */
 	public int getElapsedTime() {
-	    if (timerActive) {
-	    	return (int) ChronoUnit.SECONDS.between(startTime, ZonedDateTime.now());
-	    } else if (timerFinished || justInitialized) {
-	        return durationSeconds;
-	    } else {
-	        return (int) ChronoUnit.SECONDS.between(startTime, endTime);
-	    }
+		if (timerActive) {
+			return (int) ChronoUnit.SECONDS.between(startTime, ZonedDateTime.now());
+		} else if (timerFinished || justInitialized) {
+			return durationSeconds;
+		} else {
+			return (int) ChronoUnit.SECONDS.between(startTime, endTime);
+		}
 	}
 
-   /**
-    * Restarts the timer with the specified start time.
-    *
-    * @param startTime The start time for the timer.
-    */
+	/**
+	 * Restarts the timer with the specified start time.
+	 *
+	 * @param startTime The start time for the timer.
+	 */
 	public void restartTimer(ZonedDateTime startTime) {
 		this.startTime = startTime;
 		prevSecondsLeftBuffer = durationSeconds;
@@ -152,18 +153,19 @@ public class TimerPane extends StackPane implements Modular {
 		justInitialized = false;
 	}
 
-   /**
-    * Starts the timer and makes it appear with a fade-in animation.
-    */
+	/**
+	 * Starts the timer and makes it appear with a fade-in animation.
+	 */
 	public void appearAndStart() {
-	    appearAndStart(ZonedDateTime.now());
+		appearAndStart(ZonedDateTime.now());
 	}
 
-   /**
-    * Starts the timer and makes it appear with a fade-in animation at the specified start time.
-    *
-    * @param startTime The start time for the timer.
-    */
+	/**
+	 * Starts the timer and makes it appear with a fade-in animation at the
+	 * specified start time.
+	 *
+	 * @param startTime The start time for the timer.
+	 */
 	public void appearAndStart(ZonedDateTime startTime) {
 		PauseTransition delay = new PauseTransition(Duration.millis(100));
 		delay.setOnFinished(event -> {
@@ -182,9 +184,9 @@ public class TimerPane extends StackPane implements Modular {
 		sequence.play();
 	}
 
-   /**
-    * Stops the timer and makes it disappear with a fade-out animation.
-    */
+	/**
+	 * Stops the timer and makes it disappear with a fade-out animation.
+	 */
 	public void disappear() {
 		stopTimer();
 		FadeTransition fadeOut = new FadeTransition(Duration.millis(500), this);
@@ -200,9 +202,9 @@ public class TimerPane extends StackPane implements Modular {
 		});
 	}
 
-   /**
-    * Stops the timer.
-    */
+	/**
+	 * Stops the timer.
+	 */
 	public void stopTimer() {
 		if (timerActive) {
 			timerActive = false;
@@ -212,38 +214,39 @@ public class TimerPane extends StackPane implements Modular {
 		}
 	}
 
-   /**
-    * Returns whether the timer is currently active.
-    *
-    * @return true if the timer is active, false otherwise.
-    */
+	/**
+	 * Returns whether the timer is currently active.
+	 *
+	 * @return true if the timer is active, false otherwise.
+	 */
 	public boolean isTimerActive() {
 		return timerActive;
 	}
 
-   /**
-    * Returns whether the timer has finished.
-    *
-    * @return true if the timer has finished, false otherwise.
-    */
+	/**
+	 * Returns whether the timer has finished.
+	 *
+	 * @return true if the timer has finished, false otherwise.
+	 */
 	public boolean isTimerFinished() {
 		return timerFinished;
 	}
 
-   /**
-    * Returns whether the timer has been stopped.
-    *
-    * @return true if the timer has been stopped, false otherwise.
-    */
+	/**
+	 * Returns whether the timer has been stopped.
+	 *
+	 * @return true if the timer has been stopped, false otherwise.
+	 */
 	public boolean isTimerStopped() {
 		return timerStopped;
 	}
 
-   /**
-    * Sets the event handler to be called when the timer finishes.
-    *
-    * @param onFinishedTimer The event handler to be called when the timer finishes.
-    */
+	/**
+	 * Sets the event handler to be called when the timer finishes.
+	 *
+	 * @param onFinishedTimer The event handler to be called when the timer
+	 *                        finishes.
+	 */
 	public void setOnFinishedTimer(EventHandler<ActionEvent> onFinishedTimer) {
 		this.onFinishedTimer = onFinishedTimer;
 	}
@@ -255,28 +258,29 @@ public class TimerPane extends StackPane implements Modular {
 	 */
 	// PLEASE PLEASE do not remove this method when refactoring until you know that
 	// we do not have that use case anymore.
-	
-   /**
-    * Sets the event handler to be called when a second passes by on the timer.
-    *
-    * @param onSecondPassedBy The event handler to be called when a second passes by.
-    */
+
+	/**
+	 * Sets the event handler to be called when a second passes by on the timer.
+	 *
+	 * @param onSecondPassedBy The event handler to be called when a second passes
+	 *                         by.
+	 */
 	public void setOnSecondPassedBy(EventHandler<ActionEvent> onSecondPassedBy) {
 		this.onSecondPassedBy = onSecondPassedBy;
 	}
 
-   /**
-    * Sets the event handler to be called when the timer disappears.
-    *
-    * @param onDisappear The event handler to be called when the timer disappears.
-    */
+	/**
+	 * Sets the event handler to be called when the timer disappears.
+	 *
+	 * @param onDisappear The event handler to be called when the timer disappears.
+	 */
 	public void setOnDisappear(EventHandler<ActionEvent> onDisappear) {
 		this.onDisappear = onDisappear;
 	}
 
-   /**
-    * Updates the timer label with the remaining time.
-    */
+	/**
+	 * Updates the timer label with the remaining time.
+	 */
 	private void updateTimerLabel() {
 		int secondsLeft = getSecondsLeft(ZonedDateTime.now());
 
@@ -296,12 +300,12 @@ public class TimerPane extends StackPane implements Modular {
 		}
 	}
 
-   /**
-    * Returns the number of seconds left on the timer based on the current time.
-    *
-    * @param current The current time.
-    * @return The number of seconds left.
-    */
+	/**
+	 * Returns the number of seconds left on the timer based on the current time.
+	 *
+	 * @param current The current time.
+	 * @return The number of seconds left.
+	 */
 	private int getSecondsLeft(ZonedDateTime current) {
 		if (current == null) {
 			return 0;
@@ -310,9 +314,9 @@ public class TimerPane extends StackPane implements Modular {
 		return durationSeconds - (int) secondsElapsed;
 	}
 
-   /**
-    * Finishes the timer and triggers any associated events or animations.
-    */
+	/**
+	 * Finishes the timer and triggers any associated events or animations.
+	 */
 	private void finishTimer() {
 		timerFinished = true;
 		stopTimer();
@@ -329,27 +333,29 @@ public class TimerPane extends StackPane implements Modular {
 		pulseTransition.play();
 	}
 
-   /**
-    * Formats the given time in seconds to a string in the format "mm:ss".
-    *
-    * @param seconds The time in seconds to be formatted.
-    * @return The formatted time string.
-    */
+	/**
+	 * Formats the given time in seconds to a string in the format "mm:ss".
+	 *
+	 * @param seconds The time in seconds to be formatted.
+	 * @return The formatted time string.
+	 */
 	private String formatTime(int seconds) {
 		int minutes = seconds / 60;
 		int remainingSeconds = seconds % 60;
 		return String.format("%02d:%02d", minutes, remainingSeconds);
 	}
 
-   /**
-    * Refreshes the style of the TimerPane and its components based on the current style settings.
-    */
+	/**
+	 * Refreshes the style of the TimerPane and its components based on the current
+	 * style settings.
+	 */
 	@Override
 	public void refreshStyle() {
 		StyleManager styleManager = gameSessionContext.getStyleManager();
 
 		backgroundPane.setOpacity(0.75);
-		backgroundPane.setBackground(new Background(new BackgroundFill(styleManager.timerBackground(), new CornerRadii(30), null)));
+		backgroundPane.setBackground(
+				new Background(new BackgroundFill(styleManager.timerBackground(), new CornerRadii(30), null)));
 
 		timerSVG.setFill(styleManager.colorSVGFill());
 
@@ -357,11 +363,11 @@ public class TimerPane extends StackPane implements Modular {
 		counterLabel.setTextFill(styleManager.colorSVGFill());
 	}
 
-   /**
-    * Returns the GameSessionContext object associated with this TimerPane.
-    *
-    * @return The GameSessionContext object.
-    */
+	/**
+	 * Returns the GameSessionContext object associated with this TimerPane.
+	 *
+	 * @return The GameSessionContext object.
+	 */
 	@Override
 	public GameSessionContext getGameSessionContext() {
 		return gameSessionContext;

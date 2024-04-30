@@ -10,8 +10,8 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 /**
- * The NotificationPane class represents a pane that displays a notification message.
- * It appears and disappears with a fade animation.
+ * The NotificationPane class represents a pane that displays a notification
+ * message. It appears and disappears with a fade animation.
  */
 public class NotificationPane extends StackPane implements Modular {
 	protected static final int HEIGHT = 42;
@@ -21,13 +21,16 @@ public class NotificationPane extends StackPane implements Modular {
 	private Text text;
 	private GameSessionContext gameSessionContext;
 
-    /**
-     * Constructs a new NotificationPane with the specified message, width, and GameSessionContext.
-     *
-     * @param message            the message to be displayed in the notification pane
-     * @param width              the width of the notification pane
-     * @param gameSessionContext the GameSessionContext used by the notification pane
-     */
+	/**
+	 * Constructs a new NotificationPane with the specified message, width, and
+	 * GameSessionContext.
+	 *
+	 * @param message            the message to be displayed in the notification
+	 *                           pane
+	 * @param width              the width of the notification pane
+	 * @param gameSessionContext the GameSessionContext used by the notification
+	 *                           pane
+	 */
 	public NotificationPane(String message, double width, GameSessionContext gameSessionContext) {
 		this.gameSessionContext = gameSessionContext;
 
@@ -45,12 +48,14 @@ public class NotificationPane extends StackPane implements Modular {
 		refreshStyle();
 	}
 
-    /**
-     * Displays the notification pane with a popup animation on the specified parent pane for the given duration.
-     *
-     * @param parentPane the parent pane to display the notification pane on
-     * @param duration   the duration (in milliseconds) for which the notification pane should be displayed
-     */
+	/**
+	 * Displays the notification pane with a popup animation on the specified parent
+	 * pane for the given duration.
+	 *
+	 * @param parentPane the parent pane to display the notification pane on
+	 * @param duration   the duration (in milliseconds) for which the notification
+	 *                   pane should be displayed
+	 */
 	public void popup(Pane parentPane, int duration) {
 		FadeTransition fadeIn = new FadeTransition(Duration.millis(FADE_DURATION_MS), this);
 		fadeIn.setFromValue(0.0);
@@ -63,7 +68,7 @@ public class NotificationPane extends StackPane implements Modular {
 		PauseTransition pause = new PauseTransition(Duration.millis(duration));
 
 		fadeOut.setOnFinished(event -> {
-			if(parentPane.getChildren().contains(this)) {
+			if (parentPane.getChildren().contains(this)) {
 				parentPane.getChildren().remove(this);
 			}
 		});
@@ -72,20 +77,21 @@ public class NotificationPane extends StackPane implements Modular {
 		sequence.play();
 	}
 
-    /**
-     * Refreshes the style of the notification pane based on the current style manager.
-     */
+	/**
+	 * Refreshes the style of the notification pane based on the current style
+	 * manager.
+	 */
 	@Override
 	public void refreshStyle() {
 		rectangle.setFill(gameSessionContext.getStyleManager().colorPopupBackground());
 		text.setFill(gameSessionContext.getStyleManager().colorPopupText());
 	}
 
-    /**
-     * Returns the GameSessionContext associated with the notification pane.
-     *
-     * @return the GameSessionContext associated with the notification pane
-     */
+	/**
+	 * Returns the GameSessionContext associated with the notification pane.
+	 *
+	 * @return the GameSessionContext associated with the notification pane
+	 */
 	@Override
 	public GameSessionContext getGameSessionContext() {
 		return gameSessionContext;

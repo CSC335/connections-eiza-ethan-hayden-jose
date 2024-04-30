@@ -17,57 +17,57 @@ import com.connections.model.GameAnswerColor;
 
 public class TestGameAnswerColor {
 
-    @Test
-    void testConstructorWithDocument() {
-        Document doc = new Document(GameAnswerColor.KEY_COLOR, "yellow")
-                .append(GameAnswerColor.KEY_DESCRIPTION, "Sunny")
-                .append(GameAnswerColor.KEY_WORDS, Arrays.asList("sun", "lemon", "banana", "gold"));
-        GameAnswerColor answerColor = new GameAnswerColor(doc);
+	@Test
+	void testConstructorWithDocument() {
+		Document doc = new Document(GameAnswerColor.KEY_COLOR, "yellow")
+				.append(GameAnswerColor.KEY_DESCRIPTION, "Sunny")
+				.append(GameAnswerColor.KEY_WORDS, Arrays.asList("sun", "lemon", "banana", "gold"));
+		GameAnswerColor answerColor = new GameAnswerColor(doc);
 
-        assertEquals(DifficultyColor.YELLOW, answerColor.getColor());
-        assertEquals("Sunny", answerColor.getDescription());
-        assertArrayEquals(new String[] {"sun", "lemon", "banana", "gold"}, answerColor.getWords());
-    }
+		assertEquals(DifficultyColor.YELLOW, answerColor.getColor());
+		assertEquals("Sunny", answerColor.getDescription());
+		assertArrayEquals(new String[] { "sun", "lemon", "banana", "gold" }, answerColor.getWords());
+	}
 
-    @Test
-    void testConstructorWithParameters() {
-        String[] words = {"apple", "pear", "orange", "peach"};
-        GameAnswerColor answerColor = new GameAnswerColor(DifficultyColor.GREEN, "Fruity", words);
+	@Test
+	void testConstructorWithParameters() {
+		String[] words = { "apple", "pear", "orange", "peach" };
+		GameAnswerColor answerColor = new GameAnswerColor(DifficultyColor.GREEN, "Fruity", words);
 
-        assertEquals(DifficultyColor.GREEN, answerColor.getColor());
-        assertEquals("Fruity", answerColor.getDescription());
-        assertArrayEquals(words, answerColor.getWords());
-    }
+		assertEquals(DifficultyColor.GREEN, answerColor.getColor());
+		assertEquals("Fruity", answerColor.getDescription());
+		assertArrayEquals(words, answerColor.getWords());
+	}
 
-    @Test
-    void testGetAsDatabaseFormat() {
-        String[] words = {"car", "bike", "train", "plane"};
-        GameAnswerColor answerColor = new GameAnswerColor(DifficultyColor.BLUE, "Transportation", words);
-        Document expected = new Document(GameAnswerColor.KEY_COLOR, "blue")
-                .append(GameAnswerColor.KEY_DESCRIPTION, "Transportation")
-                .append(GameAnswerColor.KEY_WORDS, Arrays.asList(words));
+	@Test
+	void testGetAsDatabaseFormat() {
+		String[] words = { "car", "bike", "train", "plane" };
+		GameAnswerColor answerColor = new GameAnswerColor(DifficultyColor.BLUE, "Transportation", words);
+		Document expected = new Document(GameAnswerColor.KEY_COLOR, "blue")
+				.append(GameAnswerColor.KEY_DESCRIPTION, "Transportation")
+				.append(GameAnswerColor.KEY_WORDS, Arrays.asList(words));
 
-        Document actual = answerColor.getAsDatabaseFormat();
+		Document actual = answerColor.getAsDatabaseFormat();
 
-        assertEquals(expected, actual);
-    }
+		assertEquals(expected, actual);
+	}
 
-    @Test
-    void testWordMatchesSet() {
-        String[] words = {"chair", "table", "couch", "bed"};
-        GameAnswerColor answerColor = new GameAnswerColor(DifficultyColor.PURPLE, "Furniture", words);
-        Set<String> matchingSet = new HashSet<>(Arrays.asList(words));
-        Set<String> nonMatchingSet = new HashSet<>(Arrays.asList("apple", "banana", "orange"));
+	@Test
+	void testWordMatchesSet() {
+		String[] words = { "chair", "table", "couch", "bed" };
+		GameAnswerColor answerColor = new GameAnswerColor(DifficultyColor.PURPLE, "Furniture", words);
+		Set<String> matchingSet = new HashSet<>(Arrays.asList(words));
+		Set<String> nonMatchingSet = new HashSet<>(Arrays.asList("apple", "banana", "orange"));
 
-        assertTrue(answerColor.wordMatchesSet(matchingSet));
-        assertFalse(answerColor.wordMatchesSet(nonMatchingSet));
-    }
+		assertTrue(answerColor.wordMatchesSet(matchingSet));
+		assertFalse(answerColor.wordMatchesSet(nonMatchingSet));
+	}
 
-    @Test
-    void testGetWordListString() {
-        String[] words = {"cat", "dog", "bird", "fish"};
-        GameAnswerColor answerColor = new GameAnswerColor(DifficultyColor.YELLOW, "Pets", words);
+	@Test
+	void testGetWordListString() {
+		String[] words = { "cat", "dog", "bird", "fish" };
+		GameAnswerColor answerColor = new GameAnswerColor(DifficultyColor.YELLOW, "Pets", words);
 
-        assertEquals("CAT, DOG, BIRD, FISH", answerColor.getWordListString());
-    }
+		assertEquals("CAT, DOG, BIRD, FISH", answerColor.getWordListString());
+	}
 }

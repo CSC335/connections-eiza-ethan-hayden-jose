@@ -52,8 +52,8 @@ public class GameSaveState implements DatabaseFormattable {
 	 * @param gameStartTime      the start time of the game
 	 */
 	public GameSaveState(TileGridWord tileGridWord, CircleRowPane hintsPane, CircleRowPane mistakesPane,
-			GameSessionContext gameSessionContext, boolean gameFinished,
-			GameSession.GameType gameType, ZonedDateTime gameStartTime) {
+			GameSessionContext gameSessionContext, boolean gameFinished, GameSession.GameType gameType,
+			ZonedDateTime gameStartTime) {
 		this.gameFinished = gameFinished;
 		this.gameType = gameType;
 		this.grid = tileGridWord.getGridAsWords();

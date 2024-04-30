@@ -31,7 +31,7 @@ public class GameData implements DatabaseFormattable {
 
 	/**
 	 * Constructs a GameData from a given map of game answers and a puzzle number.
-	 * 
+	 *
 	 * @param answerMap    the map of the game answers by color
 	 * @param puzzleNumber the puzzle number
 	 */

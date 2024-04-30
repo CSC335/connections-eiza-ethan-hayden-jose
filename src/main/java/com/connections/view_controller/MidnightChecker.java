@@ -67,7 +67,7 @@ public class MidnightChecker {
 
 	/**
 	 * Returns the running status of the Timeline.
-	 * 
+	 *
 	 * @return true if the Timeline is running and false if otherwise
 	 */
 	public boolean isRunning() {

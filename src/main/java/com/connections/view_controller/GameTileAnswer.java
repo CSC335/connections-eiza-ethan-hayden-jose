@@ -13,8 +13,8 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 /**
- * The GameTileAnswer class represents an answer tile in the game.
- * It displays the category name and the list of words associated with an answer color.
+ * The GameTileAnswer class represents an answer tile in the game. It displays
+ * the category name and the list of words associated with an answer color.
  */
 public class GameTileAnswer extends StackPane implements Modular {
 	private static final int POP_UP_MS = 125;
@@ -26,21 +26,24 @@ public class GameTileAnswer extends StackPane implements Modular {
 	private Rectangle rectBackground;
 	private TileGridWord tileGridWord;
 
-    /**
-     * Constructs a new GameTileAnswer with the specified GameAnswerColor and TileGridWord.
-     *
-     * @param answer       the GameAnswerColor associated with the answer tile
-     * @param tileGridWord the TileGridWord containing this answer tile
-     */
+	/**
+	 * Constructs a new GameTileAnswer with the specified GameAnswerColor and
+	 * TileGridWord.
+	 *
+	 * @param answer       the GameAnswerColor associated with the answer tile
+	 * @param tileGridWord the TileGridWord containing this answer tile
+	 */
 	public GameTileAnswer(GameAnswerColor answer, TileGridWord tileGridWord) {
 		this.tileGridWord = tileGridWord;
 		this.answer = answer;
 
 		categoryNameText = new Text(answer.getDescription().toUpperCase());
-		categoryNameText.setFont(tileGridWord.getGameSessionContext().getStyleManager().getFont("franklin-normal",700, 20));
+		categoryNameText
+				.setFont(tileGridWord.getGameSessionContext().getStyleManager().getFont("franklin-normal", 700, 20));
 
 		wordListText = new Text(answer.getWordListString());
-		wordListText.setFont(tileGridWord.getGameSessionContext().getStyleManager().getFont("franklin-normal",500, 20));
+		wordListText
+				.setFont(tileGridWord.getGameSessionContext().getStyleManager().getFont("franklin-normal", 500, 20));
 
 		textVBox = new VBox(categoryNameText, wordListText);
 		textVBox.setAlignment(Pos.CENTER);
@@ -53,20 +56,21 @@ public class GameTileAnswer extends StackPane implements Modular {
 		this.getChildren().addAll(rectBackground, textVBox);
 	}
 
-    /**
-     * Returns the GameAnswerColor associated with the answer tile.
-     *
-     * @return the GameAnswerColor associated with the answer tile
-     */
+	/**
+	 * Returns the GameAnswerColor associated with the answer tile.
+	 *
+	 * @return the GameAnswerColor associated with the answer tile
+	 */
 	public GameAnswerColor getGameAnswerColor() {
 		return answer;
 	}
 
-    /**
-     * Creates and returns an animation for the appearance of the answer tile.
-     *
-     * @return a ParallelTransition representing the appearance animation of the answer tile
-     */
+	/**
+	 * Creates and returns an animation for the appearance of the answer tile.
+	 *
+	 * @return a ParallelTransition representing the appearance animation of the
+	 *         answer tile
+	 */
 	public ParallelTransition getAppearAnimation() {
 		ScaleTransition tileScaleTransition = new ScaleTransition(Duration.millis(POP_UP_MS), this);
 		tileScaleTransition.setFromX(1);
@@ -85,9 +89,9 @@ public class GameTileAnswer extends StackPane implements Modular {
 		return parallelTransition;
 	}
 
-    /**
-     * Refreshes the style of the answer tile based on the current style manager.
-     */
+	/**
+	 * Refreshes the style of the answer tile based on the current style manager.
+	 */
 	@Override
 	public void refreshStyle() {
 		StyleManager styleManager = tileGridWord.getGameSessionContext().getStyleManager();
@@ -97,11 +101,11 @@ public class GameTileAnswer extends StackPane implements Modular {
 		rectBackground.setFill(styleManager.colorDifficulty(answer.getColor()));
 	}
 
-    /**
-     * Returns the GameSessionContext associated with the answer tile.
-     *
-     * @return the GameSessionContext associated with the answer tile
-     */
+	/**
+	 * Returns the GameSessionContext associated with the answer tile.
+	 *
+	 * @return the GameSessionContext associated with the answer tile
+	 */
 	@Override
 	public GameSessionContext getGameSessionContext() {
 		return tileGridWord.getGameSessionContext();

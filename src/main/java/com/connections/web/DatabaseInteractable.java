@@ -26,7 +26,7 @@ public interface DatabaseInteractable {
 	 * Returns true if the object has a corresponding entry in the MongoDB database.
 	 * It may need to use some ID or unique identifier to be able to search for its
 	 * entry in the MongoDB database to verify its existence.
-	 * 
+	 *
 	 * @return true if it exists in the MongoDB database and false if otherwise
 	 */
 	boolean existsInDatabase();

@@ -9,7 +9,7 @@ public interface WebContextAccessible {
 	/**
 	 * Sets the WbeContext, which has information for accessing the database as well
 	 * as the browser settings and cookies.
-	 * 
+	 *
 	 * @param webContext the WebContext object
 	 */
 	void setWebContext(WebContext webContext);
@@ -17,7 +17,7 @@ public interface WebContextAccessible {
 	/**
 	 * Gets the WbeContext, which has information for accessing the database as well
 	 * as the browser settings and cookies.
-	 * 
+	 *
 	 * @param webContext the WebContext object
 	 */
 	WebContext getWebContext();

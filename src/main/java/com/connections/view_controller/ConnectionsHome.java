@@ -208,8 +208,8 @@ public class ConnectionsHome extends BorderPane implements WebContextAccessible,
 		centerBox = new VBox(20);
 		centerBox.setAlignment(Pos.CENTER);
 		centerBox.getChildren().addAll(logoImageView, title, howTo, playButton);
-		
-		if(WebUtils.debugIsEnabled(webContext)) {
+
+		if (WebUtils.debugIsEnabled(webContext)) {
 			System.out.println("CONNECTIONS: debug mode is ENABLED, ConnectionsHome now has the debug view button.");
 			centerBox.getChildren().add(showDebugInfoButton);
 		}

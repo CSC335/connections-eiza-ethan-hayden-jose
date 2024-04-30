@@ -222,7 +222,7 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 	/**
 	 * Checks if the time between the creation date of the session and the current
 	 * date exceeds the maximum lifespan of a session.
-	 * 
+	 *
 	 * @return true if the session has expired, false otherwise
 	 */
 	private boolean isExpired() {
@@ -273,7 +273,7 @@ public class WebSession implements WebContextAccessible, DatabaseFormattable, Da
 
 	/**
 	 * Clears all sessions in the MongoDB database that have expired.
-	 * 
+	 *
 	 * @param webContext the WebContext associated with the session
 	 */
 	public static void clearExpiredSessions(WebContext webContext) {

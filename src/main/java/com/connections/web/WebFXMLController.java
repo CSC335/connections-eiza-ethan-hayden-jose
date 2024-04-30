@@ -31,7 +31,7 @@ public class WebFXMLController implements Initializable {
 
 	/**
 	 * Initializes the WebFXMLController.
-	 * 
+	 *
 	 * @param location  The location used to resolve relative paths for the root
 	 *                  object, or null if the location is not known.
 	 * @param resources The resources used to localize the root object, or null if
@@ -44,7 +44,7 @@ public class WebFXMLController implements Initializable {
 
 	/**
 	 * Returns the MongoDatabase to be used for Connections.
-	 * 
+	 *
 	 * @return The MongoDatabase object representing the connected database, or null
 	 *         if the connection fails.
 	 */
@@ -65,7 +65,7 @@ public class WebFXMLController implements Initializable {
 	 * Entry point of the WebFXMLController. Initializes the database if needed,
 	 * increments the daily puzzle number, creates a new WebSession and
 	 * WebSessionContext, and sets up the main application scene.
-	 * 
+	 *
 	 * @param stage The primary stage for the application.
 	 */
 	private void entry(Stage stage) {
@@ -95,7 +95,7 @@ public class WebFXMLController implements Initializable {
 	 * Called by the website entry point of JPro to begin running the web-compatible
 	 * JavaFX application. This method initializes the necessary components and
 	 * starts the application.
-	 * 
+	 *
 	 * @param jproApplication The JProApplication object representing the web
 	 *                        application.
 	 * @param stage           The primary stage for the application.

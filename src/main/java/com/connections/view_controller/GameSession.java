@@ -1108,7 +1108,7 @@ public class GameSession extends StackPane implements Modular {
 
 	/**
 	 * Sets the event handler to be invoked when the back button is pressed.
-	 * 
+	 *
 	 * @param onGoBack the event handler to be set
 	 */
 	public void setOnGoBack(EventHandler<ActionEvent> onGoBack) {
@@ -1117,7 +1117,7 @@ public class GameSession extends StackPane implements Modular {
 
 	/**
 	 * Sets the event handler to be invoked when midnight strikes.
-	 * 
+	 *
 	 * @param onMidnight the event handler to be set
 	 */
 	public void setOnMidnight(EventHandler<ActionEvent> onMidnight) {

@@ -7,20 +7,12 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
-import java.util.Set;
 import java.util.UUID;
 
 import org.bson.Document;
 
-import com.connections.model.DifficultyColor;
-import com.connections.model.GameAnswerColor;
 import com.connections.model.GameData;
-import com.connections.model.PlayedGameInfo;
-import com.connections.model.PlayedGameInfoClassic;
-import com.connections.model.Word;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.UpdateOptions;
@@ -55,7 +47,7 @@ public class WebUtils {
 	/**
 	 * Checks if a MongoDB collection contains a document with the specified query
 	 * key and value.
-	 * 
+	 *
 	 * @param collection The MongoDB collection to search in
 	 * @param queryKey   The key to query for
 	 * @param queryValue The value to match against the query key
@@ -70,7 +62,7 @@ public class WebUtils {
 	/**
 	 * Checks if a MongoDB collection contains a document matching the specified
 	 * query.
-	 * 
+	 *
 	 * @param collection The MongoDB collection to search in
 	 * @param query      The query document specifying the search criteria
 	 * @return true if the collection contains a document matching the query, false
@@ -83,7 +75,7 @@ public class WebUtils {
 	/**
 	 * Checks if a MongoDB collection in the specified database contains a document
 	 * with the specified query key and value.
-	 * 
+	 *
 	 * @param webContext     The web context providing access to the MongoDB
 	 *                       database
 	 * @param collectionName The name of the MongoDB collection to search in
@@ -101,7 +93,7 @@ public class WebUtils {
 	/**
 	 * Checks if a MongoDB collection in the specified database contains a document
 	 * matching the specified query.
-	 * 
+	 *
 	 * @param webContext     The web context providing access to the MongoDB
 	 *                       database
 	 * @param collectionName The name of the MongoDB collection to search in
@@ -115,7 +107,7 @@ public class WebUtils {
 
 	/**
 	 * Inserts a document into the specified MongoDB collection.
-	 * 
+	 *
 	 * @param webContext     The web context providing access to the MongoDB
 	 *                       database
 	 * @param collectionName The name of the MongoDB collection to insert into
@@ -127,7 +119,7 @@ public class WebUtils {
 
 	/**
 	 * Inserts a key-value pair as a document into the specified MongoDB collection.
-	 * 
+	 *
 	 * @param webContext     The web context providing access to the MongoDB
 	 *                       database
 	 * @param collectionName The name of the MongoDB collection to insert into
@@ -140,7 +132,7 @@ public class WebUtils {
 
 	/**
 	 * Deletes a document from the specified MongoDB collection.
-	 * 
+	 *
 	 * @param webContext     The web context providing access to the MongoDB
 	 *                       database
 	 * @param collectionName The name of the MongoDB collection to delete from
@@ -153,7 +145,7 @@ public class WebUtils {
 	/**
 	 * Deletes a document with the specified key-value pair from the specified
 	 * MongoDB collection.
-	 * 
+	 *
 	 * @param webContext     The web context providing access to the MongoDB
 	 *                       database
 	 * @param collectionName The name of the MongoDB collection to delete from
@@ -167,7 +159,7 @@ public class WebUtils {
 	/**
 	 * Retrieves a document from the specified MongoDB collection based on the
 	 * specified key-value pair.
-	 * 
+	 *
 	 * @param webContext     The web context providing access to the MongoDB
 	 *                       database
 	 * @param collectionName The name of the MongoDB collection to retrieve from
@@ -186,7 +178,7 @@ public class WebUtils {
 	/**
 	 * Retrieves a document from the specified MongoDB collection based on the
 	 * specified search criteria.
-	 * 
+	 *
 	 * @param webContext     The web context providing access to the MongoDB
 	 *                       database
 	 * @param collectionName The name of the MongoDB collection to retrieve from
@@ -200,7 +192,7 @@ public class WebUtils {
 
 	/**
 	 * Retrieves all documents from the specified MongoDB collection.
-	 * 
+	 *
 	 * @param webContext     The web context providing access to the MongoDB
 	 *                       database
 	 * @param collectionName The name of the MongoDB collection to retrieve from
@@ -213,7 +205,7 @@ public class WebUtils {
 	/**
 	 * Retrieves a document from the specified MongoDB collection where the
 	 * specified key exists.
-	 * 
+	 *
 	 * @param webContext     The web context providing access to the MongoDB
 	 *                       database
 	 * @param collectionName The name of the MongoDB collection to retrieve from
@@ -228,7 +220,7 @@ public class WebUtils {
 	/**
 	 * Updates a document in the specified MongoDB collection based on the specified
 	 * key-value pair.
-	 * 
+	 *
 	 * @param webContext     The web context providing access to the MongoDB
 	 *                       database
 	 * @param collectionName The name of the MongoDB collection to update
@@ -249,7 +241,7 @@ public class WebUtils {
 	/**
 	 * Updates a document in the specified MongoDB collection based on the specified
 	 * key.
-	 * 
+	 *
 	 * @param webContext     The web context providing access to the MongoDB
 	 *                       database
 	 * @param collectionName The name of the MongoDB collection to update
@@ -273,7 +265,7 @@ public class WebUtils {
 
 	/**
 	 * Converts a ZonedDateTime object to a string representation in ISO format.
-	 * 
+	 *
 	 * @param date The ZonedDateTime object to convert
 	 * @return The string representation of the date in ISO format, or null if the
 	 *         input is null
@@ -288,7 +280,7 @@ public class WebUtils {
 	/**
 	 * Converts a string representation of a date in ISO format to a ZonedDateTime
 	 * object.
-	 * 
+	 *
 	 * @param dateString The string representation of the date in ISO format
 	 * @return The ZonedDateTime object parsed from the string, or null if the input
 	 *         is null
@@ -302,7 +294,7 @@ public class WebUtils {
 
 	/**
 	 * Checks if the specified iterable of MongoDB documents is not empty.
-	 * 
+	 *
 	 * @param iter The iterable of documents to check
 	 * @return true if the iterable contains at least one document, false otherwise
 	 */
@@ -315,7 +307,7 @@ public class WebUtils {
 
 	/**
 	 * Checks if the database has been initialized.
-	 * 
+	 *
 	 * @param webContext The web context providing access to the MongoDB database
 	 * @return true if the database has been initialized, false otherwise
 	 */
@@ -325,7 +317,7 @@ public class WebUtils {
 
 	/**
 	 * Clears the database by dropping all collections.
-	 * 
+	 *
 	 * @param webContext The web context providing access to the MongoDB database
 	 */
 	public static void clearDatabase(WebContext webContext) {
@@ -335,7 +327,7 @@ public class WebUtils {
 	/**
 	 * Initializes the database by dropping all collections and inserting initial
 	 * data.
-	 * 
+	 *
 	 * @param webContext The web context providing access to the MongoDB database
 	 */
 	public static void initDatabase(WebContext webContext) {
@@ -381,7 +373,7 @@ public class WebUtils {
 
 	/**
 	 * Drops the specified collection from the database.
-	 * 
+	 *
 	 * @param webContext     The web context providing access to the MongoDB
 	 *                       database
 	 * @param collectionName The name of the collection to drop
@@ -402,7 +394,7 @@ public class WebUtils {
 
 	/**
 	 * Retrieves the game data for the specified puzzle number from the database.
-	 * 
+	 *
 	 * @param webContext   The web context providing access to the MongoDB database
 	 * @param puzzleNumber The puzzle number to search for
 	 * @return The GameData object representing the game with the specified puzzle
@@ -421,7 +413,7 @@ public class WebUtils {
 
 	/**
 	 * Generates a random UUID as a general-purpose ID.
-	 * 
+	 *
 	 * @return The generated UUID as a string
 	 */
 	public static String generateGeneralPurposeID() {
@@ -550,13 +542,13 @@ public class WebUtils {
 
 	/**
 	 * Checks if debug mode is enabled.
-	 * 
+	 *
 	 * @param webContext The WebContext associated with the request.
 	 * @return True if debug mode is enabled, false otherwise.
 	 */
 	public static boolean debugIsEnabled(WebContext webContext) {
 		Document debugDoc = helperCollectionGetByKey(webContext, COLLECTION_SERVER_STATUS, KEY_DEBUG_MODE);
-		if(debugDoc != null) {
+		if (debugDoc != null) {
 			return debugDoc.getBoolean(KEY_DEBUG_MODE, false);
 		}
 		return false;

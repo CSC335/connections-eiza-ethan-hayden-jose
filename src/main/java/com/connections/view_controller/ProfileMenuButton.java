@@ -3,16 +3,17 @@ package com.connections.view_controller;
 import javafx.scene.shape.SVGPath;
 
 /**
- * The ProfileMenuButton class represents a button with a profile icon in the menu.
- * It extends the SVGButton class.
+ * The ProfileMenuButton class represents a button with a profile icon in the
+ * menu. It extends the SVGButton class.
  */
 public class ProfileMenuButton extends SVGButton {
-	
-    /**
-     * Constructs a new ProfileMenuButton with the specified GameSessionContext.
-     *
-     * @param gameSessionContext the GameSessionContext used by the profile menu button
-     */
+
+	/**
+	 * Constructs a new ProfileMenuButton with the specified GameSessionContext.
+	 *
+	 * @param gameSessionContext the GameSessionContext used by the profile menu
+	 *                           button
+	 */
 	public ProfileMenuButton(GameSessionContext gameSessionContext) {
 		super(gameSessionContext);
 
@@ -32,9 +33,10 @@ public class ProfileMenuButton extends SVGButton {
 		refreshStyle();
 	}
 
-    /**
-     * Refreshes the style of the profile menu button based on the current style manager.
-     */
+	/**
+	 * Refreshes the style of the profile menu button based on the current style
+	 * manager.
+	 */
 	@Override
 	public void refreshStyle() {
 		svgPath.setStroke(gameSessionContext.getStyleManager().colorText());
