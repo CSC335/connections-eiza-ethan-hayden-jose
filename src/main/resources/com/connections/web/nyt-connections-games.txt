@@ -1,0 +1,1632 @@
+game
+yellow
+How Fast Something Is Going
+N/A
+clip,pace,rate,speed
+green
+"Step On It!"
+N/A
+faster,go,hurry,move
+blue
+N.B.A. Team Player
+N/A
+clipper,pacer,rocket,spur
+purple
+Tele___
+N/A
+commute,medicine,prompter,vision
+game
+yellow
+Yellow-brown Shades
+N/A
+beige,camel,khaki,tan
+green
+Fail To Attend
+N/A
+cut,ditch,miss,skip
+blue
+Decisive Victory
+N/A
+blowout,romp,rout,sweep
+purple
+___ Wheel
+N/A
+cheese,color,hamster,prayer
+game
+yellow
+Kudos
+N/A
+credit,glory,praise,props
+green
+Become Aware Of
+N/A
+discover,find,learn,realize
+blue
+Pursue
+N/A
+chase,tail,track,shadow
+purple
+Seen In A Passport
+N/A
+name,photo,stamp,visa
+game
+yellow
+Jumping Animals
+N/A
+cricket,frog,hare,kangaroo
+green
+Apply Pressure To
+N/A
+crush,mash,press,squash
+blue
+Olympic Sports
+N/A
+breaking,hockey,skeleton,trampoline
+purple
+Things You Can Set
+N/A
+mood,record,table,volleyball
+game
+yellow
+Chat, Informally
+N/A
+gab,jaw,yak,yap
+green
+Female Animals
+N/A
+cow,doe,ewe,hen
+blue
+Palindromes
+N/A
+bib,eye,gag,pop
+purple
+Starts Of Planet Names
+N/A
+ear,mar,mer,sat
+game
+yellow
+Seen At A Sports Stadium
+N/A
+astroturf,jumbotron,scoreboard,skybox
+green
+Camera Brands
+N/A
+fujifilm,hasselblad,olympus,polaroid
+blue
+Italian Demonyms
+N/A
+bolognese,neapolitan,parmesan,venetian
+purple
+Starting With Rock Bands
+N/A
+creamsicle,journeyman,kisscam,rushmore
+game
+yellow
+Movie Summary Info
+N/A
+cast,genre,plot,title
+green
+Pretense
+N/A
+affect,airs,charade,front
+blue
+Famous Guitarists
+N/A
+berry,king,page,waters
+purple
+Second ___
+N/A
+fiddle,guess,nature,wind
+game
+yellow
+Segment Of A Process
+N/A
+cycle,phase,round,stage
+green
+Constellations
+N/A
+cygnus,gemini,orion,pegasus
+blue
+Spirals In Nature
+N/A
+cyclone,galaxy,snail,sunflower
+purple
+Associated With "One"
+N/A
+cyclops,monologue,solitaire,unicycle
+game
+yellow
+Foolishness
+N/A
+absurdity,folly,madness,nonsense
+green
+Move Forward
+N/A
+advance,march,progress,push
+blue
+Things That Might Stink
+N/A
+cheese,feet,garbage,skunk
+purple
+Words After "Deep"
+N/A
+cut,fake,freeze,six
+game
+yellow
+Get Smaller
+N/A
+contract,lessen,reduce,shrink
+green
+Airline Classes
+N/A
+business,coach,first,premium
+blue
+Examine, As An Applicant
+N/A
+check,review,screen,vet
+purple
+Notable Tv Episodes
+N/A
+finale,pilot,premiere,special
+game
+yellow
+Criticize
+N/A
+blast,knock,slam,trash
+green
+"My Mistake!"
+N/A
+apologies,oops,pardon,sorry
+blue
+Alibi
+N/A
+defense,excuse,out,reason
+purple
+Play ___
+N/A
+date,dead,dirty,doh
+game
+yellow
+Box Office Victory
+N/A
+hit,smash,success,winner
+green
+Volleyball Moves
+N/A
+bump,serve,set,spike
+blue
+Homophones Of Greek Letters
+N/A
+moo,new,pie,row
+purple
+___-o
+N/A
+daddy,day,jackie,jell
+game
+yellow
+Halloween Purchases
+N/A
+candy,costume,decorations,pumpkin
+green
+Plants With Similar Flavors
+N/A
+anise,fennel,licorice,tarragon
+blue
+Food Slang For Head
+N/A
+bean,melon,noodle,nut
+purple
+Gemstone Cuts
+N/A
+baguette,emerald,princess,radiant
+game
+yellow
+Section
+N/A
+class,division,rank,tier
+green
+Including
+N/A
+and,also,plus,with
+blue
+Dog Breeds, Informally
+N/A
+boston,golden,lab,pit
+purple
+Famous Poems
+N/A
+daddy,harlem,howl,if
+game
+yellow
+Treat With Excessive Care
+N/A
+baby,mother,pamper,spoil
+green
+Backside
+N/A
+booty,bum,can,rear
+blue
+Things In A Spa Locker Room
+N/A
+robe,slippers,towel,washcloth
+purple
+Cat’s ___
+N/A
+cradle,eye,meow,pajamas
+game
+yellow
+Things A Dog Can Fetch
+N/A
+ball,bone,frisbee,stick
+green
+Conceal
+N/A
+block,cover,hide,obscure
+blue
+Mac Keyboard Keys
+N/A
+command,control,option,shift
+purple
+Experience A Memory Lapse
+N/A
+blank,flake,forget,space
+game
+yellow
+Eat Voraciously
+N/A
+down,inhale,scarf,wolf
+green
+Areas Of Academic Focus
+N/A
+concentration,degree,major,minor
+blue
+Universal
+N/A
+blanket,broad,general,sweeping
+purple
+Space ___
+N/A
+bar,cadet,heater,station
+game
+yellow
+Things To Sew
+N/A
+dart,hem,pleat,seam
+green
+Ways To Preserve Food
+N/A
+can,cure,dry,freeze
+blue
+Sharp Quality
+N/A
+bite,edge,punch,spice
+purple
+Birds Minus Last Letter
+N/A
+condo,haw,hero,loo
+game
+yellow
+Shared
+N/A
+collective,common,joint,mutual
+green
+Rid Of Contents
+N/A
+clear,drain,empty,flush
+blue
+Associated With "Stub"
+N/A
+cigarette,pencil,ticket,toe
+purple
+___ Dream
+N/A
+american,fever,lucid,pipe
+game
+yellow
+Parts Of An Airport
+N/A
+hangar,runway,tarmac,terminal
+green
+Legal Terms
+N/A
+action,claim,complaint,lawsuit
+blue
+Things A Juggler Juggles
+N/A
+beanbag,club,ring,torch
+purple
+Words Ending In Clothing
+N/A
+foxglove,gumshoe,turncoat,windsock
+game
+yellow
+Pop Megastars
+N/A
+grande,mars,styles,swift
+green
+Method
+N/A
+channel,means,medium,vehicle
+blue
+Unlikely, As Chances
+N/A
+outside,remote,slim,small
+purple
+Living ___
+N/A
+large,legend,proof,room
+game
+yellow
+Large Amount
+N/A
+mass,sea,slew,ton
+green
+Fall In Under Pressure
+N/A
+buckle,cave,collapse,give
+blue
+Ways To Get Attention
+N/A
+shout,snap,wave,whistle
+purple
+Belly ___
+N/A
+button,dance,flop,laugh
+game
+yellow
+Intelligence Operative
+N/A
+agent,asset,mole,sleeper
+green
+Units In Poetry
+N/A
+foot,line,meter,verse
+blue
+Express Indirectly
+N/A
+couch,imply,intimate,suggest
+purple
+What "K" Might Mean
+N/A
+kelvin,okay,potassium,thousand
+game
+yellow
+Garlic Bread Ingredients
+N/A
+bread,butter,garlic,parsley
+green
+Wager
+N/A
+bet,gamble,risk,stake
+blue
+Disneyland Lands
+N/A
+adventure,fantasy,frontier,tomorrow
+purple
+___ Bat
+N/A
+baseball,cricket,fruit,vampire
+game
+yellow
+Propel Into The Air
+N/A
+hop,jump,leap,spring
+green
+Place To Store Valuables
+N/A
+chest,coffer,safe,vault
+blue
+Period
+N/A
+age,day,era,time
+purple
+Animals Backward
+N/A
+drib,flow,reed,tang
+game
+yellow
+Cheeses, Familiarly
+N/A
+american,blue,jack,swiss
+green
+Track And Field Equipment
+N/A
+hammer,hurdle,javelin,pole
+blue
+Kinds Of Heels
+N/A
+cuban,kitten,stiletto,wedge
+purple
+Double ___
+N/A
+date,dutch,jeopardy,space
+game
+yellow
+'80s Fashion Trends
+N/A
+headband,mullet,neon,spandex
+green
+Gymnastics Positions
+N/A
+pike,split,straddle,tuck
+blue
+Kinds Of Crackers
+N/A
+animal,goldfish,oyster,ritz
+purple
+___ Ladder
+N/A
+corporate,rope,salmon,word
+game
+yellow
+Basic Tastes
+N/A
+bitter,salty,sour,sweet
+green
+Stand Up To, As A Challenge
+N/A
+brave,confront,face,meet
+blue
+Ilk
+N/A
+kind,sort,type,variety
+purple
+Art Movements, With -ism
+N/A
+expression,manner,romantic,surreal
+game
+yellow
+Walk Heavily
+N/A
+lumber,plod,stomp,trudge
+green
+Flexible
+N/A
+elastic,limber,plastic,supple
+blue
+Fencing Equipment
+N/A
+foil,glove,jacket,mask
+purple
+Words Beginning With Instruments
+N/A
+bassinet,cellophane,harpoon,organism
+game
+yellow
+Manufacturing Locations
+N/A
+factory,mill,plant,shop
+green
+Win + Letter
+N/A
+wind,wine,wing,wink
+blue
+Parts Of Fruit You Might Not Eat
+N/A
+core,rind,seed,stem
+purple
+Weights In Boxing
+N/A
+feather,heavy,light,middle
+game
+yellow
+Procession
+N/A
+caravan,fleet,parade,train
+green
+Shades Of Green
+N/A
+olive,forest,lime,mint
+blue
+What "Blue" Might Mean
+N/A
+democratic,erotic,noble,sad
+purple
+Things With Spines
+N/A
+book,cactus,hedgehog,skeleton
+game
+yellow
+Dog Sounds
+N/A
+bark,growl,howl,whine
+green
+Department
+N/A
+arm,branch,chapter,wing
+blue
+Origin
+N/A
+cradle,font,root,source
+purple
+Colors With Their First Letters Changed
+N/A
+clue,frown,mellow,preen
+game
+yellow
+Party Pooper
+N/A
+bore,drag,drip,dud
+green
+Musical Sections
+N/A
+brass,rhythm,string,wind
+blue
+Bit Of Liquid
+N/A
+bead,drop,glob,tear
+purple
+Vegetable Homophones
+N/A
+beat,charred,leak,pee
+game
+yellow
+Used In Building A Fire
+N/A
+kindling,log,match,tinder
+green
+Mess Up
+N/A
+blow,bumble,fluff,spoil
+blue
+Workshop Tools
+N/A
+drill,grinder,router,saw
+purple
+Parts Of A Door
+N/A
+frame,handle,hinge,lock
+game
+yellow
+Eat A Little
+N/A
+graze,nibble,peck,snack
+green
+Pursue
+N/A
+hunt,track,trail,stalk
+blue
+Ingredients In Minestrone
+N/A
+beans,pasta,stock,vegetables
+purple
+___cast
+N/A
+broad,fore,pod,type
+game
+yellow
+Bit Of Hair
+N/A
+curl,lock,ringlet,tress
+green
+Media Attention
+N/A
+coverage,exposure,press,publicity
+blue
+Noun Suffixes
+N/A
+dom,ion,ness,ship
+purple
+___ Circus
+N/A
+family,flea,flying,media
+game
+yellow
+Comfy Shoes
+N/A
+croc,loafer,moccasin,slipper
+green
+Things Made With Feathers
+N/A
+boa,headdress,pillow,shuttlecock
+blue
+Programming Languages
+N/A
+basic,java,python,ruby
+purple
+Things That Can Strike
+N/A
+cobra,inspiration,lightning,union
+game
+yellow
+Follow Attentively
+N/A
+monitor,survey,track,watch
+green
+Where You Might Find Sand
+N/A
+beach,desert,hourglass,playground
+blue
+Oven Buttons
+N/A
+bake,broil,light,timer
+purple
+Britpop Bands
+N/A
+blur,oasis,pulp,suede
+game
+yellow
+Touch Lightly
+N/A
+brush,graze,kiss,skim
+green
+Kinds Of Numbers
+N/A
+odd,perfect,prime,whole
+blue
+Sauces In Chinese Cuisine
+N/A
+oyster,plum,soy,xo
+purple
+Bear ___
+N/A
+claw,fruit,hug,witness
+game
+yellow
+Encourage, With "On"
+N/A
+egg,goad,spur,urge
+green
+Spherical Foods
+N/A
+jawbreaker,meatball,mozzarella,orange
+blue
+Grocery Store Aisles
+N/A
+dairy,frozen,produce,snack
+purple
+Go ___
+N/A
+bananas,figure,fish,steady
+game
+yellow
+Bad Things For A Video Call To Do
+N/A
+drop,echo,freeze,lag
+green
+Costumes With Striped Shirts
+N/A
+mime,prisoner,referee,sailor
+blue
+Seen In "Aladdin"
+N/A
+genie,monkey,parrot,princess
+purple
+Movies Minus Numbers
+N/A
+apollo,candles,fantastic,samurai
+game
+yellow
+Monotonous Sounds
+N/A
+buzz,drone,hum,purr
+green
+Boats
+N/A
+barge,dory,scow,sloop
+blue
+Captains
+N/A
+america,hook,morgan,nemo
+purple
+Prefixes With -cracy
+N/A
+auto,bureau,demo,pluto
+game
+yellow
+Stool Pigeon
+N/A
+canary,fink,rat,snitch
+green
+Cram Into A Tight Space
+N/A
+jam,pack,squeeze,stuff
+blue
+Yoga Poses
+N/A
+cat,cow,mountain,triangle
+purple
+___fly
+N/A
+butter,dragon,fire,horse
+game
+yellow
+Music Player Buttons
+N/A
+rewind,shuffle,skip,stop
+green
+Broadcast
+N/A
+air,run,screen,show
+blue
+Things You Can Draw
+N/A
+bath,card,curtain,picture
+purple
+Number Anagrams
+N/A
+eon,ether,net,tow
+game
+yellow
+Archery Equipment
+N/A
+arrow,bow,quiver,target
+green
+Card Games
+N/A
+bridge,gin,spit,war
+blue
+Wallop
+N/A
+belt,clock,deck,slug
+purple
+Classic Tattoos
+N/A
+anchor,dragon,heart,rose
+game
+yellow
+Sea Creatures
+N/A
+crab,ray,sponge,squid
+green
+Basic Two-dimensional Shapes
+N/A
+circle,diamond,square,triangle
+blue
+Boxing Maneuvers
+N/A
+bob,cross,hook,weave
+purple
+Fancy ___
+N/A
+feast,free,pants,that
+game
+yellow
+Ostentatious, As An Outfit
+N/A
+bright,flashy,garish,loud
+green
+Euphemisms For Flatulence
+N/A
+gas,stinker,toot,wind
+blue
+Kinds Of Blond
+N/A
+dirty,honey,platinum,strawberry
+purple
+What "O" Might Mean
+N/A
+hug,of,oxygen,zero
+game
+yellow
+"Give Me A Break!"
+N/A
+brother,lord,please,sheesh
+green
+Ecclesiastical Titles
+N/A
+bishop,cardinal,pastor,prior
+blue
+Rock & Roll Hall Of Fame Inductees
+N/A
+heart,madonna,prince,queen
+purple
+City Homophones
+N/A
+deli,niece,roam,soul
+game
+yellow
+Drinks With Caffeine
+N/A
+cocoa,coffee,mate,tea
+green
+Unexciting
+N/A
+boring,dull,mundane,vanilla
+blue
+Comedian’s Performance
+N/A
+act,bit,routine,set
+purple
+Martini Specifications
+N/A
+dirty,dry,twist,up
+game
+yellow
+Commercial Organization
+N/A
+agency,company,enterprise,firm
+green
+Farm Fixtures
+N/A
+coop,pen,stable,sty
+blue
+Classic Dog Names
+N/A
+fluffy,rex,rover,spot
+purple
+Colors Minus Their First Letters
+N/A
+ink,lack,old,range
+game
+yellow
+Time Off
+N/A
+break,holiday,leave,recess
+green
+Features Of A Belt
+N/A
+buckle,hole,loop,strap
+blue
+Homophones
+N/A
+holey,holi,holy,wholly
+purple
+___wood
+N/A
+dog,drift,holly,sandal
+game
+yellow
+Make Shorter
+N/A
+clip,cut,pare,trim
+green
+Muscular
+N/A
+built,jacked,ripped,swole
+blue
+Enthusiast
+N/A
+buff,fan,lover,nut
+purple
+Wrinkly Things
+N/A
+brain,prune,pug,walnut
+game
+yellow
+Merriment
+N/A
+cheer,glee,festivity,mirth
+green
+Booked For A Wedding
+N/A
+band,caterer,florist,officiant
+blue
+Rhymes
+N/A
+choir,fire,liar,fryer
+purple
+___ Pit
+N/A
+barbecue,orchestra,snake,tar
+game
+yellow
+Hit Hard
+N/A
+bang,hammer,pound,slam
+green
+Newspaper Names
+N/A
+chronicle,herald,register,sun
+blue
+Crescent-shaped Things
+N/A
+banana,croissant,moon,sickle
+purple
+Power-ups In Super Mario World
+N/A
+feather,flower,mushroom,star
+game
+yellow
+Do Some Marketing
+N/A
+pitch,plug,promote,push
+green
+Romantic Twosome
+N/A
+couple,item,pair,thing
+blue
+Tennis Scores
+N/A
+ad,all,deuce,love
+purple
+Words With "Fruit"
+N/A
+bread,dragon,jack,passion
+game
+yellow
+Highest Point
+N/A
+crest,peak,summit,vertex
+green
+"Can I Get Your ___?" (phone Info Request)
+N/A
+cell,contact,digits,number
+blue
+Modifiers Meaning "Small"
+N/A
+baby,mini,pocket,toy
+purple
+Inside A Scrabble Box
+N/A
+bag,board,racks,tiles
+game
+yellow
+Hurt
+N/A
+ache,burn,smart,sting
+green
+Look After
+N/A
+guard,mind,tend,watch
+blue
+Sought After In "The Wizard Of Oz"
+N/A
+brain,courage,heart,home
+purple
+Silent "W"
+N/A
+answer,two,wrist,wrong
+game
+yellow
+Of-the-moment
+N/A
+big,hot,in,popular
+green
+Pictograph
+N/A
+character,glyph,icon,symbol
+blue
+Impose, As A Penalty
+N/A
+assess,charge,fine,levy
+purple
+Words Beginning With Body Parts
+N/A
+handsome,hippo,legend,lipid
+game
+yellow
+Smartphone Features Beginning With "C"
+N/A
+calculator,calendar,camera,clock
+green
+Parts Of The Eye
+N/A
+cone,iris,lens,pupil
+blue
+Familial Nicknames
+N/A
+dada,grammy,mum,poppy
+purple
+Words Pronounced Differently With Accent Marks
+N/A
+expose,pate,resume,rose
+game
+yellow
+Bring Into Being
+N/A
+coin,create,devise,invent
+green
+Excellent
+N/A
+fine,prime,quality,sterling
+blue
+Symbols Above Numbers On A Keyboard
+N/A
+at,dollar,percent,pound
+purple
+Pass The ___
+N/A
+bar,buck,time,torch
+game
+yellow
+Symbolic Rods
+N/A
+baton,scepter,staff,wand
+green
+Dental Terms
+N/A
+cavity,crown,filling,plaque
+blue
+Rubber Stamp Words
+N/A
+approved,paid,urgent,void
+purple
+___ Year
+N/A
+gap,leap,light,school
+game
+yellow
+Rip Off
+N/A
+fleece,hose,rob,stiff
+green
+Things Made Of Wax
+N/A
+candle,crayon,honeycomb,seal
+blue
+Parts Of An Airplane
+N/A
+cabin,engine,nose,wing
+purple
+Units Of Vegetables
+N/A
+bulb,ear,head,stalk
+game
+yellow
+Decline
+N/A
+dip,drop,fall,sink
+green
+Move With Speed
+N/A
+blaze,fly,race,tear
+blue
+Kinds Of Dance
+N/A
+modern,salsa,swing,tap
+purple
+Baby ___
+N/A
+boom,carrot,shower,talk
+game
+yellow
+Sundae Toppings
+N/A
+cherry,fudge,nuts,sprinkles
+green
+Leave High And Dry
+N/A
+desert,ditch,maroon,strand
+blue
+"Phooey!"
+N/A
+curses,darn,rats,shoot
+purple
+Words In Tongue Twisters
+N/A
+fuzzy,peppers,seashells,woodchuck
+game
+yellow
+Show Off
+N/A
+grandstand,peacock,posture,strut
+green
+Foremost
+N/A
+main,paramount,prime,supreme
+blue
+Colors In Brazil’s Flag
+N/A
+blue,green,white,yellow
+purple
+___ Letter
+N/A
+chain,cover,love,scarlet
+game
+yellow
+Data Set Data
+N/A
+mean,median,mode,range
+green
+Chemistry Terms
+N/A
+base,bond,element,solution
+blue
+Adjective Intensifiers
+N/A
+awful,pretty,rather,real
+purple
+Radio Hall Of Fame Members
+N/A
+glass,gross,king,stern
+game
+yellow
+Deceive
+N/A
+con,dupe,fool,trick
+green
+Inside Info
+N/A
+dope,scoop,skinny,word
+blue
+Tilt To One Side
+N/A
+cant,lean,list,slope
+purple
+Words Spelled With An Upside-down Calculator
+N/A
+boob,eggshell,giggle,hello
+game
+yellow
+List Of Candidates
+N/A
+ballot,roster,slate,ticket
+green
+Protective Barrier
+N/A
+buffer,cushion,pad,shield
+blue
+Medicine Formats
+N/A
+capsule,cream,syrup,tablet
+purple
+Pea ___
+N/A
+coat,green,pod,soup
+game
+yellow
+Things To Pay
+N/A
+bill,check,invoice,tab
+green
+Thieve
+N/A
+pinch,rob,steal,swipe
+blue
+Male Animals
+N/A
+buck,bull,jack,tom
+purple
+Legwear, In The Singular
+N/A
+jean,pant,short,tight
+game
+yellow
+Credentials For Entry
+N/A
+badge,invite,pass,ticket
+green
+Preside Over
+N/A
+chair,direct,lead,run
+blue
+American Football Positions
+N/A
+center,end,safety,tackle
+purple
+Postpone
+N/A
+hold,punt,stall,table
+game
+yellow
+Topic Of Discussion
+N/A
+issue,matter,point,subject
+green
+Section Of One’s Life
+N/A
+chapter,period,phase,stage
+blue
+Parts Of A Car, Informally
+N/A
+dash,shock,tank,wheel
+purple
+Color Homophones
+N/A
+blew,choral,read,rows
+game
+yellow
+States Of Matter
+N/A
+gas,liquid,plasma,solid
+green
+All-timer
+N/A
+great,hero,icon,legend
+blue
+"Ph" Words That Also Work With "F"
+N/A
+phat,phew,philly,phish
+purple
+___ Pitch
+N/A
+elevator,fever,perfect,sales
+game
+yellow
+Bit Of Magic
+N/A
+charm,curse,hex,spell
+green
+Found Around A Fireplace
+N/A
+flue,grate,log,poker
+blue
+Things Seen At A Casino
+N/A
+cards,chips,dice,slots
+purple
+Ways To Prepare Cheese
+N/A
+crumble,melt,shred,slice
+game
+yellow
+Cleaning Supplies
+N/A
+broom,mop,rag,sponge
+green
+Elements Of Cooking, Per Samin Nosrat
+N/A
+salt,fat,acid,heat
+blue
+Things That Make You Sneeze
+N/A
+dust,pepper,pollen,smoke
+purple
+Titular Fictional Detectives
+N/A
+magnum,monk,shaft,tracy
+game
+yellow
+Things That Are Orange
+N/A
+basketball,carrot,goldfish,pumpkin
+green
+Long, Skinny Objects
+N/A
+pole,rod,staff,stick
+blue
+Seen On A Golf Course
+N/A
+cart,club,hole,tee
+purple
+Shapes Of Capital Greek Letters
+N/A
+circle,horseshoe,pitchfork,triangle
+game
+yellow
+Tech Companies
+N/A
+alphabet,amazon,apple,meta
+green
+Kinds Of Exams
+N/A
+bar,final,oral,physical
+blue
+Something Exemplary
+N/A
+beauty,gem,marvel,peach
+purple
+___ Tooth
+N/A
+baby,eye,sweet,wisdom
+game
+yellow
+Strong Smell
+N/A
+funk,musk,odor,tang
+green
+Move Back And Forth
+N/A
+rock,sway,swing,wave
+blue
+Things To Pick
+N/A
+afro,bone,fight,lock
+purple
+___ Ball
+N/A
+crystal,disco,foul,gutter
+game
+yellow
+Playfully Bother
+N/A
+josh,kid,rib,tease
+green
+Apex
+N/A
+height,max,peak,top
+blue
+Words For Specific Quantities
+N/A
+dozen,gross,pair,score
+purple
+What "X" Might Mean
+N/A
+adult,kiss,ten,times
+game
+yellow
+Gift-giving Accessories
+N/A
+bow,box,card,wrapping
+green
+Dating App Actions
+N/A
+block,match,message,swipe
+blue
+Cool, In Slang
+N/A
+fire,lit,sick,tight
+purple
+Lucky ___
+N/A
+break,charm,duck,strike
+game
+yellow
+Move Through The Air
+N/A
+float,fly,glide,soar
+green
+Hidden Listening Devices
+N/A
+bug,mike,tap,wire
+blue
+Select, As A Box On A Form
+N/A
+check,mark,tick,x
+purple
+Rappers Minus First Letter
+N/A
+40,cole,pain,tip
+game
+yellow
+B.L.T. Ingredients
+N/A
+bread,bacon,lettuce,tomato
+green
+Obstruct
+N/A
+block,clog,jam,stop
+blue
+Baseball Stats
+N/A
+double,hit,run,walk
+purple
+Small ___
+N/A
+fry,talk,wonder,world
+game
+yellow
+Gardening Nouns/verbs
+N/A
+plant,seed,water,weed
+green
+Kinds Of Salads
+N/A
+caesar,greek,green,wedge
+blue
+Classic Game Shows, Familiarly
+N/A
+feud,millionaire,pyramid,wheel
+purple
+W + Vowel Sound
+N/A
+way,wee,why,whoa
+game
+yellow
+Organization
+N/A
+club,group,party,team
+green
+Sharpness, As Of An Image
+N/A
+clarity,definition,detail,resolution
+blue
+Places In France
+N/A
+champagne,dijon,nice,tours
+purple
+Happy New Year!
+N/A
+ball,countdown,fireworks,kiss
+game
+yellow
+Black-and-white Animals
+N/A
+orca,panda,skunk,zebra
+green
+Sequence
+N/A
+chain,series,string,train
+blue
+Heteronyms
+N/A
+bass,dove,desert,wind
+purple
+___ Trap
+N/A
+bear,sand,speed,tourist
+game
+yellow
+Shirts
+N/A
+crop,polo,tank,tee
+green
+Cool, In ’80s Slang
+N/A
+bad,fly,fresh,rad
+blue
+Letter Spellings
+N/A
+bee,ex,gee,jay
+purple
+___ George
+N/A
+boy,by,curious,saint
+game
+yellow
+Parts Of A Car
+N/A
+bumper,hood,tire,trunk
+green
+Move Quickly
+N/A
+bolt,dart,dash,zip
+blue
+Birds
+N/A
+cardinal,jay,lark,swift
+purple
+Jazz Legends
+N/A
+hancock,holiday,monk,parker
+game
+yellow
+Indication Of Things To Come
+N/A
+message,omen,sign,warning
+green
+Name Prefixes
+N/A
+gen,ms,prof,rev
+blue
+Art Mediums
+N/A
+charcoal,ink,paint,pastel
+purple
+___ Pepper
+N/A
+bell,black,dr,ghost
+game
+yellow
+Road Names
+N/A
+alley,drive,lane,street
+green
+Paper In A Book
+N/A
+folio,leaf,page,sheet
+blue
+Restrain
+N/A
+check,curb,limit,stem
+purple
+Things You Can Do To Your Nose
+N/A
+blow,hold,pick,thumb
+game
+yellow
+Darling
+N/A
+baby,boo,dear,love
+green
+Basic Geometric Objects
+N/A
+line,point,ray,segment
+blue
+Oomph
+N/A
+energy,fire,juice,zip
+purple
+Secret ___
+N/A
+agent,code,santa,sauce
+game
+yellow
+Gentle
+N/A
+light,mellow,mild,soft
+green
+Cuts Of Pork
+N/A
+belly,chop,hock,shoulder
+blue
+Statue Of Liberty Features
+N/A
+crown,robe,tablet,torch
+purple
+Things To Blow On For Wishes/luck
+N/A
+candle,dandelion,dice,eyelash
+game
+yellow
+Classic Halloween Costumes
+N/A
+angel,clown,pirate,witch
+green
+Bee Creations
+N/A
+comb,hive,honey,wax
+blue
+Interval Of Time
+N/A
+period,spell,stretch,while
+purple
+Animal Homophones
+N/A
+dear,hair,hoarse,wail
+game
+yellow
+Seen In A Laundry Room
+N/A
+dryer,hamper,iron,washer
+green
+Shepherd
+N/A
+direct,guide,lead,steer
+blue
+What "I" Might Mean
+N/A
+iodine,iota,myself,one
+purple
+___ Valley
+N/A
+death,hidden,silicon,uncanny
+game
+yellow
+Contact Via Phone
+N/A
+buzz,call,dial,ring
+green
+Book Sections
+N/A
+appendix,chapter,index,preface
+blue
+Wee
+N/A
+dinky,little,minute,slight
+purple
+Cartoon Mice
+N/A
+itchy,jerry,pinky,speedy
+game
+yellow
+Accessories
+N/A
+belt,bracelet,tie,watch
+green
+Comedian’s Output
+N/A
+bit,joke,routine,sketch
+blue
+Attraction
+N/A
+appeal,charm,draw,pull
+purple
+Two Letters + Number
+N/A
+canine,freight,often,stone
+game
+yellow
+Brief Moment
+N/A
+flash,jiffy,second,wink
+green
+Primary
+N/A
+chief,first,main,principal
+blue
+Avenues In N.Y.C.
+N/A
+broadway,fifth,madison,park
+purple
+___ Hour
+N/A
+amateur,eleventh,happy,rush
+game
+yellow
+Reserve For Later
+N/A
+bank,save,stash,store
+green
+Boldness, Figuratively
+N/A
+gall,guts,nerve,stones
+blue
+Used To Build A Snowman
+N/A
+carrot,coal,snow,sticks
+purple
+Funny ___
+N/A
+bone,business,girl,pages
